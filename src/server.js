@@ -35,27 +35,36 @@ app.get('/health', (req, res) => {
 // Helper function to seed default admin
 async function seedDefaultAdmin() {
   try {
-    const adminCount = await prisma.admin.count();
-    if (adminCount === 0) {
-      const defaultUsername = 'admin';
-      const defaultPassword = 'adminpikrmanseku';
-      const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-      
-      await prisma.admin.create({
-        data: {
-          username: defaultUsername,
-          password: hashedPassword
-        }
-      });
-      
-      console.log('==================================================');
-      console.log('Seed: Belum ada akun admin di database.');
-      console.log('Berhasil membuat AKUN ADMIN DEFAULT:');
-      console.log(`Username: ${defaultUsername}`);
-      console.log(`Password: ${defaultPassword}`);
-      console.log('Silakan ganti password admin Anda setelah masuk.');
-      console.log('==================================================');
+    const defaultUsername = 'pikrmanseku01';
+    const defaultPassword = 'pikrmanseku1me';
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+    // Clean up old temporary 'admin' account if it exists
+    try {
+      const oldAdmin = await prisma.admin.findUnique({ where: { username: 'admin' } });
+      if (oldAdmin) {
+        await prisma.admin.delete({ where: { username: 'admin' } });
+        console.log('Removed temporary admin account.');
+      }
+    } catch (e) {
+      // Ignore errors (e.g. table not ready yet)
     }
+
+    // Upsert new default admin credentials
+    await prisma.admin.upsert({
+      where: { username: defaultUsername },
+      update: {},
+      create: {
+        username: defaultUsername,
+        password: hashedPassword
+      }
+    });
+
+    console.log('==================================================');
+    console.log('Seed Akun Admin Berhasil:');
+    console.log(`Username: ${defaultUsername}`);
+    console.log(`Password: ${defaultPassword}`);
+    console.log('==================================================');
   } catch (error) {
     console.error('Gagal menjalankan seeding admin default:', error);
   }
