@@ -1,0 +1,68 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:../local.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/sqlite"
+}
+
+model Candidate {
+  id              String   @id @default(uuid())
+  nisn            String   @unique
+  name            String
+  className       String
+  whatsappNumber  String
+  email           String
+  gender          String
+  reason          String
+  status          String   @default("PENDING")
+  
+  // Authentication fields for Member Login
+  password        String?  // Hashed password
+  plainPassword   String?  // Plaintext password for Admin export/view
+  
+  // Notification status
+  emailNotified   Boolean  @default(false)
+  waNotified      Boolean  @default(false)
+  lastStatus      String   @default("PENDING")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String    @id @default(uuid())
+  title     String
+  slug      String    @unique
+  content   String
+  authorId  String
+  author    Admin     @relation(fields: [authorId], references: [id])
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  username  String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  key   String @id
+  value String
+}
