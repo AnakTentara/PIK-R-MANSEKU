@@ -488,6 +488,73 @@ export async function getMembers(req, res) {
   }
 }
 
+// 15.5 Create Member manually
+export async function createMember(req, res) {
+  const { nisn, name, className, whatsappNumber, email, gender, role, status } = req.body;
+  const currentYear = new Date().getFullYear();
+
+  if (!nisn || !name || !className || !whatsappNumber || !email || !gender) {
+    return res.status(400).json({ message: 'Semua field keanggotaan wajib diisi' });
+  }
+
+  try {
+    // Check if duplicate NISN
+    const existing = await prisma.member.findUnique({ where: { nisn } });
+    if (existing) {
+      return res.status(400).json({ message: 'NISN sudah terdaftar sebagai anggota tetap' });
+    }
+
+    // Generate random 6-digit password
+    const plainPassword = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+    const member = await prisma.member.create({
+      data: {
+        nisn,
+        name,
+        className,
+        whatsappNumber,
+        email,
+        gender,
+        password: hashedPassword,
+        plainPassword,
+        status: status || 'ACTIVE',
+        joinYear: currentYear,
+        role: role || 'member'
+      }
+    });
+
+    // If role is a leadership role, automatically create an OrgMember entry
+    if (role && role !== 'member') {
+      // Unset previous active OrgMember with same role if it exists
+      if (role !== 'KABINET') {
+        await prisma.orgMember.updateMany({ where: { role, isCurrent: true }, data: { isCurrent: false } });
+      }
+
+      // Determine default specific position (jabatan)
+      let jabatan = 'Pengurus';
+      if (role === 'PEMBINA') jabatan = 'Pembina';
+      else if (role === 'KETUA') jabatan = 'Ketua Umum';
+      else if (role === 'WAKIL') jabatan = 'Wakil Ketua';
+
+      await prisma.orgMember.create({
+        data: {
+          name,
+          role,
+          jabatan,
+          yearStart: currentYear,
+          isCurrent: true
+        }
+      });
+    }
+
+    return res.status(201).json({ message: 'Anggota berhasil ditambahkan secara manual', member });
+  } catch (error) {
+    console.error('Error creating member:', error);
+    return res.status(500).json({ message: 'Gagal menambahkan anggota secara manual' });
+  }
+}
+
 // 16. Update Member
 export async function updateMember(req, res) {
   const { id } = req.params;
@@ -548,19 +615,30 @@ export async function getOrgMembers(req, res) {
 
 // 19. Create Org Member
 export async function createOrgMember(req, res) {
-  const { name, role, jabatan, yearStart, yearEnd, isCurrent, quote } = req.body;
+  const { name, role, jabatan, yearStart, yearEnd, isCurrent, quote, memberId } = req.body;
   const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : null;
-  if (!name || !role || !jabatan || !yearStart) {
-    return res.status(400).json({ message: 'Nama, role, jabatan, dan tahun mulai wajib diisi' });
-  }
+  
+  let finalName = name;
+  let memberRecord = null;
   try {
+    if (memberId) {
+      memberRecord = await prisma.member.findUnique({ where: { id: memberId } });
+      if (memberRecord) {
+        finalName = memberRecord.name;
+      }
+    }
+
+    if (!finalName || !role || !jabatan || !yearStart) {
+      return res.status(400).json({ message: 'Nama/Anggota, role, jabatan, dan tahun mulai wajib diisi' });
+    }
+
     // If isCurrent, unset previous isCurrent for same role
     if (isCurrent === 'true' || isCurrent === true) {
       await prisma.orgMember.updateMany({ where: { role, isCurrent: true }, data: { isCurrent: false } });
     }
     const org = await prisma.orgMember.create({
       data: {
-        name, role, jabatan,
+        name: finalName, role, jabatan,
         yearStart: parseInt(yearStart),
         yearEnd: yearEnd ? parseInt(yearEnd) : null,
         isCurrent: isCurrent === 'true' || isCurrent === true,
@@ -568,6 +646,15 @@ export async function createOrgMember(req, res) {
         quote: quote || null
       }
     });
+
+    // Sync member role if linked
+    if (memberRecord) {
+      await prisma.member.update({
+        where: { id: memberId },
+        data: { role }
+      });
+    }
+
     return res.status(201).json({ message: 'Anggota organisasi berhasil ditambahkan', org });
   } catch (error) {
     console.error('Error creating org member:', error);
@@ -605,6 +692,20 @@ export async function updateOrgMember(req, res) {
         quote: quote !== undefined ? quote : existing.quote,
       }
     });
+
+    // Sync member role if name matches an active member
+    if (role && role !== existing.role) {
+      const correspondingMember = await prisma.member.findFirst({
+        where: { name: name ?? existing.name, status: 'ACTIVE' }
+      });
+      if (correspondingMember) {
+        await prisma.member.update({
+          where: { id: correspondingMember.id },
+          data: { role }
+        });
+      }
+    }
+
     return res.json({ message: 'Data organisasi berhasil diperbarui', org: updated });
   } catch (error) {
     console.error('Error updating org member:', error);

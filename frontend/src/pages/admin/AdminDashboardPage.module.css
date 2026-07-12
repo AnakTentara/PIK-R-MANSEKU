@@ -280,3 +280,16 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+@media (max-width: 768px) {
+  .body {
+    padding: var(--space-md);
+  }
+  .sectionCard {
+    padding: var(--space-md);
+  }
+  .rowInputs {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+}

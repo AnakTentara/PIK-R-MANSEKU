@@ -21,6 +21,7 @@ import {
   openSession,
   // Members
   getMembers,
+  createMember,
   updateMember,
   deleteMember,
   // Org
@@ -116,6 +117,7 @@ router.post('/session/open', authAdmin, openSession);
 
 // Member CRUD (permanent registry)
 router.get('/members', authAdmin, getMembers);
+router.post('/members', authAdmin, createMember);
 router.put('/members/:id', authAdmin, updateMember);
 router.delete('/members/:id', authAdmin, deleteMember);
 

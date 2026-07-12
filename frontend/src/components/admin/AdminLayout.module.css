@@ -8,6 +8,7 @@
   margin-left: var(--sidebar-width);
   min-height: 100vh;
   background-color: var(--color-bg);
+  min-width: 0;
 }
 
 /* Mobile top bar — hidden on desktop */
@@ -75,5 +76,7 @@
   .main {
     margin-left: 0;
     padding-top: 56px; /* offset for fixed top bar */
+    width: 100%;
+    overflow-x: hidden;
   }
 }

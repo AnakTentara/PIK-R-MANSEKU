@@ -1,11 +1,18 @@
 import { useState, useEffect, useMemo } from 'react';
-import { getMembers, updateMember, deleteMember } from '@/api/admin';
+import { getMembers, createMember, updateMember, deleteMember } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import SkeletonTable from '@/components/skeletons/SkeletonTable';
 import { useUIStore } from '@/stores/uiStore';
-import { Edit, Trash2, Search, AlertTriangle, Key, Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Edit, Trash2, Search, AlertTriangle, Key, Eye, EyeOff, ChevronLeft, ChevronRight, Plus, Copy, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminAnggotaPage.module.css';
+
+const KELAS_OPTIONS = [];
+['X', 'XI', 'XII'].forEach((tingkat) => {
+  for (let i = 1; i <= 8; i++) {
+    KELAS_OPTIONS.push(`${tingkat}-${i}`);
+  }
+});
 
 const ITEMS_PER_PAGE = 10;
 
@@ -30,6 +37,23 @@ export default function AdminAnggotaPage() {
     plainPassword: '',
     status: 'ACTIVE',
   });
+
+  // Add Modal State
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addForm, setAddForm] = useState({
+    nisn: '',
+    name: '',
+    className: '',
+    email: '',
+    whatsappNumber: '',
+    gender: '',
+    role: 'member',
+    reason: '',
+  });
+
+  // Credentials Modal State
+  const [credentialsModalOpen, setCredentialsModalOpen] = useState(false);
+  const [createdCredentials, setCreatedCredentials] = useState(null);
 
   const openConfirm = useUIStore((state) => state.openConfirm);
 
@@ -76,6 +100,52 @@ export default function AdminAnggotaPage() {
       fetchMembers();
     } catch {
       toast.error('Gagal memperbarui data anggota.');
+    }
+  };
+
+  const handleOpenAddModal = () => {
+    setAddForm({
+      nisn: '',
+      name: '',
+      className: '',
+      email: '',
+      whatsappNumber: '',
+      gender: '',
+      role: 'member',
+      reason: '',
+    });
+    setAddModalOpen(true);
+  };
+
+  const handleSaveAdd = async (e) => {
+    e.preventDefault();
+    if (
+      !addForm.nisn ||
+      !addForm.name.trim() ||
+      !addForm.className ||
+      !addForm.email.trim() ||
+      !addForm.whatsappNumber.trim() ||
+      !addForm.gender
+    ) {
+      toast.error('Semua kolom bertanda * wajib diisi.');
+      return;
+    }
+
+    if (addForm.nisn.length !== 10 || !/^\d+$/.test(addForm.nisn)) {
+      toast.error('NISN harus 10 digit angka.');
+      return;
+    }
+
+    const loadingToast = toast.loading('Menambahkan anggota...');
+    try {
+      const res = await createMember(addForm);
+      toast.success('Anggota berhasil ditambahkan!', { id: loadingToast });
+      setCreatedCredentials(res.data.member);
+      setAddModalOpen(false);
+      setCredentialsModalOpen(true);
+      fetchMembers();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal menambahkan anggota.', { id: loadingToast });
     }
   };
 
@@ -137,7 +207,11 @@ export default function AdminAnggotaPage() {
       <AdminHeader
         title="Daftar Anggota PIK-R"
         subtitle={`${activeCount} Anggota Aktif | ${alumniCount} Alumni`}
-      />
+      >
+        <button className="btn btn-primary" onClick={handleOpenAddModal}>
+          <Plus size={16} /> Tambah Anggota
+        </button>
+      </AdminHeader>
 
       <div className={styles.body}>
         {/* Info Box */}
@@ -373,6 +447,204 @@ export default function AdminAnggotaPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Modal */}
+      {addModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <div className={styles.modalHeader}>
+              <h3>Tambah Anggota Baru secara Manual</h3>
+            </div>
+            <form onSubmit={handleSaveAdd} className={styles.modalForm}>
+              <div className="form-group">
+                <label className="form-label" htmlFor="add-nisn">NISN *</label>
+                <input
+                  id="add-nisn"
+                  type="text"
+                  maxLength={10}
+                  className="form-input"
+                  placeholder="Masukkan 10 digit NISN"
+                  value={addForm.nisn}
+                  onChange={(e) => setAddForm((f) => ({ ...f, nisn: e.target.value }))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="add-name">Nama Lengkap *</label>
+                <input
+                  id="add-name"
+                  type="text"
+                  className="form-input"
+                  placeholder="Nama sesuai dokumen resmi"
+                  value={addForm.name}
+                  onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="add-class">Kelas *</label>
+                <select
+                  id="add-class"
+                  className="form-select"
+                  value={addForm.className}
+                  onChange={(e) => setAddForm((f) => ({ ...f, className: e.target.value }))}
+                >
+                  <option value="">— Pilih Kelas —</option>
+                  {KELAS_OPTIONS.map((k) => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="add-email">Email *</label>
+                <input
+                  id="add-email"
+                  type="email"
+                  className="form-input"
+                  placeholder="email@contoh.com"
+                  value={addForm.email}
+                  onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="add-wa">No. WhatsApp *</label>
+                <input
+                  id="add-wa"
+                  type="text"
+                  className="form-input"
+                  placeholder="08xxxxxxxxxx"
+                  value={addForm.whatsappNumber}
+                  onChange={(e) => setAddForm((f) => ({ ...f, whatsappNumber: e.target.value }))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Jenis Kelamin *</label>
+                <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="add-gender"
+                      value="Laki-laki"
+                      checked={addForm.gender === 'Laki-laki'}
+                      onChange={(e) => setAddForm((f) => ({ ...f, gender: e.target.value }))}
+                    />
+                    <span>Laki-laki</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="add-gender"
+                      value="Perempuan"
+                      checked={addForm.gender === 'Perempuan'}
+                      onChange={(e) => setAddForm((f) => ({ ...f, gender: e.target.value }))}
+                    />
+                    <span>Perempuan</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="add-role">Peran Organisasi / Role *</label>
+                <select
+                  id="add-role"
+                  className="form-select"
+                  value={addForm.role}
+                  onChange={(e) => setAddForm((f) => ({ ...f, role: e.target.value }))}
+                >
+                  <option value="member">Anggota Biasa (member)</option>
+                  <option value="PEMBINA">PEMBINA</option>
+                  <option value="KETUA">KETUA</option>
+                  <option value="WAKIL">WAKIL KETUA</option>
+                  <option value="KABINET">KABINET/PENGURUS HARIAN</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="add-reason">Alasan Bergabung (Opsional)</label>
+                <textarea
+                  id="add-reason"
+                  className="form-textarea"
+                  rows={3}
+                  placeholder="Tuliskan motivasi/alasan masuk..."
+                  value={addForm.reason}
+                  onChange={(e) => setAddForm((f) => ({ ...f, reason: e.target.value }))}
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="submit" className="btn btn-primary">
+                  Tambah Anggota
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setAddModalOpen(false)}
+                >
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Credentials Success Modal */}
+      {credentialsModalOpen && createdCredentials && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalCard} style={{ maxWidth: '400px', textAlign: 'center', padding: '24px' }}>
+            <CheckCircle size={48} style={{ color: 'var(--color-success)', margin: '0 auto 16px' }} />
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: 'var(--color-text-primary)' }}>
+              Anggota Berhasil Ditambahkan!
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '20px', lineHeight: 1.5 }}>
+              Akun anggota tetap telah aktif. Harap catat kredensial berikut untuk diberikan kepada siswa yang bersangkutan:
+            </p>
+
+            <div style={{ backgroundColor: 'var(--color-surface-2)', border: '1px solid var(--color-border-strong)', borderRadius: '8px', padding: '16px', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
+              <div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block' }}>NAMA LENGKAP</span>
+                <strong style={{ fontSize: '0.9375rem', color: 'var(--color-text-primary)' }}>{createdCredentials.name}</strong>
+              </div>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '6px' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block' }}>USERNAME / NISN</span>
+                <strong style={{ fontSize: '0.9375rem', color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{createdCredentials.nisn}</strong>
+              </div>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '6px' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block' }}>KATA SANDI SEMENTARA</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <strong style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                    {createdCredentials.plainPassword}
+                  </strong>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    style={{ padding: '4px' }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(createdCredentials.plainPassword);
+                      toast.success('Sandi berhasil disalin!');
+                    }}
+                    title="Salin Sandi"
+                  >
+                    <Copy size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center' }}
+              onClick={() => setCredentialsModalOpen(false)}
+            >
+              Selesai & Tutup
+            </button>
           </div>
         </div>
       )}

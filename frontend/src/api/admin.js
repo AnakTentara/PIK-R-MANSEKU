@@ -54,6 +54,9 @@ export const openSession = () =>
 export const getMembers = (params) =>
   api.get('/admin/members', { params });
 
+export const createMember = (data) =>
+  api.post('/admin/members', data);
+
 export const updateMember = (id, data) =>
   api.put(`/admin/members/${id}`, data);
 

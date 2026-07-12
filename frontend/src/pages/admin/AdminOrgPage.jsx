@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getOrgMembers, createOrgMember, updateOrgMember, deleteOrgMember } from '@/api/admin';
+import { getOrgMembers, createOrgMember, updateOrgMember, deleteOrgMember, getMembers } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import SkeletonTable from '@/components/skeletons/SkeletonTable';
 import { useUIStore } from '@/stores/uiStore';
@@ -25,6 +25,10 @@ export default function AdminOrgPage() {
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
   
+  // Link to existing member state
+  const [allMembers, setAllMembers] = useState([]);
+  const [selectedMemberId, setSelectedMemberId] = useState('');
+  
   const openConfirm = useUIStore((state) => state.openConfirm);
 
   const fetchMembers = async () => {
@@ -39,13 +43,24 @@ export default function AdminOrgPage() {
     }
   };
 
+  const fetchAllActiveMembers = async () => {
+    try {
+      const res = await getMembers({ status: 'ACTIVE' });
+      setAllMembers(res.data || []);
+    } catch (err) {
+      console.error('Failed to load members for selection:', err);
+    }
+  };
+
   useEffect(() => {
     fetchMembers();
+    fetchAllActiveMembers();
   }, []);
 
   const handleOpenAddModal = () => {
     setEditingId(null);
     setName('');
+    setSelectedMemberId('');
     setRole('KABINET');
     setJabatan('');
     setYearStart(new Date().getFullYear());
@@ -60,6 +75,7 @@ export default function AdminOrgPage() {
   const handleOpenEditModal = (m) => {
     setEditingId(m.id);
     setName(m.name);
+    setSelectedMemberId('MANUAL');
     setRole(m.role);
     setJabatan(m.jabatan);
     setYearStart(m.yearStart);
@@ -94,6 +110,9 @@ export default function AdminOrgPage() {
     formData.append('isCurrent', isCurrent);
     if (quote) formData.append('quote', quote);
     if (photoFile) formData.append('photo', photoFile);
+    if (selectedMemberId && selectedMemberId !== 'MANUAL') {
+      formData.append('memberId', selectedMemberId);
+    }
 
     try {
       if (editingId) {
@@ -239,9 +258,51 @@ export default function AdminOrgPage() {
               </div>
 
               <div className={styles.grid}>
+                {!editingId && (
+                  <div className="form-group">
+                    <label className="form-label">Hubungkan dengan Anggota PIK-R</label>
+                    <select
+                      className="form-select"
+                      value={selectedMemberId}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedMemberId(val);
+                        if (val && val !== 'MANUAL') {
+                          const found = allMembers.find((m) => m.id === val);
+                          if (found) {
+                            setName(found.name);
+                            if (found.role && found.role !== 'member') {
+                              setRole(found.role);
+                            }
+                          }
+                        } else if (val === 'MANUAL') {
+                          setName('');
+                        }
+                      }}
+                    >
+                      <option value="">— Pilih Anggota —</option>
+                      <option value="MANUAL">— Input Manual (Non-Anggota / Pembina) —</option>
+                      {allMembers.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name} (Kelas {m.className})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                
                 <div className="form-group">
                   <label className="form-label">Nama Lengkap *</label>
-                  <input type="text" className="form-input" value={name} onChange={(e) => setName(e.target.value)} required />
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    readOnly={selectedMemberId && selectedMemberId !== 'MANUAL'}
+                    style={selectedMemberId && selectedMemberId !== 'MANUAL' ? { backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' } : {}}
+                    placeholder={selectedMemberId && selectedMemberId !== 'MANUAL' ? 'Nama otomatis terisi' : 'Masukkan nama lengkap'}
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Peran Organisasi *</label>
