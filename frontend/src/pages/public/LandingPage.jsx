@@ -189,8 +189,8 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Floating Badges */}
-        <div className={styles.badgeContainer}>
+        {/* Floating Badge Left */}
+        <div className={styles.badgeLeft}>
           <div className={styles.slideBadge}>
             <div className={styles.slideBadgeIcon}>
               <Users size={18} />
@@ -200,7 +200,10 @@ export default function LandingPage() {
               <span className={styles.slideBadgeLabel}>PIK-R MANSEKU</span>
             </div>
           </div>
+        </div>
 
+        {/* Floating Badge Right */}
+        <div className={styles.badgeRight}>
           <div className={styles.slideBadge} style={{ animationDelay: '0.3s' }}>
             <div className={styles.slideBadgeIcon} style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
               <BookOpen size={18} />
