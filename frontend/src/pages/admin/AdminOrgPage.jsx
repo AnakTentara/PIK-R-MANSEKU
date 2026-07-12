@@ -9,7 +9,6 @@ import styles from './AdminOrgPage.module.css';
 
 const POSITIONS = [
   // Pimpinan Inti
-  { label: 'Pembina', role: 'PEMBINA' },
   { label: 'Ketua Umum', role: 'KETUA' },
   { label: 'Wakil Ketua Umum', role: 'WAKIL' },
   { label: 'Sekretaris Umum', role: 'KABINET' },
@@ -40,6 +39,7 @@ export default function AdminOrgPage() {
   const [tab, setTab] = useState('ALL'); // ALL | CURRENT | ARCHIVE
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [isPembinaMode, setIsPembinaMode] = useState(false);
   
   // Form State
   const [name, setName] = useState('');
@@ -84,12 +84,13 @@ export default function AdminOrgPage() {
     fetchAllActiveMembers();
   }, []);
 
-  const handleOpenAddModal = () => {
+  const handleOpenAddModal = (forPembina = false) => {
     setEditingId(null);
     setName('');
-    setSelectedMemberId('');
-    setRole('PEMBINA');
-    setJabatan('');
+    setSelectedMemberId(forPembina ? 'MANUAL' : '');
+    setRole(forPembina ? 'PEMBINA' : 'KABINET');
+    setJabatan(forPembina ? 'Pembina' : '');
+    setIsPembinaMode(forPembina);
     setYearStart(new Date().getFullYear());
     setYearEnd('');
     setIsCurrent(false);
@@ -107,6 +108,7 @@ export default function AdminOrgPage() {
     setSelectedMemberId(matched ? matched.id : 'MANUAL');
     setRole(m.role);
     setJabatan(m.jabatan);
+    setIsPembinaMode(m.role === 'PEMBINA');
     setYearStart(m.yearStart);
     setYearEnd(m.yearEnd || '');
     setIsCurrent(m.isCurrent);
@@ -189,9 +191,14 @@ export default function AdminOrgPage() {
   return (
     <div className={styles.page}>
       <AdminHeader title="Struktur Organisasi" subtitle="Manajemen pengurus, pembina, dan kabinet PIK-R MANSEKU">
-        <button className="btn btn-primary" onClick={handleOpenAddModal}>
-          <Plus size={16} /> Tambah Pengurus
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="btn btn-primary" onClick={() => handleOpenAddModal(false)}>
+            <Plus size={16} /> Tambah Pengurus
+          </button>
+          <button className="btn btn-secondary" onClick={() => handleOpenAddModal(true)}>
+            <Plus size={16} /> Tambah Pembina
+          </button>
+        </div>
       </AdminHeader>
 
       <div className={styles.content}>
@@ -287,7 +294,7 @@ export default function AdminOrgPage() {
               </div>
 
               <div className={styles.grid}>
-                 {!editingId && (
+                 {!isPembinaMode && !editingId && (
                    <div className="form-group">
                      <label className="form-label">Pilih Anggota PIK-R *</label>
                      <select
@@ -318,40 +325,51 @@ export default function AdminOrgPage() {
                  )}
                  
                  <div className="form-group">
-                   <label className="form-label">Nama Lengkap</label>
+                   <label className="form-label">Nama Lengkap *</label>
                    <input
                      type="text"
                      className="form-input"
                      value={name}
-                     readOnly
+                     onChange={(e) => setName(e.target.value)}
+                     readOnly={!isPembinaMode}
                      required
-                     style={{ backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' }}
-                     placeholder="Nama otomatis terisi setelah memilih anggota"
+                     style={!isPembinaMode ? { backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' } : {}}
+                     placeholder={!isPembinaMode ? "Nama otomatis terisi setelah memilih anggota" : "Masukkan nama Pembina"}
                    />
                  </div>
                  
                  <div className="form-group">
                    <label className="form-label">Jabatan Kepengurusan *</label>
-                   <select
-                     className="form-select"
-                     value={jabatan}
-                     onChange={(e) => {
-                       const val = e.target.value;
-                       setJabatan(val);
-                       const matchedPos = POSITIONS.find((p) => p.label === val);
-                       if (matchedPos) {
-                         setRole(matchedPos.role);
-                       }
-                     }}
-                     required
-                   >
-                     <option value="">— Pilih Jabatan —</option>
-                     {POSITIONS.map((p) => (
-                       <option key={p.label} value={p.label}>
-                         {p.label}
-                       </option>
-                     ))}
-                   </select>
+                   {isPembinaMode ? (
+                     <input
+                       type="text"
+                       className="form-input"
+                       value="Pembina"
+                       readOnly
+                       style={{ backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' }}
+                     />
+                   ) : (
+                     <select
+                       className="form-select"
+                       value={jabatan}
+                       onChange={(e) => {
+                         const val = e.target.value;
+                         setJabatan(val);
+                         const matchedPos = POSITIONS.find((p) => p.label === val);
+                         if (matchedPos) {
+                           setRole(matchedPos.role);
+                         }
+                       }}
+                       required
+                     >
+                       <option value="">— Pilih Jabatan —</option>
+                       {POSITIONS.map((p) => (
+                         <option key={p.label} value={p.label}>
+                           {p.label}
+                         </option>
+                       ))}
+                     </select>
+                   )}
                  </div>
                 <div className="form-group">
                   <label className="form-label">Tahun Mulai Menjabat *</label>
