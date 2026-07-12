@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -55,10 +56,13 @@ export default function RichTextEditor({ content, onChange }) {
   });
 
   // Handle prop updates
-  if (editor && content !== undefined && content !== editor.getHTML()) {
-    // Only update if it's a external change (e.g. load post) to avoid cursor jump
-    editor.commands.setContent(content);
-  }
+  useEffect(() => {
+    if (!editor) return;
+    const isSame = editor.getHTML() === content;
+    if (content !== undefined && !isSame && !editor.isFocused) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   if (!editor) {
     return null;

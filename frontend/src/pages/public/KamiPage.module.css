@@ -240,49 +240,108 @@
   color: var(--color-text-primary);
 }
 
-.kabinetGrid {
+.divisiGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-md);
+  margin-bottom: var(--space-2xl);
 }
 
-.kabinetCard {
+.divisiCard {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  box-shadow: var(--shadow-sm);
+  gap: var(--space-md);
+  text-align: left;
 }
 
-.kabinetImgWrap {
-  width: 70px;
-  height: 70px;
+.divisiTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 0;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: var(--space-xs);
+}
+
+.divisiKetuaCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-surface-2);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+}
+
+.divisiKetuaImgWrap {
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  margin-bottom: var(--space-xs);
-  background-color: var(--color-surface-2);
+  flex-shrink: 0;
+  background-color: var(--color-surface);
 }
 
-.kabinetImgWrap img {
+.divisiKetuaImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.kabinetCard h5 {
-  font-size: 0.9rem;
+.divisiKetuaInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.divisiKetuaInfo h5 {
+  font-size: 0.95rem;
   font-weight: 600;
-  margin: 0 0 2px 0;
+  margin: 0;
   color: var(--color-text-primary);
 }
 
-.kabinetCard p {
-  font-size: 0.75rem;
+.divisiRoleLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
   color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.divisiAnggotaWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.divisiAnggotaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.divisiAnggotaItem {
+  font-size: 0.8rem;
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+}
+
+.noKetua, .noAnggota {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-style: italic;
   margin: 0;
 }
 

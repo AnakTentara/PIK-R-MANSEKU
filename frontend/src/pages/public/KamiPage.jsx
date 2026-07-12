@@ -32,12 +32,37 @@ export default function KamiPage() {
   }, []);
 
   // Filter current active leadership
-  const pembinaCurrent = orgData.find(m => m.role === 'PEMBINA' && m.isCurrent);
-  const ketuaCurrent = orgData.find(m => m.role === 'KETUA' && m.isCurrent);
-  const wakilCurrent = orgData.find(m => m.role === 'WAKIL' && m.isCurrent);
-  const kabinetCurrent = orgData.filter(m => m.role === 'KABINET' && m.isCurrent);
+  const pembinaCurrent = orgData.find(m => m.jabatan === 'Pembina' && m.isCurrent);
+  const ketuaCurrent = orgData.find(m => m.jabatan === 'Ketua Umum' && m.isCurrent);
+  const wakilCurrent = orgData.find(m => m.jabatan === 'Wakil Ketua Umum' && m.isCurrent);
+  
+  // Sekretaris & Bendahara (Pengurus Harian Inti)
+  const sekretarisCurrent = orgData.find(m => m.jabatan === 'Sekretaris Umum' && m.isCurrent);
+  const bendaharaCurrent = orgData.find(m => m.jabatan === 'Bendahara Umum' && m.isCurrent);
 
-  const ROLE_ORDER = { KETUA: 1, WAKIL: 2, KABINET: 3, PEMBINA: 4 };
+  // List of Divisions
+  const DIVISIONS = [
+    { name: 'MedInfo', ketuaTitle: 'Ketua MedInfo', anggotaTitle: 'Anggota MedInfo' },
+    { name: 'Konselor Sebaya', ketuaTitle: 'Ketua Konselor Sebaya', anggotaTitle: 'Anggota Konselor Sebaya' },
+    { name: 'Pendidik Sebaya', ketuaTitle: 'Ketua Pendidik Sebaya', anggotaTitle: 'Anggota Pendidik Sebaya' },
+    { name: 'Humas', ketuaTitle: 'Ketua Humas', anggotaTitle: 'Anggota Humas' },
+    { name: 'Informasi', ketuaTitle: 'Ketua Informasi', anggotaTitle: 'Anggota Informasi' },
+    { name: 'Konseling dan Pendamping', ketuaTitle: 'Ketua Konseling dan Pendamping', anggotaTitle: 'Anggota Konseling dan Pendamping' },
+    { name: 'Kegiatan dan Kreativitas', ketuaTitle: 'Ketua Kegiatan dan Kreativitas', anggotaTitle: 'Anggota Kegiatan dan Kreativitas' }
+  ];
+
+  // Map division data
+  const activeDivisions = DIVISIONS.map(div => {
+    const ketua = orgData.find(m => m.jabatan === div.ketuaTitle && m.isCurrent);
+    const anggota = orgData.filter(m => m.jabatan === div.anggotaTitle && m.isCurrent);
+    return {
+      ...div,
+      ketua,
+      anggota
+    };
+  }).filter(d => d.ketua || d.anggota.length > 0);
+
+  const ROLE_ORDER = { PEMBINA: 1, KETUA: 2, WAKIL: 3, KABINET: 4, ANGGOTA: 5 };
 
   // Group historic archives by start year
   const archivesGrouped = orgData.reduce((acc, m) => {
@@ -180,27 +205,87 @@ export default function KamiPage() {
                 )}
               </div>
 
-              {/* Kabinet/PH */}
-              {kabinetCurrent.length > 0 && (
-                <div className={styles.kabinetSection}>
-                  <h3>Badan Pengurus Harian (Kabinet)</h3>
-                  <div className={styles.kabinetGrid}>
-                    {kabinetCurrent.map(k => (
-                      <div key={k.id} className={styles.kabinetCard}>
-                        <div className={styles.kabinetImgWrap}>
-                          {k.photoPath ? (
-                            <img src={`http://localhost:25552${k.photoPath}`} alt={k.name} />
-                          ) : (
-                            <div className={styles.initialsMini}>{k.name[0]}</div>
-                          )}
-                        </div>
-                        <h5>{k.name}</h5>
-                        <p>{k.jabatan}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+               {/* Sekretaris & Bendahara */}
+               <div className={styles.coreGrid}>
+                 {sekretarisCurrent && (
+                   <div className={styles.coreCard}>
+                     <div className={styles.coreImgWrap}>
+                       {sekretarisCurrent.photoPath ? (
+                         <img src={`http://localhost:25552${sekretarisCurrent.photoPath}`} alt={sekretarisCurrent.name} />
+                       ) : (
+                         <div className={styles.initials}>{sekretarisCurrent.name[0]}</div>
+                       )}
+                     </div>
+                     <span className={styles.roleLabel}>SEKRETARIS UMUM</span>
+                     <h4>{sekretarisCurrent.name}</h4>
+                     {sekretarisCurrent.quote && <p className={styles.quoteSmall}>"{sekretarisCurrent.quote}"</p>}
+                   </div>
+                 )}
+
+                 {bendaharaCurrent && (
+                   <div className={styles.coreCard}>
+                     <div className={styles.coreImgWrap}>
+                       {bendaharaCurrent.photoPath ? (
+                         <img src={`http://localhost:25552${bendaharaCurrent.photoPath}`} alt={bendaharaCurrent.name} />
+                       ) : (
+                         <div className={styles.initials}>{bendaharaCurrent.name[0]}</div>
+                       )}
+                     </div>
+                     <span className={styles.roleLabel}>BENDAHARA UMUM</span>
+                     <h4>{bendaharaCurrent.name}</h4>
+                     {bendaharaCurrent.quote && <p className={styles.quoteSmall}>"{bendaharaCurrent.quote}"</p>}
+                   </div>
+                 )}
+               </div>
+
+               {/* Divisi & Anggota */}
+               {activeDivisions.length > 0 && (
+                 <div className={styles.kabinetSection}>
+                   <h3 style={{ textAlign: 'center', marginBottom: '24px' }}>Divisi Kepengurusan</h3>
+                   <div className={styles.divisiGrid}>
+                     {activeDivisions.map(d => (
+                       <div key={d.name} className={styles.divisiCard}>
+                         <h4 className={styles.divisiTitle}>Divisi {d.name}</h4>
+                         
+                         {/* Ketua Divisi */}
+                         {d.ketua ? (
+                           <div className={styles.divisiKetuaCard}>
+                             <div className={styles.divisiKetuaImgWrap}>
+                               {d.ketua.photoPath ? (
+                                 <img src={`http://localhost:25552${d.ketua.photoPath}`} alt={d.ketua.name} className={styles.divisiKetuaImg} />
+                               ) : (
+                                 <div className={styles.initialsMini}>{d.ketua.name[0]}</div>
+                               )}
+                             </div>
+                             <div className={styles.divisiKetuaInfo}>
+                               <span className={styles.divisiRoleLabel}>Ketua Divisi</span>
+                               <h5>{d.ketua.name}</h5>
+                             </div>
+                           </div>
+                         ) : (
+                           <p className={styles.noKetua}>Tidak ada ketua aktif</p>
+                         )}
+
+                         {/* Anggota Divisi */}
+                         <div className={styles.divisiAnggotaWrap}>
+                           <span className={styles.divisiRoleLabel}>Anggota Divisi:</span>
+                           {d.anggota.length > 0 ? (
+                             <ul className={styles.divisiAnggotaList}>
+                               {d.anggota.map(a => (
+                                 <li key={a.id} className={styles.divisiAnggotaItem}>
+                                   {a.name}
+                                 </li>
+                               ))}
+                             </ul>
+                           ) : (
+                             <p className={styles.noAnggota}>Belum ada anggota</p>
+                           )}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               )}
             </>
           )}
         </div>

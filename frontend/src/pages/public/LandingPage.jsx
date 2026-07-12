@@ -146,6 +146,28 @@ export default function LandingPage() {
         {/* Foreground Content */}
         <div className={`container ${styles.heroInner}`}>
           <div className={styles.heroContent}>
+            {/* Mobile Badges (Visible on mobile only) */}
+            <div className={styles.mobileBadges}>
+              <div className={styles.slideBadge}>
+                <div className={styles.slideBadgeIcon}>
+                  <Users size={16} />
+                </div>
+                <div className={styles.slideBadgeText}>
+                  <span className={styles.slideBadgeNum}>Konseling Sebaya</span>
+                  <span className={styles.slideBadgeLabel}>PIK-R MANSEKU</span>
+                </div>
+              </div>
+              <div className={styles.slideBadge}>
+                <div className={styles.slideBadgeIcon} style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                  <BookOpen size={16} />
+                </div>
+                <div className={styles.slideBadgeText}>
+                  <span className={styles.slideBadgeNum}>Pendidik Sebaya</span>
+                  <span className={styles.slideBadgeLabel}>Remaja Sehat</span>
+                </div>
+              </div>
+            </div>
+
             <p className={styles.heroEyebrow}>
               <span />
               Selamat Datang di

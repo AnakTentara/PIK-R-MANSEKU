@@ -7,6 +7,33 @@ import { Network, Plus, Edit2, Trash2, Check, X, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminOrgPage.module.css';
 
+const POSITIONS = [
+  // Pimpinan Inti
+  { label: 'Pembina', role: 'PEMBINA' },
+  { label: 'Ketua Umum', role: 'KETUA' },
+  { label: 'Wakil Ketua Umum', role: 'WAKIL' },
+  { label: 'Sekretaris Umum', role: 'KABINET' },
+  { label: 'Bendahara Umum', role: 'KABINET' },
+  
+  // Ketua Divisi
+  { label: 'Ketua MedInfo', role: 'KABINET' },
+  { label: 'Ketua Konselor Sebaya', role: 'KABINET' },
+  { label: 'Ketua Pendidik Sebaya', role: 'KABINET' },
+  { label: 'Ketua Humas', role: 'KABINET' },
+  { label: 'Ketua Informasi', role: 'KABINET' },
+  { label: 'Ketua Konseling dan Pendamping', role: 'KABINET' },
+  { label: 'Ketua Kegiatan dan Kreativitas', role: 'KABINET' },
+  
+  // Anggota Divisi
+  { label: 'Anggota MedInfo', role: 'ANGGOTA' },
+  { label: 'Anggota Konselor Sebaya', role: 'ANGGOTA' },
+  { label: 'Anggota Pendidik Sebaya', role: 'ANGGOTA' },
+  { label: 'Anggota Humas', role: 'ANGGOTA' },
+  { label: 'Anggota Informasi', role: 'ANGGOTA' },
+  { label: 'Anggota Konseling dan Pendamping', role: 'ANGGOTA' },
+  { label: 'Anggota Kegiatan dan Kreativitas', role: 'ANGGOTA' }
+];
+
 export default function AdminOrgPage() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +43,7 @@ export default function AdminOrgPage() {
   
   // Form State
   const [name, setName] = useState('');
-  const [role, setRole] = useState('KABINET');
+  const [role, setRole] = useState('PEMBINA');
   const [jabatan, setJabatan] = useState('');
   const [yearStart, setYearStart] = useState(new Date().getFullYear());
   const [yearEnd, setYearEnd] = useState('');
@@ -61,7 +88,7 @@ export default function AdminOrgPage() {
     setEditingId(null);
     setName('');
     setSelectedMemberId('');
-    setRole('KABINET');
+    setRole('PEMBINA');
     setJabatan('');
     setYearStart(new Date().getFullYear());
     setYearEnd('');
@@ -75,7 +102,9 @@ export default function AdminOrgPage() {
   const handleOpenEditModal = (m) => {
     setEditingId(m.id);
     setName(m.name);
-    setSelectedMemberId('MANUAL');
+    // Find corresponding member ID if it exists (by name matching, since we don't have memberId directly on database)
+    const matched = allMembers.find((member) => member.name === m.name);
+    setSelectedMemberId(matched ? matched.id : 'MANUAL');
     setRole(m.role);
     setJabatan(m.jabatan);
     setYearStart(m.yearStart);
@@ -258,65 +287,72 @@ export default function AdminOrgPage() {
               </div>
 
               <div className={styles.grid}>
-                {!editingId && (
-                  <div className="form-group">
-                    <label className="form-label">Hubungkan dengan Anggota PIK-R</label>
-                    <select
-                      className="form-select"
-                      value={selectedMemberId}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setSelectedMemberId(val);
-                        if (val && val !== 'MANUAL') {
-                          const found = allMembers.find((m) => m.id === val);
-                          if (found) {
-                            setName(found.name);
-                            if (found.role && found.role !== 'member') {
-                              setRole(found.role);
-                            }
-                          }
-                        } else if (val === 'MANUAL') {
-                          setName('');
-                        }
-                      }}
-                    >
-                      <option value="">— Pilih Anggota —</option>
-                      <option value="MANUAL">— Input Manual (Non-Anggota / Pembina) —</option>
-                      {allMembers.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name} (Kelas {m.className})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                
-                <div className="form-group">
-                  <label className="form-label">Nama Lengkap *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    readOnly={selectedMemberId && selectedMemberId !== 'MANUAL'}
-                    style={selectedMemberId && selectedMemberId !== 'MANUAL' ? { backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' } : {}}
-                    placeholder={selectedMemberId && selectedMemberId !== 'MANUAL' ? 'Nama otomatis terisi' : 'Masukkan nama lengkap'}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Peran Organisasi *</label>
-                  <select className="form-select" value={role} onChange={(e) => setRole(e.target.value)}>
-                    <option value="PEMBINA">PEMBINA</option>
-                    <option value="KETUA">KETUA</option>
-                    <option value="WAKIL">WAKIL KETUA</option>
-                    <option value="KABINET">KABINET/PENGURUS HARIAN</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Jabatan Spesifik (misal: Sekretaris Umum) *</label>
-                  <input type="text" className="form-input" value={jabatan} onChange={(e) => setJabatan(e.target.value)} required />
-                </div>
+                 {!editingId && (
+                   <div className="form-group">
+                     <label className="form-label">Pilih Anggota PIK-R *</label>
+                     <select
+                       className="form-select"
+                       value={selectedMemberId}
+                       onChange={(e) => {
+                         const val = e.target.value;
+                         setSelectedMemberId(val);
+                         if (val) {
+                           const found = allMembers.find((m) => m.id === val);
+                           if (found) {
+                             setName(found.name);
+                           }
+                         } else {
+                           setName('');
+                         }
+                       }}
+                       required
+                     >
+                       <option value="">— Pilih Anggota —</option>
+                       {allMembers.map((m) => (
+                         <option key={m.id} value={m.id}>
+                           {m.name} (Kelas {m.className})
+                         </option>
+                       ))}
+                     </select>
+                   </div>
+                 )}
+                 
+                 <div className="form-group">
+                   <label className="form-label">Nama Lengkap</label>
+                   <input
+                     type="text"
+                     className="form-input"
+                     value={name}
+                     readOnly
+                     required
+                     style={{ backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' }}
+                     placeholder="Nama otomatis terisi setelah memilih anggota"
+                   />
+                 </div>
+                 
+                 <div className="form-group">
+                   <label className="form-label">Jabatan Kepengurusan *</label>
+                   <select
+                     className="form-select"
+                     value={jabatan}
+                     onChange={(e) => {
+                       const val = e.target.value;
+                       setJabatan(val);
+                       const matchedPos = POSITIONS.find((p) => p.label === val);
+                       if (matchedPos) {
+                         setRole(matchedPos.role);
+                       }
+                     }}
+                     required
+                   >
+                     <option value="">— Pilih Jabatan —</option>
+                     {POSITIONS.map((p) => (
+                       <option key={p.label} value={p.label}>
+                         {p.label}
+                       </option>
+                     ))}
+                   </select>
+                 </div>
                 <div className="form-group">
                   <label className="form-label">Tahun Mulai Menjabat *</label>
                   <input type="number" className="form-input" value={yearStart} onChange={(e) => setYearStart(e.target.value)} required />
