@@ -581,9 +581,13 @@
    RESPONSIVE
 ══════════════════════════════════ */
 @media (max-width: 1200px) {
-  .badgeLeft,
+  .badgeLeft {
+    left: 2%;
+    transform: translateY(-50%) scale(0.8);
+  }
   .badgeRight {
-    display: none;
+    right: 2%;
+    transform: translateY(-50%) scale(0.8);
   }
 }
 
@@ -602,9 +606,20 @@
     font-size: 2.125rem;
   }
 
-  .badgeLeft,
+  .badgeLeft {
+    left: 8px;
+    top: auto;
+    bottom: 135px;
+    transform: scale(0.72);
+    transform-origin: left bottom;
+  }
+  
   .badgeRight {
-    display: none;
+    right: 8px;
+    top: auto;
+    bottom: 135px;
+    transform: scale(0.72);
+    transform-origin: right bottom;
   }
 
   .heroStats {
@@ -636,18 +651,23 @@
 
   .heroBtns {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
 
   .heroStats {
     gap: 16px;
     flex-wrap: wrap;
+    justify-content: center;
   }
 
-  .slideBadge {
-    left: 14px;
-    bottom: 36px;
-    padding: 9px 13px;
+  .badgeLeft {
+    bottom: 180px;
+    transform: scale(0.62);
+  }
+
+  .badgeRight {
+    bottom: 180px;
+    transform: scale(0.62);
   }
 
   .testimonialCard {
