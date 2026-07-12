@@ -26,11 +26,7 @@ function ScrollReveal({ children, delay = 0 }) {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          } else {
-            setIsVisible(false);
-          }
+          setIsVisible(entry.isIntersecting);
         });
       },
       { threshold: 0.05 }
@@ -115,30 +111,31 @@ export default function LandingPage() {
     <div className="page-wrapper">
       <SEO />
 
-      {/* ── Hero Full Image with Seamless Gradient ── */}
+      {/* ── Hero ── */}
       <section className={styles.hero}>
-        {/* Absolute Background Slideshow */}
-        <div className={styles.heroSlideshow}>
-          {HERO_SLIDES.map((slide, i) => (
-            <div
-              key={i}
-              className={`${styles.slide} ${i === activeSlide ? styles.active : ''}`}
-            >
-              <img
-                src={slide.src}
-                alt={slide.alt}
-                className={styles.slideImg}
-              />
-            </div>
-          ))}
+        {/* Full-width slideshow background */}
+        <div className={styles.slideshowContainer}>
+          <div className={styles.slideshow}>
+            {HERO_SLIDES.map((slide, i) => (
+              <div
+                key={i}
+                className={`${styles.slide} ${i === activeSlide ? styles.active : ''}`}
+              >
+                <img
+                  src={slide.src}
+                  alt={slide.alt}
+                  className={styles.slideImg}
+                />
+              </div>
+            ))}
+          </div>
+          {/* Transition overlay: smooth vertical and horizontal fade to white */}
+          <div className={styles.heroOverlay} />
         </div>
 
-        {/* Dynamic Dark-to-White Fade Overlay */}
-        <div className={styles.heroOverlay} />
-
-        {/* Hero Content */}
-        <div className={`container ${styles.heroContent}`}>
-          <div className={styles.heroTextLeft}>
+        {/* Foreground Content */}
+        <div className={`container ${styles.heroInner}`}>
+          <div className={styles.heroContent}>
             <p className={styles.heroEyebrow}>
               <span />
               Selamat Datang di
@@ -175,6 +172,29 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Floating Badge */}
+        <div className={styles.slideBadge}>
+          <div className={styles.slideBadgeIcon}>
+            <Users size={18} />
+          </div>
+          <div className={styles.slideBadgeText}>
+            <span className={styles.slideBadgeNum}>Konseling Sebaya</span>
+            <span className={styles.slideBadgeLabel}>PIK-R MANSEKU</span>
+          </div>
+        </div>
+
+        {/* Dot navigation */}
+        <div className={styles.slideDots}>
+          {HERO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              className={`${styles.slideDot} ${i === activeSlide ? styles.activeDot : ''}`}
+              onClick={() => setActiveSlide(i)}
+              aria-label={`Slide ${i + 1}`}
+            />
+          ))}
         </div>
       </section>
 
@@ -354,29 +374,25 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonial Modal Popup with Background Blur */}
+      {/* Testimonial Popup Modal */}
       {selectedTestimonial && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedTestimonial(null)}>
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.testimonialModalOverlay} onClick={() => setSelectedTestimonial(null)}>
+          <div className={styles.testimonialModalCard} onClick={(e) => e.stopPropagation()}>
             <button className={styles.modalCloseBtn} onClick={() => setSelectedTestimonial(null)}>×</button>
-            <div className={styles.modalBody}>
-              <div className={styles.modalPhotoWrap}>
-                {selectedTestimonial.photoPath ? (
-                  <img src={`http://localhost:25552${selectedTestimonial.photoPath}`} alt={selectedTestimonial.name} className={styles.modalPhoto} />
-                ) : (
-                  <div className={styles.modalPhotoPlaceholder}>{selectedTestimonial.name[0]}</div>
-                )}
-              </div>
-              <div className={styles.modalInfo}>
-                <h3 className={styles.modalName}>{selectedTestimonial.name}</h3>
-                <span className={styles.modalBadge}>Angkatan {selectedTestimonial.angkatan}</span>
-                <div className={styles.modalQuoteIcon}>“</div>
-                <p className={styles.modalText}>{selectedTestimonial.content}</p>
-              </div>
+            <div className={styles.modalPhotoWrap}>
+              {selectedTestimonial.photoPath ? (
+                <img src={`http://localhost:25552${selectedTestimonial.photoPath}`} alt={selectedTestimonial.name} className={styles.modalPhoto} />
+              ) : (
+                <div className={styles.modalPhotoPlaceholder}>{selectedTestimonial.name[0]}</div>
+              )}
             </div>
+            <h3 className={styles.modalName}>{selectedTestimonial.name}</h3>
+            <span className={styles.modalBadge}>Angkatan {selectedTestimonial.angkatan}</span>
+            <p className={styles.modalText}>"{selectedTestimonial.content}"</p>
           </div>
         </div>
       )}
+
     </div>
   );
 }

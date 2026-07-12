@@ -45,34 +45,33 @@ export default function BlogListPage() {
   const totalPages = Math.ceil(total / limit) || 1;
 
   return (
-    <div className="page-wrapper" style={{ backgroundColor: '#faf6ee', minHeight: '100vh', paddingTop: 'calc(var(--navbar-height) + 12px)' }}>
+    <div className="page-wrapper">
       <SEO 
         title="Blog & Artikel" 
         description="Temukan kumpulan artikel edukasi remaja, info kesehatan reproduksi, tips life skills, kegiatan konseling sebaya, dan berita seputar PIK-R MANSEKU MAN 1 Muara Enim." 
       />
-      <section className="section" style={{ paddingBlock: 'var(--space-xl)' }}>
-        <div className={`container ${styles.newspaperContainer}`}>
+      <section className="section">
+        <div className="container">
           {/* Newspaper Header */}
           <div className={styles.newspaperHeader}>
-            <div className={styles.newspaperName}>WARTA MANSEKU</div>
-            <div className={styles.newspaperSubheader}>
-              <span>Volume IV • Edisi Terkini</span>
+            <div className={styles.newspaperHeaderTop}>
+              <span>Vol. III No. 4</span>
+              <span className={styles.newspaperHeaderCenter}>MANSEKU DAILY</span>
               <span>{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              <span>Edukasi & Konseling Remaja</span>
             </div>
-          </div>
-
-          {/* Search Toolbar */}
-          <div className={styles.toolbar}>
-            <div className={styles.searchWrap}>
-              <SearchIcon size={16} className={styles.searchIcon} />
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Cari berita warta..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <h1 className={styles.newspaperBannerTitle}>Edisi Digital PIK-R MANSEKU</h1>
+            <div className={styles.newspaperHeaderBottom}>
+              <span>Pusat Informasi &amp; Konseling Remaja MAN 1 Muara Enim</span>
+              <div className={styles.searchWrap}>
+                <SearchIcon size={14} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  className={styles.searchInput}
+                  placeholder="Cari berita..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 

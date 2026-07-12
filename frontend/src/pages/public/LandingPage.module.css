@@ -5,14 +5,13 @@
   position: relative;
   min-height: 100vh;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: clamp(60px, 10vh, 140px);
+  align-items: center;
   overflow: hidden;
-  background-color: #fff;
+  background: #ffffff;
+  padding-top: var(--navbar-height);
 }
 
-.heroSlideshow {
+.slideshowContainer {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -20,170 +19,161 @@
   z-index: 1;
 }
 
+/* Double gradient overlay: Left-to-Right for text legibility, Top-to-Bottom for smooth bottom blend */
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 40%,
-    rgba(255, 255, 255, 0.8) 75%,
-    rgba(255, 255, 255, 1) 100%
-  );
+  background: 
+    linear-gradient(90deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.85) 45%, rgba(255, 255, 255, 0.15) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 70%, #ffffff 100%);
   z-index: 2;
   pointer-events: none;
 }
 
-.heroContent {
+.heroInner {
   position: relative;
   z-index: 3;
   width: 100%;
 }
 
-.heroTextLeft {
-  max-width: 680px;
-  text-align: left;
+/* Foreground Content (replacing heroLeft) */
+.heroContent {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 0;
+  justify-content: center;
+  padding: 56px 0;
+  max-width: 620px;
+  width: 100%;
 }
 
 /* Eyebrow */
 .heroEyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
+  gap: 10px;
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #ea580c;
-  margin-bottom: 12px;
+  color: #f97316;
+  margin-bottom: 16px;
 }
 
 .heroEyebrow span {
   display: inline-block;
-  width: 24px;
+  width: 28px;
   height: 2px;
-  background: #ea580c;
+  background: #f97316;
   border-radius: 2px;
 }
 
 /* Headline */
 .heroTitle {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5.5vw, 4.25rem);
-  font-weight: 900;
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  font-weight: 800;
   color: #0f172a;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   margin-bottom: 16px;
 }
 
 .heroTitle strong {
-  color: #ea580c;
-  display: inline-block;
+  color: #f97316;
+  display: block;
 }
 
 /* Description */
 .heroDesc {
-  font-size: clamp(0.95rem, 1.5vw, 1.125rem);
-  line-height: 1.7;
+  font-size: 0.9375rem;
+  line-height: 1.75;
   color: #334155;
-  margin-bottom: 32px;
-  max-width: 580px;
-  font-weight: 500;
+  margin-bottom: 28px;
+  max-width: 480px;
 }
 
 /* CTA Buttons */
 .heroBtns {
   display: flex;
-  gap: 16px;
-  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 48px;
 }
 
 .heroBtnPrimary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 28px;
-  background: #ea580c;
+  gap: 7px;
+  padding: 12px 24px;
+  background: #f97316;
   color: #fff;
-  font-size: 0.9375rem;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   border-radius: 8px;
   text-decoration: none;
-  border: 2px solid #ea580c;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
-  transition: all 0.25s ease;
+  border: 2px solid #f97316;
+  transition: background 0.22s ease, transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s ease;
+  will-change: transform;
 }
-
 .heroBtnPrimary:hover {
-  background: #c2410c;
-  border-color: #c2410c;
+  background: #ea580c;
+  border-color: #ea580c;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.45);
+  box-shadow: 0 8px 28px rgba(249, 115, 22, 0.35);
 }
 
 .heroBtnOutline {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 28px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(4px);
-  color: #0f172a;
-  font-size: 0.9375rem;
-  font-weight: 700;
+  gap: 7px;
+  padding: 12px 24px;
+  background: transparent;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 600;
   border-radius: 8px;
   text-decoration: none;
   border: 2px solid #cbd5e1;
-  transition: all 0.25s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
 }
-
 .heroBtnOutline:hover {
-  border-color: #ea580c;
-  color: #ea580c;
-  background: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  border-color: #f97316;
+  color: #f97316;
+  background: #fff7ed;
 }
 
-/* Stats Row */
+/* Stats row */
 .heroStats {
   display: flex;
-  gap: 48px;
-  justify-content: flex-start;
-  padding-top: 28px;
-  border-top: 1px solid rgba(15, 23, 42, 0.1);
-  width: 100%;
-  max-width: 520px;
+  gap: 36px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .heroStat {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 2px;
 }
 
 .heroStatNum {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-size: 1.625rem;
   font-weight: 800;
   color: #0f172a;
   line-height: 1;
 }
 
+.heroStatNum span {
+  color: #f97316;
+}
+
 .heroStatLabel {
   font-size: 0.75rem;
-  color: #475569;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 3px;
 }
 
 /* ─ Kanan: Slideshow ─ */
@@ -563,30 +553,19 @@
    RESPONSIVE
 ══════════════════════════════════ */
 @media (max-width: 900px) {
-  .heroInner {
-    grid-template-columns: 1fr;
-    min-height: auto;
-    max-height: none;
+  .hero {
+    min-height: calc(100vh - var(--navbar-height));
+    align-items: flex-start;
+    padding-top: 20px;
   }
 
-  .heroLeft {
-    padding: 44px var(--space-lg);
-    margin-left: 0;
+  .heroOverlay {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.9) 60%, #ffffff 100%);
+  }
+
+  .heroContent {
+    padding: 32px var(--space-md);
     max-width: 100%;
-  }
-
-  .heroRight {
-    height: 360px;
-    order: -1;
-  }
-
-  .heroRight::before {
-    width: 100%;
-    height: 60px;
-    left: 0;
-    top: 0;
-    bottom: auto;
-    background: linear-gradient(to bottom, #ffffff, transparent);
   }
 
   .heroTitle {
@@ -612,16 +591,12 @@
 }
 
 @media (max-width: 560px) {
-  .heroLeft {
-    padding: 32px var(--space-md);
+  .heroContent {
+    padding: 24px var(--space-xs);
   }
 
   .heroTitle {
     font-size: 1.75rem;
-  }
-
-  .heroRight {
-    height: 280px;
   }
 
   .heroBtns {
@@ -904,99 +879,80 @@
   }
 }
 
-@media (max-width: 768px) {
-  .hero {
-    min-height: 100vh;
-    padding-bottom: 40px;
+@keyframes badgeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
   }
-  .heroTitle {
-    font-size: 2.25rem;
-  }
-  .heroBtns {
-    flex-direction: column;
-    width: 100%;
-    gap: 12px;
-  }
-  .heroBtnPrimary, .heroBtnOutline {
-    width: 100%;
-    justify-content: center;
-  }
-  .heroStats {
-    gap: 20px;
-    flex-wrap: wrap;
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-/* Modal styling with backdrop blur */
-.modalOverlay {
+/* Testimonial Modal with Backdrop Blur */
+.testimonialModalOverlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 23, 42, 0.4);
+  background-color: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(8px);
-  z-index: 1000;
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-md);
-  animation: modalFadeIn 0.25s ease forwards;
+  padding: 16px;
+  animation: fadeInModal 0.2s ease-out;
 }
 
-.modalCard {
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.testimonialModalCard {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
+  max-width: 480px;
   width: 100%;
-  max-width: 500px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
+  padding: 36px 28px 28px;
+  text-align: center;
   position: relative;
-  animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: scaleInModal 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleInModal {
+  from { opacity: 0; transform: scale(0.93); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .modalCloseBtn {
   position: absolute;
-  top: 12px;
-  right: 16px;
-  background: rgba(15, 23, 42, 0.05);
+  top: 14px;
+  right: 18px;
+  background: none;
   border: none;
-  font-size: 24px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  color: var(--color-text-secondary);
+  font-size: 28px;
+  color: var(--color-text-muted);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  z-index: 10;
+  line-height: 1;
+  transition: color 0.15s;
 }
 
 .modalCloseBtn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-}
-
-.modalBody {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 32px 24px 28px;
-  text-align: center;
+  color: var(--color-accent);
 }
 
 .modalPhotoWrap {
-  width: 110px;
-  height: 110px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
-  border: 4px solid var(--color-surface);
-  box-shadow: var(--shadow-md);
-  background-color: var(--color-accent-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
+  margin: 0 auto 20px;
+  border: 3px solid var(--color-accent-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .modalPhoto {
@@ -1006,17 +962,15 @@
 }
 
 .modalPhotoPlaceholder {
-  font-family: var(--font-display);
-  font-size: 2.25rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
   font-weight: 800;
   color: var(--color-accent);
-}
-
-.modalInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+  background-color: var(--color-accent-subtle);
 }
 
 .modalName {
@@ -1024,45 +978,27 @@
   font-size: 1.25rem;
   font-weight: 800;
   color: var(--color-text-primary);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .modalBadge {
-  font-size: 0.8125rem;
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--color-accent);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   background-color: var(--color-accent-subtle);
-  padding: 2px 10px;
-  border-radius: 99px;
+  padding: 3px 12px;
+  border-radius: 9999px;
   margin-bottom: 20px;
-}
-
-.modalQuoteIcon {
-  font-family: Georgia, serif;
-  font-size: 4rem;
-  line-height: 1;
-  color: var(--color-accent-subtle);
-  margin-bottom: -16px;
-  height: 40px;
 }
 
 .modalText {
   font-size: 0.9375rem;
-  line-height: 1.65;
+  line-height: 1.75;
   color: var(--color-text-secondary);
   font-style: italic;
   margin: 0;
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes modalScaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  max-height: 250px;
+  overflow-y: auto;
 }
 

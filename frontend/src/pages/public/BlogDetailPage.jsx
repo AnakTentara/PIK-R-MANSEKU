@@ -90,7 +90,7 @@ export default function BlogDetailPage() {
   const comments = post.comments || [];
 
   return (
-    <div className="page-wrapper" style={{ backgroundColor: '#faf6ee', minHeight: '100vh', paddingTop: 'calc(var(--navbar-height) + 16px)' }}>
+    <div className="page-wrapper">
       <SEO title={post.title} description={post.content} type="article" />
       <div className={`container ${styles.articleWrap}`}>
         {/* Back */}
