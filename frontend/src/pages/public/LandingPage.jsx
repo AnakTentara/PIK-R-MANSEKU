@@ -138,7 +138,7 @@ export default function LandingPage() {
 
         {/* Hero Content */}
         <div className={`container ${styles.heroContent}`}>
-          <div className={styles.heroTextCenter}>
+          <div className={styles.heroTextLeft}>
             <p className={styles.heroEyebrow}>
               <span />
               Selamat Datang di
