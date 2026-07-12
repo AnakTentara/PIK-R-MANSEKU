@@ -20,7 +20,7 @@ fi
 
 echo ""
 echo -e "${BLUE}=== [2/5] Menginstal Dependensi Backend ===${NC}"
-npm install
+npm install --allow-scripts
 if [ $? -ne 0 ]; then
   echo -e "${RED}Error: Gagal menginstal dependensi backend. Proses dihentikan.${NC}"
   exit 1
@@ -30,7 +30,7 @@ echo -e "${GREEN}Dependensi backend berhasil diinstal.${NC}"
 echo ""
 echo -e "${BLUE}=== [3/5] Menginstal Dependensi Frontend ===${NC}"
 cd frontend
-npm install
+npm install --allow-scripts
 if [ $? -ne 0 ]; then
   echo -e "${RED}Error: Gagal menginstal dependensi frontend. Proses dihentikan.${NC}"
   exit 1
@@ -53,8 +53,8 @@ echo -e "${YELLOW}Frontend: http://localhost:25553${NC}"
 echo -e "${BLUE}Menghubungkan console log... Tekan Ctrl+C untuk menghentikan kedua server.${NC}"
 echo ""
 
-# Use concurrently to run both development servers concurrently
-npx concurrently \
+# Use concurrently (forcing non-interactive install confirmation with -y)
+npx -y concurrently \
   --names "BACKEND,FRONTEND" \
   --prefix-colors "blue,green" \
   "npm run dev" \
