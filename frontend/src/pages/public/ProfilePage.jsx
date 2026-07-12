@@ -26,6 +26,8 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState('');
 
   useEffect(() => {
     fetchProfile();
@@ -53,8 +55,17 @@ export default function ProfilePage() {
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
+    const formData = new FormData();
+    formData.append('name', form.name);
+    formData.append('className', form.className);
+    formData.append('whatsappNumber', form.whatsappNumber);
+    formData.append('email', form.email);
+    if (photoFile) {
+      formData.append('photo', photoFile);
+    }
+    
     try {
-      const res = await updateProfile(form);
+      const res = await updateProfile(formData);
       const updated = res.data?.candidate || res.data;
       setProfile(updated);
       updateCandidateUser(updated);
@@ -97,7 +108,13 @@ export default function ProfilePage() {
           <div className={styles.layout}>
             {/* Header Card */}
             <div className={styles.headerCard}>
-              <div className={styles.avatar}>{initials}</div>
+              <div className={styles.avatar}>
+                {profile?.photoPath ? (
+                  <img src={`http://localhost:25552${profile.photoPath}`} alt={profile.name} className={styles.avatarImg} />
+                ) : (
+                  initials
+                )}
+              </div>
               <div className={styles.headerInfo}>
                 <h1 className={styles.name}>{profile?.name}</h1>
                 <p className={styles.nisn}>NISN: <span>{profile?.nisn}</span></p>
@@ -143,6 +160,31 @@ export default function ProfilePage() {
             ) : (
               /* Edit Form */
               <form onSubmit={handleSave} className={styles.editForm}>
+                <div className={styles.photoUploadSection}>
+                  <div className={styles.photoPreviewWrapper}>
+                    {photoPreview ? (
+                      <img src={photoPreview} alt="Preview" className={styles.photoPreview} />
+                    ) : (
+                      <div className={styles.photoPlaceholder}>{initials}</div>
+                    )}
+                  </div>
+                  <label className={styles.photoLabel}>
+                    Pilih Foto Profil
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setPhotoFile(file);
+                          setPhotoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      className={styles.fileInput}
+                    />
+                  </label>
+                </div>
+
                 <div className={styles.editGrid}>
                   <div className="form-group">
                     <label className="form-label" htmlFor="edit-name">Nama Lengkap</label>

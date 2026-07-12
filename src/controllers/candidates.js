@@ -148,6 +148,7 @@ export async function getProfile(req, res) {
 // 5. Update Candidate Profile (Self)
 export async function updateProfile(req, res) {
   const { name, className, whatsappNumber, email, gender, reason } = req.body;
+  const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : undefined;
 
   try {
     const candidate = await prisma.candidate.findUnique({
@@ -167,9 +168,30 @@ export async function updateProfile(req, res) {
         whatsappNumber: whatsappNumber ?? candidate.whatsappNumber,
         email: email ?? candidate.email,
         gender: gender ?? candidate.gender,
-        reason: reason ?? candidate.reason
+        reason: reason ?? candidate.reason,
+        photoPath: photoPath ?? candidate.photoPath
       }
     });
+
+    // SINKRONISASI KE TABEL MEMBER jika candidate berstatus LULUS dan ada di tabel Member!
+    if (candidate.status === 'LULUS') {
+      const correspondingMember = await prisma.member.findUnique({
+        where: { nisn: candidate.nisn }
+      });
+      if (correspondingMember) {
+        await prisma.member.update({
+          where: { id: correspondingMember.id },
+          data: {
+            name: name ?? correspondingMember.name,
+            className: className ?? correspondingMember.className,
+            whatsappNumber: whatsappNumber ?? correspondingMember.whatsappNumber,
+            email: email ?? correspondingMember.email,
+            gender: gender ?? correspondingMember.gender,
+            photoPath: photoPath ?? correspondingMember.photoPath
+          }
+        });
+      }
+    }
 
     return res.json({
       message: 'Profil pendaftar berhasil diperbarui',

@@ -24,10 +24,15 @@ export default function AnggotaPublikPage() {
   }, []);
 
   // Filter current active leadership
-  const pembina = orgData.find(m => m.role === 'PEMBINA' && m.isCurrent);
-  const ketua = orgData.find(m => m.role === 'KETUA' && m.isCurrent);
-  const wakil = orgData.find(m => m.role === 'WAKIL' && m.isCurrent);
+  const pembina = orgData.find(m => m.jabatan === 'Pembina' && m.isCurrent);
+  const ketua = orgData.find(m => m.jabatan === 'Ketua Umum' && m.isCurrent);
+  const wakil = orgData.find(m => m.jabatan === 'Wakil Ketua Umum' && m.isCurrent);
   const kabinet = orgData.filter(m => m.role === 'KABINET' && m.isCurrent);
+
+  const getMemberJabatan = (memberName) => {
+    const found = orgData.find(o => o.name === memberName && o.isCurrent);
+    return found ? found.jabatan : 'Anggota Biasa';
+  };
 
   return (
     <div className="page-wrapper">
@@ -149,20 +154,27 @@ export default function AnggotaPublikPage() {
             <p className={styles.emptyText}>Belum ada anggota aktif terdaftar.</p>
           ) : (
             <div className={styles.membersGrid}>
-              {members.map(m => (
-                <div key={m.id} className={styles.memberCard}>
-                  <div className={styles.memberAvatar}>
-                    <div className={styles.avatarInitials}>
-                      {m.name[0]}
+              {members.map(m => {
+                const jabatan = getMemberJabatan(m.name);
+                return (
+                  <div key={m.id} className={styles.memberCard}>
+                    <div className={styles.memberAvatar}>
+                      {m.photoPath ? (
+                        <img src={`http://localhost:25552${m.photoPath}`} alt={m.name} className={styles.memberAvatarImg} />
+                      ) : (
+                        <div className={styles.avatarInitials}>
+                          {m.name[0]}
+                        </div>
+                      )}
+                    </div>
+                    <div className={styles.memberInfo}>
+                      <h4>{m.name}</h4>
+                      <p>Kelas {m.className} • <span className={styles.memberJabatan}>{jabatan}</span></p>
+                      <span className={styles.joinYear}>Angkatan {m.joinYear}</span>
                     </div>
                   </div>
-                  <div className={styles.memberInfo}>
-                    <h4>{m.name}</h4>
-                    <p>Kelas {m.className}</p>
-                    <span className={styles.joinYear}>Angkatan {m.joinYear}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
