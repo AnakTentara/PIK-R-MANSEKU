@@ -20,7 +20,7 @@ fi
 
 echo ""
 echo -e "${BLUE}=== [2/5] Menginstal Dependensi Backend ===${NC}"
-npm install --allow-scripts
+npm install
 if [ $? -ne 0 ]; then
   echo -e "${RED}Error: Gagal menginstal dependensi backend. Proses dihentikan.${NC}"
   exit 1
@@ -30,7 +30,7 @@ echo -e "${GREEN}Dependensi backend berhasil diinstal.${NC}"
 echo ""
 echo -e "${BLUE}=== [3/5] Menginstal Dependensi Frontend ===${NC}"
 cd frontend
-npm install --allow-scripts
+npm install
 if [ $? -ne 0 ]; then
   echo -e "${RED}Error: Gagal menginstal dependensi frontend. Proses dihentikan.${NC}"
   exit 1
