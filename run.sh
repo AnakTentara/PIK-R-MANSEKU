@@ -51,6 +51,11 @@ npx prisma generate --schema=prisma/sqlite.prisma
 if [ $? -ne 0 ]; then
   echo -e "${YELLOW}Warning: Gagal men-generate client SQLite.${NC}"
 fi
+echo -e "${YELLOW}Menyelaraskan tabel database SQLite lokal (db push)...${NC}"
+npx prisma db push --schema=prisma/sqlite.prisma --accept-data-loss
+if [ $? -ne 0 ]; then
+  echo -e "${YELLOW}Warning: Gagal melakukan db push pada SQLite.${NC}"
+fi
 echo -e "${YELLOW}Men-generate client MySQL...${NC}"
 npx prisma generate --schema=prisma/schema.prisma
 if [ $? -ne 0 ]; then
