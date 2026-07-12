@@ -19,11 +19,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 25552;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:25553';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:25551';
 
 // Middleware
 app.use(cors({
-  origin: [FRONTEND_URL, 'http://localhost:25553', 'https://pikr-manseku.my.id'],
+  origin: [FRONTEND_URL, 'http://localhost:25551', 'https://pikr-manseku.my.id'],
   credentials: true
 }));
 app.use(express.json());

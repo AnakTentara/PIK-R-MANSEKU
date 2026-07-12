@@ -11,6 +11,7 @@
     "@prisma/client": "^6.19.3",
     "@whiskeysockets/baileys": "^7.0.0-rc13",
     "bcryptjs": "^3.0.3",
+    "concurrently": "^9.1.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -18,12 +19,11 @@
     "multer": "^2.2.0",
     "nodemailer": "^9.0.3",
     "pino": "^10.3.1",
+    "prisma": "^6.19.3",
     "qrcode-terminal": "^0.12.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "nodemon": "^3.1.14",
-    "prisma": "^6.19.3"
+    "nodemon": "^3.1.14"
   }
 }

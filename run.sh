@@ -61,7 +61,7 @@ echo -e "${GREEN}Prisma Client untuk SQLite & MySQL berhasil di-generate.${NC}"
 echo ""
 echo -e "${BLUE}=== [5/5] Menjalankan Backend & Frontend Secara Bersamaan ===${NC}"
 echo -e "${YELLOW}Backend: http://localhost:25552${NC}"
-echo -e "${YELLOW}Frontend: http://localhost:25553${NC}"
+echo -e "${YELLOW}Frontend: http://localhost:25551${NC}"
 echo -e "${BLUE}Menghubungkan console log... Tekan Ctrl+C untuk menghentikan kedua server.${NC}"
 echo ""
 
