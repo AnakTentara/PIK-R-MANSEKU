@@ -3,12 +3,15 @@
 ═══════════════════════════════════════════════ */
 .hero {
   position: relative;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background: #ffffff;
+  padding-top: var(--navbar-height);
+  padding-bottom: 50px;
+  box-sizing: border-box;
 }
 
 .slideshowContainer {
@@ -34,7 +37,6 @@
   position: relative;
   z-index: 3;
   width: 100%;
-  padding-top: var(--navbar-height);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -48,7 +50,6 @@
   align-items: center;
   text-align: center;
   padding: 0;
-  margin-top: -80px; /* Upward shift to account for navbar and balance the stats */
   max-width: 720px;
   width: 100%;
 }
@@ -587,12 +588,6 @@
 }
 
 @media (max-width: 900px) {
-  .hero {
-    height: auto;
-    min-height: calc(100vh - var(--navbar-height));
-    align-items: flex-start;
-    padding-top: 20px;
-  }
 
   .heroOverlay {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.9) 60%, #ffffff 100%);
