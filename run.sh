@@ -40,6 +40,12 @@ echo -e "${GREEN}Dependensi frontend berhasil diinstal.${NC}"
 
 echo ""
 echo -e "${BLUE}=== [4/5] Sinkronisasi Database (Prisma Client Generate) ===${NC}"
+echo -e "${YELLOW}Menjalankan postinstall script secara manual...${NC}"
+node node_modules/@prisma/client/scripts/postinstall.js
+if [ $? -ne 0 ]; then
+  echo -e "${YELLOW}Warning: Gagal menjalankan Prisma postinstall script.${NC}"
+fi
+
 echo -e "${YELLOW}Men-generate client SQLite lokal...${NC}"
 npx prisma generate --schema=prisma/sqlite.prisma
 if [ $? -ne 0 ]; then
