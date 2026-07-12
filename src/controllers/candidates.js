@@ -13,6 +13,13 @@ export async function registerCandidate(req, res) {
   }
 
   try {
+    // Check if registration session is open
+    const sessionSetting = await prisma.setting.findUnique({ where: { key: 'REGISTRATION_SESSION' } });
+    const session = sessionSetting ? JSON.parse(sessionSetting.value) : { status: 'open' };
+    if (session && session.status !== 'open') {
+      return res.status(400).json({ message: 'Maaf, pendaftaran anggota baru saat ini sedang ditutup.' });
+    }
+
     const existing = await prisma.candidate.findUnique({ where: { nisn } });
     if (existing) {
       return res.status(400).json({ message: 'NISN sudah terdaftar' });

@@ -66,3 +66,45 @@ model Setting {
   key   String @id
   value String
 }
+
+model Member {
+  id              String   @id @default(uuid())
+  nisn            String   @unique
+  name            String
+  className       String
+  whatsappNumber  String
+  email           String
+  gender          String
+  password        String
+  plainPassword   String?
+  status          String   @default("ACTIVE")
+  joinYear        Int      @default(2026)
+  role            String   @default("member")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model OrgMember {
+  id          String   @id @default(uuid())
+  name        String
+  role        String
+  jabatan     String
+  yearStart   Int
+  yearEnd     Int?
+  isCurrent   Boolean  @default(false)
+  photoPath   String?
+  quote       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AlumniTestimonial {
+  id          String   @id @default(uuid())
+  name        String
+  angkatan    String
+  photoPath   String?
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

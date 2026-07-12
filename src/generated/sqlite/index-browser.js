@@ -168,6 +168,47 @@ exports.Prisma.SettingScalarFieldEnum = {
   value: 'value'
 };
 
+exports.Prisma.MemberScalarFieldEnum = {
+  id: 'id',
+  nisn: 'nisn',
+  name: 'name',
+  className: 'className',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  gender: 'gender',
+  password: 'password',
+  plainPassword: 'plainPassword',
+  status: 'status',
+  joinYear: 'joinYear',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrgMemberScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  role: 'role',
+  jabatan: 'jabatan',
+  yearStart: 'yearStart',
+  yearEnd: 'yearEnd',
+  isCurrent: 'isCurrent',
+  photoPath: 'photoPath',
+  quote: 'quote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AlumniTestimonialScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  angkatan: 'angkatan',
+  photoPath: 'photoPath',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -184,7 +225,10 @@ exports.Prisma.ModelName = {
   Admin: 'Admin',
   Post: 'Post',
   Comment: 'Comment',
-  Setting: 'Setting'
+  Setting: 'Setting',
+  Member: 'Member',
+  OrgMember: 'OrgMember',
+  AlumniTestimonial: 'AlumniTestimonial'
 };
 
 /**

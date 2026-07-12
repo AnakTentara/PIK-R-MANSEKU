@@ -72,3 +72,49 @@ model Setting {
   key   String @id
   value String @db.Text
 }
+
+model Member {
+  id              String   @id @default(uuid())
+  nisn            String   @unique
+  name            String
+  className       String
+  whatsappNumber  String
+  email           String
+  gender          String
+  password        String
+  plainPassword   String?
+  status          MemberStatus @default(ACTIVE)
+  joinYear        Int      @default(2026)
+  role            String   @default("member")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum MemberStatus {
+  ACTIVE
+  ALUMNI
+}
+
+model OrgMember {
+  id          String   @id @default(uuid())
+  name        String
+  role        String   // PEMBINA, KETUA, WAKIL, KABINET, ANGGOTA
+  jabatan     String   // e.g. "Pembina", "Ketua Umum", "Kabid Kesehatan"
+  yearStart   Int
+  yearEnd     Int?
+  isCurrent   Boolean  @default(false)
+  photoPath   String?
+  quote       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AlumniTestimonial {
+  id          String   @id @default(uuid())
+  name        String
+  angkatan    String   // e.g. "2023", "2024"
+  photoPath   String?
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

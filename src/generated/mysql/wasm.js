@@ -143,6 +143,47 @@ exports.Prisma.SettingScalarFieldEnum = {
   value: 'value'
 };
 
+exports.Prisma.MemberScalarFieldEnum = {
+  id: 'id',
+  nisn: 'nisn',
+  name: 'name',
+  className: 'className',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  gender: 'gender',
+  password: 'password',
+  plainPassword: 'plainPassword',
+  status: 'status',
+  joinYear: 'joinYear',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrgMemberScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  role: 'role',
+  jabatan: 'jabatan',
+  yearStart: 'yearStart',
+  yearEnd: 'yearEnd',
+  isCurrent: 'isCurrent',
+  photoPath: 'photoPath',
+  quote: 'quote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AlumniTestimonialScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  angkatan: 'angkatan',
+  photoPath: 'photoPath',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -191,10 +232,45 @@ exports.Prisma.SettingOrderByRelevanceFieldEnum = {
   key: 'key',
   value: 'value'
 };
+
+exports.Prisma.MemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  nisn: 'nisn',
+  name: 'name',
+  className: 'className',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  gender: 'gender',
+  password: 'password',
+  plainPassword: 'plainPassword',
+  role: 'role'
+};
+
+exports.Prisma.OrgMemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  role: 'role',
+  jabatan: 'jabatan',
+  photoPath: 'photoPath',
+  quote: 'quote'
+};
+
+exports.Prisma.AlumniTestimonialOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  angkatan: 'angkatan',
+  photoPath: 'photoPath',
+  content: 'content'
+};
 exports.Status = exports.$Enums.Status = {
   PENDING: 'PENDING',
   LULUS: 'LULUS',
   TIDAK_LULUS: 'TIDAK_LULUS'
+};
+
+exports.MemberStatus = exports.$Enums.MemberStatus = {
+  ACTIVE: 'ACTIVE',
+  ALUMNI: 'ALUMNI'
 };
 
 exports.Prisma.ModelName = {
@@ -202,7 +278,10 @@ exports.Prisma.ModelName = {
   Admin: 'Admin',
   Post: 'Post',
   Comment: 'Comment',
-  Setting: 'Setting'
+  Setting: 'Setting',
+  Member: 'Member',
+  OrgMember: 'OrgMember',
+  AlumniTestimonial: 'AlumniTestimonial'
 };
 /**
  * Create the Client
@@ -233,7 +312,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
@@ -252,13 +331,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "datasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/mysql\"\n}\n\nmodel Candidate {\n  id             String @id @default(uuid())\n  nisn           String @unique\n  name           String\n  className      String\n  whatsappNumber String\n  email          String\n  gender         String\n  reason         String @db.Text\n  status         Status @default(PENDING)\n\n  // Authentication fields for Member Login\n  password      String? // Hashed password\n  plainPassword String? // Plaintext password for Admin export/view\n\n  // Notification status\n  emailNotified Boolean @default(false)\n  waNotified    Boolean @default(false)\n  lastStatus    Status  @default(PENDING)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nenum Status {\n  PENDING\n  LULUS\n  TIDAK_LULUS\n}\n\nmodel Admin {\n  id        String   @id @default(uuid())\n  username  String   @unique\n  password  String\n  posts     Post[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Post {\n  id        String    @id @default(uuid())\n  title     String\n  slug      String    @unique\n  content   String    @db.LongText\n  authorId  String\n  author    Admin     @relation(fields: [authorId], references: [id])\n  comments  Comment[]\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel Comment {\n  id        String   @id @default(uuid())\n  postId    String\n  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)\n  username  String\n  content   String   @db.Text\n  createdAt DateTime @default(now())\n}\n\nmodel Setting {\n  key   String @id\n  value String @db.Text\n}\n",
-  "inlineSchemaHash": "ac005ae6297654c40465b0ae0234eeecaf93e2053db7386b0a6e5e19e5ac7cc7",
+  "inlineSchema": "datasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/mysql\"\n}\n\nmodel Candidate {\n  id             String @id @default(uuid())\n  nisn           String @unique\n  name           String\n  className      String\n  whatsappNumber String\n  email          String\n  gender         String\n  reason         String @db.Text\n  status         Status @default(PENDING)\n\n  // Authentication fields for Member Login\n  password      String? // Hashed password\n  plainPassword String? // Plaintext password for Admin export/view\n\n  // Notification status\n  emailNotified Boolean @default(false)\n  waNotified    Boolean @default(false)\n  lastStatus    Status  @default(PENDING)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nenum Status {\n  PENDING\n  LULUS\n  TIDAK_LULUS\n}\n\nmodel Admin {\n  id        String   @id @default(uuid())\n  username  String   @unique\n  password  String\n  posts     Post[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Post {\n  id        String    @id @default(uuid())\n  title     String\n  slug      String    @unique\n  content   String    @db.LongText\n  authorId  String\n  author    Admin     @relation(fields: [authorId], references: [id])\n  comments  Comment[]\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel Comment {\n  id        String   @id @default(uuid())\n  postId    String\n  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)\n  username  String\n  content   String   @db.Text\n  createdAt DateTime @default(now())\n}\n\nmodel Setting {\n  key   String @id\n  value String @db.Text\n}\n\nmodel Member {\n  id             String       @id @default(uuid())\n  nisn           String       @unique\n  name           String\n  className      String\n  whatsappNumber String\n  email          String\n  gender         String\n  password       String\n  plainPassword  String?\n  status         MemberStatus @default(ACTIVE)\n  joinYear       Int          @default(2026)\n  role           String       @default(\"member\")\n  createdAt      DateTime     @default(now())\n  updatedAt      DateTime     @updatedAt\n}\n\nenum MemberStatus {\n  ACTIVE\n  ALUMNI\n}\n\nmodel OrgMember {\n  id        String   @id @default(uuid())\n  name      String\n  role      String // PEMBINA, KETUA, WAKIL, KABINET, ANGGOTA\n  jabatan   String // e.g. \"Pembina\", \"Ketua Umum\", \"Kabid Kesehatan\"\n  yearStart Int\n  yearEnd   Int?\n  isCurrent Boolean  @default(false)\n  photoPath String?\n  quote     String?  @db.Text\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel AlumniTestimonial {\n  id        String   @id @default(uuid())\n  name      String\n  angkatan  String // e.g. \"2023\", \"2024\"\n  photoPath String?\n  content   String   @db.Text\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
+  "inlineSchemaHash": "7a368a65357bd4966869ea93d1c61b0800e09018ff9072c8b44af2ec7b8f8153",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Candidate\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nisn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"className\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"whatsappNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"gender\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"reason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"Status\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"plainPassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailNotified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"waNotified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"lastStatus\",\"kind\":\"enum\",\"type\":\"Status\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Admin\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"AdminToPost\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"authorId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"author\",\"kind\":\"object\",\"type\":\"Admin\",\"relationName\":\"AdminToPost\"},{\"name\":\"comments\",\"kind\":\"object\",\"type\":\"Comment\",\"relationName\":\"CommentToPost\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Comment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"postId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"post\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"CommentToPost\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Setting\":{\"fields\":[{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Candidate\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nisn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"className\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"whatsappNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"gender\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"reason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"Status\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"plainPassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailNotified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"waNotified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"lastStatus\",\"kind\":\"enum\",\"type\":\"Status\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Admin\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"AdminToPost\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"authorId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"author\",\"kind\":\"object\",\"type\":\"Admin\",\"relationName\":\"AdminToPost\"},{\"name\":\"comments\",\"kind\":\"object\",\"type\":\"Comment\",\"relationName\":\"CommentToPost\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Comment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"postId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"post\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"CommentToPost\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Setting\":{\"fields\":[{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Member\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nisn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"className\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"whatsappNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"gender\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"plainPassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"MemberStatus\"},{\"name\":\"joinYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"role\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"OrgMember\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"jabatan\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"yearStart\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"yearEnd\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"isCurrent\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"photoPath\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quote\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"AlumniTestimonial\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"angkatan\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"photoPath\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

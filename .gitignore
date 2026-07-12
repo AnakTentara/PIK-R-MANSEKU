@@ -11,3 +11,11 @@ yarn-error.log*
 .vscode/
 .DS_Store
 local.db
+*.tmp*
+src/generated/**/*.tmp*
+node_modules/
+dist/
+build/
+.env.local
+.env.*.local
+

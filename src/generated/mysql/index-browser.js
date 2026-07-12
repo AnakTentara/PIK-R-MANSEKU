@@ -171,6 +171,47 @@ exports.Prisma.SettingScalarFieldEnum = {
   value: 'value'
 };
 
+exports.Prisma.MemberScalarFieldEnum = {
+  id: 'id',
+  nisn: 'nisn',
+  name: 'name',
+  className: 'className',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  gender: 'gender',
+  password: 'password',
+  plainPassword: 'plainPassword',
+  status: 'status',
+  joinYear: 'joinYear',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrgMemberScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  role: 'role',
+  jabatan: 'jabatan',
+  yearStart: 'yearStart',
+  yearEnd: 'yearEnd',
+  isCurrent: 'isCurrent',
+  photoPath: 'photoPath',
+  quote: 'quote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AlumniTestimonialScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  angkatan: 'angkatan',
+  photoPath: 'photoPath',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -219,10 +260,45 @@ exports.Prisma.SettingOrderByRelevanceFieldEnum = {
   key: 'key',
   value: 'value'
 };
+
+exports.Prisma.MemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  nisn: 'nisn',
+  name: 'name',
+  className: 'className',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  gender: 'gender',
+  password: 'password',
+  plainPassword: 'plainPassword',
+  role: 'role'
+};
+
+exports.Prisma.OrgMemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  role: 'role',
+  jabatan: 'jabatan',
+  photoPath: 'photoPath',
+  quote: 'quote'
+};
+
+exports.Prisma.AlumniTestimonialOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  angkatan: 'angkatan',
+  photoPath: 'photoPath',
+  content: 'content'
+};
 exports.Status = exports.$Enums.Status = {
   PENDING: 'PENDING',
   LULUS: 'LULUS',
   TIDAK_LULUS: 'TIDAK_LULUS'
+};
+
+exports.MemberStatus = exports.$Enums.MemberStatus = {
+  ACTIVE: 'ACTIVE',
+  ALUMNI: 'ALUMNI'
 };
 
 exports.Prisma.ModelName = {
@@ -230,7 +306,10 @@ exports.Prisma.ModelName = {
   Admin: 'Admin',
   Post: 'Post',
   Comment: 'Comment',
-  Setting: 'Setting'
+  Setting: 'Setting',
+  Member: 'Member',
+  OrgMember: 'OrgMember',
+  AlumniTestimonial: 'AlumniTestimonial'
 };
 
 /**

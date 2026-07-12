@@ -38,6 +38,21 @@ export type Comment = $Result.DefaultSelection<Prisma.$CommentPayload>
  * 
  */
 export type Setting = $Result.DefaultSelection<Prisma.$SettingPayload>
+/**
+ * Model Member
+ * 
+ */
+export type Member = $Result.DefaultSelection<Prisma.$MemberPayload>
+/**
+ * Model OrgMember
+ * 
+ */
+export type OrgMember = $Result.DefaultSelection<Prisma.$OrgMemberPayload>
+/**
+ * Model AlumniTestimonial
+ * 
+ */
+export type AlumniTestimonial = $Result.DefaultSelection<Prisma.$AlumniTestimonialPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -206,6 +221,36 @@ export class PrismaClient<
     * ```
     */
   get setting(): Prisma.SettingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.member`: Exposes CRUD operations for the **Member** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Members
+    * const members = await prisma.member.findMany()
+    * ```
+    */
+  get member(): Prisma.MemberDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.orgMember`: Exposes CRUD operations for the **OrgMember** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OrgMembers
+    * const orgMembers = await prisma.orgMember.findMany()
+    * ```
+    */
+  get orgMember(): Prisma.OrgMemberDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.alumniTestimonial`: Exposes CRUD operations for the **AlumniTestimonial** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AlumniTestimonials
+    * const alumniTestimonials = await prisma.alumniTestimonial.findMany()
+    * ```
+    */
+  get alumniTestimonial(): Prisma.AlumniTestimonialDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -651,7 +696,10 @@ export namespace Prisma {
     Admin: 'Admin',
     Post: 'Post',
     Comment: 'Comment',
-    Setting: 'Setting'
+    Setting: 'Setting',
+    Member: 'Member',
+    OrgMember: 'OrgMember',
+    AlumniTestimonial: 'AlumniTestimonial'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -670,7 +718,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "candidate" | "admin" | "post" | "comment" | "setting"
+      modelProps: "candidate" | "admin" | "post" | "comment" | "setting" | "member" | "orgMember" | "alumniTestimonial"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1044,6 +1092,228 @@ export namespace Prisma {
           }
         }
       }
+      Member: {
+        payload: Prisma.$MemberPayload<ExtArgs>
+        fields: Prisma.MemberFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MemberFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MemberFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>
+          }
+          findFirst: {
+            args: Prisma.MemberFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MemberFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>
+          }
+          findMany: {
+            args: Prisma.MemberFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>[]
+          }
+          create: {
+            args: Prisma.MemberCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>
+          }
+          createMany: {
+            args: Prisma.MemberCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MemberCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>[]
+          }
+          delete: {
+            args: Prisma.MemberDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>
+          }
+          update: {
+            args: Prisma.MemberUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>
+          }
+          deleteMany: {
+            args: Prisma.MemberDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MemberUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MemberUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>[]
+          }
+          upsert: {
+            args: Prisma.MemberUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberPayload>
+          }
+          aggregate: {
+            args: Prisma.MemberAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMember>
+          }
+          groupBy: {
+            args: Prisma.MemberGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MemberGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MemberCountArgs<ExtArgs>
+            result: $Utils.Optional<MemberCountAggregateOutputType> | number
+          }
+        }
+      }
+      OrgMember: {
+        payload: Prisma.$OrgMemberPayload<ExtArgs>
+        fields: Prisma.OrgMemberFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrgMemberFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrgMemberFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>
+          }
+          findFirst: {
+            args: Prisma.OrgMemberFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrgMemberFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>
+          }
+          findMany: {
+            args: Prisma.OrgMemberFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>[]
+          }
+          create: {
+            args: Prisma.OrgMemberCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>
+          }
+          createMany: {
+            args: Prisma.OrgMemberCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrgMemberCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>[]
+          }
+          delete: {
+            args: Prisma.OrgMemberDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>
+          }
+          update: {
+            args: Prisma.OrgMemberUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrgMemberDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrgMemberUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OrgMemberUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>[]
+          }
+          upsert: {
+            args: Prisma.OrgMemberUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrgMemberPayload>
+          }
+          aggregate: {
+            args: Prisma.OrgMemberAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrgMember>
+          }
+          groupBy: {
+            args: Prisma.OrgMemberGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrgMemberGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrgMemberCountArgs<ExtArgs>
+            result: $Utils.Optional<OrgMemberCountAggregateOutputType> | number
+          }
+        }
+      }
+      AlumniTestimonial: {
+        payload: Prisma.$AlumniTestimonialPayload<ExtArgs>
+        fields: Prisma.AlumniTestimonialFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AlumniTestimonialFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AlumniTestimonialFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>
+          }
+          findFirst: {
+            args: Prisma.AlumniTestimonialFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AlumniTestimonialFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>
+          }
+          findMany: {
+            args: Prisma.AlumniTestimonialFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>[]
+          }
+          create: {
+            args: Prisma.AlumniTestimonialCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>
+          }
+          createMany: {
+            args: Prisma.AlumniTestimonialCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AlumniTestimonialCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>[]
+          }
+          delete: {
+            args: Prisma.AlumniTestimonialDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>
+          }
+          update: {
+            args: Prisma.AlumniTestimonialUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>
+          }
+          deleteMany: {
+            args: Prisma.AlumniTestimonialDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AlumniTestimonialUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AlumniTestimonialUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>[]
+          }
+          upsert: {
+            args: Prisma.AlumniTestimonialUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlumniTestimonialPayload>
+          }
+          aggregate: {
+            args: Prisma.AlumniTestimonialAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAlumniTestimonial>
+          }
+          groupBy: {
+            args: Prisma.AlumniTestimonialGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AlumniTestimonialGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AlumniTestimonialCountArgs<ExtArgs>
+            result: $Utils.Optional<AlumniTestimonialCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1145,6 +1415,9 @@ export namespace Prisma {
     post?: PostOmit
     comment?: CommentOmit
     setting?: SettingOmit
+    member?: MemberOmit
+    orgMember?: OrgMemberOmit
+    alumniTestimonial?: AlumniTestimonialOmit
   }
 
   /* Types for Logging */
@@ -6613,6 +6886,3278 @@ export namespace Prisma {
 
 
   /**
+   * Model Member
+   */
+
+  export type AggregateMember = {
+    _count: MemberCountAggregateOutputType | null
+    _avg: MemberAvgAggregateOutputType | null
+    _sum: MemberSumAggregateOutputType | null
+    _min: MemberMinAggregateOutputType | null
+    _max: MemberMaxAggregateOutputType | null
+  }
+
+  export type MemberAvgAggregateOutputType = {
+    joinYear: number | null
+  }
+
+  export type MemberSumAggregateOutputType = {
+    joinYear: number | null
+  }
+
+  export type MemberMinAggregateOutputType = {
+    id: string | null
+    nisn: string | null
+    name: string | null
+    className: string | null
+    whatsappNumber: string | null
+    email: string | null
+    gender: string | null
+    password: string | null
+    plainPassword: string | null
+    status: string | null
+    joinYear: number | null
+    role: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MemberMaxAggregateOutputType = {
+    id: string | null
+    nisn: string | null
+    name: string | null
+    className: string | null
+    whatsappNumber: string | null
+    email: string | null
+    gender: string | null
+    password: string | null
+    plainPassword: string | null
+    status: string | null
+    joinYear: number | null
+    role: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MemberCountAggregateOutputType = {
+    id: number
+    nisn: number
+    name: number
+    className: number
+    whatsappNumber: number
+    email: number
+    gender: number
+    password: number
+    plainPassword: number
+    status: number
+    joinYear: number
+    role: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MemberAvgAggregateInputType = {
+    joinYear?: true
+  }
+
+  export type MemberSumAggregateInputType = {
+    joinYear?: true
+  }
+
+  export type MemberMinAggregateInputType = {
+    id?: true
+    nisn?: true
+    name?: true
+    className?: true
+    whatsappNumber?: true
+    email?: true
+    gender?: true
+    password?: true
+    plainPassword?: true
+    status?: true
+    joinYear?: true
+    role?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MemberMaxAggregateInputType = {
+    id?: true
+    nisn?: true
+    name?: true
+    className?: true
+    whatsappNumber?: true
+    email?: true
+    gender?: true
+    password?: true
+    plainPassword?: true
+    status?: true
+    joinYear?: true
+    role?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MemberCountAggregateInputType = {
+    id?: true
+    nisn?: true
+    name?: true
+    className?: true
+    whatsappNumber?: true
+    email?: true
+    gender?: true
+    password?: true
+    plainPassword?: true
+    status?: true
+    joinYear?: true
+    role?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MemberAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Member to aggregate.
+     */
+    where?: MemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Members to fetch.
+     */
+    orderBy?: MemberOrderByWithRelationInput | MemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Members from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Members.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Members
+    **/
+    _count?: true | MemberCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MemberAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MemberSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MemberMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MemberMaxAggregateInputType
+  }
+
+  export type GetMemberAggregateType<T extends MemberAggregateArgs> = {
+        [P in keyof T & keyof AggregateMember]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMember[P]>
+      : GetScalarType<T[P], AggregateMember[P]>
+  }
+
+
+
+
+  export type MemberGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MemberWhereInput
+    orderBy?: MemberOrderByWithAggregationInput | MemberOrderByWithAggregationInput[]
+    by: MemberScalarFieldEnum[] | MemberScalarFieldEnum
+    having?: MemberScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MemberCountAggregateInputType | true
+    _avg?: MemberAvgAggregateInputType
+    _sum?: MemberSumAggregateInputType
+    _min?: MemberMinAggregateInputType
+    _max?: MemberMaxAggregateInputType
+  }
+
+  export type MemberGroupByOutputType = {
+    id: string
+    nisn: string
+    name: string
+    className: string
+    whatsappNumber: string
+    email: string
+    gender: string
+    password: string
+    plainPassword: string | null
+    status: string
+    joinYear: number
+    role: string
+    createdAt: Date
+    updatedAt: Date
+    _count: MemberCountAggregateOutputType | null
+    _avg: MemberAvgAggregateOutputType | null
+    _sum: MemberSumAggregateOutputType | null
+    _min: MemberMinAggregateOutputType | null
+    _max: MemberMaxAggregateOutputType | null
+  }
+
+  type GetMemberGroupByPayload<T extends MemberGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MemberGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MemberGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MemberGroupByOutputType[P]>
+            : GetScalarType<T[P], MemberGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MemberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nisn?: boolean
+    name?: boolean
+    className?: boolean
+    whatsappNumber?: boolean
+    email?: boolean
+    gender?: boolean
+    password?: boolean
+    plainPassword?: boolean
+    status?: boolean
+    joinYear?: boolean
+    role?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["member"]>
+
+  export type MemberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nisn?: boolean
+    name?: boolean
+    className?: boolean
+    whatsappNumber?: boolean
+    email?: boolean
+    gender?: boolean
+    password?: boolean
+    plainPassword?: boolean
+    status?: boolean
+    joinYear?: boolean
+    role?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["member"]>
+
+  export type MemberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nisn?: boolean
+    name?: boolean
+    className?: boolean
+    whatsappNumber?: boolean
+    email?: boolean
+    gender?: boolean
+    password?: boolean
+    plainPassword?: boolean
+    status?: boolean
+    joinYear?: boolean
+    role?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["member"]>
+
+  export type MemberSelectScalar = {
+    id?: boolean
+    nisn?: boolean
+    name?: boolean
+    className?: boolean
+    whatsappNumber?: boolean
+    email?: boolean
+    gender?: boolean
+    password?: boolean
+    plainPassword?: boolean
+    status?: boolean
+    joinYear?: boolean
+    role?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "password" | "plainPassword" | "status" | "joinYear" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
+
+  export type $MemberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Member"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      nisn: string
+      name: string
+      className: string
+      whatsappNumber: string
+      email: string
+      gender: string
+      password: string
+      plainPassword: string | null
+      status: string
+      joinYear: number
+      role: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["member"]>
+    composites: {}
+  }
+
+  type MemberGetPayload<S extends boolean | null | undefined | MemberDefaultArgs> = $Result.GetResult<Prisma.$MemberPayload, S>
+
+  type MemberCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MemberFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MemberCountAggregateInputType | true
+    }
+
+  export interface MemberDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Member'], meta: { name: 'Member' } }
+    /**
+     * Find zero or one Member that matches the filter.
+     * @param {MemberFindUniqueArgs} args - Arguments to find a Member
+     * @example
+     * // Get one Member
+     * const member = await prisma.member.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MemberFindUniqueArgs>(args: SelectSubset<T, MemberFindUniqueArgs<ExtArgs>>): Prisma__MemberClient<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Member that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MemberFindUniqueOrThrowArgs} args - Arguments to find a Member
+     * @example
+     * // Get one Member
+     * const member = await prisma.member.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MemberFindUniqueOrThrowArgs>(args: SelectSubset<T, MemberFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MemberClient<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Member that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFindFirstArgs} args - Arguments to find a Member
+     * @example
+     * // Get one Member
+     * const member = await prisma.member.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MemberFindFirstArgs>(args?: SelectSubset<T, MemberFindFirstArgs<ExtArgs>>): Prisma__MemberClient<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Member that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFindFirstOrThrowArgs} args - Arguments to find a Member
+     * @example
+     * // Get one Member
+     * const member = await prisma.member.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MemberFindFirstOrThrowArgs>(args?: SelectSubset<T, MemberFindFirstOrThrowArgs<ExtArgs>>): Prisma__MemberClient<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Members that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Members
+     * const members = await prisma.member.findMany()
+     * 
+     * // Get first 10 Members
+     * const members = await prisma.member.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const memberWithIdOnly = await prisma.member.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MemberFindManyArgs>(args?: SelectSubset<T, MemberFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Member.
+     * @param {MemberCreateArgs} args - Arguments to create a Member.
+     * @example
+     * // Create one Member
+     * const Member = await prisma.member.create({
+     *   data: {
+     *     // ... data to create a Member
+     *   }
+     * })
+     * 
+     */
+    create<T extends MemberCreateArgs>(args: SelectSubset<T, MemberCreateArgs<ExtArgs>>): Prisma__MemberClient<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Members.
+     * @param {MemberCreateManyArgs} args - Arguments to create many Members.
+     * @example
+     * // Create many Members
+     * const member = await prisma.member.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MemberCreateManyArgs>(args?: SelectSubset<T, MemberCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Members and returns the data saved in the database.
+     * @param {MemberCreateManyAndReturnArgs} args - Arguments to create many Members.
+     * @example
+     * // Create many Members
+     * const member = await prisma.member.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Members and only return the `id`
+     * const memberWithIdOnly = await prisma.member.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MemberCreateManyAndReturnArgs>(args?: SelectSubset<T, MemberCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Member.
+     * @param {MemberDeleteArgs} args - Arguments to delete one Member.
+     * @example
+     * // Delete one Member
+     * const Member = await prisma.member.delete({
+     *   where: {
+     *     // ... filter to delete one Member
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MemberDeleteArgs>(args: SelectSubset<T, MemberDeleteArgs<ExtArgs>>): Prisma__MemberClient<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Member.
+     * @param {MemberUpdateArgs} args - Arguments to update one Member.
+     * @example
+     * // Update one Member
+     * const member = await prisma.member.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MemberUpdateArgs>(args: SelectSubset<T, MemberUpdateArgs<ExtArgs>>): Prisma__MemberClient<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Members.
+     * @param {MemberDeleteManyArgs} args - Arguments to filter Members to delete.
+     * @example
+     * // Delete a few Members
+     * const { count } = await prisma.member.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MemberDeleteManyArgs>(args?: SelectSubset<T, MemberDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Members.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Members
+     * const member = await prisma.member.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MemberUpdateManyArgs>(args: SelectSubset<T, MemberUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Members and returns the data updated in the database.
+     * @param {MemberUpdateManyAndReturnArgs} args - Arguments to update many Members.
+     * @example
+     * // Update many Members
+     * const member = await prisma.member.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Members and only return the `id`
+     * const memberWithIdOnly = await prisma.member.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MemberUpdateManyAndReturnArgs>(args: SelectSubset<T, MemberUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Member.
+     * @param {MemberUpsertArgs} args - Arguments to update or create a Member.
+     * @example
+     * // Update or create a Member
+     * const member = await prisma.member.upsert({
+     *   create: {
+     *     // ... data to create a Member
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Member we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MemberUpsertArgs>(args: SelectSubset<T, MemberUpsertArgs<ExtArgs>>): Prisma__MemberClient<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Members.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberCountArgs} args - Arguments to filter Members to count.
+     * @example
+     * // Count the number of Members
+     * const count = await prisma.member.count({
+     *   where: {
+     *     // ... the filter for the Members we want to count
+     *   }
+     * })
+    **/
+    count<T extends MemberCountArgs>(
+      args?: Subset<T, MemberCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MemberCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Member.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MemberAggregateArgs>(args: Subset<T, MemberAggregateArgs>): Prisma.PrismaPromise<GetMemberAggregateType<T>>
+
+    /**
+     * Group by Member.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MemberGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MemberGroupByArgs['orderBy'] }
+        : { orderBy?: MemberGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MemberGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMemberGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Member model
+   */
+  readonly fields: MemberFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Member.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MemberClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Member model
+   */
+  interface MemberFieldRefs {
+    readonly id: FieldRef<"Member", 'String'>
+    readonly nisn: FieldRef<"Member", 'String'>
+    readonly name: FieldRef<"Member", 'String'>
+    readonly className: FieldRef<"Member", 'String'>
+    readonly whatsappNumber: FieldRef<"Member", 'String'>
+    readonly email: FieldRef<"Member", 'String'>
+    readonly gender: FieldRef<"Member", 'String'>
+    readonly password: FieldRef<"Member", 'String'>
+    readonly plainPassword: FieldRef<"Member", 'String'>
+    readonly status: FieldRef<"Member", 'String'>
+    readonly joinYear: FieldRef<"Member", 'Int'>
+    readonly role: FieldRef<"Member", 'String'>
+    readonly createdAt: FieldRef<"Member", 'DateTime'>
+    readonly updatedAt: FieldRef<"Member", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Member findUnique
+   */
+  export type MemberFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * Filter, which Member to fetch.
+     */
+    where: MemberWhereUniqueInput
+  }
+
+  /**
+   * Member findUniqueOrThrow
+   */
+  export type MemberFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * Filter, which Member to fetch.
+     */
+    where: MemberWhereUniqueInput
+  }
+
+  /**
+   * Member findFirst
+   */
+  export type MemberFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * Filter, which Member to fetch.
+     */
+    where?: MemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Members to fetch.
+     */
+    orderBy?: MemberOrderByWithRelationInput | MemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Members.
+     */
+    cursor?: MemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Members from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Members.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Members.
+     */
+    distinct?: MemberScalarFieldEnum | MemberScalarFieldEnum[]
+  }
+
+  /**
+   * Member findFirstOrThrow
+   */
+  export type MemberFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * Filter, which Member to fetch.
+     */
+    where?: MemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Members to fetch.
+     */
+    orderBy?: MemberOrderByWithRelationInput | MemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Members.
+     */
+    cursor?: MemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Members from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Members.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Members.
+     */
+    distinct?: MemberScalarFieldEnum | MemberScalarFieldEnum[]
+  }
+
+  /**
+   * Member findMany
+   */
+  export type MemberFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * Filter, which Members to fetch.
+     */
+    where?: MemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Members to fetch.
+     */
+    orderBy?: MemberOrderByWithRelationInput | MemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Members.
+     */
+    cursor?: MemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Members from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Members.
+     */
+    skip?: number
+    distinct?: MemberScalarFieldEnum | MemberScalarFieldEnum[]
+  }
+
+  /**
+   * Member create
+   */
+  export type MemberCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Member.
+     */
+    data: XOR<MemberCreateInput, MemberUncheckedCreateInput>
+  }
+
+  /**
+   * Member createMany
+   */
+  export type MemberCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Members.
+     */
+    data: MemberCreateManyInput | MemberCreateManyInput[]
+  }
+
+  /**
+   * Member createManyAndReturn
+   */
+  export type MemberCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * The data used to create many Members.
+     */
+    data: MemberCreateManyInput | MemberCreateManyInput[]
+  }
+
+  /**
+   * Member update
+   */
+  export type MemberUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Member.
+     */
+    data: XOR<MemberUpdateInput, MemberUncheckedUpdateInput>
+    /**
+     * Choose, which Member to update.
+     */
+    where: MemberWhereUniqueInput
+  }
+
+  /**
+   * Member updateMany
+   */
+  export type MemberUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Members.
+     */
+    data: XOR<MemberUpdateManyMutationInput, MemberUncheckedUpdateManyInput>
+    /**
+     * Filter which Members to update
+     */
+    where?: MemberWhereInput
+    /**
+     * Limit how many Members to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Member updateManyAndReturn
+   */
+  export type MemberUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * The data used to update Members.
+     */
+    data: XOR<MemberUpdateManyMutationInput, MemberUncheckedUpdateManyInput>
+    /**
+     * Filter which Members to update
+     */
+    where?: MemberWhereInput
+    /**
+     * Limit how many Members to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Member upsert
+   */
+  export type MemberUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Member to update in case it exists.
+     */
+    where: MemberWhereUniqueInput
+    /**
+     * In case the Member found by the `where` argument doesn't exist, create a new Member with this data.
+     */
+    create: XOR<MemberCreateInput, MemberUncheckedCreateInput>
+    /**
+     * In case the Member was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MemberUpdateInput, MemberUncheckedUpdateInput>
+  }
+
+  /**
+   * Member delete
+   */
+  export type MemberDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+    /**
+     * Filter which Member to delete.
+     */
+    where: MemberWhereUniqueInput
+  }
+
+  /**
+   * Member deleteMany
+   */
+  export type MemberDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Members to delete
+     */
+    where?: MemberWhereInput
+    /**
+     * Limit how many Members to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Member without action
+   */
+  export type MemberDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Member
+     */
+    select?: MemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Member
+     */
+    omit?: MemberOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OrgMember
+   */
+
+  export type AggregateOrgMember = {
+    _count: OrgMemberCountAggregateOutputType | null
+    _avg: OrgMemberAvgAggregateOutputType | null
+    _sum: OrgMemberSumAggregateOutputType | null
+    _min: OrgMemberMinAggregateOutputType | null
+    _max: OrgMemberMaxAggregateOutputType | null
+  }
+
+  export type OrgMemberAvgAggregateOutputType = {
+    yearStart: number | null
+    yearEnd: number | null
+  }
+
+  export type OrgMemberSumAggregateOutputType = {
+    yearStart: number | null
+    yearEnd: number | null
+  }
+
+  export type OrgMemberMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    role: string | null
+    jabatan: string | null
+    yearStart: number | null
+    yearEnd: number | null
+    isCurrent: boolean | null
+    photoPath: string | null
+    quote: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrgMemberMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    role: string | null
+    jabatan: string | null
+    yearStart: number | null
+    yearEnd: number | null
+    isCurrent: boolean | null
+    photoPath: string | null
+    quote: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrgMemberCountAggregateOutputType = {
+    id: number
+    name: number
+    role: number
+    jabatan: number
+    yearStart: number
+    yearEnd: number
+    isCurrent: number
+    photoPath: number
+    quote: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OrgMemberAvgAggregateInputType = {
+    yearStart?: true
+    yearEnd?: true
+  }
+
+  export type OrgMemberSumAggregateInputType = {
+    yearStart?: true
+    yearEnd?: true
+  }
+
+  export type OrgMemberMinAggregateInputType = {
+    id?: true
+    name?: true
+    role?: true
+    jabatan?: true
+    yearStart?: true
+    yearEnd?: true
+    isCurrent?: true
+    photoPath?: true
+    quote?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrgMemberMaxAggregateInputType = {
+    id?: true
+    name?: true
+    role?: true
+    jabatan?: true
+    yearStart?: true
+    yearEnd?: true
+    isCurrent?: true
+    photoPath?: true
+    quote?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrgMemberCountAggregateInputType = {
+    id?: true
+    name?: true
+    role?: true
+    jabatan?: true
+    yearStart?: true
+    yearEnd?: true
+    isCurrent?: true
+    photoPath?: true
+    quote?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OrgMemberAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrgMember to aggregate.
+     */
+    where?: OrgMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrgMembers to fetch.
+     */
+    orderBy?: OrgMemberOrderByWithRelationInput | OrgMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrgMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrgMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrgMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OrgMembers
+    **/
+    _count?: true | OrgMemberCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OrgMemberAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OrgMemberSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrgMemberMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrgMemberMaxAggregateInputType
+  }
+
+  export type GetOrgMemberAggregateType<T extends OrgMemberAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrgMember]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrgMember[P]>
+      : GetScalarType<T[P], AggregateOrgMember[P]>
+  }
+
+
+
+
+  export type OrgMemberGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrgMemberWhereInput
+    orderBy?: OrgMemberOrderByWithAggregationInput | OrgMemberOrderByWithAggregationInput[]
+    by: OrgMemberScalarFieldEnum[] | OrgMemberScalarFieldEnum
+    having?: OrgMemberScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrgMemberCountAggregateInputType | true
+    _avg?: OrgMemberAvgAggregateInputType
+    _sum?: OrgMemberSumAggregateInputType
+    _min?: OrgMemberMinAggregateInputType
+    _max?: OrgMemberMaxAggregateInputType
+  }
+
+  export type OrgMemberGroupByOutputType = {
+    id: string
+    name: string
+    role: string
+    jabatan: string
+    yearStart: number
+    yearEnd: number | null
+    isCurrent: boolean
+    photoPath: string | null
+    quote: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: OrgMemberCountAggregateOutputType | null
+    _avg: OrgMemberAvgAggregateOutputType | null
+    _sum: OrgMemberSumAggregateOutputType | null
+    _min: OrgMemberMinAggregateOutputType | null
+    _max: OrgMemberMaxAggregateOutputType | null
+  }
+
+  type GetOrgMemberGroupByPayload<T extends OrgMemberGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrgMemberGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrgMemberGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrgMemberGroupByOutputType[P]>
+            : GetScalarType<T[P], OrgMemberGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrgMemberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    role?: boolean
+    jabatan?: boolean
+    yearStart?: boolean
+    yearEnd?: boolean
+    isCurrent?: boolean
+    photoPath?: boolean
+    quote?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["orgMember"]>
+
+  export type OrgMemberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    role?: boolean
+    jabatan?: boolean
+    yearStart?: boolean
+    yearEnd?: boolean
+    isCurrent?: boolean
+    photoPath?: boolean
+    quote?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["orgMember"]>
+
+  export type OrgMemberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    role?: boolean
+    jabatan?: boolean
+    yearStart?: boolean
+    yearEnd?: boolean
+    isCurrent?: boolean
+    photoPath?: boolean
+    quote?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["orgMember"]>
+
+  export type OrgMemberSelectScalar = {
+    id?: boolean
+    name?: boolean
+    role?: boolean
+    jabatan?: boolean
+    yearStart?: boolean
+    yearEnd?: boolean
+    isCurrent?: boolean
+    photoPath?: boolean
+    quote?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OrgMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "role" | "jabatan" | "yearStart" | "yearEnd" | "isCurrent" | "photoPath" | "quote" | "createdAt" | "updatedAt", ExtArgs["result"]["orgMember"]>
+
+  export type $OrgMemberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OrgMember"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      role: string
+      jabatan: string
+      yearStart: number
+      yearEnd: number | null
+      isCurrent: boolean
+      photoPath: string | null
+      quote: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["orgMember"]>
+    composites: {}
+  }
+
+  type OrgMemberGetPayload<S extends boolean | null | undefined | OrgMemberDefaultArgs> = $Result.GetResult<Prisma.$OrgMemberPayload, S>
+
+  type OrgMemberCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OrgMemberFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OrgMemberCountAggregateInputType | true
+    }
+
+  export interface OrgMemberDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OrgMember'], meta: { name: 'OrgMember' } }
+    /**
+     * Find zero or one OrgMember that matches the filter.
+     * @param {OrgMemberFindUniqueArgs} args - Arguments to find a OrgMember
+     * @example
+     * // Get one OrgMember
+     * const orgMember = await prisma.orgMember.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrgMemberFindUniqueArgs>(args: SelectSubset<T, OrgMemberFindUniqueArgs<ExtArgs>>): Prisma__OrgMemberClient<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OrgMember that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OrgMemberFindUniqueOrThrowArgs} args - Arguments to find a OrgMember
+     * @example
+     * // Get one OrgMember
+     * const orgMember = await prisma.orgMember.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrgMemberFindUniqueOrThrowArgs>(args: SelectSubset<T, OrgMemberFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrgMemberClient<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OrgMember that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgMemberFindFirstArgs} args - Arguments to find a OrgMember
+     * @example
+     * // Get one OrgMember
+     * const orgMember = await prisma.orgMember.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrgMemberFindFirstArgs>(args?: SelectSubset<T, OrgMemberFindFirstArgs<ExtArgs>>): Prisma__OrgMemberClient<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OrgMember that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgMemberFindFirstOrThrowArgs} args - Arguments to find a OrgMember
+     * @example
+     * // Get one OrgMember
+     * const orgMember = await prisma.orgMember.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrgMemberFindFirstOrThrowArgs>(args?: SelectSubset<T, OrgMemberFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrgMemberClient<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OrgMembers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgMemberFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OrgMembers
+     * const orgMembers = await prisma.orgMember.findMany()
+     * 
+     * // Get first 10 OrgMembers
+     * const orgMembers = await prisma.orgMember.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const orgMemberWithIdOnly = await prisma.orgMember.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrgMemberFindManyArgs>(args?: SelectSubset<T, OrgMemberFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OrgMember.
+     * @param {OrgMemberCreateArgs} args - Arguments to create a OrgMember.
+     * @example
+     * // Create one OrgMember
+     * const OrgMember = await prisma.orgMember.create({
+     *   data: {
+     *     // ... data to create a OrgMember
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrgMemberCreateArgs>(args: SelectSubset<T, OrgMemberCreateArgs<ExtArgs>>): Prisma__OrgMemberClient<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OrgMembers.
+     * @param {OrgMemberCreateManyArgs} args - Arguments to create many OrgMembers.
+     * @example
+     * // Create many OrgMembers
+     * const orgMember = await prisma.orgMember.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrgMemberCreateManyArgs>(args?: SelectSubset<T, OrgMemberCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OrgMembers and returns the data saved in the database.
+     * @param {OrgMemberCreateManyAndReturnArgs} args - Arguments to create many OrgMembers.
+     * @example
+     * // Create many OrgMembers
+     * const orgMember = await prisma.orgMember.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OrgMembers and only return the `id`
+     * const orgMemberWithIdOnly = await prisma.orgMember.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrgMemberCreateManyAndReturnArgs>(args?: SelectSubset<T, OrgMemberCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OrgMember.
+     * @param {OrgMemberDeleteArgs} args - Arguments to delete one OrgMember.
+     * @example
+     * // Delete one OrgMember
+     * const OrgMember = await prisma.orgMember.delete({
+     *   where: {
+     *     // ... filter to delete one OrgMember
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrgMemberDeleteArgs>(args: SelectSubset<T, OrgMemberDeleteArgs<ExtArgs>>): Prisma__OrgMemberClient<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OrgMember.
+     * @param {OrgMemberUpdateArgs} args - Arguments to update one OrgMember.
+     * @example
+     * // Update one OrgMember
+     * const orgMember = await prisma.orgMember.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrgMemberUpdateArgs>(args: SelectSubset<T, OrgMemberUpdateArgs<ExtArgs>>): Prisma__OrgMemberClient<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OrgMembers.
+     * @param {OrgMemberDeleteManyArgs} args - Arguments to filter OrgMembers to delete.
+     * @example
+     * // Delete a few OrgMembers
+     * const { count } = await prisma.orgMember.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrgMemberDeleteManyArgs>(args?: SelectSubset<T, OrgMemberDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrgMembers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgMemberUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OrgMembers
+     * const orgMember = await prisma.orgMember.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrgMemberUpdateManyArgs>(args: SelectSubset<T, OrgMemberUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrgMembers and returns the data updated in the database.
+     * @param {OrgMemberUpdateManyAndReturnArgs} args - Arguments to update many OrgMembers.
+     * @example
+     * // Update many OrgMembers
+     * const orgMember = await prisma.orgMember.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OrgMembers and only return the `id`
+     * const orgMemberWithIdOnly = await prisma.orgMember.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OrgMemberUpdateManyAndReturnArgs>(args: SelectSubset<T, OrgMemberUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OrgMember.
+     * @param {OrgMemberUpsertArgs} args - Arguments to update or create a OrgMember.
+     * @example
+     * // Update or create a OrgMember
+     * const orgMember = await prisma.orgMember.upsert({
+     *   create: {
+     *     // ... data to create a OrgMember
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OrgMember we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrgMemberUpsertArgs>(args: SelectSubset<T, OrgMemberUpsertArgs<ExtArgs>>): Prisma__OrgMemberClient<$Result.GetResult<Prisma.$OrgMemberPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OrgMembers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgMemberCountArgs} args - Arguments to filter OrgMembers to count.
+     * @example
+     * // Count the number of OrgMembers
+     * const count = await prisma.orgMember.count({
+     *   where: {
+     *     // ... the filter for the OrgMembers we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrgMemberCountArgs>(
+      args?: Subset<T, OrgMemberCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrgMemberCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OrgMember.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgMemberAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrgMemberAggregateArgs>(args: Subset<T, OrgMemberAggregateArgs>): Prisma.PrismaPromise<GetOrgMemberAggregateType<T>>
+
+    /**
+     * Group by OrgMember.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgMemberGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrgMemberGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrgMemberGroupByArgs['orderBy'] }
+        : { orderBy?: OrgMemberGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrgMemberGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrgMemberGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OrgMember model
+   */
+  readonly fields: OrgMemberFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OrgMember.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrgMemberClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OrgMember model
+   */
+  interface OrgMemberFieldRefs {
+    readonly id: FieldRef<"OrgMember", 'String'>
+    readonly name: FieldRef<"OrgMember", 'String'>
+    readonly role: FieldRef<"OrgMember", 'String'>
+    readonly jabatan: FieldRef<"OrgMember", 'String'>
+    readonly yearStart: FieldRef<"OrgMember", 'Int'>
+    readonly yearEnd: FieldRef<"OrgMember", 'Int'>
+    readonly isCurrent: FieldRef<"OrgMember", 'Boolean'>
+    readonly photoPath: FieldRef<"OrgMember", 'String'>
+    readonly quote: FieldRef<"OrgMember", 'String'>
+    readonly createdAt: FieldRef<"OrgMember", 'DateTime'>
+    readonly updatedAt: FieldRef<"OrgMember", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OrgMember findUnique
+   */
+  export type OrgMemberFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrgMember to fetch.
+     */
+    where: OrgMemberWhereUniqueInput
+  }
+
+  /**
+   * OrgMember findUniqueOrThrow
+   */
+  export type OrgMemberFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrgMember to fetch.
+     */
+    where: OrgMemberWhereUniqueInput
+  }
+
+  /**
+   * OrgMember findFirst
+   */
+  export type OrgMemberFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrgMember to fetch.
+     */
+    where?: OrgMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrgMembers to fetch.
+     */
+    orderBy?: OrgMemberOrderByWithRelationInput | OrgMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrgMembers.
+     */
+    cursor?: OrgMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrgMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrgMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrgMembers.
+     */
+    distinct?: OrgMemberScalarFieldEnum | OrgMemberScalarFieldEnum[]
+  }
+
+  /**
+   * OrgMember findFirstOrThrow
+   */
+  export type OrgMemberFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrgMember to fetch.
+     */
+    where?: OrgMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrgMembers to fetch.
+     */
+    orderBy?: OrgMemberOrderByWithRelationInput | OrgMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrgMembers.
+     */
+    cursor?: OrgMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrgMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrgMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrgMembers.
+     */
+    distinct?: OrgMemberScalarFieldEnum | OrgMemberScalarFieldEnum[]
+  }
+
+  /**
+   * OrgMember findMany
+   */
+  export type OrgMemberFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrgMembers to fetch.
+     */
+    where?: OrgMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrgMembers to fetch.
+     */
+    orderBy?: OrgMemberOrderByWithRelationInput | OrgMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OrgMembers.
+     */
+    cursor?: OrgMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrgMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrgMembers.
+     */
+    skip?: number
+    distinct?: OrgMemberScalarFieldEnum | OrgMemberScalarFieldEnum[]
+  }
+
+  /**
+   * OrgMember create
+   */
+  export type OrgMemberCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * The data needed to create a OrgMember.
+     */
+    data: XOR<OrgMemberCreateInput, OrgMemberUncheckedCreateInput>
+  }
+
+  /**
+   * OrgMember createMany
+   */
+  export type OrgMemberCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OrgMembers.
+     */
+    data: OrgMemberCreateManyInput | OrgMemberCreateManyInput[]
+  }
+
+  /**
+   * OrgMember createManyAndReturn
+   */
+  export type OrgMemberCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * The data used to create many OrgMembers.
+     */
+    data: OrgMemberCreateManyInput | OrgMemberCreateManyInput[]
+  }
+
+  /**
+   * OrgMember update
+   */
+  export type OrgMemberUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * The data needed to update a OrgMember.
+     */
+    data: XOR<OrgMemberUpdateInput, OrgMemberUncheckedUpdateInput>
+    /**
+     * Choose, which OrgMember to update.
+     */
+    where: OrgMemberWhereUniqueInput
+  }
+
+  /**
+   * OrgMember updateMany
+   */
+  export type OrgMemberUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OrgMembers.
+     */
+    data: XOR<OrgMemberUpdateManyMutationInput, OrgMemberUncheckedUpdateManyInput>
+    /**
+     * Filter which OrgMembers to update
+     */
+    where?: OrgMemberWhereInput
+    /**
+     * Limit how many OrgMembers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrgMember updateManyAndReturn
+   */
+  export type OrgMemberUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * The data used to update OrgMembers.
+     */
+    data: XOR<OrgMemberUpdateManyMutationInput, OrgMemberUncheckedUpdateManyInput>
+    /**
+     * Filter which OrgMembers to update
+     */
+    where?: OrgMemberWhereInput
+    /**
+     * Limit how many OrgMembers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrgMember upsert
+   */
+  export type OrgMemberUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * The filter to search for the OrgMember to update in case it exists.
+     */
+    where: OrgMemberWhereUniqueInput
+    /**
+     * In case the OrgMember found by the `where` argument doesn't exist, create a new OrgMember with this data.
+     */
+    create: XOR<OrgMemberCreateInput, OrgMemberUncheckedCreateInput>
+    /**
+     * In case the OrgMember was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrgMemberUpdateInput, OrgMemberUncheckedUpdateInput>
+  }
+
+  /**
+   * OrgMember delete
+   */
+  export type OrgMemberDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+    /**
+     * Filter which OrgMember to delete.
+     */
+    where: OrgMemberWhereUniqueInput
+  }
+
+  /**
+   * OrgMember deleteMany
+   */
+  export type OrgMemberDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrgMembers to delete
+     */
+    where?: OrgMemberWhereInput
+    /**
+     * Limit how many OrgMembers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrgMember without action
+   */
+  export type OrgMemberDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgMember
+     */
+    select?: OrgMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrgMember
+     */
+    omit?: OrgMemberOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AlumniTestimonial
+   */
+
+  export type AggregateAlumniTestimonial = {
+    _count: AlumniTestimonialCountAggregateOutputType | null
+    _min: AlumniTestimonialMinAggregateOutputType | null
+    _max: AlumniTestimonialMaxAggregateOutputType | null
+  }
+
+  export type AlumniTestimonialMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    angkatan: string | null
+    photoPath: string | null
+    content: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AlumniTestimonialMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    angkatan: string | null
+    photoPath: string | null
+    content: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AlumniTestimonialCountAggregateOutputType = {
+    id: number
+    name: number
+    angkatan: number
+    photoPath: number
+    content: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AlumniTestimonialMinAggregateInputType = {
+    id?: true
+    name?: true
+    angkatan?: true
+    photoPath?: true
+    content?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AlumniTestimonialMaxAggregateInputType = {
+    id?: true
+    name?: true
+    angkatan?: true
+    photoPath?: true
+    content?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AlumniTestimonialCountAggregateInputType = {
+    id?: true
+    name?: true
+    angkatan?: true
+    photoPath?: true
+    content?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AlumniTestimonialAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AlumniTestimonial to aggregate.
+     */
+    where?: AlumniTestimonialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlumniTestimonials to fetch.
+     */
+    orderBy?: AlumniTestimonialOrderByWithRelationInput | AlumniTestimonialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AlumniTestimonialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlumniTestimonials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlumniTestimonials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AlumniTestimonials
+    **/
+    _count?: true | AlumniTestimonialCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AlumniTestimonialMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AlumniTestimonialMaxAggregateInputType
+  }
+
+  export type GetAlumniTestimonialAggregateType<T extends AlumniTestimonialAggregateArgs> = {
+        [P in keyof T & keyof AggregateAlumniTestimonial]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAlumniTestimonial[P]>
+      : GetScalarType<T[P], AggregateAlumniTestimonial[P]>
+  }
+
+
+
+
+  export type AlumniTestimonialGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AlumniTestimonialWhereInput
+    orderBy?: AlumniTestimonialOrderByWithAggregationInput | AlumniTestimonialOrderByWithAggregationInput[]
+    by: AlumniTestimonialScalarFieldEnum[] | AlumniTestimonialScalarFieldEnum
+    having?: AlumniTestimonialScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AlumniTestimonialCountAggregateInputType | true
+    _min?: AlumniTestimonialMinAggregateInputType
+    _max?: AlumniTestimonialMaxAggregateInputType
+  }
+
+  export type AlumniTestimonialGroupByOutputType = {
+    id: string
+    name: string
+    angkatan: string
+    photoPath: string | null
+    content: string
+    createdAt: Date
+    updatedAt: Date
+    _count: AlumniTestimonialCountAggregateOutputType | null
+    _min: AlumniTestimonialMinAggregateOutputType | null
+    _max: AlumniTestimonialMaxAggregateOutputType | null
+  }
+
+  type GetAlumniTestimonialGroupByPayload<T extends AlumniTestimonialGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AlumniTestimonialGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AlumniTestimonialGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AlumniTestimonialGroupByOutputType[P]>
+            : GetScalarType<T[P], AlumniTestimonialGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AlumniTestimonialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    angkatan?: boolean
+    photoPath?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["alumniTestimonial"]>
+
+  export type AlumniTestimonialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    angkatan?: boolean
+    photoPath?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["alumniTestimonial"]>
+
+  export type AlumniTestimonialSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    angkatan?: boolean
+    photoPath?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["alumniTestimonial"]>
+
+  export type AlumniTestimonialSelectScalar = {
+    id?: boolean
+    name?: boolean
+    angkatan?: boolean
+    photoPath?: boolean
+    content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AlumniTestimonialOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "angkatan" | "photoPath" | "content" | "createdAt" | "updatedAt", ExtArgs["result"]["alumniTestimonial"]>
+
+  export type $AlumniTestimonialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AlumniTestimonial"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      angkatan: string
+      photoPath: string | null
+      content: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["alumniTestimonial"]>
+    composites: {}
+  }
+
+  type AlumniTestimonialGetPayload<S extends boolean | null | undefined | AlumniTestimonialDefaultArgs> = $Result.GetResult<Prisma.$AlumniTestimonialPayload, S>
+
+  type AlumniTestimonialCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AlumniTestimonialFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AlumniTestimonialCountAggregateInputType | true
+    }
+
+  export interface AlumniTestimonialDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlumniTestimonial'], meta: { name: 'AlumniTestimonial' } }
+    /**
+     * Find zero or one AlumniTestimonial that matches the filter.
+     * @param {AlumniTestimonialFindUniqueArgs} args - Arguments to find a AlumniTestimonial
+     * @example
+     * // Get one AlumniTestimonial
+     * const alumniTestimonial = await prisma.alumniTestimonial.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AlumniTestimonialFindUniqueArgs>(args: SelectSubset<T, AlumniTestimonialFindUniqueArgs<ExtArgs>>): Prisma__AlumniTestimonialClient<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AlumniTestimonial that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AlumniTestimonialFindUniqueOrThrowArgs} args - Arguments to find a AlumniTestimonial
+     * @example
+     * // Get one AlumniTestimonial
+     * const alumniTestimonial = await prisma.alumniTestimonial.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AlumniTestimonialFindUniqueOrThrowArgs>(args: SelectSubset<T, AlumniTestimonialFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlumniTestimonialClient<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AlumniTestimonial that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlumniTestimonialFindFirstArgs} args - Arguments to find a AlumniTestimonial
+     * @example
+     * // Get one AlumniTestimonial
+     * const alumniTestimonial = await prisma.alumniTestimonial.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AlumniTestimonialFindFirstArgs>(args?: SelectSubset<T, AlumniTestimonialFindFirstArgs<ExtArgs>>): Prisma__AlumniTestimonialClient<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AlumniTestimonial that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlumniTestimonialFindFirstOrThrowArgs} args - Arguments to find a AlumniTestimonial
+     * @example
+     * // Get one AlumniTestimonial
+     * const alumniTestimonial = await prisma.alumniTestimonial.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AlumniTestimonialFindFirstOrThrowArgs>(args?: SelectSubset<T, AlumniTestimonialFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlumniTestimonialClient<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AlumniTestimonials that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlumniTestimonialFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AlumniTestimonials
+     * const alumniTestimonials = await prisma.alumniTestimonial.findMany()
+     * 
+     * // Get first 10 AlumniTestimonials
+     * const alumniTestimonials = await prisma.alumniTestimonial.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const alumniTestimonialWithIdOnly = await prisma.alumniTestimonial.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AlumniTestimonialFindManyArgs>(args?: SelectSubset<T, AlumniTestimonialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AlumniTestimonial.
+     * @param {AlumniTestimonialCreateArgs} args - Arguments to create a AlumniTestimonial.
+     * @example
+     * // Create one AlumniTestimonial
+     * const AlumniTestimonial = await prisma.alumniTestimonial.create({
+     *   data: {
+     *     // ... data to create a AlumniTestimonial
+     *   }
+     * })
+     * 
+     */
+    create<T extends AlumniTestimonialCreateArgs>(args: SelectSubset<T, AlumniTestimonialCreateArgs<ExtArgs>>): Prisma__AlumniTestimonialClient<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AlumniTestimonials.
+     * @param {AlumniTestimonialCreateManyArgs} args - Arguments to create many AlumniTestimonials.
+     * @example
+     * // Create many AlumniTestimonials
+     * const alumniTestimonial = await prisma.alumniTestimonial.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AlumniTestimonialCreateManyArgs>(args?: SelectSubset<T, AlumniTestimonialCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AlumniTestimonials and returns the data saved in the database.
+     * @param {AlumniTestimonialCreateManyAndReturnArgs} args - Arguments to create many AlumniTestimonials.
+     * @example
+     * // Create many AlumniTestimonials
+     * const alumniTestimonial = await prisma.alumniTestimonial.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AlumniTestimonials and only return the `id`
+     * const alumniTestimonialWithIdOnly = await prisma.alumniTestimonial.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AlumniTestimonialCreateManyAndReturnArgs>(args?: SelectSubset<T, AlumniTestimonialCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AlumniTestimonial.
+     * @param {AlumniTestimonialDeleteArgs} args - Arguments to delete one AlumniTestimonial.
+     * @example
+     * // Delete one AlumniTestimonial
+     * const AlumniTestimonial = await prisma.alumniTestimonial.delete({
+     *   where: {
+     *     // ... filter to delete one AlumniTestimonial
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AlumniTestimonialDeleteArgs>(args: SelectSubset<T, AlumniTestimonialDeleteArgs<ExtArgs>>): Prisma__AlumniTestimonialClient<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AlumniTestimonial.
+     * @param {AlumniTestimonialUpdateArgs} args - Arguments to update one AlumniTestimonial.
+     * @example
+     * // Update one AlumniTestimonial
+     * const alumniTestimonial = await prisma.alumniTestimonial.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AlumniTestimonialUpdateArgs>(args: SelectSubset<T, AlumniTestimonialUpdateArgs<ExtArgs>>): Prisma__AlumniTestimonialClient<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AlumniTestimonials.
+     * @param {AlumniTestimonialDeleteManyArgs} args - Arguments to filter AlumniTestimonials to delete.
+     * @example
+     * // Delete a few AlumniTestimonials
+     * const { count } = await prisma.alumniTestimonial.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AlumniTestimonialDeleteManyArgs>(args?: SelectSubset<T, AlumniTestimonialDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AlumniTestimonials.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlumniTestimonialUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AlumniTestimonials
+     * const alumniTestimonial = await prisma.alumniTestimonial.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AlumniTestimonialUpdateManyArgs>(args: SelectSubset<T, AlumniTestimonialUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AlumniTestimonials and returns the data updated in the database.
+     * @param {AlumniTestimonialUpdateManyAndReturnArgs} args - Arguments to update many AlumniTestimonials.
+     * @example
+     * // Update many AlumniTestimonials
+     * const alumniTestimonial = await prisma.alumniTestimonial.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AlumniTestimonials and only return the `id`
+     * const alumniTestimonialWithIdOnly = await prisma.alumniTestimonial.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AlumniTestimonialUpdateManyAndReturnArgs>(args: SelectSubset<T, AlumniTestimonialUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AlumniTestimonial.
+     * @param {AlumniTestimonialUpsertArgs} args - Arguments to update or create a AlumniTestimonial.
+     * @example
+     * // Update or create a AlumniTestimonial
+     * const alumniTestimonial = await prisma.alumniTestimonial.upsert({
+     *   create: {
+     *     // ... data to create a AlumniTestimonial
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AlumniTestimonial we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AlumniTestimonialUpsertArgs>(args: SelectSubset<T, AlumniTestimonialUpsertArgs<ExtArgs>>): Prisma__AlumniTestimonialClient<$Result.GetResult<Prisma.$AlumniTestimonialPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AlumniTestimonials.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlumniTestimonialCountArgs} args - Arguments to filter AlumniTestimonials to count.
+     * @example
+     * // Count the number of AlumniTestimonials
+     * const count = await prisma.alumniTestimonial.count({
+     *   where: {
+     *     // ... the filter for the AlumniTestimonials we want to count
+     *   }
+     * })
+    **/
+    count<T extends AlumniTestimonialCountArgs>(
+      args?: Subset<T, AlumniTestimonialCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AlumniTestimonialCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AlumniTestimonial.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlumniTestimonialAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AlumniTestimonialAggregateArgs>(args: Subset<T, AlumniTestimonialAggregateArgs>): Prisma.PrismaPromise<GetAlumniTestimonialAggregateType<T>>
+
+    /**
+     * Group by AlumniTestimonial.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlumniTestimonialGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AlumniTestimonialGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AlumniTestimonialGroupByArgs['orderBy'] }
+        : { orderBy?: AlumniTestimonialGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AlumniTestimonialGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlumniTestimonialGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AlumniTestimonial model
+   */
+  readonly fields: AlumniTestimonialFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AlumniTestimonial.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AlumniTestimonialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AlumniTestimonial model
+   */
+  interface AlumniTestimonialFieldRefs {
+    readonly id: FieldRef<"AlumniTestimonial", 'String'>
+    readonly name: FieldRef<"AlumniTestimonial", 'String'>
+    readonly angkatan: FieldRef<"AlumniTestimonial", 'String'>
+    readonly photoPath: FieldRef<"AlumniTestimonial", 'String'>
+    readonly content: FieldRef<"AlumniTestimonial", 'String'>
+    readonly createdAt: FieldRef<"AlumniTestimonial", 'DateTime'>
+    readonly updatedAt: FieldRef<"AlumniTestimonial", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AlumniTestimonial findUnique
+   */
+  export type AlumniTestimonialFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * Filter, which AlumniTestimonial to fetch.
+     */
+    where: AlumniTestimonialWhereUniqueInput
+  }
+
+  /**
+   * AlumniTestimonial findUniqueOrThrow
+   */
+  export type AlumniTestimonialFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * Filter, which AlumniTestimonial to fetch.
+     */
+    where: AlumniTestimonialWhereUniqueInput
+  }
+
+  /**
+   * AlumniTestimonial findFirst
+   */
+  export type AlumniTestimonialFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * Filter, which AlumniTestimonial to fetch.
+     */
+    where?: AlumniTestimonialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlumniTestimonials to fetch.
+     */
+    orderBy?: AlumniTestimonialOrderByWithRelationInput | AlumniTestimonialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AlumniTestimonials.
+     */
+    cursor?: AlumniTestimonialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlumniTestimonials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlumniTestimonials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AlumniTestimonials.
+     */
+    distinct?: AlumniTestimonialScalarFieldEnum | AlumniTestimonialScalarFieldEnum[]
+  }
+
+  /**
+   * AlumniTestimonial findFirstOrThrow
+   */
+  export type AlumniTestimonialFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * Filter, which AlumniTestimonial to fetch.
+     */
+    where?: AlumniTestimonialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlumniTestimonials to fetch.
+     */
+    orderBy?: AlumniTestimonialOrderByWithRelationInput | AlumniTestimonialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AlumniTestimonials.
+     */
+    cursor?: AlumniTestimonialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlumniTestimonials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlumniTestimonials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AlumniTestimonials.
+     */
+    distinct?: AlumniTestimonialScalarFieldEnum | AlumniTestimonialScalarFieldEnum[]
+  }
+
+  /**
+   * AlumniTestimonial findMany
+   */
+  export type AlumniTestimonialFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * Filter, which AlumniTestimonials to fetch.
+     */
+    where?: AlumniTestimonialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlumniTestimonials to fetch.
+     */
+    orderBy?: AlumniTestimonialOrderByWithRelationInput | AlumniTestimonialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AlumniTestimonials.
+     */
+    cursor?: AlumniTestimonialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlumniTestimonials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlumniTestimonials.
+     */
+    skip?: number
+    distinct?: AlumniTestimonialScalarFieldEnum | AlumniTestimonialScalarFieldEnum[]
+  }
+
+  /**
+   * AlumniTestimonial create
+   */
+  export type AlumniTestimonialCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * The data needed to create a AlumniTestimonial.
+     */
+    data: XOR<AlumniTestimonialCreateInput, AlumniTestimonialUncheckedCreateInput>
+  }
+
+  /**
+   * AlumniTestimonial createMany
+   */
+  export type AlumniTestimonialCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AlumniTestimonials.
+     */
+    data: AlumniTestimonialCreateManyInput | AlumniTestimonialCreateManyInput[]
+  }
+
+  /**
+   * AlumniTestimonial createManyAndReturn
+   */
+  export type AlumniTestimonialCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * The data used to create many AlumniTestimonials.
+     */
+    data: AlumniTestimonialCreateManyInput | AlumniTestimonialCreateManyInput[]
+  }
+
+  /**
+   * AlumniTestimonial update
+   */
+  export type AlumniTestimonialUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * The data needed to update a AlumniTestimonial.
+     */
+    data: XOR<AlumniTestimonialUpdateInput, AlumniTestimonialUncheckedUpdateInput>
+    /**
+     * Choose, which AlumniTestimonial to update.
+     */
+    where: AlumniTestimonialWhereUniqueInput
+  }
+
+  /**
+   * AlumniTestimonial updateMany
+   */
+  export type AlumniTestimonialUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AlumniTestimonials.
+     */
+    data: XOR<AlumniTestimonialUpdateManyMutationInput, AlumniTestimonialUncheckedUpdateManyInput>
+    /**
+     * Filter which AlumniTestimonials to update
+     */
+    where?: AlumniTestimonialWhereInput
+    /**
+     * Limit how many AlumniTestimonials to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AlumniTestimonial updateManyAndReturn
+   */
+  export type AlumniTestimonialUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * The data used to update AlumniTestimonials.
+     */
+    data: XOR<AlumniTestimonialUpdateManyMutationInput, AlumniTestimonialUncheckedUpdateManyInput>
+    /**
+     * Filter which AlumniTestimonials to update
+     */
+    where?: AlumniTestimonialWhereInput
+    /**
+     * Limit how many AlumniTestimonials to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AlumniTestimonial upsert
+   */
+  export type AlumniTestimonialUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * The filter to search for the AlumniTestimonial to update in case it exists.
+     */
+    where: AlumniTestimonialWhereUniqueInput
+    /**
+     * In case the AlumniTestimonial found by the `where` argument doesn't exist, create a new AlumniTestimonial with this data.
+     */
+    create: XOR<AlumniTestimonialCreateInput, AlumniTestimonialUncheckedCreateInput>
+    /**
+     * In case the AlumniTestimonial was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AlumniTestimonialUpdateInput, AlumniTestimonialUncheckedUpdateInput>
+  }
+
+  /**
+   * AlumniTestimonial delete
+   */
+  export type AlumniTestimonialDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+    /**
+     * Filter which AlumniTestimonial to delete.
+     */
+    where: AlumniTestimonialWhereUniqueInput
+  }
+
+  /**
+   * AlumniTestimonial deleteMany
+   */
+  export type AlumniTestimonialDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AlumniTestimonials to delete
+     */
+    where?: AlumniTestimonialWhereInput
+    /**
+     * Limit how many AlumniTestimonials to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AlumniTestimonial without action
+   */
+  export type AlumniTestimonialDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlumniTestimonial
+     */
+    select?: AlumniTestimonialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AlumniTestimonial
+     */
+    omit?: AlumniTestimonialOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -6688,6 +10233,56 @@ export namespace Prisma {
   export type SettingScalarFieldEnum = (typeof SettingScalarFieldEnum)[keyof typeof SettingScalarFieldEnum]
 
 
+  export const MemberScalarFieldEnum: {
+    id: 'id',
+    nisn: 'nisn',
+    name: 'name',
+    className: 'className',
+    whatsappNumber: 'whatsappNumber',
+    email: 'email',
+    gender: 'gender',
+    password: 'password',
+    plainPassword: 'plainPassword',
+    status: 'status',
+    joinYear: 'joinYear',
+    role: 'role',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MemberScalarFieldEnum = (typeof MemberScalarFieldEnum)[keyof typeof MemberScalarFieldEnum]
+
+
+  export const OrgMemberScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    role: 'role',
+    jabatan: 'jabatan',
+    yearStart: 'yearStart',
+    yearEnd: 'yearEnd',
+    isCurrent: 'isCurrent',
+    photoPath: 'photoPath',
+    quote: 'quote',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OrgMemberScalarFieldEnum = (typeof OrgMemberScalarFieldEnum)[keyof typeof OrgMemberScalarFieldEnum]
+
+
+  export const AlumniTestimonialScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    angkatan: 'angkatan',
+    photoPath: 'photoPath',
+    content: 'content',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AlumniTestimonialScalarFieldEnum = (typeof AlumniTestimonialScalarFieldEnum)[keyof typeof AlumniTestimonialScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -6734,6 +10329,13 @@ export namespace Prisma {
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
   /**
    * Deep Input Types
@@ -7060,6 +10662,251 @@ export namespace Prisma {
     NOT?: SettingScalarWhereWithAggregatesInput | SettingScalarWhereWithAggregatesInput[]
     key?: StringWithAggregatesFilter<"Setting"> | string
     value?: StringWithAggregatesFilter<"Setting"> | string
+  }
+
+  export type MemberWhereInput = {
+    AND?: MemberWhereInput | MemberWhereInput[]
+    OR?: MemberWhereInput[]
+    NOT?: MemberWhereInput | MemberWhereInput[]
+    id?: StringFilter<"Member"> | string
+    nisn?: StringFilter<"Member"> | string
+    name?: StringFilter<"Member"> | string
+    className?: StringFilter<"Member"> | string
+    whatsappNumber?: StringFilter<"Member"> | string
+    email?: StringFilter<"Member"> | string
+    gender?: StringFilter<"Member"> | string
+    password?: StringFilter<"Member"> | string
+    plainPassword?: StringNullableFilter<"Member"> | string | null
+    status?: StringFilter<"Member"> | string
+    joinYear?: IntFilter<"Member"> | number
+    role?: StringFilter<"Member"> | string
+    createdAt?: DateTimeFilter<"Member"> | Date | string
+    updatedAt?: DateTimeFilter<"Member"> | Date | string
+  }
+
+  export type MemberOrderByWithRelationInput = {
+    id?: SortOrder
+    nisn?: SortOrder
+    name?: SortOrder
+    className?: SortOrder
+    whatsappNumber?: SortOrder
+    email?: SortOrder
+    gender?: SortOrder
+    password?: SortOrder
+    plainPassword?: SortOrderInput | SortOrder
+    status?: SortOrder
+    joinYear?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MemberWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    nisn?: string
+    AND?: MemberWhereInput | MemberWhereInput[]
+    OR?: MemberWhereInput[]
+    NOT?: MemberWhereInput | MemberWhereInput[]
+    name?: StringFilter<"Member"> | string
+    className?: StringFilter<"Member"> | string
+    whatsappNumber?: StringFilter<"Member"> | string
+    email?: StringFilter<"Member"> | string
+    gender?: StringFilter<"Member"> | string
+    password?: StringFilter<"Member"> | string
+    plainPassword?: StringNullableFilter<"Member"> | string | null
+    status?: StringFilter<"Member"> | string
+    joinYear?: IntFilter<"Member"> | number
+    role?: StringFilter<"Member"> | string
+    createdAt?: DateTimeFilter<"Member"> | Date | string
+    updatedAt?: DateTimeFilter<"Member"> | Date | string
+  }, "id" | "nisn">
+
+  export type MemberOrderByWithAggregationInput = {
+    id?: SortOrder
+    nisn?: SortOrder
+    name?: SortOrder
+    className?: SortOrder
+    whatsappNumber?: SortOrder
+    email?: SortOrder
+    gender?: SortOrder
+    password?: SortOrder
+    plainPassword?: SortOrderInput | SortOrder
+    status?: SortOrder
+    joinYear?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MemberCountOrderByAggregateInput
+    _avg?: MemberAvgOrderByAggregateInput
+    _max?: MemberMaxOrderByAggregateInput
+    _min?: MemberMinOrderByAggregateInput
+    _sum?: MemberSumOrderByAggregateInput
+  }
+
+  export type MemberScalarWhereWithAggregatesInput = {
+    AND?: MemberScalarWhereWithAggregatesInput | MemberScalarWhereWithAggregatesInput[]
+    OR?: MemberScalarWhereWithAggregatesInput[]
+    NOT?: MemberScalarWhereWithAggregatesInput | MemberScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Member"> | string
+    nisn?: StringWithAggregatesFilter<"Member"> | string
+    name?: StringWithAggregatesFilter<"Member"> | string
+    className?: StringWithAggregatesFilter<"Member"> | string
+    whatsappNumber?: StringWithAggregatesFilter<"Member"> | string
+    email?: StringWithAggregatesFilter<"Member"> | string
+    gender?: StringWithAggregatesFilter<"Member"> | string
+    password?: StringWithAggregatesFilter<"Member"> | string
+    plainPassword?: StringNullableWithAggregatesFilter<"Member"> | string | null
+    status?: StringWithAggregatesFilter<"Member"> | string
+    joinYear?: IntWithAggregatesFilter<"Member"> | number
+    role?: StringWithAggregatesFilter<"Member"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Member"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Member"> | Date | string
+  }
+
+  export type OrgMemberWhereInput = {
+    AND?: OrgMemberWhereInput | OrgMemberWhereInput[]
+    OR?: OrgMemberWhereInput[]
+    NOT?: OrgMemberWhereInput | OrgMemberWhereInput[]
+    id?: StringFilter<"OrgMember"> | string
+    name?: StringFilter<"OrgMember"> | string
+    role?: StringFilter<"OrgMember"> | string
+    jabatan?: StringFilter<"OrgMember"> | string
+    yearStart?: IntFilter<"OrgMember"> | number
+    yearEnd?: IntNullableFilter<"OrgMember"> | number | null
+    isCurrent?: BoolFilter<"OrgMember"> | boolean
+    photoPath?: StringNullableFilter<"OrgMember"> | string | null
+    quote?: StringNullableFilter<"OrgMember"> | string | null
+    createdAt?: DateTimeFilter<"OrgMember"> | Date | string
+    updatedAt?: DateTimeFilter<"OrgMember"> | Date | string
+  }
+
+  export type OrgMemberOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    jabatan?: SortOrder
+    yearStart?: SortOrder
+    yearEnd?: SortOrderInput | SortOrder
+    isCurrent?: SortOrder
+    photoPath?: SortOrderInput | SortOrder
+    quote?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrgMemberWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OrgMemberWhereInput | OrgMemberWhereInput[]
+    OR?: OrgMemberWhereInput[]
+    NOT?: OrgMemberWhereInput | OrgMemberWhereInput[]
+    name?: StringFilter<"OrgMember"> | string
+    role?: StringFilter<"OrgMember"> | string
+    jabatan?: StringFilter<"OrgMember"> | string
+    yearStart?: IntFilter<"OrgMember"> | number
+    yearEnd?: IntNullableFilter<"OrgMember"> | number | null
+    isCurrent?: BoolFilter<"OrgMember"> | boolean
+    photoPath?: StringNullableFilter<"OrgMember"> | string | null
+    quote?: StringNullableFilter<"OrgMember"> | string | null
+    createdAt?: DateTimeFilter<"OrgMember"> | Date | string
+    updatedAt?: DateTimeFilter<"OrgMember"> | Date | string
+  }, "id">
+
+  export type OrgMemberOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    jabatan?: SortOrder
+    yearStart?: SortOrder
+    yearEnd?: SortOrderInput | SortOrder
+    isCurrent?: SortOrder
+    photoPath?: SortOrderInput | SortOrder
+    quote?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OrgMemberCountOrderByAggregateInput
+    _avg?: OrgMemberAvgOrderByAggregateInput
+    _max?: OrgMemberMaxOrderByAggregateInput
+    _min?: OrgMemberMinOrderByAggregateInput
+    _sum?: OrgMemberSumOrderByAggregateInput
+  }
+
+  export type OrgMemberScalarWhereWithAggregatesInput = {
+    AND?: OrgMemberScalarWhereWithAggregatesInput | OrgMemberScalarWhereWithAggregatesInput[]
+    OR?: OrgMemberScalarWhereWithAggregatesInput[]
+    NOT?: OrgMemberScalarWhereWithAggregatesInput | OrgMemberScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OrgMember"> | string
+    name?: StringWithAggregatesFilter<"OrgMember"> | string
+    role?: StringWithAggregatesFilter<"OrgMember"> | string
+    jabatan?: StringWithAggregatesFilter<"OrgMember"> | string
+    yearStart?: IntWithAggregatesFilter<"OrgMember"> | number
+    yearEnd?: IntNullableWithAggregatesFilter<"OrgMember"> | number | null
+    isCurrent?: BoolWithAggregatesFilter<"OrgMember"> | boolean
+    photoPath?: StringNullableWithAggregatesFilter<"OrgMember"> | string | null
+    quote?: StringNullableWithAggregatesFilter<"OrgMember"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"OrgMember"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"OrgMember"> | Date | string
+  }
+
+  export type AlumniTestimonialWhereInput = {
+    AND?: AlumniTestimonialWhereInput | AlumniTestimonialWhereInput[]
+    OR?: AlumniTestimonialWhereInput[]
+    NOT?: AlumniTestimonialWhereInput | AlumniTestimonialWhereInput[]
+    id?: StringFilter<"AlumniTestimonial"> | string
+    name?: StringFilter<"AlumniTestimonial"> | string
+    angkatan?: StringFilter<"AlumniTestimonial"> | string
+    photoPath?: StringNullableFilter<"AlumniTestimonial"> | string | null
+    content?: StringFilter<"AlumniTestimonial"> | string
+    createdAt?: DateTimeFilter<"AlumniTestimonial"> | Date | string
+    updatedAt?: DateTimeFilter<"AlumniTestimonial"> | Date | string
+  }
+
+  export type AlumniTestimonialOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    angkatan?: SortOrder
+    photoPath?: SortOrderInput | SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlumniTestimonialWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AlumniTestimonialWhereInput | AlumniTestimonialWhereInput[]
+    OR?: AlumniTestimonialWhereInput[]
+    NOT?: AlumniTestimonialWhereInput | AlumniTestimonialWhereInput[]
+    name?: StringFilter<"AlumniTestimonial"> | string
+    angkatan?: StringFilter<"AlumniTestimonial"> | string
+    photoPath?: StringNullableFilter<"AlumniTestimonial"> | string | null
+    content?: StringFilter<"AlumniTestimonial"> | string
+    createdAt?: DateTimeFilter<"AlumniTestimonial"> | Date | string
+    updatedAt?: DateTimeFilter<"AlumniTestimonial"> | Date | string
+  }, "id">
+
+  export type AlumniTestimonialOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    angkatan?: SortOrder
+    photoPath?: SortOrderInput | SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AlumniTestimonialCountOrderByAggregateInput
+    _max?: AlumniTestimonialMaxOrderByAggregateInput
+    _min?: AlumniTestimonialMinOrderByAggregateInput
+  }
+
+  export type AlumniTestimonialScalarWhereWithAggregatesInput = {
+    AND?: AlumniTestimonialScalarWhereWithAggregatesInput | AlumniTestimonialScalarWhereWithAggregatesInput[]
+    OR?: AlumniTestimonialScalarWhereWithAggregatesInput[]
+    NOT?: AlumniTestimonialScalarWhereWithAggregatesInput | AlumniTestimonialScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AlumniTestimonial"> | string
+    name?: StringWithAggregatesFilter<"AlumniTestimonial"> | string
+    angkatan?: StringWithAggregatesFilter<"AlumniTestimonial"> | string
+    photoPath?: StringNullableWithAggregatesFilter<"AlumniTestimonial"> | string | null
+    content?: StringWithAggregatesFilter<"AlumniTestimonial"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AlumniTestimonial"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AlumniTestimonial"> | Date | string
   }
 
   export type CandidateCreateInput = {
@@ -7418,6 +11265,293 @@ export namespace Prisma {
     value?: StringFieldUpdateOperationsInput | string
   }
 
+  export type MemberCreateInput = {
+    id?: string
+    nisn: string
+    name: string
+    className: string
+    whatsappNumber: string
+    email: string
+    gender: string
+    password: string
+    plainPassword?: string | null
+    status?: string
+    joinYear?: number
+    role?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MemberUncheckedCreateInput = {
+    id?: string
+    nisn: string
+    name: string
+    className: string
+    whatsappNumber: string
+    email: string
+    gender: string
+    password: string
+    plainPassword?: string | null
+    status?: string
+    joinYear?: number
+    role?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MemberUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    className?: StringFieldUpdateOperationsInput | string
+    whatsappNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    joinYear?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    className?: StringFieldUpdateOperationsInput | string
+    whatsappNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    joinYear?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberCreateManyInput = {
+    id?: string
+    nisn: string
+    name: string
+    className: string
+    whatsappNumber: string
+    email: string
+    gender: string
+    password: string
+    plainPassword?: string | null
+    status?: string
+    joinYear?: number
+    role?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MemberUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    className?: StringFieldUpdateOperationsInput | string
+    whatsappNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    joinYear?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    className?: StringFieldUpdateOperationsInput | string
+    whatsappNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    joinYear?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrgMemberCreateInput = {
+    id?: string
+    name: string
+    role: string
+    jabatan: string
+    yearStart: number
+    yearEnd?: number | null
+    isCurrent?: boolean
+    photoPath?: string | null
+    quote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrgMemberUncheckedCreateInput = {
+    id?: string
+    name: string
+    role: string
+    jabatan: string
+    yearStart: number
+    yearEnd?: number | null
+    isCurrent?: boolean
+    photoPath?: string | null
+    quote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrgMemberUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    jabatan?: StringFieldUpdateOperationsInput | string
+    yearStart?: IntFieldUpdateOperationsInput | number
+    yearEnd?: NullableIntFieldUpdateOperationsInput | number | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    quote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrgMemberUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    jabatan?: StringFieldUpdateOperationsInput | string
+    yearStart?: IntFieldUpdateOperationsInput | number
+    yearEnd?: NullableIntFieldUpdateOperationsInput | number | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    quote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrgMemberCreateManyInput = {
+    id?: string
+    name: string
+    role: string
+    jabatan: string
+    yearStart: number
+    yearEnd?: number | null
+    isCurrent?: boolean
+    photoPath?: string | null
+    quote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrgMemberUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    jabatan?: StringFieldUpdateOperationsInput | string
+    yearStart?: IntFieldUpdateOperationsInput | number
+    yearEnd?: NullableIntFieldUpdateOperationsInput | number | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    quote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrgMemberUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    jabatan?: StringFieldUpdateOperationsInput | string
+    yearStart?: IntFieldUpdateOperationsInput | number
+    yearEnd?: NullableIntFieldUpdateOperationsInput | number | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    quote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlumniTestimonialCreateInput = {
+    id?: string
+    name: string
+    angkatan: string
+    photoPath?: string | null
+    content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlumniTestimonialUncheckedCreateInput = {
+    id?: string
+    name: string
+    angkatan: string
+    photoPath?: string | null
+    content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlumniTestimonialUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    angkatan?: StringFieldUpdateOperationsInput | string
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlumniTestimonialUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    angkatan?: StringFieldUpdateOperationsInput | string
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlumniTestimonialCreateManyInput = {
+    id?: string
+    name: string
+    angkatan: string
+    photoPath?: string | null
+    content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlumniTestimonialUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    angkatan?: StringFieldUpdateOperationsInput | string
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlumniTestimonialUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    angkatan?: StringFieldUpdateOperationsInput | string
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -7703,6 +11837,201 @@ export namespace Prisma {
     value?: SortOrder
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type MemberCountOrderByAggregateInput = {
+    id?: SortOrder
+    nisn?: SortOrder
+    name?: SortOrder
+    className?: SortOrder
+    whatsappNumber?: SortOrder
+    email?: SortOrder
+    gender?: SortOrder
+    password?: SortOrder
+    plainPassword?: SortOrder
+    status?: SortOrder
+    joinYear?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MemberAvgOrderByAggregateInput = {
+    joinYear?: SortOrder
+  }
+
+  export type MemberMaxOrderByAggregateInput = {
+    id?: SortOrder
+    nisn?: SortOrder
+    name?: SortOrder
+    className?: SortOrder
+    whatsappNumber?: SortOrder
+    email?: SortOrder
+    gender?: SortOrder
+    password?: SortOrder
+    plainPassword?: SortOrder
+    status?: SortOrder
+    joinYear?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MemberMinOrderByAggregateInput = {
+    id?: SortOrder
+    nisn?: SortOrder
+    name?: SortOrder
+    className?: SortOrder
+    whatsappNumber?: SortOrder
+    email?: SortOrder
+    gender?: SortOrder
+    password?: SortOrder
+    plainPassword?: SortOrder
+    status?: SortOrder
+    joinYear?: SortOrder
+    role?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MemberSumOrderByAggregateInput = {
+    joinYear?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type OrgMemberCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    jabatan?: SortOrder
+    yearStart?: SortOrder
+    yearEnd?: SortOrder
+    isCurrent?: SortOrder
+    photoPath?: SortOrder
+    quote?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrgMemberAvgOrderByAggregateInput = {
+    yearStart?: SortOrder
+    yearEnd?: SortOrder
+  }
+
+  export type OrgMemberMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    jabatan?: SortOrder
+    yearStart?: SortOrder
+    yearEnd?: SortOrder
+    isCurrent?: SortOrder
+    photoPath?: SortOrder
+    quote?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrgMemberMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    jabatan?: SortOrder
+    yearStart?: SortOrder
+    yearEnd?: SortOrder
+    isCurrent?: SortOrder
+    photoPath?: SortOrder
+    quote?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrgMemberSumOrderByAggregateInput = {
+    yearStart?: SortOrder
+    yearEnd?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type AlumniTestimonialCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    angkatan?: SortOrder
+    photoPath?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlumniTestimonialMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    angkatan?: SortOrder
+    photoPath?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlumniTestimonialMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    angkatan?: SortOrder
+    photoPath?: SortOrder
+    content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -7831,6 +12160,22 @@ export namespace Prisma {
     update?: XOR<XOR<PostUpdateToOneWithWhereWithoutCommentsInput, PostUpdateWithoutCommentsInput>, PostUncheckedUpdateWithoutCommentsInput>
   }
 
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -7951,6 +12296,60 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type PostCreateWithoutAuthorInput = {
