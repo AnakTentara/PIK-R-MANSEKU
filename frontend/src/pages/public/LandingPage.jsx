@@ -28,7 +28,8 @@ function ScrollReveal({ children, delay = 0 }) {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setIsVisible(true);
-            observer.unobserve(domRef.current);
+          } else {
+            setIsVisible(false);
           }
         });
       },
@@ -59,6 +60,7 @@ export default function LandingPage() {
   const [isSessionOpen, setIsSessionOpen] = useState(true);
   const [content, setContent] = useState(null);
   const [testimonials, setTestimonials] = useState([]);
+  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -113,12 +115,30 @@ export default function LandingPage() {
     <div className="page-wrapper">
       <SEO />
 
-      {/* ── Hero ── */}
+      {/* ── Hero Full Image with Seamless Gradient ── */}
       <section className={styles.hero}>
-        <div className={styles.heroInner}>
+        {/* Absolute Background Slideshow */}
+        <div className={styles.heroSlideshow}>
+          {HERO_SLIDES.map((slide, i) => (
+            <div
+              key={i}
+              className={`${styles.slide} ${i === activeSlide ? styles.active : ''}`}
+            >
+              <img
+                src={slide.src}
+                alt={slide.alt}
+                className={styles.slideImg}
+              />
+            </div>
+          ))}
+        </div>
 
-          {/* Kiri — Teks */}
-          <div className={styles.heroLeft}>
+        {/* Dynamic Dark-to-White Fade Overlay */}
+        <div className={styles.heroOverlay} />
+
+        {/* Hero Content */}
+        <div className={`container ${styles.heroContent}`}>
+          <div className={styles.heroTextCenter}>
             <p className={styles.heroEyebrow}>
               <span />
               Selamat Datang di
@@ -155,49 +175,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-
-          {/* Kanan — Slideshow foto */}
-          <div className={styles.heroRight}>
-            <div className={styles.heroDecor} />
-            <div className={styles.slideshow}>
-              {HERO_SLIDES.map((slide, i) => (
-                <div
-                  key={i}
-                  className={`${styles.slide} ${i === activeSlide ? styles.active : ''}`}
-                >
-                  <img
-                    src={slide.src}
-                    alt={slide.alt}
-                    className={styles.slideImg}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Badge floating */}
-            <div className={styles.slideBadge}>
-              <div className={styles.slideBadgeIcon}>
-                <Users size={18} />
-              </div>
-              <div className={styles.slideBadgeText}>
-                <span className={styles.slideBadgeNum}>Konseling Sebaya</span>
-                <span className={styles.slideBadgeLabel}>PIK-R MANSEKU</span>
-              </div>
-            </div>
-
-            {/* Dot navigation */}
-            <div className={styles.slideDots}>
-              {HERO_SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  className={`${styles.slideDot} ${i === activeSlide ? styles.activeDot : ''}`}
-                  onClick={() => setActiveSlide(i)}
-                  aria-label={`Slide ${i + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-
         </div>
       </section>
 
@@ -309,7 +286,7 @@ export default function LandingPage() {
             <div className={styles.marqueeTrack}>
               {/* Set 1 */}
               {testimonials.map((t) => (
-                <div key={`${t.id}-1`} className={styles.testimonialCard}>
+                <div key={`${t.id}-1`} className={styles.testimonialCard} onClick={() => setSelectedTestimonial(t)}>
                   <div className={styles.testimonialPhotoWrap}>
                     {t.photoPath ? (
                       <img src={`http://localhost:25552${t.photoPath}`} alt={t.name} className={styles.testimonialPhoto} />
@@ -328,7 +305,7 @@ export default function LandingPage() {
               ))}
               {/* Set 2 (Duplikasi untuk Seamless Infinite Scroll) */}
               {testimonials.map((t) => (
-                <div key={`${t.id}-2`} className={styles.testimonialCard}>
+                <div key={`${t.id}-2`} className={styles.testimonialCard} onClick={() => setSelectedTestimonial(t)}>
                   <div className={styles.testimonialPhotoWrap}>
                     {t.photoPath ? (
                       <img src={`http://localhost:25552${t.photoPath}`} alt={t.name} className={styles.testimonialPhoto} />
@@ -377,6 +354,29 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Testimonial Modal Popup with Background Blur */}
+      {selectedTestimonial && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedTestimonial(null)}>
+          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.modalCloseBtn} onClick={() => setSelectedTestimonial(null)}>×</button>
+            <div className={styles.modalBody}>
+              <div className={styles.modalPhotoWrap}>
+                {selectedTestimonial.photoPath ? (
+                  <img src={`http://localhost:25552${selectedTestimonial.photoPath}`} alt={selectedTestimonial.name} className={styles.modalPhoto} />
+                ) : (
+                  <div className={styles.modalPhotoPlaceholder}>{selectedTestimonial.name[0]}</div>
+                )}
+              </div>
+              <div className={styles.modalInfo}>
+                <h3 className={styles.modalName}>{selectedTestimonial.name}</h3>
+                <span className={styles.modalBadge}>Angkatan {selectedTestimonial.angkatan}</span>
+                <div className={styles.modalQuoteIcon}>“</div>
+                <p className={styles.modalText}>{selectedTestimonial.content}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

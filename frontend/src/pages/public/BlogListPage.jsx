@@ -45,27 +45,31 @@ export default function BlogListPage() {
   const totalPages = Math.ceil(total / limit) || 1;
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper" style={{ backgroundColor: '#faf6ee', minHeight: '100vh', paddingTop: 'calc(var(--navbar-height) + 12px)' }}>
       <SEO 
         title="Blog & Artikel" 
         description="Temukan kumpulan artikel edukasi remaja, info kesehatan reproduksi, tips life skills, kegiatan konseling sebaya, dan berita seputar PIK-R MANSEKU MAN 1 Muara Enim." 
       />
-      <section className="section">
-        <div className="container">
-          {/* Header */}
-          <div className={styles.header}>
-            <div>
-              <h1 className={styles.title}>Blog &amp; Artikel</h1>
-              <p className={styles.subtitle}>
-                Informasi terkini seputar kegiatan PIK-R MANSEKU dan edukasi remaja.
-              </p>
+      <section className="section" style={{ paddingBlock: 'var(--space-xl)' }}>
+        <div className={`container ${styles.newspaperContainer}`}>
+          {/* Newspaper Header */}
+          <div className={styles.newspaperHeader}>
+            <div className={styles.newspaperName}>WARTA MANSEKU</div>
+            <div className={styles.newspaperSubheader}>
+              <span>Volume IV • Edisi Terkini</span>
+              <span>{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span>Edukasi & Konseling Remaja</span>
             </div>
+          </div>
+
+          {/* Search Toolbar */}
+          <div className={styles.toolbar}>
             <div className={styles.searchWrap}>
               <SearchIcon size={16} className={styles.searchIcon} />
               <input
                 type="text"
                 className={styles.searchInput}
-                placeholder="Cari artikel..."
+                placeholder="Cari berita warta..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
