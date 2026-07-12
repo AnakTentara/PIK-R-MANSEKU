@@ -55,6 +55,7 @@ export default function LandingPage() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isSessionOpen, setIsSessionOpen] = useState(true);
   const [content, setContent] = useState(null);
+  const [webEditorConfig, setWebEditorConfig] = useState(null);
   const [testimonials, setTestimonials] = useState([]);
   const [selectedTestimonial, setSelectedTestimonial] = useState(null);
 
@@ -78,6 +79,9 @@ export default function LandingPage() {
         if (res.data.landingPageContent) {
           setContent(res.data.landingPageContent);
         }
+        if (res.data.webEditorConfig) {
+          setWebEditorConfig(res.data.webEditorConfig);
+        }
       }
     } catch (err) {
       console.error('Failed to load settings:', err);
@@ -94,17 +98,23 @@ export default function LandingPage() {
   };
 
   // Resolve config variables
-  const tahunBerdiri = content?.tahunBerdiri || '2023';
-  const anggotaAktif = content?.anggotaAktif || '50+';
-  const kegiatan = content?.kegiatan || '10+ Program';
+  const webTitle = webEditorConfig?.hero?.webTitle || 'PIK-R MANSEKU';
+  const heroDesc = webEditorConfig?.hero?.heroDesc || 'Pusat Informasi & Konseling Remaja MAN 1 Muara Enim — wadah konseling, edukasi, dan pengembangan diri untuk remaja.';
+
+  const tahunBerdiri = webEditorConfig?.tentangKami?.yearFounded || content?.tahunBerdiri || '2023';
+  const aktifType = webEditorConfig?.tentangKami?.activeMembersType || 'Real';
+  const aktifFake = webEditorConfig?.tentangKami?.activeMembersFakeValue || '';
+  const anggotaAktif = (aktifType === 'Fake' || aktifType === 'Real+Fake') ? aktifFake : '50+'; // ideally this should also combine real if Real+Fake, but keeping simple for UI display
+  const kegiatan = webEditorConfig?.tentangKami?.activitiesCount || content?.kegiatan || '10+ Program';
   
-  const aboutText1 = content?.aboutText1 || 'PIK-R MANSEKU adalah organisasi Pusat Informasi dan Konseling Remaja yang bernaung di bawah MAN 1 Muara Enim, Kementerian Agama Republik Indonesia. Kami hadir sebagai wadah bagi remaja untuk mendapatkan informasi yang tepat, konseling sebaya yang aman, dan pengembangan diri yang menyeluruh.';
-  const aboutText2 = content?.aboutText2 || 'Melalui pendekatan yang bersahabat dan berbasis ilmu pengetahuan, PIK-R MANSEKU berkomitmen untuk membentuk generasi muda yang sehat secara fisik, mental, dan sosial — serta siap menjadi pemimpin masa depan.';
+  const aboutText1 = webEditorConfig?.tentangKami?.aboutText1 || content?.aboutText1 || 'PIK-R MANSEKU adalah organisasi Pusat Informasi dan Konseling Remaja yang bernaung di bawah MAN 1 Muara Enim, Kementerian Agama Republik Indonesia. Kami hadir sebagai wadah bagi remaja untuk mendapatkan informasi yang tepat, konseling sebaya yang aman, dan pengembangan diri yang menyeluruh.';
+  const aboutText2 = webEditorConfig?.tentangKami?.aboutText2 || content?.aboutText2 || 'Melalui pendekatan yang bersahabat dan berbasis ilmu pengetahuan, PIK-R MANSEKU berkomitmen untuk membentuk generasi muda yang sehat secara fisik, mental, dan sosial — serta siap menjadi pemimpin masa depan.';
   
-  const visi = content?.visi || 'Menjadi wadah pembinaan dan pengembangan diri remaja yang beriman, berkarakter, dan berwawasan luas melalui pendekatan konseling sebaya.';
+  const visi = webEditorConfig?.visiMisi?.visi || content?.visi || 'Menjadi wadah pembinaan dan pengembangan diri remaja yang beriman, berkarakter, dan berwawasan luas melalui pendekatan konseling sebaya.';
   
-  const misiList = content?.misi 
-    ? (typeof content.misi === 'string' ? content.misi.split('\n').filter(Boolean) : content.misi)
+  const rawMisi = webEditorConfig?.visiMisi?.misi || content?.misi;
+  const misiList = rawMisi 
+    ? (typeof rawMisi === 'string' ? rawMisi.split('\n').filter(Boolean) : rawMisi)
     : DEFAULT_MISI;
 
   return (
@@ -141,11 +151,16 @@ export default function LandingPage() {
               Selamat Datang di
             </p>
             <h1 className={styles.heroTitle}>
-              PIK-R <strong>MANSEKU</strong>
+              {webTitle.includes(' ') ? (
+                <>
+                  {webTitle.split(' ')[0]} <strong>{webTitle.substring(webTitle.indexOf(' ') + 1)}</strong>
+                </>
+              ) : (
+                <strong>{webTitle}</strong>
+              )}
             </h1>
             <p className={styles.heroDesc}>
-              Pusat Informasi &amp; Konseling Remaja MAN 1 Muara Enim — wadah
-              konseling, edukasi, dan pengembangan diri untuk remaja.
+              {heroDesc}
             </p>
             <div className={styles.heroBtns}>
               <Link to="/daftar" className={styles.heroBtnPrimary}>

@@ -18,4 +18,5 @@ dist/
 build/
 .env.local
 .env.*.local
+src/generated/
 

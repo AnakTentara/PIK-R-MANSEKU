@@ -34,6 +34,7 @@ import AdminAnggotaPage from '@/pages/admin/AdminAnggotaPage';
 import AdminBlogPage from '@/pages/admin/AdminBlogPage';
 import AdminBlogEditorPage from '@/pages/admin/AdminBlogEditorPage';
 import AdminSettingsPage from '@/pages/admin/AdminSettingsPage';
+import AdminWebEditorPage from '@/pages/admin/AdminWebEditorPage';
 import AdminOrgPage from '@/pages/admin/AdminOrgPage';
 import AdminTestimonialsPage from '@/pages/admin/AdminTestimonialsPage';
 
@@ -95,6 +96,7 @@ function App() {
           <Route path="blog" element={<AdminBlogPage />} />
           <Route path="blog/new" element={<AdminBlogEditorPage />} />
           <Route path="blog/edit/:id" element={<AdminBlogEditorPage />} />
+          <Route path="web-editor" element={<AdminWebEditorPage />} />
           <Route path="settings" element={<AdminSettingsPage />} />
           <Route path="org" element={<AdminOrgPage />} />
           <Route path="testimoni" element={<AdminTestimonialsPage />} />

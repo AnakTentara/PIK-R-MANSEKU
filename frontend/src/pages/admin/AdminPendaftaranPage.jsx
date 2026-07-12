@@ -29,6 +29,7 @@ export default function AdminPendaftaranPage() {
   const [editForm, setEditForm] = useState({
     name: '',
     className: '',
+    asalSekolah: '',
     email: '',
     whatsappNumber: '',
     status: '',
@@ -120,6 +121,7 @@ export default function AdminPendaftaranPage() {
     setEditForm({
       name: c.name || '',
       className: c.className || '',
+      asalSekolah: c.asalSekolah || '',
       email: c.email || '',
       whatsappNumber: c.whatsappNumber || '',
       status: c.status || 'PENDING',
@@ -308,7 +310,7 @@ export default function AdminPendaftaranPage() {
                   <th>No</th>
                   <th>NISN</th>
                   <th>Nama Lengkap</th>
-                  <th>Kelas</th>
+                  <th>Kelas & Sekolah</th>
                   <th>Status</th>
                   <th>Email / WA</th>
                   <th>Aksi</th>
@@ -320,7 +322,10 @@ export default function AdminPendaftaranPage() {
                     <td className={styles.tdNum}>{(currentPage - 1) * ITEMS_PER_PAGE + i + 1}</td>
                     <td className={styles.tdMono}>{c.nisn}</td>
                     <td className={styles.tdName}>{c.name}</td>
-                    <td>{c.className}</td>
+                    <td>
+                      <div>{c.className}</div>
+                      <div style={{ fontSize: '0.8em', color: 'var(--color-text-secondary)' }}>{c.asalSekolah}</div>
+                    </td>
                     <td>
                       <span className={`badge badge-${c.status.toLowerCase()}`}>
                         {c.status}
@@ -420,6 +425,17 @@ export default function AdminPendaftaranPage() {
                   className="form-input"
                   value={editForm.className}
                   onChange={(e) => setEditForm((f) => ({ ...f, className: e.target.value }))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="edit-asal">Asal Sekolah</label>
+                <input
+                  id="edit-asal"
+                  type="text"
+                  className="form-input"
+                  value={editForm.asalSekolah}
+                  onChange={(e) => setEditForm((f) => ({ ...f, asalSekolah: e.target.value }))}
                 />
               </div>
 

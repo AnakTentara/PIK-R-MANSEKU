@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: '/admin/org', label: 'Struktur Org', icon: Network },
   { to: '/admin/testimoni', label: 'Testimoni Alumni', icon: MessageSquare },
   { to: '/admin/blog', label: 'Blog', icon: FileText },
+  { to: '/admin/web-editor', label: 'Web Editor', icon: LayoutDashboard }, // Can use layout icon or similar
   { to: '/admin/settings', label: 'Pengaturan', icon: Settings },
 ];
 
