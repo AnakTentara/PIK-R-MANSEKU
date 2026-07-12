@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Calendar, BookOpen } from 'lucide-react';
 import { getPublicSettings } from '@/api/candidates';
 import { getPublicTestimonials } from '@/api/public';
+import SEO from '@/components/common/SEO';
 import styles from './LandingPage.module.css';
 
 const HERO_SLIDES = [
@@ -110,6 +111,7 @@ export default function LandingPage() {
 
   return (
     <div className="page-wrapper">
+      <SEO />
 
       {/* ── Hero ── */}
       <section className={styles.hero}>

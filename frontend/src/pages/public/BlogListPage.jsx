@@ -5,6 +5,7 @@ import { timeAgo } from '@/utils/formatDate';
 import { truncate, stripHtml } from '@/utils/truncate';
 import { MessageSquare, Search as SearchIcon } from 'lucide-react';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
+import SEO from '@/components/common/SEO';
 import styles from './BlogListPage.module.css';
 
 export default function BlogListPage() {
@@ -45,6 +46,10 @@ export default function BlogListPage() {
 
   return (
     <div className="page-wrapper">
+      <SEO 
+        title="Blog & Artikel" 
+        description="Temukan kumpulan artikel edukasi remaja, info kesehatan reproduksi, tips life skills, kegiatan konseling sebaya, dan berita seputar PIK-R MANSEKU MAN 1 Muara Enim." 
+      />
       <section className="section">
         <div className="container">
           {/* Header */}

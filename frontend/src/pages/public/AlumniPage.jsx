@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPublicAlumni } from '@/api/public';
+import SEO from '@/components/common/SEO';
 import styles from './AlumniPage.module.css';
 
 export default function AlumniPage() {
@@ -32,6 +33,10 @@ export default function AlumniPage() {
 
   return (
     <div className="page-wrapper">
+      <SEO 
+        title="Alumni & Demisioner" 
+        description="Ruang silaturahmi dan apresiasi bagi seluruh demisioner serta alumni PIK-R MAN 1 Muara Enim (PIK-R MANSEKU) dari berbagai angkatan." 
+      />
       {/* Header */}
       <section className={styles.header}>
         <div className="container">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getPublicOrg } from '@/api/public';
 import { ChevronDown, ChevronUp, Users, Calendar, MapPin, Award } from 'lucide-react';
+import SEO from '@/components/common/SEO';
 import styles from './KamiPage.module.css';
 
 export default function KamiPage() {
@@ -52,6 +53,10 @@ export default function KamiPage() {
 
   return (
     <div className="page-wrapper">
+      <SEO 
+        title="Tentang Kami" 
+        description="Profil lengkap PIK-R MANSEKU MAN 1 Muara Enim. Ketahui visi, misi, struktur pimpinan aktif, badan pengurus harian (kabinet), dan arsip sejarah organisasi kami." 
+      />
       {/* 1. Hero Section */}
       <section className={styles.hero}>
         <div className={`container ${styles.heroInner}`}>

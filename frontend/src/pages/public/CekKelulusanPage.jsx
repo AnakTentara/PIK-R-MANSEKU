@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { checkStatus } from '@/api/candidates';
 import { Search } from 'lucide-react';
+import SEO from '@/components/common/SEO';
 import styles from './CekKelulusanPage.module.css';
 
 const STAGES = { SEARCH: 'search', LOADING: 'loading', RESULT: 'result' };
@@ -62,6 +63,7 @@ export default function CekKelulusanPage() {
   if (stage === STAGES.SEARCH) {
     return (
       <div className={`page-wrapper ${styles.searchWrapper}`}>
+        <SEO title="Cek Kelulusan Seleksi" description="Halaman pengumuman resmi hasil seleksi penerimaan anggota baru PIK-R MANSEKU MAN 1 Muara Enim. Masukkan NISN Anda untuk melihat status kelulusan." />
         <div className={styles.searchCenter}>
           <img
             src="/media/logos/logo_pik-r.png"
@@ -115,6 +117,7 @@ export default function CekKelulusanPage() {
   if (result?.notFound) {
     return (
       <div className={`${styles.resultScreen} ${styles.resultNotFound}`}>
+        <SEO title="NISN Tidak Ditemukan" description="Pengecekan kelulusan seleksi PIK-R MANSEKU: NISN tidak ditemukan dalam database." />
         <div className={styles.resultCard}>
           <h2 className={styles.resultHeading}>NISN Tidak Ditemukan</h2>
           <p className={styles.resultMsg}>
@@ -136,6 +139,7 @@ export default function CekKelulusanPage() {
   if (status === 'LULUS') {
     return (
       <div className={`${styles.resultScreen} ${styles.resultLulus}`}>
+        <SEO title="Selamat! Anda Dinyatakan Lulus" description="Selamat! Hasil seleksi menyatakan Anda LULUS menjadi anggota/pengurus PIK-R MANSEKU." />
         <div className={styles.resultInner}>
           <img
             src="/media/logos/logo_pik-r.png"
@@ -165,6 +169,7 @@ export default function CekKelulusanPage() {
   if (status === 'TIDAK_LULUS') {
     return (
       <div className={`${styles.resultScreen} ${styles.resultTidakLulus}`}>
+        <SEO title="Hasil Seleksi: Tetap Semangat" description="Hasil seleksi menyatakan Anda belum lulus seleksi PIK-R MANSEKU kali ini. Jangan berkecil hati dan tetap semangat!" />
         <div className={styles.resultInner}>
           <img
             src="/media/logos/logo_pik-r.png"
@@ -194,6 +199,7 @@ export default function CekKelulusanPage() {
   // PENDING
   return (
     <div className={`${styles.resultScreen} ${styles.resultPending}`}>
+      <SEO title="Status Seleksi: Menunggu Pengumuman" description="Status seleksi pendaftaran PIK-R MANSEKU Anda saat ini masih dalam proses peninjauan." />
       <div className={styles.resultInner}>
         <img
           src="/media/logos/logo_pik-r.png"

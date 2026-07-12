@@ -5,6 +5,7 @@ import { formatDate, timeAgo } from '@/utils/formatDate';
 import { ArrowLeft, Send, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/stores/authStore';
+import SEO from '@/components/common/SEO';
 import styles from './BlogDetailPage.module.css';
 
 export default function BlogDetailPage() {
@@ -60,6 +61,7 @@ export default function BlogDetailPage() {
   if (loading) {
     return (
       <div className="page-wrapper">
+        <SEO title="Memuat Artikel..." description="Silakan tunggu, artikel sedang dimuat." />
         <div className={`container ${styles.articleWrap}`}>
           <div className={`skeleton ${styles.skelTitle}`} />
           <div className={`skeleton ${styles.skelMeta}`} />
@@ -76,6 +78,7 @@ export default function BlogDetailPage() {
   if (!post) {
     return (
       <div className="page-wrapper">
+        <SEO title="Artikel Tidak Ditemukan" description="Maaf, artikel yang Anda cari tidak ditemukan atau telah dihapus." />
         <div className={`container ${styles.articleWrap}`}>
           <p style={{ color: 'var(--color-text-muted)' }}>Artikel tidak ditemukan.</p>
           <Link to="/blog" className="btn btn-secondary" style={{ marginTop: 16 }}>← Kembali ke Blog</Link>
@@ -88,6 +91,7 @@ export default function BlogDetailPage() {
 
   return (
     <div className="page-wrapper">
+      <SEO title={post.title} description={post.content} type="article" />
       <div className={`container ${styles.articleWrap}`}>
         {/* Back */}
         <Link to="/blog" className={styles.backLink}>

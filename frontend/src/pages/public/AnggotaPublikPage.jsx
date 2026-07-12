@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPublicOrg, getPublicMembers } from '@/api/public';
+import SEO from '@/components/common/SEO';
 import styles from './AnggotaPublikPage.module.css';
 
 export default function AnggotaPublikPage() {
@@ -30,6 +31,10 @@ export default function AnggotaPublikPage() {
 
   return (
     <div className="page-wrapper">
+      <SEO 
+        title="Daftar Anggota & Pengurus" 
+        description="Bagan organisasi, jajaran pengurus aktif (BPH), pembina, serta daftar lengkap anggota aktif PIK-R MANSEKU MAN 1 Muara Enim." 
+      />
       {/* Header */}
       <section className={styles.header}>
         <div className="container">

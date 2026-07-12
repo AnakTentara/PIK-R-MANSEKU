@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { registerCandidate, getPublicSettings } from '@/api/candidates';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import SEO from '@/components/common/SEO';
 import styles from './RegisterPage.module.css';
 
 const KELAS_OPTIONS = [];
@@ -57,6 +58,7 @@ export default function RegisterPage() {
   if (!isSessionOpen) {
     return (
       <div className="container" style={{ minHeight: 'calc(100vh - var(--navbar-height))', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBlock: 'var(--space-2xl)' }}>
+        <SEO title="Pendaftaran Ditutup" description="Maaf, sesi pendaftaran anggota baru PIK-R MANSEKU saat ini sedang ditutup oleh pihak administrasi. Silakan pantau pengumuman resmi kami untuk sesi berikutnya." />
         <div style={{ maxWidth: '480px', width: '100%', textAlign: 'center', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border-strong)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)', boxShadow: 'var(--shadow-md)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
           <AlertCircle size={48} style={{ color: 'var(--color-accent)' }} />
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.5rem', color: 'var(--color-text-primary)' }}>Pendaftaran Ditutup</h2>
@@ -116,6 +118,7 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div className="page-wrapper">
+        <SEO title="Pendaftaran Berhasil" description="Selamat! Pendaftaran online Anda sebagai calon anggota baru PIK-R MANSEKU berhasil terkirim." />
         <section className="section">
           <div className={`container ${styles.successCard}`}>
             <CheckCircle size={56} className={styles.successIcon} />
@@ -135,6 +138,7 @@ export default function RegisterPage() {
 
   return (
     <div className="page-wrapper">
+      <SEO title="Pendaftaran Anggota Baru" description="Formulir pendaftaran online calon anggota baru PIK-R MANSEKU MAN 1 Muara Enim. Daftarkan dirimu dan jadilah bagian dari konselor sebaya generasi selanjutnya!" />
       <section className="section">
         <div className={`container ${styles.grid}`}>
           {/* Form */}
