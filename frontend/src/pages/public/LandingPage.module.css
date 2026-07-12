@@ -41,7 +41,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 56px 0;
+  padding: 24px 0 0 0;
+  margin-top: -30px; /* Slight upward shift for perfect balance */
   max-width: 620px;
   width: 100%;
 }
@@ -56,7 +57,7 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #f97316;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .heroEyebrow span {
@@ -75,7 +76,7 @@
   color: #0f172a;
   line-height: 1.1;
   letter-spacing: -0.03em;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .heroTitle strong {
@@ -88,7 +89,7 @@
   font-size: 0.9375rem;
   line-height: 1.75;
   color: #334155;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   max-width: 480px;
 }
 
@@ -146,8 +147,8 @@
 .heroStats {
   display: flex;
   gap: 36px;
-  margin-top: 32px;
-  padding-top: 24px;
+  margin-top: 24px;
+  padding-top: 16px;
   border-top: 1px solid rgba(15, 23, 42, 0.08);
 }
 
@@ -278,8 +279,8 @@
 /* ── Slide Dots ── */
 .slideDots {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 40px;
+  right: 40px;
   display: flex;
   gap: 6px;
   z-index: 10;

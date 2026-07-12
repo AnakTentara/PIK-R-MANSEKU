@@ -6,9 +6,9 @@ import { ArrowLeft, Send, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/stores/authStore';
 import SEO from '@/components/common/SEO';
-import styles from './BlogDetailPage.module.css';
+import styles from './BlogPostPage.module.css';
 
-export default function BlogDetailPage() {
+export default function BlogPostPage() {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);

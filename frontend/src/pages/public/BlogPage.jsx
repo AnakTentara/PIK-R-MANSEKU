@@ -6,9 +6,9 @@ import { truncate, stripHtml } from '@/utils/truncate';
 import { MessageSquare, Search as SearchIcon } from 'lucide-react';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import SEO from '@/components/common/SEO';
-import styles from './BlogListPage.module.css';
+import styles from './BlogPage.module.css';
 
-export default function BlogListPage() {
+export default function BlogPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

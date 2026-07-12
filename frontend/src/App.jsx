@@ -18,8 +18,11 @@ function ScrollToTop() {
 import LandingPage from '@/pages/public/LandingPage';
 import RegisterPage from '@/pages/public/RegisterPage';
 import CekKelulusanPage from '@/pages/public/CekKelulusanPage';
-import BlogListPage from '@/pages/public/BlogListPage';
-import BlogDetailPage from '@/pages/public/BlogDetailPage';
+import BlogPage from '@/pages/public/BlogPage';
+import BlogPostPage from '@/pages/public/BlogPostPage';
+import CustomPage from '@/pages/public/CustomPage';
+
+// Auth & Profil (Candidates)
 import LoginPage from '@/pages/public/LoginPage';
 import ProfilePage from '@/pages/public/ProfilePage';
 import KamiPage from '@/pages/public/KamiPage';
@@ -62,8 +65,9 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/daftar" element={<RegisterPage />} />
           <Route path="/cek-kelulusan" element={<CekKelulusanPage />} />
-          <Route path="/blog" element={<BlogListPage />} />
-          <Route path="/blog/:slug" element={<BlogDetailPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/p/:slug" element={<CustomPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/kami" element={<KamiPage />} />
           <Route path="/anggota" element={<AnggotaPublikPage />} />

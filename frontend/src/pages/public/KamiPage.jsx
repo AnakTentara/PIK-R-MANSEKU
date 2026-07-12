@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPublicOrg } from '@/api/public';
+import { getPublicSettings } from '@/api/candidates';
 import { ChevronDown, ChevronUp, Users, Calendar, MapPin, Award } from 'lucide-react';
 import SEO from '@/components/common/SEO';
 import styles from './KamiPage.module.css';
@@ -8,12 +9,19 @@ export default function KamiPage() {
   const [orgData, setOrgData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedYear, setExpandedYear] = useState(null);
+  const [webEditorConfig, setWebEditorConfig] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getPublicOrg();
-        setOrgData(res.data || []);
+        const [orgRes, settingsRes] = await Promise.all([
+          getPublicOrg(),
+          getPublicSettings()
+        ]);
+        setOrgData(orgRes.data || []);
+        if (settingsRes.data?.webEditorConfig) {
+          setWebEditorConfig(settingsRes.data.webEditorConfig);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -51,6 +59,11 @@ export default function KamiPage() {
     setExpandedYear(expandedYear === year ? null : year);
   };
 
+  const tentangKami = webEditorConfig?.tentangKami || {};
+  const tahunBerdiri = tentangKami.yearFounded || '2023';
+  const aboutText1 = tentangKami.aboutText1 || 'PIK-R (Pusat Informasi dan Konseling Remaja) MANSEKU merupakan organisasi di bawah naungan BKKBN dan MAN 1 Muara Enim yang berfokus pada pemberian informasi tentang Penyiapan Kehidupan Berkeluarga bagi Remaja (PKBR), Pendewasaan Usia Perkawinan (PUP), keterampilan hidup (life skills), pelayanan konseling, dan rujukan.';
+  const aboutText2 = tentangKami.aboutText2 || 'Melalui program konselor sebaya (peer counselor) dan pendidik sebaya (peer educator), kami membangun ruang aman bagi siswa-siswi MAN 1 Muara Enim untuk saling bercerita, berkonsultasi, dan memecahkan problematika remaja tanpa ada rasa canggung.';
+
   return (
     <div className="page-wrapper">
       <SEO 
@@ -73,19 +86,15 @@ export default function KamiPage() {
         <div className={`container ${styles.biodataGrid}`}>
           <div className={styles.biodataLeft}>
             <h2>Wadah Konseling &amp; Edukasi Remaja</h2>
-            <p>
-              PIK-R (Pusat Informasi dan Konseling Remaja) MANSEKU merupakan organisasi di bawah naungan BKKBN dan MAN 1 Muara Enim yang berfokus pada pemberian informasi tentang Penyiapan Kehidupan Berkeluarga bagi Remaja (PKBR), Pendewasaan Usia Perkawinan (PUP), keterampilan hidup (life skills), pelayanan konseling, dan rujukan.
-            </p>
-            <p>
-              Melalui program konselor sebaya (peer counselor) dan pendidik sebaya (peer educator), kami membangun ruang aman bagi siswa-siswi MAN 1 Muara Enim untuk saling bercerita, berkonsultasi, dan memecahkan problematika remaja tanpa ada rasa canggung.
-            </p>
+            <p>{aboutText1}</p>
+            <p>{aboutText2}</p>
           </div>
           <div className={styles.biodataRight}>
             <div className={styles.infoBox}>
               <Calendar className={styles.infoIcon} />
               <div>
                 <h4>Tahun Berdiri</h4>
-                <p>Resmi didirikan pada tahun 2023</p>
+                <p>Resmi didirikan pada tahun {tahunBerdiri}</p>
               </div>
             </div>
             <div className={styles.infoBox}>
