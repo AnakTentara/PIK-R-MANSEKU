@@ -40,11 +40,17 @@ echo -e "${GREEN}Dependensi frontend berhasil diinstal.${NC}"
 
 echo ""
 echo -e "${BLUE}=== [4/5] Sinkronisasi Database (Prisma Client Generate) ===${NC}"
-npx prisma generate
+echo -e "${YELLOW}Men-generate client SQLite lokal...${NC}"
+npx prisma generate --schema=prisma/sqlite.prisma
 if [ $? -ne 0 ]; then
-  echo -e "${YELLOW}Warning: Gagal men-generate Prisma Client. Pastikan Prisma terkonfigurasi.${NC}"
+  echo -e "${YELLOW}Warning: Gagal men-generate client SQLite.${NC}"
 fi
-echo -e "${GREEN}Prisma Client berhasil di-generate.${NC}"
+echo -e "${YELLOW}Men-generate client MySQL...${NC}"
+npx prisma generate --schema=prisma/schema.prisma
+if [ $? -ne 0 ]; then
+  echo -e "${YELLOW}Warning: Gagal men-generate client MySQL.${NC}"
+fi
+echo -e "${GREEN}Prisma Client untuk SQLite & MySQL berhasil di-generate.${NC}"
 
 echo ""
 echo -e "${BLUE}=== [5/5] Menjalankan Backend & Frontend Secara Bersamaan ===${NC}"
