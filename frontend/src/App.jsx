@@ -21,6 +21,7 @@ import CekKelulusanPage from '@/pages/public/CekKelulusanPage';
 import BlogPage from '@/pages/public/BlogPage';
 import BlogPostPage from '@/pages/public/BlogPostPage';
 import CustomPage from '@/pages/public/CustomPage';
+import NotFoundPage from '@/pages/public/NotFoundPage';
 
 // Auth & Profil (Candidates)
 import LoginPage from '@/pages/public/LoginPage';
@@ -106,8 +107,8 @@ function App() {
           <Route path="testimoni" element={<AdminTestimonialsPage />} />
         </Route>
 
-        {/* ── Fallback ── */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* ── Fallback / Error Page ── */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
