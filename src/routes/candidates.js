@@ -17,10 +17,12 @@ router.get('/settings/public', async (req, res) => {
   try {
     const sessionSetting = await prisma.setting.findUnique({ where: { key: 'REGISTRATION_SESSION' } });
     const landingSetting = await prisma.setting.findUnique({ where: { key: 'LANDING_PAGE_CONTENT' } });
+    const webEditorSetting = await prisma.setting.findUnique({ where: { key: 'WEB_EDITOR_CONFIG' } });
 
     return res.json({
       registrationSession: sessionSetting ? JSON.parse(sessionSetting.value) : { status: 'open' },
-      landingPageContent: landingSetting ? JSON.parse(landingSetting.value) : null
+      landingPageContent: landingSetting ? JSON.parse(landingSetting.value) : null,
+      webEditorConfig: webEditorSetting ? JSON.parse(webEditorSetting.value) : null
     });
   } catch (error) {
     console.error('Error fetching public settings:', error);

@@ -174,14 +174,26 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Floating Badge */}
-        <div className={styles.slideBadge}>
-          <div className={styles.slideBadgeIcon}>
-            <Users size={18} />
+        {/* Floating Badges */}
+        <div className={styles.badgeContainer}>
+          <div className={styles.slideBadge}>
+            <div className={styles.slideBadgeIcon}>
+              <Users size={18} />
+            </div>
+            <div className={styles.slideBadgeText}>
+              <span className={styles.slideBadgeNum}>Konseling Sebaya</span>
+              <span className={styles.slideBadgeLabel}>PIK-R MANSEKU</span>
+            </div>
           </div>
-          <div className={styles.slideBadgeText}>
-            <span className={styles.slideBadgeNum}>Konseling Sebaya</span>
-            <span className={styles.slideBadgeLabel}>PIK-R MANSEKU</span>
+
+          <div className={styles.slideBadge} style={{ animationDelay: '0.3s' }}>
+            <div className={styles.slideBadgeIcon} style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+              <BookOpen size={18} />
+            </div>
+            <div className={styles.slideBadgeText}>
+              <span className={styles.slideBadgeNum}>Pendidik Sebaya</span>
+              <span className={styles.slideBadgeLabel}>Remaja Sehat &amp; Kreatif</span>
+            </div>
           </div>
         </div>
 

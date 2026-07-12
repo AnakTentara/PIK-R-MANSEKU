@@ -72,9 +72,9 @@ export async function getCandidateById(req, res) {
 
 // 4. Create Candidate manually by Admin
 export async function createCandidate(req, res) {
-  const { nisn, name, className, whatsappNumber, email, gender, reason, status } = req.body;
+  const { nisn, name, className, whatsappNumber, email, gender, reason, status, asalSekolah } = req.body;
 
-  if (!nisn || !name || !className || !whatsappNumber || !email || !gender) {
+  if (!nisn || !name || !className || !whatsappNumber || !email || !gender || !asalSekolah) {
     return res.status(400).json({ message: 'Semua field wajib diisi' });
   }
 
@@ -92,6 +92,7 @@ export async function createCandidate(req, res) {
         whatsappNumber,
         email,
         gender,
+        asalSekolah,
         reason: reason || '',
         status: status || 'PENDING'
       }
@@ -107,7 +108,7 @@ export async function createCandidate(req, res) {
 // 5. Update Candidate
 export async function updateCandidate(req, res) {
   const { id } = req.params;
-  const { nisn, name, className, whatsappNumber, email, gender, reason, status, plainPassword } = req.body;
+  const { nisn, name, className, whatsappNumber, email, gender, reason, status, plainPassword, asalSekolah } = req.body;
 
   try {
     const candidate = await prisma.candidate.findUnique({ where: { id } });
@@ -129,6 +130,7 @@ export async function updateCandidate(req, res) {
       whatsappNumber: whatsappNumber ?? candidate.whatsappNumber,
       email: email ?? candidate.email,
       gender: gender ?? candidate.gender,
+      asalSekolah: asalSekolah ?? candidate.asalSekolah,
       reason: reason ?? candidate.reason,
       status: status ?? candidate.status
     };
@@ -398,6 +400,7 @@ export async function closeSession(req, res) {
           whatsappNumber: c.whatsappNumber,
           email: c.email,
           gender: c.gender,
+          asalSekolah: c.asalSekolah,
           password,
           plainPassword,
           status: 'ACTIVE',
@@ -409,6 +412,7 @@ export async function closeSession(req, res) {
           whatsappNumber: c.whatsappNumber,
           email: c.email,
           gender: c.gender,
+          asalSekolah: c.asalSekolah,
           password,
           plainPassword,
           status: 'ACTIVE',
@@ -490,10 +494,10 @@ export async function getMembers(req, res) {
 
 // 15.5 Create Member manually
 export async function createMember(req, res) {
-  const { nisn, name, className, whatsappNumber, email, gender, role, status } = req.body;
+  const { nisn, name, className, whatsappNumber, email, gender, role, status, asalSekolah } = req.body;
   const currentYear = new Date().getFullYear();
 
-  if (!nisn || !name || !className || !whatsappNumber || !email || !gender) {
+  if (!nisn || !name || !className || !whatsappNumber || !email || !gender || !asalSekolah) {
     return res.status(400).json({ message: 'Semua field keanggotaan wajib diisi' });
   }
 
@@ -516,6 +520,7 @@ export async function createMember(req, res) {
         whatsappNumber,
         email,
         gender,
+        asalSekolah,
         password: hashedPassword,
         plainPassword,
         status: status || 'ACTIVE',
@@ -558,7 +563,7 @@ export async function createMember(req, res) {
 // 16. Update Member
 export async function updateMember(req, res) {
   const { id } = req.params;
-  const { name, className, whatsappNumber, email, gender, status, role, plainPassword } = req.body;
+  const { name, className, whatsappNumber, email, gender, status, role, plainPassword, asalSekolah } = req.body;
   try {
     const member = await prisma.member.findUnique({ where: { id } });
     if (!member) return res.status(404).json({ message: 'Anggota tidak ditemukan' });
@@ -569,6 +574,7 @@ export async function updateMember(req, res) {
       whatsappNumber: whatsappNumber ?? member.whatsappNumber,
       email: email ?? member.email,
       gender: gender ?? member.gender,
+      asalSekolah: asalSekolah ?? member.asalSekolah,
       status: status ?? member.status,
       role: role ?? member.role,
     };

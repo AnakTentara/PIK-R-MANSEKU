@@ -6,9 +6,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
 // 1. Public Candidate Registration
 export async function registerCandidate(req, res) {
-  const { nisn, name, className, whatsappNumber, email, gender, reason } = req.body;
+  const { nisn, name, className, whatsappNumber, email, gender, reason, asalSekolah } = req.body;
 
-  if (!nisn || !name || !className || !whatsappNumber || !email || !gender) {
+  if (!nisn || !name || !className || !whatsappNumber || !email || !gender || !asalSekolah) {
     return res.status(400).json({ message: 'Semua field wajib diisi' });
   }
 
@@ -33,6 +33,7 @@ export async function registerCandidate(req, res) {
         whatsappNumber,
         email,
         gender,
+        asalSekolah,
         reason: reason || '',
         status: 'PENDING'
       }

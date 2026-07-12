@@ -4,8 +4,9 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/sqlite"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/sqlite"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
 model Candidate {
@@ -16,6 +17,7 @@ model Candidate {
   whatsappNumber String
   email          String
   gender         String
+  asalSekolah    String @default("-")
   reason         String
   status         String @default("PENDING")
 
@@ -75,6 +77,7 @@ model Member {
   whatsappNumber String
   email          String
   gender         String
+  asalSekolah    String   @default("-")
   password       String
   plainPassword  String?
   status         String   @default("ACTIVE")

@@ -129,6 +129,7 @@ exports.Prisma.CandidateScalarFieldEnum = {
   whatsappNumber: 'whatsappNumber',
   email: 'email',
   gender: 'gender',
+  asalSekolah: 'asalSekolah',
   reason: 'reason',
   status: 'status',
   password: 'password',
@@ -179,6 +180,7 @@ exports.Prisma.MemberScalarFieldEnum = {
   whatsappNumber: 'whatsappNumber',
   email: 'email',
   gender: 'gender',
+  asalSekolah: 'asalSekolah',
   password: 'password',
   plainPassword: 'plainPassword',
   status: 'status',
@@ -230,6 +232,7 @@ exports.Prisma.CandidateOrderByRelevanceFieldEnum = {
   whatsappNumber: 'whatsappNumber',
   email: 'email',
   gender: 'gender',
+  asalSekolah: 'asalSekolah',
   reason: 'reason',
   password: 'password',
   plainPassword: 'plainPassword'
@@ -269,6 +272,7 @@ exports.Prisma.MemberOrderByRelevanceFieldEnum = {
   whatsappNumber: 'whatsappNumber',
   email: 'email',
   gender: 'gender',
+  asalSekolah: 'asalSekolah',
   password: 'password',
   plainPassword: 'plainPassword',
   role: 'role'

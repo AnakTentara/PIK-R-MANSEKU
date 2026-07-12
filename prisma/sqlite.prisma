@@ -17,6 +17,7 @@ model Candidate {
   whatsappNumber  String
   email           String
   gender          String
+  asalSekolah     String   @default("-")
   reason          String
   status          String   @default("PENDING")
   
@@ -76,6 +77,7 @@ model Member {
   whatsappNumber  String
   email           String
   gender          String
+  asalSekolah     String   @default("-")
   password        String
   plainPassword   String?
   status          String   @default("ACTIVE")

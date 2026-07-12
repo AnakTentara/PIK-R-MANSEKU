@@ -1543,6 +1543,7 @@ export namespace Prisma {
     whatsappNumber: string | null
     email: string | null
     gender: string | null
+    asalSekolah: string | null
     reason: string | null
     status: $Enums.Status | null
     password: string | null
@@ -1562,6 +1563,7 @@ export namespace Prisma {
     whatsappNumber: string | null
     email: string | null
     gender: string | null
+    asalSekolah: string | null
     reason: string | null
     status: $Enums.Status | null
     password: string | null
@@ -1581,6 +1583,7 @@ export namespace Prisma {
     whatsappNumber: number
     email: number
     gender: number
+    asalSekolah: number
     reason: number
     status: number
     password: number
@@ -1602,6 +1605,7 @@ export namespace Prisma {
     whatsappNumber?: true
     email?: true
     gender?: true
+    asalSekolah?: true
     reason?: true
     status?: true
     password?: true
@@ -1621,6 +1625,7 @@ export namespace Prisma {
     whatsappNumber?: true
     email?: true
     gender?: true
+    asalSekolah?: true
     reason?: true
     status?: true
     password?: true
@@ -1640,6 +1645,7 @@ export namespace Prisma {
     whatsappNumber?: true
     email?: true
     gender?: true
+    asalSekolah?: true
     reason?: true
     status?: true
     password?: true
@@ -1732,6 +1738,7 @@ export namespace Prisma {
     whatsappNumber: string
     email: string
     gender: string
+    asalSekolah: string
     reason: string
     status: $Enums.Status
     password: string | null
@@ -1768,6 +1775,7 @@ export namespace Prisma {
     whatsappNumber?: boolean
     email?: boolean
     gender?: boolean
+    asalSekolah?: boolean
     reason?: boolean
     status?: boolean
     password?: boolean
@@ -1789,6 +1797,7 @@ export namespace Prisma {
     whatsappNumber?: boolean
     email?: boolean
     gender?: boolean
+    asalSekolah?: boolean
     reason?: boolean
     status?: boolean
     password?: boolean
@@ -1800,7 +1809,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CandidateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "reason" | "status" | "password" | "plainPassword" | "emailNotified" | "waNotified" | "lastStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["candidate"]>
+  export type CandidateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "asalSekolah" | "reason" | "status" | "password" | "plainPassword" | "emailNotified" | "waNotified" | "lastStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["candidate"]>
 
   export type $CandidatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Candidate"
@@ -1813,6 +1822,7 @@ export namespace Prisma {
       whatsappNumber: string
       email: string
       gender: string
+      asalSekolah: string
       reason: string
       status: $Enums.Status
       password: string | null
@@ -2198,6 +2208,7 @@ export namespace Prisma {
     readonly whatsappNumber: FieldRef<"Candidate", 'String'>
     readonly email: FieldRef<"Candidate", 'String'>
     readonly gender: FieldRef<"Candidate", 'String'>
+    readonly asalSekolah: FieldRef<"Candidate", 'String'>
     readonly reason: FieldRef<"Candidate", 'String'>
     readonly status: FieldRef<"Candidate", 'Status'>
     readonly password: FieldRef<"Candidate", 'String'>
@@ -6270,6 +6281,7 @@ export namespace Prisma {
     whatsappNumber: string | null
     email: string | null
     gender: string | null
+    asalSekolah: string | null
     password: string | null
     plainPassword: string | null
     status: $Enums.MemberStatus | null
@@ -6287,6 +6299,7 @@ export namespace Prisma {
     whatsappNumber: string | null
     email: string | null
     gender: string | null
+    asalSekolah: string | null
     password: string | null
     plainPassword: string | null
     status: $Enums.MemberStatus | null
@@ -6304,6 +6317,7 @@ export namespace Prisma {
     whatsappNumber: number
     email: number
     gender: number
+    asalSekolah: number
     password: number
     plainPassword: number
     status: number
@@ -6331,6 +6345,7 @@ export namespace Prisma {
     whatsappNumber?: true
     email?: true
     gender?: true
+    asalSekolah?: true
     password?: true
     plainPassword?: true
     status?: true
@@ -6348,6 +6363,7 @@ export namespace Prisma {
     whatsappNumber?: true
     email?: true
     gender?: true
+    asalSekolah?: true
     password?: true
     plainPassword?: true
     status?: true
@@ -6365,6 +6381,7 @@ export namespace Prisma {
     whatsappNumber?: true
     email?: true
     gender?: true
+    asalSekolah?: true
     password?: true
     plainPassword?: true
     status?: true
@@ -6469,6 +6486,7 @@ export namespace Prisma {
     whatsappNumber: string
     email: string
     gender: string
+    asalSekolah: string
     password: string
     plainPassword: string | null
     status: $Enums.MemberStatus
@@ -6505,6 +6523,7 @@ export namespace Prisma {
     whatsappNumber?: boolean
     email?: boolean
     gender?: boolean
+    asalSekolah?: boolean
     password?: boolean
     plainPassword?: boolean
     status?: boolean
@@ -6524,6 +6543,7 @@ export namespace Prisma {
     whatsappNumber?: boolean
     email?: boolean
     gender?: boolean
+    asalSekolah?: boolean
     password?: boolean
     plainPassword?: boolean
     status?: boolean
@@ -6533,7 +6553,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type MemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "password" | "plainPassword" | "status" | "joinYear" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
+  export type MemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "asalSekolah" | "password" | "plainPassword" | "status" | "joinYear" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
 
   export type $MemberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Member"
@@ -6546,6 +6566,7 @@ export namespace Prisma {
       whatsappNumber: string
       email: string
       gender: string
+      asalSekolah: string
       password: string
       plainPassword: string | null
       status: $Enums.MemberStatus
@@ -6929,6 +6950,7 @@ export namespace Prisma {
     readonly whatsappNumber: FieldRef<"Member", 'String'>
     readonly email: FieldRef<"Member", 'String'>
     readonly gender: FieldRef<"Member", 'String'>
+    readonly asalSekolah: FieldRef<"Member", 'String'>
     readonly password: FieldRef<"Member", 'String'>
     readonly plainPassword: FieldRef<"Member", 'String'>
     readonly status: FieldRef<"Member", 'MemberStatus'>
@@ -9169,6 +9191,7 @@ export namespace Prisma {
     whatsappNumber: 'whatsappNumber',
     email: 'email',
     gender: 'gender',
+    asalSekolah: 'asalSekolah',
     reason: 'reason',
     status: 'status',
     password: 'password',
@@ -9234,6 +9257,7 @@ export namespace Prisma {
     whatsappNumber: 'whatsappNumber',
     email: 'email',
     gender: 'gender',
+    asalSekolah: 'asalSekolah',
     password: 'password',
     plainPassword: 'plainPassword',
     status: 'status',
@@ -9300,6 +9324,7 @@ export namespace Prisma {
     whatsappNumber: 'whatsappNumber',
     email: 'email',
     gender: 'gender',
+    asalSekolah: 'asalSekolah',
     reason: 'reason',
     password: 'password',
     plainPassword: 'plainPassword'
@@ -9354,6 +9379,7 @@ export namespace Prisma {
     whatsappNumber: 'whatsappNumber',
     email: 'email',
     gender: 'gender',
+    asalSekolah: 'asalSekolah',
     password: 'password',
     plainPassword: 'plainPassword',
     role: 'role'
@@ -9453,6 +9479,7 @@ export namespace Prisma {
     whatsappNumber?: StringFilter<"Candidate"> | string
     email?: StringFilter<"Candidate"> | string
     gender?: StringFilter<"Candidate"> | string
+    asalSekolah?: StringFilter<"Candidate"> | string
     reason?: StringFilter<"Candidate"> | string
     status?: EnumStatusFilter<"Candidate"> | $Enums.Status
     password?: StringNullableFilter<"Candidate"> | string | null
@@ -9472,6 +9499,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     password?: SortOrderInput | SortOrder
@@ -9495,6 +9523,7 @@ export namespace Prisma {
     whatsappNumber?: StringFilter<"Candidate"> | string
     email?: StringFilter<"Candidate"> | string
     gender?: StringFilter<"Candidate"> | string
+    asalSekolah?: StringFilter<"Candidate"> | string
     reason?: StringFilter<"Candidate"> | string
     status?: EnumStatusFilter<"Candidate"> | $Enums.Status
     password?: StringNullableFilter<"Candidate"> | string | null
@@ -9514,6 +9543,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     password?: SortOrderInput | SortOrder
@@ -9539,6 +9569,7 @@ export namespace Prisma {
     whatsappNumber?: StringWithAggregatesFilter<"Candidate"> | string
     email?: StringWithAggregatesFilter<"Candidate"> | string
     gender?: StringWithAggregatesFilter<"Candidate"> | string
+    asalSekolah?: StringWithAggregatesFilter<"Candidate"> | string
     reason?: StringWithAggregatesFilter<"Candidate"> | string
     status?: EnumStatusWithAggregatesFilter<"Candidate"> | $Enums.Status
     password?: StringNullableWithAggregatesFilter<"Candidate"> | string | null
@@ -9780,6 +9811,7 @@ export namespace Prisma {
     whatsappNumber?: StringFilter<"Member"> | string
     email?: StringFilter<"Member"> | string
     gender?: StringFilter<"Member"> | string
+    asalSekolah?: StringFilter<"Member"> | string
     password?: StringFilter<"Member"> | string
     plainPassword?: StringNullableFilter<"Member"> | string | null
     status?: EnumMemberStatusFilter<"Member"> | $Enums.MemberStatus
@@ -9797,6 +9829,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     password?: SortOrder
     plainPassword?: SortOrderInput | SortOrder
     status?: SortOrder
@@ -9818,6 +9851,7 @@ export namespace Prisma {
     whatsappNumber?: StringFilter<"Member"> | string
     email?: StringFilter<"Member"> | string
     gender?: StringFilter<"Member"> | string
+    asalSekolah?: StringFilter<"Member"> | string
     password?: StringFilter<"Member"> | string
     plainPassword?: StringNullableFilter<"Member"> | string | null
     status?: EnumMemberStatusFilter<"Member"> | $Enums.MemberStatus
@@ -9835,6 +9869,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     password?: SortOrder
     plainPassword?: SortOrderInput | SortOrder
     status?: SortOrder
@@ -9860,6 +9895,7 @@ export namespace Prisma {
     whatsappNumber?: StringWithAggregatesFilter<"Member"> | string
     email?: StringWithAggregatesFilter<"Member"> | string
     gender?: StringWithAggregatesFilter<"Member"> | string
+    asalSekolah?: StringWithAggregatesFilter<"Member"> | string
     password?: StringWithAggregatesFilter<"Member"> | string
     plainPassword?: StringNullableWithAggregatesFilter<"Member"> | string | null
     status?: EnumMemberStatusWithAggregatesFilter<"Member"> | $Enums.MemberStatus
@@ -10025,6 +10061,7 @@ export namespace Prisma {
     whatsappNumber: string
     email: string
     gender: string
+    asalSekolah?: string
     reason: string
     status?: $Enums.Status
     password?: string | null
@@ -10044,6 +10081,7 @@ export namespace Prisma {
     whatsappNumber: string
     email: string
     gender: string
+    asalSekolah?: string
     reason: string
     status?: $Enums.Status
     password?: string | null
@@ -10063,6 +10101,7 @@ export namespace Prisma {
     whatsappNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     password?: NullableStringFieldUpdateOperationsInput | string | null
@@ -10082,6 +10121,7 @@ export namespace Prisma {
     whatsappNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     password?: NullableStringFieldUpdateOperationsInput | string | null
@@ -10101,6 +10141,7 @@ export namespace Prisma {
     whatsappNumber: string
     email: string
     gender: string
+    asalSekolah?: string
     reason: string
     status?: $Enums.Status
     password?: string | null
@@ -10120,6 +10161,7 @@ export namespace Prisma {
     whatsappNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     password?: NullableStringFieldUpdateOperationsInput | string | null
@@ -10139,6 +10181,7 @@ export namespace Prisma {
     whatsappNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
     reason?: StringFieldUpdateOperationsInput | string
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     password?: NullableStringFieldUpdateOperationsInput | string | null
@@ -10381,6 +10424,7 @@ export namespace Prisma {
     whatsappNumber: string
     email: string
     gender: string
+    asalSekolah?: string
     password: string
     plainPassword?: string | null
     status?: $Enums.MemberStatus
@@ -10398,6 +10442,7 @@ export namespace Prisma {
     whatsappNumber: string
     email: string
     gender: string
+    asalSekolah?: string
     password: string
     plainPassword?: string | null
     status?: $Enums.MemberStatus
@@ -10415,6 +10460,7 @@ export namespace Prisma {
     whatsappNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
@@ -10432,6 +10478,7 @@ export namespace Prisma {
     whatsappNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
@@ -10449,6 +10496,7 @@ export namespace Prisma {
     whatsappNumber: string
     email: string
     gender: string
+    asalSekolah?: string
     password: string
     plainPassword?: string | null
     status?: $Enums.MemberStatus
@@ -10466,6 +10514,7 @@ export namespace Prisma {
     whatsappNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
@@ -10483,6 +10532,7 @@ export namespace Prisma {
     whatsappNumber?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
@@ -10732,6 +10782,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     password?: SortOrder
@@ -10751,6 +10802,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     password?: SortOrder
@@ -10770,6 +10822,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     password?: SortOrder
@@ -11028,6 +11081,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     password?: SortOrder
     plainPassword?: SortOrder
     status?: SortOrder
@@ -11049,6 +11103,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     password?: SortOrder
     plainPassword?: SortOrder
     status?: SortOrder
@@ -11066,6 +11121,7 @@ export namespace Prisma {
     whatsappNumber?: SortOrder
     email?: SortOrder
     gender?: SortOrder
+    asalSekolah?: SortOrder
     password?: SortOrder
     plainPassword?: SortOrder
     status?: SortOrder

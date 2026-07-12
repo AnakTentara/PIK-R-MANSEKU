@@ -20,6 +20,7 @@ const INITIAL = {
   whatsappNumber: '',
   email: '',
   gender: '',
+  asalSekolah: '',
   reason: '',
 };
 
@@ -89,6 +90,7 @@ export default function RegisterPage() {
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email))
       errs.email = 'Email tidak valid.';
     if (!form.gender) errs.gender = 'Pilih jenis kelamin.';
+    if (!form.asalSekolah.trim()) errs.asalSekolah = 'Asal Sekolah SMP/MTs/Sederajat wajib diisi.';
     if (!form.reason.trim() || form.reason.trim().length < 20)
       errs.reason = 'Alasan minimal 20 karakter.';
     setErrors(errs);
@@ -256,6 +258,21 @@ export default function RegisterPage() {
                   </label>
                 </div>
                 {errors.gender && <span className="form-error">{errors.gender}</span>}
+              </div>
+
+              {/* Asal Sekolah */}
+              <div className="form-group">
+                <label className="form-label" htmlFor="asalSekolah">Asal Sekolah SMP/MTs/Sederajat</label>
+                <input
+                  id="asalSekolah"
+                  name="asalSekolah"
+                  type="text"
+                  className={`form-input ${errors.asalSekolah ? 'error' : ''}`}
+                  placeholder="Misal: SMPN 1 Muara Enim, MTsN 1 Muara Enim"
+                  value={form.asalSekolah}
+                  onChange={handleChange}
+                />
+                {errors.asalSekolah && <span className="form-error">{errors.asalSekolah}</span>}
               </div>
 
               {/* Alasan */}

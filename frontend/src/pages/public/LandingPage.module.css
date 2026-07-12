@@ -3,12 +3,11 @@
 ═══════════════════════════════════════════════ */
 .hero {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   overflow: hidden;
   background: #ffffff;
-  padding-top: var(--navbar-height);
 }
 
 .slideshowContainer {
@@ -34,6 +33,7 @@
   position: relative;
   z-index: 3;
   width: 100%;
+  padding-top: var(--navbar-height);
 }
 
 /* Foreground Content (replacing heroLeft) */
@@ -302,11 +302,21 @@
   border-radius: 4px;
 }
 
+/* ── Floating Badge Container ── */
+.badgeContainer {
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 10;
+}
+
 /* ── Floating Badge ── */
 .slideBadge {
-  position: absolute;
-  bottom: 48px;
-  left: 28px;
+  position: relative;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -554,6 +564,7 @@
 ══════════════════════════════════ */
 @media (max-width: 900px) {
   .hero {
+    height: auto;
     min-height: calc(100vh - var(--navbar-height));
     align-items: flex-start;
     padding-top: 20px;
@@ -570,6 +581,10 @@
 
   .heroTitle {
     font-size: 2.125rem;
+  }
+
+  .badgeContainer {
+    display: none;
   }
 
   .heroStats {
