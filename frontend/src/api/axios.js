@@ -56,7 +56,8 @@ export const getUploadUrl = (path) => {
     return `http://localhost:25552${cleanPath}`;
   }
   
-  return `${window.location.origin}${cleanPath}`;
+  const apiPath = cleanPath.startsWith('/api') ? cleanPath : `/api${cleanPath}`;
+  return `${window.location.origin}${apiPath}`;
 };
 
 export default api;

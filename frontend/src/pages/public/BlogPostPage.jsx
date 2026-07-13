@@ -117,7 +117,15 @@ export default function BlogPostPage() {
           {/* Content */}
           <div
             className={styles.prose}
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ 
+              __html: (() => {
+                if (!post.content) return '';
+                const cleanBase = window.location.hostname === 'localhost' 
+                  ? 'http://localhost:25552/uploads' 
+                  : `${window.location.origin}/api/uploads`;
+                return post.content.replace(/src="\/uploads\//g, `src="${cleanBase}/`);
+              })()
+            }}
           />
         </article>
 

@@ -48,7 +48,15 @@ export default function CustomPage() {
       <SEO title={pageData.title} />
       <section className="section">
         <div className={`container ${styles.content}`}>
-          <div dangerouslySetInnerHTML={{ __html: pageData.html }} />
+          <div dangerouslySetInnerHTML={{ 
+            __html: (() => {
+              if (!pageData.html) return '';
+              const cleanBase = window.location.hostname === 'localhost' 
+                ? 'http://localhost:25552/uploads' 
+                : `${window.location.origin}/api/uploads`;
+              return pageData.html.replace(/src="\/uploads\//g, `src="${cleanBase}/`);
+            })()
+          }} />
         </div>
       </section>
     </div>
