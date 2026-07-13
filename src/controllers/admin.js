@@ -971,6 +971,45 @@ export async function deleteUploadedFile(req, res) {
   }
 
   try {
+    // 1. Check if used in Web Editor settings
+    const webSetting = await prisma.setting.findUnique({ where: { key: 'WEB_EDITOR_CONFIG' } });
+    if (webSetting && webSetting.value) {
+      try {
+        const config = JSON.parse(webSetting.value);
+        if (config.hero?.webLogoUrl === filePath || config.hero?.navbarLogoUrl === filePath) {
+          return res.status(400).json({ 
+            message: 'File ini sedang digunakan sebagai Logo Website atau Logo Navbar. Harap ganti logo terlebih dahulu di Web Editor sebelum menghapusnya.' 
+          });
+        }
+      } catch (err) {
+        console.error('Error parsing web config:', err);
+      }
+    }
+
+    // 2. Check if used in Org Members
+    const isUsedInOrg = await prisma.orgMember.findFirst({ where: { photoPath: filePath } });
+    if (isUsedInOrg) {
+      return res.status(400).json({ 
+        message: `File ini sedang digunakan sebagai foto pengurus: ${isUsedInOrg.name}.` 
+      });
+    }
+
+    // 3. Check if used in Alumni Testimonials
+    const isUsedInTestimonial = await prisma.alumniTestimonial.findFirst({ where: { photoPath: filePath } });
+    if (isUsedInTestimonial) {
+      return res.status(400).json({ 
+        message: `File ini sedang digunakan sebagai foto testimoni: ${isUsedInTestimonial.name}.` 
+      });
+    }
+
+    // 4. Check if used in Members
+    const isUsedInMember = await prisma.member.findFirst({ where: { photoPath: filePath } });
+    if (isUsedInMember) {
+      return res.status(400).json({ 
+        message: `File ini sedang digunakan sebagai foto profil anggota aktif: ${isUsedInMember.name}.` 
+      });
+    }
+
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const absolutePath = path.join(__dirname, '../../public', filePath);
