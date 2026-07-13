@@ -27,10 +27,13 @@ function ScrollReveal({ children, delay = 0 }) {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          setIsVisible(entry.isIntersecting);
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            if (domRef.current) observer.unobserve(domRef.current);
+          }
         });
       },
-      { threshold: 0.05 }
+      { threshold: 0.15 }
     );
 
     const current = domRef.current;

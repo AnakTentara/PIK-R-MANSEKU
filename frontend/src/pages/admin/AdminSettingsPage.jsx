@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getSettings, saveSettings } from '@/api/admin';
+import { getSettings, saveSettings, downloadBackupDb } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
-import { Save, Database, Mail } from 'lucide-react';
+import { Save, Database, Mail, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminSettingsPage.module.css';
 
@@ -68,6 +68,28 @@ export default function AdminSettingsPage() {
       toast.error(err.response?.data?.message || 'Gagal menyimpan konfigurasi SMTP.');
     } finally {
       setSavingSmtp(false);
+    }
+  };
+
+  const [downloadingBackup, setDownloadingBackup] = useState(false);
+
+  const handleDownloadBackup = async () => {
+    setDownloadingBackup(true);
+    const loadingToast = toast.loading('Mengunduh backup database...');
+    try {
+      const res = await downloadBackupDb();
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'pikr_manseku_backup.db');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Backup database berhasil diunduh!', { id: loadingToast });
+    } catch (err) {
+      toast.error('Gagal mengunduh backup database.', { id: loadingToast });
+    } finally {
+      setDownloadingBackup(false);
     }
   };
 
@@ -244,6 +266,36 @@ export default function AdminSettingsPage() {
                   {savingSmtp ? 'Menyimpan...' : 'Simpan Konfigurasi'}
                 </button>
               </form>
+            </div>
+
+            {/* Maintenance Config */}
+            <div className={styles.card} style={{ gridColumn: '1 / -1' }}>
+              <div className={styles.cardHeader}>
+                <div className={styles.cardIcon}>
+                  <Database size={18} />
+                </div>
+                <div>
+                  <h2 className={styles.cardTitle}>Pemeliharaan & Cadangan Data</h2>
+                  <p className={styles.cardSubtitle}>
+                    Unduh salinan cadangan database SQLite lokal Anda secara berkala
+                  </p>
+                </div>
+              </div>
+              <div className={styles.maintenanceBody}>
+                <p className={styles.maintenanceDesc}>
+                  File cadangan ini berisi semua data pengguna, anggota aktif, pendaftaran, testimoni, dan histori kelulusan. Disarankan untuk mencadangkan file ini secara manual sebelum melakukan pembaruan sistem.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleDownloadBackup}
+                  disabled={downloadingBackup}
+                  style={{ alignSelf: 'flex-start' }}
+                >
+                  {downloadingBackup ? <span className="spinner" /> : <Download size={15} />}
+                  {downloadingBackup ? 'Mengunduh...' : 'Unduh Cadangan Database (.db)'}
+                </button>
+              </div>
             </div>
           </div>
         )}

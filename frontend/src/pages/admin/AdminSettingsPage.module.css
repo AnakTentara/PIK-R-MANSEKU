@@ -99,3 +99,14 @@
   }
 }
 
+.maintenanceBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.maintenanceDesc {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}

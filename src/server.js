@@ -52,16 +52,21 @@ app.get('/health', (req, res) => {
 // Helper function to seed default admin
 async function seedDefaultAdmin() {
   try {
-    const defaultUsername = 'pikrmanseku01';
-    const defaultPassword = 'pikrmanseku1me';
+    const defaultUsername = 'pikr-manseku';
+    const defaultPassword = 'pikrman2026==';
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    // Clean up old temporary 'admin' account if it exists
+    // Clean up old temporary 'admin' and 'pikrmanseku01' accounts if they exist
     try {
       const oldAdmin = await prisma.admin.findUnique({ where: { username: 'admin' } });
       if (oldAdmin) {
         await prisma.admin.delete({ where: { username: 'admin' } });
         console.log('Removed temporary admin account.');
+      }
+      const oldDev = await prisma.admin.findUnique({ where: { username: 'pikrmanseku01' } });
+      if (oldDev) {
+        await prisma.admin.delete({ where: { username: 'pikrmanseku01' } });
+        console.log('Removed old developer account pikrmanseku01.');
       }
     } catch (e) {
       // Ignore errors (e.g. table not ready yet)

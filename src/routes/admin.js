@@ -16,6 +16,7 @@ import {
   triggerNotifications,
   getSettings,
   saveSettings,
+  downloadBackupDb,
   // Session
   closeSession,
   openSession,
@@ -143,6 +144,7 @@ router.delete('/comments/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMU
 // Settings Management (DEVELOPER only)
 router.get('/settings', authAdmin, requireRole(['DEVELOPER']), getSettings);
 router.put('/settings', authAdmin, requireRole(['DEVELOPER']), saveSettings);
+router.get('/settings/backup-db', authAdmin, requireRole(['DEVELOPER']), downloadBackupDb);
 
 // Admin User Accounts CRUD (DEVELOPER only)
 router.get('/users', authAdmin, requireRole(['DEVELOPER']), getAdminUsers);

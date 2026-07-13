@@ -117,3 +117,6 @@ export const getUploadedFiles = () =>
 export const deleteUploadedFile = (filePath) =>
   api.delete('/admin/files', { data: { filePath } });
 
+export const downloadBackupDb = () =>
+  api.get('/admin/settings/backup-db', { responseType: 'blob' });
+

@@ -901,7 +901,7 @@ export async function deleteAdminUser(req, res) {
       return res.status(404).json({ message: 'User admin tidak ditemukan' });
     }
 
-    if (existing.username === 'pikrmanseku01') {
+    if (existing.username === 'pikr-manseku') {
       return res.status(400).json({ message: 'Akun developer utama tidak dapat dihapus' });
     }
 
@@ -975,6 +975,23 @@ export async function deleteUploadedFile(req, res) {
   } catch (error) {
     console.error('Error deleting file:', error);
     return res.status(500).json({ message: 'Gagal menghapus file' });
+  }
+}
+
+export async function downloadBackupDb(req, res) {
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const dbPath = path.join(__dirname, '../../local.db');
+
+    if (fs.existsSync(dbPath)) {
+      return res.download(dbPath, 'pikr_manseku_backup.db');
+    } else {
+      return res.status(404).json({ message: 'Database SQLite local.db tidak ditemukan di root server.' });
+    }
+  } catch (error) {
+    console.error('Error backing up database:', error);
+    return res.status(500).json({ message: 'Gagal membuat cadangan database' });
   }
 }
 

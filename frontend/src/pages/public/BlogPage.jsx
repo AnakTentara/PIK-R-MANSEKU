@@ -3,7 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { getPosts } from '@/api/blog';
 import { timeAgo } from '@/utils/formatDate';
 import { truncate, stripHtml } from '@/utils/truncate';
-import { MessageSquare, Search as SearchIcon } from 'lucide-react';
+import { estimateReadingTime } from '@/utils/readingTime';
+import { getUploadUrl } from '@/api/axios';
+import { MessageSquare, Search as SearchIcon, Clock } from 'lucide-react';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import SEO from '@/components/common/SEO';
 import styles from './BlogPage.module.css';
@@ -89,27 +91,39 @@ export default function BlogPage() {
           ) : (
             <>
               <div className={styles.grid}>
-                {filtered.map((post) => (
-                  <Link
-                    key={post.id}
-                    to={`/blog/${post.slug}`}
-                    className={styles.card}
-                  >
-                    <h3 className={styles.cardTitle}>{post.title}</h3>
-                    <p className={styles.cardBody}>
-                      {truncate(stripHtml(post.content), 120)}
-                    </p>
-                    <div className={styles.cardFooter}>
-                      <span className={styles.cardDate}>
-                        {timeAgo(post.createdAt)}
-                      </span>
-                      <span className={styles.cardComments}>
-                        <MessageSquare size={13} />
-                        {post._count?.comments ?? post.comments?.length ?? 0}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                {filtered.map((post) => {
+                  const firstImg = post.content.match(/<img[^>]+src="([^">]+)"/)?.[1] || null;
+                  return (
+                    <Link
+                      key={post.id}
+                      to={`/blog/${post.slug}`}
+                      className={`${styles.card} ${firstImg ? styles.cardHasImg : ''}`}
+                    >
+                      {firstImg && (
+                        <div className={styles.thumbnailContainer}>
+                          <img src={getUploadUrl(firstImg)} alt={post.title} className={styles.thumbnail} />
+                        </div>
+                      )}
+                      <h3 className={styles.cardTitle} style={{ marginTop: firstImg ? '8px' : '0' }}>{post.title}</h3>
+                      <p className={styles.cardBody}>
+                        {truncate(stripHtml(post.content), 120)}
+                      </p>
+                      <div className={styles.cardFooter}>
+                        <span className={styles.cardDate} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          {timeAgo(post.createdAt)}
+                          <span>•</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--color-text-secondary)' }}>
+                            <Clock size={11} /> {estimateReadingTime(post.content)}
+                          </span>
+                        </span>
+                        <span className={styles.cardComments}>
+                          <MessageSquare size={13} />
+                          {post._count?.comments ?? post.comments?.length ?? 0}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
 
               {/* Pagination */}
