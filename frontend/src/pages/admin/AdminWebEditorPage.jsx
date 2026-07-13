@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getSettings, saveSettings, uploadWebLogo } from '@/api/admin';
+import { getSettings, saveSettings } from '@/api/admin';
 import { getUploadUrl } from '@/api/axios';
 import toast from 'react-hot-toast';
-import { Loader2, Plus, Trash2, Save, Upload } from 'lucide-react';
+import { Loader2, Plus, Trash2, Save } from 'lucide-react';
 import styles from './AdminWebEditorPage.module.css';
 
 const TABS = [
@@ -85,23 +85,6 @@ export default function AdminWebEditorPage() {
     setConfig(prev => ({ ...prev, hero: { ...prev.hero, [field]: value } }));
   };
 
-  const handleLogoUpload = async (e, fieldName) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('logo', file);
-
-    const loadingToast = toast.loading('Mengunggah logo...');
-    try {
-      const res = await uploadWebLogo(formData);
-      updateHero(fieldName, res.data.logoUrl);
-      toast.success('Logo berhasil diunggah!', { id: loadingToast });
-    } catch (err) {
-      toast.error('Gagal mengunggah logo.', { id: loadingToast });
-    }
-  };
-
   const updateNavVisibility = (field, value) => {
     setConfig(prev => ({
       ...prev,
@@ -178,35 +161,7 @@ export default function AdminWebEditorPage() {
               <label className={styles.label}>Judul Website (Hero)</label>
               <input type="text" className={styles.input} value={config.hero?.webTitle || ''} onChange={e => updateHero('webTitle', e.target.value)} />
             </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Logo Web</label>
-              <div className={styles.uploadRow}>
-                {config.hero?.webLogoUrl && (
-                  <div className={styles.logoPreviewWrap}>
-                    <img src={getUploadUrl(config.hero.webLogoUrl)} alt="Logo Web" className={styles.logoPreview} />
-                  </div>
-                )}
-                <label className={styles.uploadBtnLabel}>
-                  <Upload size={14} /> Pilih Berkas Logo
-                  <input type="file" accept="image/*" onChange={e => handleLogoUpload(e, 'webLogoUrl')} style={{ display: 'none' }} />
-                </label>
-              </div>
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Logo Navbar</label>
-              <div className={styles.uploadRow}>
-                {config.hero?.navbarLogoUrl && (
-                  <div className={styles.logoPreviewWrap}>
-                    <img src={getUploadUrl(config.hero.navbarLogoUrl)} alt="Logo Navbar" className={styles.logoPreview} />
-                  </div>
-                )}
-                <label className={styles.uploadBtnLabel}>
-                  <Upload size={14} /> Pilih Berkas Logo
-                  <input type="file" accept="image/*" onChange={e => handleLogoUpload(e, 'navbarLogoUrl')} style={{ display: 'none' }} />
-                </label>
-              </div>
-            </div>
+
             <div className={styles.formGroup}>
               <label className={styles.label}>Deskripsi Hero</label>
               <textarea className={styles.textarea} value={config.hero?.heroDesc || ''} onChange={e => updateHero('heroDesc', e.target.value)} />

@@ -51,7 +51,7 @@ export default function Navbar() {
     ...customPages.map(page => ({ to: `/p/${page.slug}`, label: page.title }))
   ];
 
-  const logoUrl = webEditorConfig?.hero?.navbarLogoUrl || "/media/logos/L_PIK-R_Title.png";
+  const logoUrl = "/media/logos/L_PIK-R_Title.png";
 
   const handleLogout = () => {
     logoutCandidate();
@@ -65,7 +65,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className={styles.logo} aria-label="PIK-R MANSEKU — Beranda">
           <img
-            src={getUploadUrl(logoUrl)}
+            src={logoUrl}
             alt="PIK-R MANSEKU Logo"
             className={styles.logoImg}
           />
