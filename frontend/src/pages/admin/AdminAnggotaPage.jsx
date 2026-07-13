@@ -5,6 +5,7 @@ import SkeletonTable from '@/components/skeletons/SkeletonTable';
 import { useUIStore } from '@/stores/uiStore';
 import { Edit, Trash2, Search, AlertTriangle, Key, Eye, EyeOff, ChevronLeft, ChevronRight, Plus, Copy, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '@/stores/authStore';
 import styles from './AdminAnggotaPage.module.css';
 
 const KELAS_OPTIONS = [];
@@ -17,6 +18,9 @@ const KELAS_OPTIONS = [];
 const ITEMS_PER_PAGE = 10;
 
 export default function AdminAnggotaPage() {
+  const { adminUser } = useAuthStore();
+  const isMedinfo = adminUser?.role === 'MEDINFO';
+
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -208,9 +212,11 @@ export default function AdminAnggotaPage() {
         title="Daftar Anggota PIK-R"
         subtitle={`${activeCount} Anggota Aktif | ${alumniCount} Alumni`}
       >
-        <button className="btn btn-primary" onClick={handleOpenAddModal}>
-          <Plus size={16} /> Tambah Anggota
-        </button>
+        {!isMedinfo && (
+          <button className="btn btn-primary" onClick={handleOpenAddModal}>
+            <Plus size={16} /> Tambah Anggota
+          </button>
+        )}
       </AdminHeader>
 
       <div className={styles.body}>
@@ -269,7 +275,7 @@ export default function AdminAnggotaPage() {
                   <th>Angkatan</th>
                   <th>Status</th>
                   <th>Sandi Akun</th>
-                  <th>Aksi</th>
+                  {!isMedinfo && <th>Aksi</th>}
                 </tr>
               </thead>
               <tbody>
@@ -300,24 +306,26 @@ export default function AdminAnggotaPage() {
                         </button>
                       </div>
                     </td>
-                    <td>
-                      <div className={styles.rowActions}>
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => handleEditClick(m)}
-                          title="Edit Anggota & Sandi"
-                        >
-                          <Edit size={14} />
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDeleteClick(m)}
-                          title="Hapus Anggota Tetap"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
+                    {!isMedinfo && (
+                      <td>
+                        <div className={styles.rowActions}>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => handleEditClick(m)}
+                            title="Edit Anggota & Sandi"
+                          >
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDeleteClick(m)}
+                            title="Hapus Anggota Tetap"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

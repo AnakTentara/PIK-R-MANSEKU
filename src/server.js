@@ -70,10 +70,11 @@ async function seedDefaultAdmin() {
     // Upsert new default admin credentials
     await prisma.admin.upsert({
       where: { username: defaultUsername },
-      update: {},
+      update: { role: 'DEVELOPER' },
       create: {
         username: defaultUsername,
-        password: hashedPassword
+        password: hashedPassword,
+        role: 'DEVELOPER'
       }
     });
 

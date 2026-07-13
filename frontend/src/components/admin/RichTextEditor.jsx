@@ -6,6 +6,7 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { uploadBlogImage } from '@/api/admin';
+import { getUploadUrl } from '@/api/axios';
 import toast from 'react-hot-toast';
 import {
   Bold,
@@ -80,7 +81,7 @@ export default function RichTextEditor({ content, onChange }) {
         const loadingToast = toast.loading('Mengunggah gambar...');
         try {
           const res = await uploadBlogImage(formData);
-          const url = `http://localhost:25552${res.data.imageUrl}`;
+          const url = getUploadUrl(res.data.imageUrl);
           editor.chain().focus().setImage({ src: url }).run();
           toast.success('Gambar berhasil diunggah!', { id: loadingToast });
         } catch (err) {

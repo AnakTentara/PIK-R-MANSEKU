@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getPublicOrg, getPublicMembers } from '@/api/public';
 import SEO from '@/components/common/SEO';
+import { getUploadUrl } from '@/api/axios';
 import styles from './AnggotaPublikPage.module.css';
 
 export default function AnggotaPublikPage() {
@@ -66,7 +67,7 @@ export default function AnggotaPublikPage() {
                   <div className={`${styles.treeNode} ${styles.nodePembina}`}>
                     <div className={styles.nodeAvatar}>
                       {pembina.photoPath ? (
-                        <img src={`http://localhost:25552${pembina.photoPath}`} alt={pembina.name} />
+                        <img src={getUploadUrl(pembina.photoPath)} alt={pembina.name} />
                       ) : (
                         <div className={styles.initials}>{pembina.name[0]}</div>
                       )}
@@ -87,7 +88,7 @@ export default function AnggotaPublikPage() {
                     <div className={`${styles.treeNode} ${styles.nodeKetua}`}>
                       <div className={styles.nodeAvatar}>
                         {ketua.photoPath ? (
-                          <img src={`http://localhost:25552${ketua.photoPath}`} alt={ketua.name} />
+                          <img src={getUploadUrl(ketua.photoPath)} alt={ketua.name} />
                         ) : (
                           <div className={styles.initials}>{ketua.name[0]}</div>
                         )}
@@ -101,7 +102,7 @@ export default function AnggotaPublikPage() {
                     <div className={`${styles.treeNode} ${styles.nodeWakil}`}>
                       <div className={styles.nodeAvatar}>
                         {wakil.photoPath ? (
-                          <img src={`http://localhost:25552${wakil.photoPath}`} alt={wakil.name} />
+                          <img src={getUploadUrl(wakil.photoPath)} alt={wakil.name} />
                         ) : (
                           <div className={styles.initials}>{wakil.name[0]}</div>
                         )}
@@ -123,7 +124,7 @@ export default function AnggotaPublikPage() {
                     <div key={k.id} className={`${styles.treeNode} ${styles.nodeKabinet}`}>
                       <div className={styles.nodeAvatarSmall}>
                         {k.photoPath ? (
-                          <img src={`http://localhost:25552${k.photoPath}`} alt={k.name} />
+                          <img src={getUploadUrl(k.photoPath)} alt={k.name} />
                         ) : (
                           <div className={styles.initialsSmall}>{k.name[0]}</div>
                         )}
@@ -160,7 +161,7 @@ export default function AnggotaPublikPage() {
                   <div key={m.id} className={styles.memberCard}>
                     <div className={styles.memberAvatar}>
                       {m.photoPath ? (
-                        <img src={`http://localhost:25552${m.photoPath}`} alt={m.name} className={styles.memberAvatarImg} />
+                        <img src={getUploadUrl(m.photoPath)} alt={m.name} className={styles.memberAvatarImg} />
                       ) : (
                         <div className={styles.avatarInitials}>
                           {m.name[0]}

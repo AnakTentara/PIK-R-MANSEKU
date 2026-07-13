@@ -4,6 +4,7 @@ import { ArrowRight, Users, Calendar, BookOpen } from 'lucide-react';
 import { getPublicSettings } from '@/api/candidates';
 import { getPublicTestimonials } from '@/api/public';
 import SEO from '@/components/common/SEO';
+import { getUploadUrl } from '@/api/axios';
 import styles from './LandingPage.module.css';
 
 const HERO_SLIDES = [
@@ -361,7 +362,7 @@ export default function LandingPage() {
                 <div key={`${t.id}-1`} className={styles.testimonialCard} onClick={() => setSelectedTestimonial(t)}>
                   <div className={styles.testimonialPhotoWrap}>
                     {t.photoPath ? (
-                      <img src={`http://localhost:25552${t.photoPath}`} alt={t.name} className={styles.testimonialPhoto} />
+                      <img src={getUploadUrl(t.photoPath)} alt={t.name} className={styles.testimonialPhoto} />
                     ) : (
                       <div className={styles.testimonialPhotoPlaceholder}>{t.name[0]}</div>
                     )}
@@ -380,7 +381,7 @@ export default function LandingPage() {
                 <div key={`${t.id}-2`} className={styles.testimonialCard} onClick={() => setSelectedTestimonial(t)}>
                   <div className={styles.testimonialPhotoWrap}>
                     {t.photoPath ? (
-                      <img src={`http://localhost:25552${t.photoPath}`} alt={t.name} className={styles.testimonialPhoto} />
+                      <img src={getUploadUrl(t.photoPath)} alt={t.name} className={styles.testimonialPhoto} />
                     ) : (
                       <div className={styles.testimonialPhotoPlaceholder}>{t.name[0]}</div>
                     )}
@@ -433,7 +434,7 @@ export default function LandingPage() {
             <button className={styles.modalCloseBtn} onClick={() => setSelectedTestimonial(null)}>×</button>
             <div className={styles.modalPhotoWrap}>
               {selectedTestimonial.photoPath ? (
-                <img src={`http://localhost:25552${selectedTestimonial.photoPath}`} alt={selectedTestimonial.name} className={styles.modalPhoto} />
+                <img src={getUploadUrl(selectedTestimonial.photoPath)} alt={selectedTestimonial.name} className={styles.modalPhoto} />
               ) : (
                 <div className={styles.modalPhotoPlaceholder}>{selectedTestimonial.name[0]}</div>
               )}

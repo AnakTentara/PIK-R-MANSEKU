@@ -3,6 +3,7 @@ import { getPublicOrg } from '@/api/public';
 import { getPublicSettings } from '@/api/candidates';
 import { ChevronDown, ChevronUp, Users, Calendar, MapPin, Award } from 'lucide-react';
 import SEO from '@/components/common/SEO';
+import { getUploadUrl } from '@/api/axios';
 import styles from './KamiPage.module.css';
 
 export default function KamiPage() {
@@ -154,7 +155,7 @@ export default function KamiPage() {
                 <div className={styles.pembinaCard}>
                   <div className={styles.pembinaImgWrap}>
                     {pembinaCurrent.photoPath ? (
-                      <img src={`http://localhost:25552${pembinaCurrent.photoPath}`} alt={pembinaCurrent.name} />
+                      <img src={getUploadUrl(pembinaCurrent.photoPath)} alt={pembinaCurrent.name} />
                     ) : (
                       <div className={styles.initialsBig}>{pembinaCurrent.name[0]}</div>
                     )}
@@ -178,7 +179,7 @@ export default function KamiPage() {
                   <div className={styles.coreCard}>
                     <div className={styles.coreImgWrap}>
                       {ketuaCurrent.photoPath ? (
-                        <img src={`http://localhost:25552${ketuaCurrent.photoPath}`} alt={ketuaCurrent.name} />
+                        <img src={getUploadUrl(ketuaCurrent.photoPath)} alt={ketuaCurrent.name} />
                       ) : (
                         <div className={styles.initials}>{ketuaCurrent.name[0]}</div>
                       )}
@@ -193,7 +194,7 @@ export default function KamiPage() {
                   <div className={styles.coreCard}>
                     <div className={styles.coreImgWrap}>
                       {wakilCurrent.photoPath ? (
-                        <img src={`http://localhost:25552${wakilCurrent.photoPath}`} alt={wakilCurrent.name} />
+                        <img src={getUploadUrl(wakilCurrent.photoPath)} alt={wakilCurrent.name} />
                       ) : (
                         <div className={styles.initials}>{wakilCurrent.name[0]}</div>
                       )}
@@ -211,7 +212,7 @@ export default function KamiPage() {
                    <div className={styles.coreCard}>
                      <div className={styles.coreImgWrap}>
                        {sekretarisCurrent.photoPath ? (
-                         <img src={`http://localhost:25552${sekretarisCurrent.photoPath}`} alt={sekretarisCurrent.name} />
+                         <img src={getUploadUrl(sekretarisCurrent.photoPath)} alt={sekretarisCurrent.name} />
                        ) : (
                          <div className={styles.initials}>{sekretarisCurrent.name[0]}</div>
                        )}
@@ -226,7 +227,7 @@ export default function KamiPage() {
                    <div className={styles.coreCard}>
                      <div className={styles.coreImgWrap}>
                        {bendaharaCurrent.photoPath ? (
-                         <img src={`http://localhost:25552${bendaharaCurrent.photoPath}`} alt={bendaharaCurrent.name} />
+                         <img src={getUploadUrl(bendaharaCurrent.photoPath)} alt={bendaharaCurrent.name} />
                        ) : (
                          <div className={styles.initials}>{bendaharaCurrent.name[0]}</div>
                        )}
@@ -252,7 +253,7 @@ export default function KamiPage() {
                            <div className={styles.divisiKetuaCard}>
                              <div className={styles.divisiKetuaImgWrap}>
                                {d.ketua.photoPath ? (
-                                 <img src={`http://localhost:25552${d.ketua.photoPath}`} alt={d.ketua.name} className={styles.divisiKetuaImg} />
+                                 <img src={getUploadUrl(d.ketua.photoPath)} alt={d.ketua.name} className={styles.divisiKetuaImg} />
                                ) : (
                                  <div className={styles.initialsMini}>{d.ketua.name[0]}</div>
                                )}
@@ -310,7 +311,7 @@ export default function KamiPage() {
                           <div key={m.id} className={styles.archiveMemberCard}>
                             <div className={styles.archiveMemberAvatar}>
                               {m.photoPath ? (
-                                <img src={`http://localhost:25552${m.photoPath}`} alt={m.name} />
+                                <img src={getUploadUrl(m.photoPath)} alt={m.name} />
                               ) : (
                                 <div className={styles.initialsMini}>{m.name[0]}</div>
                               )}

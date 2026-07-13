@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import prisma from '../config/db.js';
 
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
-export function authAdmin(req, res, next) {
+export async function authAdmin(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Akses ditolak, token tidak ditemukan' });
@@ -17,11 +18,30 @@ export function authAdmin(req, res, next) {
     if (decoded.role !== 'admin') {
       return res.status(403).json({ message: 'Akses ditolak, hanya untuk admin' });
     }
-    req.admin = decoded;
+
+    const admin = await prisma.admin.findUnique({ where: { id: decoded.id } });
+    if (!admin) {
+      return res.status(401).json({ message: 'Akun admin tidak ditemukan' });
+    }
+
+    req.admin = {
+      id: admin.id,
+      username: admin.username,
+      role: admin.role
+    };
     next();
   } catch (error) {
     return res.status(401).json({ message: 'Token tidak valid atau kedaluwarsa' });
   }
+}
+
+export function requireRole(allowedRoles) {
+  return (req, res, next) => {
+    if (!req.admin || !allowedRoles.includes(req.admin.role)) {
+      return res.status(403).json({ message: 'Akses ditolak, tingkat kewenangan tidak mencukupi' });
+    }
+    next();
+  };
 }
 
 export function authCandidate(req, res, next) {

@@ -41,6 +41,9 @@ import AdminSettingsPage from '@/pages/admin/AdminSettingsPage';
 import AdminWebEditorPage from '@/pages/admin/AdminWebEditorPage';
 import AdminOrgPage from '@/pages/admin/AdminOrgPage';
 import AdminTestimonialsPage from '@/pages/admin/AdminTestimonialsPage';
+import AdminFileManagerPage from '@/pages/admin/AdminFileManagerPage';
+import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import { useAuthStore } from '@/stores/authStore';
 
 // Admin Layout
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -54,6 +57,15 @@ function PublicLayout() {
       <Footer />
     </>
   );
+}
+
+function RoleProtectedRoute({ allowedRoles, children }) {
+  const { adminUser } = useAuthStore();
+  const role = adminUser?.role || 'KABINET_UMUM';
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to="/admin" replace />;
+  }
+  return children;
 }
 
 function App() {
@@ -96,15 +108,66 @@ function App() {
           }
         >
           <Route index element={<AdminDashboardPage />} />
-          <Route path="pendaftaran" element={<AdminPendaftaranPage />} />
+          <Route 
+            path="pendaftaran" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM']}>
+                <AdminPendaftaranPage />
+              </RoleProtectedRoute>
+            } 
+          />
           <Route path="anggota" element={<AdminAnggotaPage />} />
           <Route path="blog" element={<AdminBlogPage />} />
           <Route path="blog/new" element={<AdminBlogEditorPage />} />
           <Route path="blog/edit/:id" element={<AdminBlogEditorPage />} />
-          <Route path="web-editor" element={<AdminWebEditorPage />} />
-          <Route path="settings" element={<AdminSettingsPage />} />
-          <Route path="org" element={<AdminOrgPage />} />
-          <Route path="testimoni" element={<AdminTestimonialsPage />} />
+          <Route 
+            path="web-editor" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM']}>
+                <AdminWebEditorPage />
+              </RoleProtectedRoute>
+            } 
+          />
+          <Route 
+            path="file-manager" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM']}>
+                <AdminFileManagerPage />
+              </RoleProtectedRoute>
+            } 
+          />
+          <Route 
+            path="users" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER']}>
+                <AdminUsersPage />
+              </RoleProtectedRoute>
+            } 
+          />
+          <Route 
+            path="settings" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER']}>
+                <AdminSettingsPage />
+              </RoleProtectedRoute>
+            } 
+          />
+          <Route 
+            path="org" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM']}>
+                <AdminOrgPage />
+              </RoleProtectedRoute>
+            } 
+          />
+          <Route 
+            path="testimoni" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM']}>
+                <AdminTestimonialsPage />
+              </RoleProtectedRoute>
+            } 
+          />
         </Route>
 
         {/* ── Fallback / Error Page ── */}

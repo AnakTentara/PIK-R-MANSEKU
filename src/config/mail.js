@@ -20,7 +20,7 @@ export async function sendEmail({ to, subject, html }) {
   const host = smtpConfig?.host || process.env.SMTP_HOST || 'smtp.mailgun.org';
   const port = parseInt(smtpConfig?.port || process.env.SMTP_PORT || '587', 10);
   const secure = port === 465;
-  const user = smtpConfig?.username || process.env.SMTP_USER;
+  const user = smtpConfig?.user || smtpConfig?.username || process.env.SMTP_USER;
   const pass = smtpConfig?.password || process.env.SMTP_PASS;
   const from = smtpConfig?.from || process.env.SMTP_FROM || 'kelulusan@pikr-manseku.my.id';
 

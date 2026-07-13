@@ -5,6 +5,7 @@ import SkeletonTable from '@/components/skeletons/SkeletonTable';
 import { useUIStore } from '@/stores/uiStore';
 import { Network, Plus, Edit2, Trash2, Check, X, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getUploadUrl } from '@/api/axios';
 import styles from './AdminOrgPage.module.css';
 
 const POSITIONS = [
@@ -114,7 +115,7 @@ export default function AdminOrgPage() {
     setIsCurrent(m.isCurrent);
     setQuote(m.quote || '');
     setPhotoFile(null);
-    setPhotoPreview(m.photoPath ? `http://localhost:25552${m.photoPath}` : '');
+    setPhotoPreview(m.photoPath ? getUploadUrl(m.photoPath) : '');
     setModalOpen(true);
   };
 
@@ -233,7 +234,7 @@ export default function AdminOrgPage() {
                     <td>{idx + 1}</td>
                     <td>
                       {m.photoPath ? (
-                        <img src={`http://localhost:25552${m.photoPath}`} alt={m.name} className={styles.avatar} />
+                        <img src={getUploadUrl(m.photoPath)} alt={m.name} className={styles.avatar} />
                       ) : (
                         <div className={styles.avatarPlaceholder}>{m.name[0]}</div>
                       )}

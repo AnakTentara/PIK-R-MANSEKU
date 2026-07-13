@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { Menu, X, LogOut, User } from 'lucide-react';
 import { getPublicSettings } from '@/api/candidates';
+import { getUploadUrl } from '@/api/axios';
 import styles from './Navbar.module.css';
 
 const DEFAULT_NAV_LINKS = [
@@ -64,7 +65,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className={styles.logo} aria-label="PIK-R MANSEKU — Beranda">
           <img
-            src={logoUrl}
+            src={getUploadUrl(logoUrl)}
             alt="PIK-R MANSEKU Logo"
             className={styles.logoImg}
           />

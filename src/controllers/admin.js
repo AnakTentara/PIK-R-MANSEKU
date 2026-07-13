@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import XLSX from 'xlsx';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import prisma, { initDatabase, getDbProvider } from '../config/db.js';
 import { sendBulkNotifications } from '../services/notification.js';
 
@@ -26,7 +29,7 @@ export async function loginAdmin(req, res) {
     }
 
     const token = jwt.sign(
-      { id: admin.id, username: admin.username, role: 'admin' },
+      { id: admin.id, username: admin.username, role: 'admin', adminRole: admin.role },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -34,7 +37,7 @@ export async function loginAdmin(req, res) {
     return res.json({
       message: 'Login berhasil',
       token,
-      admin: { id: admin.id, username: admin.username }
+      admin: { id: admin.id, username: admin.username, role: admin.role }
     });
   } catch (error) {
     console.error('Error admin login:', error);
@@ -795,6 +798,183 @@ export async function deleteTestimonial(req, res) {
   } catch (error) {
     console.error('Error deleting testimonial:', error);
     return res.status(500).json({ message: 'Gagal menghapus testimoni' });
+  }
+}
+
+// 26. Admin Users CRUD
+export async function getAdminUsers(req, res) {
+  try {
+    const admins = await prisma.admin.findMany({
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        createdAt: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    return res.json({ users: admins });
+  } catch (error) {
+    console.error('Error fetching admin users:', error);
+    return res.status(500).json({ message: 'Gagal memuat daftar admin' });
+  }
+}
+
+export async function createAdminUser(req, res) {
+  const { username, password, role } = req.body;
+  if (!username || !password || !role) {
+    return res.status(400).json({ message: 'Username, password, dan role wajib diisi' });
+  }
+
+  try {
+    const existing = await prisma.admin.findUnique({ where: { username } });
+    if (existing) {
+      return res.status(400).json({ message: 'Username sudah digunakan' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await prisma.admin.create({
+      data: {
+        username,
+        password: hashedPassword,
+        role
+      }
+    });
+
+    return res.status(201).json({
+      message: 'User admin berhasil dibuat',
+      user: { id: newUser.id, username: newUser.username, role: newUser.role }
+    });
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+    return res.status(500).json({ message: 'Gagal membuat user admin' });
+  }
+}
+
+export async function updateAdminUser(req, res) {
+  const { id } = req.params;
+  const { username, password, role } = req.body;
+
+  try {
+    const existing = await prisma.admin.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ message: 'User admin tidak ditemukan' });
+    }
+
+    if (username && username !== existing.username) {
+      const taken = await prisma.admin.findUnique({ where: { username } });
+      if (taken) {
+        return res.status(400).json({ message: 'Username sudah digunakan' });
+      }
+    }
+
+    const data = {
+      username: username ?? existing.username,
+      role: role ?? existing.role
+    };
+
+    if (password) {
+      data.password = await bcrypt.hash(password, 10);
+    }
+
+    const updated = await prisma.admin.update({
+      where: { id },
+      data
+    });
+
+    return res.json({
+      message: 'User admin berhasil diperbarui',
+      user: { id: updated.id, username: updated.username, role: updated.role }
+    });
+  } catch (error) {
+    console.error('Error updating admin user:', error);
+    return res.status(500).json({ message: 'Gagal memperbarui user admin' });
+  }
+}
+
+export async function deleteAdminUser(req, res) {
+  const { id } = req.params;
+
+  try {
+    const existing = await prisma.admin.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ message: 'User admin tidak ditemukan' });
+    }
+
+    if (existing.username === 'pikrmanseku01') {
+      return res.status(400).json({ message: 'Akun developer utama tidak dapat dihapus' });
+    }
+
+    if (req.admin.id === id) {
+      return res.status(400).json({ message: 'Anda tidak dapat menghapus akun Anda sendiri' });
+    }
+
+    await prisma.admin.delete({ where: { id } });
+    return res.json({ message: 'User admin berhasil dihapus' });
+  } catch (error) {
+    console.error('Error deleting admin user:', error);
+    return res.status(500).json({ message: 'Gagal menghapus user admin' });
+  }
+}
+
+// 27. File Manager
+export async function getUploadedFiles(req, res) {
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const uploadsDir = path.join(__dirname, '../../public/uploads');
+
+    const subdirs = ['photos', 'blog', 'logos'];
+    let allFiles = [];
+
+    subdirs.forEach(subdir => {
+      const dirPath = path.join(uploadsDir, subdir);
+      if (fs.existsSync(dirPath)) {
+        const files = fs.readdirSync(dirPath);
+        files.forEach(file => {
+          const filePath = path.join(dirPath, file);
+          const stat = fs.statSync(filePath);
+          if (stat.isFile()) {
+            allFiles.push({
+              name: file,
+              path: `/uploads/${subdir}/${file}`,
+              size: stat.size,
+              createdAt: stat.birthtime,
+              category: subdir
+            });
+          }
+        });
+      }
+    });
+
+    allFiles.sort((a, b) => b.createdAt - a.createdAt);
+    return res.json({ files: allFiles });
+  } catch (error) {
+    console.error('Error listing files:', error);
+    return res.status(500).json({ message: 'Gagal memuat daftar file' });
+  }
+}
+
+export async function deleteUploadedFile(req, res) {
+  const { filePath } = req.body;
+  if (!filePath || !filePath.startsWith('/uploads/')) {
+    return res.status(400).json({ message: 'Path file tidak valid' });
+  }
+
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const absolutePath = path.join(__dirname, '../../public', filePath);
+
+    if (fs.existsSync(absolutePath)) {
+      fs.unlinkSync(absolutePath);
+      return res.json({ message: 'File berhasil dihapus' });
+    } else {
+      return res.status(404).json({ message: 'File tidak ditemukan di disk' });
+    }
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    return res.status(500).json({ message: 'Gagal menghapus file' });
   }
 }
 

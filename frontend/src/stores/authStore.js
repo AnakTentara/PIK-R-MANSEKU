@@ -7,6 +7,13 @@ import { create } from 'zustand';
 export const useAuthStore = create((set) => ({
   // Admin state
   adminToken: localStorage.getItem('admin_token') || null,
+  adminUser: (() => {
+    try {
+      return JSON.parse(localStorage.getItem('admin_user') || 'null');
+    } catch {
+      return null;
+    }
+  })(),
   isAdminAuthenticated: !!localStorage.getItem('admin_token'),
 
   // Candidate state
@@ -21,14 +28,22 @@ export const useAuthStore = create((set) => ({
   isCandidateAuthenticated: !!localStorage.getItem('candidate_token'),
 
   // Admin actions
-  setAdminToken: (token) => {
+  setAdminToken: (token, user = null) => {
     localStorage.setItem('admin_token', token);
-    set({ adminToken: token, isAdminAuthenticated: true });
+    if (user) {
+      localStorage.setItem('admin_user', JSON.stringify(user));
+    }
+    set({ 
+      adminToken: token, 
+      adminUser: user || JSON.parse(localStorage.getItem('admin_user') || 'null'),
+      isAdminAuthenticated: true 
+    });
   },
 
   logoutAdmin: () => {
     localStorage.removeItem('admin_token');
-    set({ adminToken: null, isAdminAuthenticated: false });
+    localStorage.removeItem('admin_user');
+    set({ adminToken: null, adminUser: null, isAdminAuthenticated: false });
   },
 
   // Candidate actions

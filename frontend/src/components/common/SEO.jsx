@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const DEFAULT_TITLE = 'PIK-R MANSEKU — Pusat Informasi & Konseling Remaja MAN 1 Muara Enim';
-const DEFAULT_DESC = 'Pusat Informasi & Konseling Remaja MAN 1 Muara Enim (PIK-R MANSEKU) — Wadah edukasi, konseling sebaya yang aman dan bersahabat, serta pengembangan diri remaja.';
-const DEFAULT_KEYWORDS = 'PIK-R, MANSEKU, MAN 1 Muara Enim, Konseling Remaja, Pusat Informasi Remaja, GenRerator, PIK-R Sumatera Selatan, Remaja Sehat';
+const DEFAULT_TITLE = 'PIK-R MANSEKU — Pusat Informasi & Konseling Remaja (PIK Remaja) MAN 1 Muara Enim';
+const DEFAULT_DESC = 'Pusat Informasi & Konseling Remaja (PIK-R MANSEKU) MAN 1 Muara Enim. Wadah konseling sebaya yang aman di Muara Enim, mengedukasi tentang kesehatan reproduksi, life skills, dan GenRe.';
+const DEFAULT_KEYWORDS = 'PIK-R, PIK MAN, PIK, PIK-R MAN, PIK-R MUARA ENIM, MUARA ENIM, KONSELING, KONSELING MUARA ENIM, MANSEKU, PIK MANSEKU, PIK Remaja, Konseling Remaja Muara Enim, MAN 1 Muara Enim, Pusat Informasi Konseling Remaja, GenRe';
 const DEFAULT_IMAGE = '/media/logos/logo_pik-r.png';
 const BASE_URL = 'https://pikr-manseku.my.id';
 
@@ -107,6 +107,45 @@ export default function SEO({ title, description, keywords, image, type = 'websi
 
     // Canonical Tag
     updateLinkTag('canonical', finalUrl);
+
+    // Dynamic JSON-LD Structured Data for rich search results
+    let schemaScript = document.getElementById('jsonld-schema');
+    if (!schemaScript) {
+      schemaScript = document.createElement('script');
+      schemaScript.id = 'jsonld-schema';
+      schemaScript.setAttribute('type', 'application/ld+json');
+      document.head.appendChild(schemaScript);
+    }
+    const schemaContent = {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "PIK-R MANSEKU (Pusat Informasi & Konseling Remaja MAN 1 Muara Enim)",
+      "alternateName": [
+        "PIK-R MANSEKU",
+        "PIK-R MAN 1 Muara Enim",
+        "PIK MANSEKU",
+        "PIK MAN",
+        "PIK-R",
+        "PIK-R MUARA ENIM",
+        "KONSELING MUARA ENIM",
+        "PIK Remaja Muara Enim"
+      ],
+      "description": finalDesc,
+      "url": BASE_URL,
+      "logo": `${BASE_URL}${DEFAULT_IMAGE}`,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Muara Enim",
+        "addressRegion": "Sumatera Selatan",
+        "addressCountry": "ID"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "areaServed": "ID"
+      }
+    };
+    schemaScript.innerHTML = JSON.stringify(schemaContent);
 
   }, [title, description, keywords, image, type, pathname]);
 

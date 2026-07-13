@@ -93,3 +93,27 @@ export const deleteTestimonial = (id) =>
 export const uploadBlogImage = (formData) =>
   api.post('/admin/blog/upload-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 
+// Web Editor Logo Upload
+export const uploadWebLogo = (formData) =>
+  api.post('/admin/web-editor/upload-logo', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+
+// Admin Users CRUD
+export const getAdminUsers = () =>
+  api.get('/admin/users');
+
+export const createAdminUser = (data) =>
+  api.post('/admin/users', data);
+
+export const updateAdminUser = (id, data) =>
+  api.put(`/admin/users/${id}`, data);
+
+export const deleteAdminUser = (id) =>
+  api.delete(`/admin/users/${id}`);
+
+// File Manager
+export const getUploadedFiles = () =>
+  api.get('/admin/files');
+
+export const deleteUploadedFile = (filePath) =>
+  api.delete('/admin/files', { data: { filePath } });
+

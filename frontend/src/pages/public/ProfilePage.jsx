@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore';
 import SkeletonProfile from '@/components/skeletons/SkeletonProfile';
 import { LogOut, Edit2, X, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getUploadUrl } from '@/api/axios';
 import styles from './ProfilePage.module.css';
 
 const KELAS_OPTIONS = [];
@@ -110,7 +111,7 @@ export default function ProfilePage() {
             <div className={styles.headerCard}>
               <div className={styles.avatar}>
                 {profile?.photoPath ? (
-                  <img src={`http://localhost:25552${profile.photoPath}`} alt={profile.name} className={styles.avatarImg} />
+                  <img src={getUploadUrl(profile.photoPath)} alt={profile.name} className={styles.avatarImg} />
                 ) : (
                   initials
                 )}

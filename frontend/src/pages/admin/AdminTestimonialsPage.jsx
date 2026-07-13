@@ -4,6 +4,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import { useUIStore } from '@/stores/uiStore';
 import { Plus, Edit2, Trash2, X, Upload, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getUploadUrl } from '@/api/axios';
 import styles from './AdminTestimonialsPage.module.css';
 
 export default function AdminTestimonialsPage() {
@@ -53,7 +54,7 @@ export default function AdminTestimonialsPage() {
     setAngkatan(t.angkatan);
     setContent(t.content);
     setPhotoFile(null);
-    setPhotoPreview(t.photoPath ? `http://localhost:25552${t.photoPath}` : '');
+    setPhotoPreview(t.photoPath ? getUploadUrl(t.photoPath) : '');
     setModalOpen(true);
   };
 
@@ -133,7 +134,7 @@ export default function AdminTestimonialsPage() {
                 <div className={styles.cardHeader}>
                   <div className={styles.meta}>
                     {t.photoPath ? (
-                      <img src={`http://localhost:25552${t.photoPath}`} alt={t.name} className={styles.avatar} />
+                      <img src={getUploadUrl(t.photoPath)} alt={t.name} className={styles.avatar} />
                     ) : (
                       <div className={styles.avatarPlaceholder}>{t.name[0]}</div>
                     )}

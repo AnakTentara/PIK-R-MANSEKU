@@ -42,4 +42,21 @@ api.interceptors.response.use(
   }
 );
 
+export const getUploadUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+  
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  
+  if (import.meta.env.VITE_API_URL) {
+    return `${import.meta.env.VITE_API_URL}${cleanPath}`;
+  }
+  
+  if (window.location.hostname === 'localhost') {
+    return `http://localhost:25552${cleanPath}`;
+  }
+  
+  return `${window.location.origin}${cleanPath}`;
+};
+
 export default api;

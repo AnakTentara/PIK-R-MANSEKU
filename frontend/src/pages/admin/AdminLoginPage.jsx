@@ -31,8 +31,8 @@ export default function AdminLoginPage() {
     setLoading(true);
     try {
       const res = await loginAdmin(form);
-      const { token } = res.data;
-      setAdminToken(token);
+      const { token, admin } = res.data;
+      setAdminToken(token, admin);
       toast.success('Login berhasil!');
       navigate('/admin');
     } catch (err) {

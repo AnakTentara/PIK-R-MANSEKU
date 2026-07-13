@@ -34,9 +34,17 @@ import {
   createTestimonial,
   updateTestimonial,
   deleteTestimonial,
+  // Admin User Accounts
+  getAdminUsers,
+  createAdminUser,
+  updateAdminUser,
+  deleteAdminUser,
+  // File Manager
+  getUploadedFiles,
+  deleteUploadedFile,
 } from '../controllers/admin.js';
 import { deleteComment } from '../controllers/blog.js';
-import { authAdmin } from '../middlewares/auth.js';
+import { authAdmin, requireRole } from '../middlewares/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,6 +93,30 @@ const uploadBlog = multer({
   }
 });
 
+// Multer config for web logo uploads
+const logoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../../public/uploads/logos');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `logo-${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+  }
+});
+
+const uploadLogo = multer({
+  storage: logoStorage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Only image files are allowed'));
+  }
+});
+
 
 const router = express.Router();
 
@@ -92,54 +124,74 @@ const router = express.Router();
 router.post('/login', loginAdmin);
 
 // Protected Admin Routes (Requires authAdmin)
-router.get('/candidates', authAdmin, getCandidates);
-router.post('/candidates', authAdmin, createCandidate);
-router.get('/candidates/export-json', authAdmin, exportJSON);
-router.get('/candidates/export-excel', authAdmin, exportExcel);
-router.post('/candidates/generate-passwords', authAdmin, generatePasswords);
-router.post('/candidates/send-notifications', authAdmin, triggerNotifications);
+// Candidates (DEVELOPER and KABINET_UMUM only)
+router.get('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getCandidates);
+router.post('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), createCandidate);
+router.get('/candidates/export-json', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), exportJSON);
+router.get('/candidates/export-excel', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), exportExcel);
+router.post('/candidates/generate-passwords', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), generatePasswords);
+router.post('/candidates/send-notifications', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), triggerNotifications);
 
-// Candidate CRUD by ID
-router.get('/candidates/:id', authAdmin, getCandidateById);
-router.put('/candidates/:id', authAdmin, updateCandidate);
-router.delete('/candidates/:id', authAdmin, deleteCandidate);
+// Candidate CRUD by ID (DEVELOPER and KABINET_UMUM only)
+router.get('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getCandidateById);
+router.put('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateCandidate);
+router.delete('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteCandidate);
 
-// Comments Management
-router.delete('/comments/:id', authAdmin, deleteComment);
+// Comments Management (All admin roles can moderate comments on posts)
+router.delete('/comments/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), deleteComment);
 
-// Settings Management
-router.get('/settings', authAdmin, getSettings);
-router.put('/settings', authAdmin, saveSettings);
+// Settings Management (DEVELOPER only)
+router.get('/settings', authAdmin, requireRole(['DEVELOPER']), getSettings);
+router.put('/settings', authAdmin, requireRole(['DEVELOPER']), saveSettings);
 
-// Session Lifecycle
-router.post('/session/close', authAdmin, closeSession);
-router.post('/session/open', authAdmin, openSession);
+// Admin User Accounts CRUD (DEVELOPER only)
+router.get('/users', authAdmin, requireRole(['DEVELOPER']), getAdminUsers);
+router.post('/users', authAdmin, requireRole(['DEVELOPER']), createAdminUser);
+router.put('/users/:id', authAdmin, requireRole(['DEVELOPER']), updateAdminUser);
+router.delete('/users/:id', authAdmin, requireRole(['DEVELOPER']), deleteAdminUser);
 
-// Member CRUD (permanent registry)
-router.get('/members', authAdmin, getMembers);
-router.post('/members', authAdmin, createMember);
-router.put('/members/:id', authAdmin, updateMember);
-router.delete('/members/:id', authAdmin, deleteMember);
+// File Manager (DEVELOPER and KABINET_UMUM only)
+router.get('/files', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getUploadedFiles);
+router.delete('/files', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteUploadedFile);
 
-// Org Member CRUD
-router.get('/org', authAdmin, getOrgMembers);
-router.post('/org', authAdmin, upload.single('photo'), createOrgMember);
-router.put('/org/:id', authAdmin, upload.single('photo'), updateOrgMember);
-router.delete('/org/:id', authAdmin, deleteOrgMember);
+// Session Lifecycle (DEVELOPER and KABINET_UMUM only)
+router.post('/session/close', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), closeSession);
+router.post('/session/open', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), openSession);
 
-// Testimonials CRUD
-router.get('/testimonials', authAdmin, getTestimonials);
-router.post('/testimonials', authAdmin, upload.single('photo'), createTestimonial);
-router.put('/testimonials/:id', authAdmin, upload.single('photo'), updateTestimonial);
-router.delete('/testimonials/:id', authAdmin, deleteTestimonial);
+// Member CRUD (MEDINFO can read, but only DEVELOPER and KABINET_UMUM can create/edit/delete)
+router.get('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), getMembers);
+router.post('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), createMember);
+router.put('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateMember);
+router.delete('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteMember);
 
-// Blog Image Upload Endpoint
-router.post('/blog/upload-image', authAdmin, uploadBlog.single('image'), (req, res) => {
+// Org Member CRUD (DEVELOPER and KABINET_UMUM only)
+router.get('/org', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getOrgMembers);
+router.post('/org', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), createOrgMember);
+router.put('/org/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), updateOrgMember);
+router.delete('/org/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteOrgMember);
+
+// Testimonials CRUD (DEVELOPER and KABINET_UMUM only)
+router.get('/testimonials', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getTestimonials);
+router.post('/testimonials', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), createTestimonial);
+router.put('/testimonials/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), updateTestimonial);
+router.delete('/testimonials/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteTestimonial);
+
+// Blog Image Upload Endpoint (All roles can write posts and upload images inside them)
+router.post('/blog/upload-image', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), uploadBlog.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'Tidak ada file gambar yang diupload' });
   }
   const imageUrl = `/uploads/blog/${req.file.filename}`;
   return res.json({ imageUrl });
+});
+
+// Web Editor upload-logo endpoint (DEVELOPER and KABINET_UMUM only)
+router.post('/web-editor/upload-logo', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), uploadLogo.single('logo'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'Tidak ada file logo yang diupload' });
+  }
+  const logoUrl = `/uploads/logos/${req.file.filename}`;
+  return res.json({ logoUrl });
 });
 
 export default router;
