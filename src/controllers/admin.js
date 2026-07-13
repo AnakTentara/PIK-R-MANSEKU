@@ -909,6 +909,15 @@ export async function deleteAdminUser(req, res) {
       return res.status(400).json({ message: 'Anda tidak dapat menghapus akun Anda sendiri' });
     }
 
+    // Reassign any posts authored by this admin to the master developer admin
+    const masterDev = await prisma.admin.findUnique({ where: { username: 'pikr-manseku' } });
+    if (masterDev) {
+      await prisma.post.updateMany({
+        where: { authorId: id },
+        data: { authorId: masterDev.id }
+      });
+    }
+
     await prisma.admin.delete({ where: { id } });
     return res.json({ message: 'User admin berhasil dihapus' });
   } catch (error) {
