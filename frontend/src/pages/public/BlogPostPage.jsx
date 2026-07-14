@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPostBySlug, createComment } from '@/api/blog';
 import { formatDate, timeAgo } from '@/utils/formatDate';
-import { ArrowLeft, Send, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Send, MessageSquare, Heart, Share2, Bookmark } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/stores/authStore';
 import SEO from '@/components/common/SEO';
@@ -14,6 +14,8 @@ export default function BlogPostPage() {
   const [loading, setLoading] = useState(true);
   const [commentForm, setCommentForm] = useState({ username: '', content: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const { isCandidateAuthenticated, candidateUser } = useAuthStore();
 
@@ -22,6 +24,76 @@ export default function BlogPostPage() {
       setCommentForm((f) => ({ ...f, username: candidateUser.name }));
     }
   }, [isCandidateAuthenticated, candidateUser]);
+
+  useEffect(() => {
+    if (post && isCandidateAuthenticated && candidateUser) {
+      const likedKey = `likes_${candidateUser.nisn}`;
+      const savedKey = `bookmarks_${candidateUser.nisn}`;
+      
+      const likedList = JSON.parse(localStorage.getItem(likedKey) || '[]');
+      const savedList = JSON.parse(localStorage.getItem(savedKey) || '[]');
+      
+      setIsLiked(likedList.some(item => item.id === post.id));
+      setIsBookmarked(savedList.some(item => item.id === post.id));
+    }
+  }, [post, isCandidateAuthenticated, candidateUser]);
+
+  const handleLike = () => {
+    if (!isCandidateAuthenticated || !candidateUser) {
+      toast.error('Silakan login sebagai Anggota untuk menyukai artikel.');
+      return;
+    }
+    const likedKey = `likes_${candidateUser.nisn}`;
+    let likedList = JSON.parse(localStorage.getItem(likedKey) || '[]');
+    
+    if (isLiked) {
+      likedList = likedList.filter(item => item.id !== post.id);
+      setIsLiked(false);
+      toast.success('Batal menyukai artikel.');
+    } else {
+      likedList.push({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        content: post.content,
+        createdAt: post.createdAt
+      });
+      setIsLiked(true);
+      toast.success('Artikel disukai!');
+    }
+    localStorage.setItem(likedKey, JSON.stringify(likedList));
+  };
+
+  const handleBookmark = () => {
+    if (!isCandidateAuthenticated || !candidateUser) {
+      toast.error('Silakan login sebagai Anggota untuk menyimpan artikel.');
+      return;
+    }
+    const savedKey = `bookmarks_${candidateUser.nisn}`;
+    let savedList = JSON.parse(localStorage.getItem(savedKey) || '[]');
+    
+    if (isBookmarked) {
+      savedList = savedList.filter(item => item.id !== post.id);
+      setIsBookmarked(false);
+      toast.success('Artikel dihapus dari simpanan.');
+    } else {
+      savedList.push({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        content: post.content,
+        createdAt: post.createdAt
+      });
+      setIsBookmarked(true);
+      toast.success('Artikel disimpan!');
+    }
+    localStorage.setItem(savedKey, JSON.stringify(savedList));
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Tautan artikel berhasil disalin!');
+  };
 
   useEffect(() => {
     fetchPost();
@@ -49,6 +121,22 @@ export default function BlogPostPage() {
     try {
       await createComment(post.id, commentForm);
       toast.success('Komentar berhasil dikirim!');
+
+      if (isCandidateAuthenticated && candidateUser) {
+        const commentKey = `comments_${candidateUser.nisn}`;
+        let commentedList = JSON.parse(localStorage.getItem(commentKey) || '[]');
+        if (!commentedList.some(item => item.id === post.id)) {
+          commentedList.push({
+            id: post.id,
+            title: post.title,
+            slug: post.slug,
+            content: post.content,
+            createdAt: post.createdAt
+          });
+          localStorage.setItem(commentKey, JSON.stringify(commentedList));
+        }
+      }
+
       setCommentForm({ username: '', content: '' });
       fetchPost();
     } catch (err) {
@@ -127,6 +215,36 @@ export default function BlogPostPage() {
               })()
             }}
           />
+
+          {/* Action Row (Like, Share, Save) */}
+          <div className={styles.actionRow}>
+            <button 
+              onClick={handleLike} 
+              className={`${styles.actionBtn} ${isLiked ? styles.liked : ''}`}
+              title="Suka Berita"
+            >
+              <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+              <span>{isLiked ? 'Disukai' : 'Suka'}</span>
+            </button>
+            
+            <button 
+              onClick={handleBookmark} 
+              className={`${styles.actionBtn} ${isBookmarked ? styles.bookmarked : ''}`}
+              title="Simpan Berita"
+            >
+              <Bookmark size={18} fill={isBookmarked ? 'currentColor' : 'none'} />
+              <span>{isBookmarked ? 'Tersimpan' : 'Simpan'}</span>
+            </button>
+            
+            <button 
+              onClick={handleShare} 
+              className={styles.actionBtn}
+              title="Bagikan Berita"
+            >
+              <Share2 size={18} />
+              <span>Bagikan</span>
+            </button>
+          </div>
         </article>
 
         {/* Comments */}

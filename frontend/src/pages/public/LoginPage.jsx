@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isCandidateAuthenticated) navigate('/profil', { replace: true });
+    if (isCandidateAuthenticated) navigate('/blog', { replace: true });
   }, [isCandidateAuthenticated, navigate]);
 
   const handleChange = (e) => {
@@ -34,7 +34,7 @@ export default function LoginPage() {
       const { token, candidate } = res.data;
       setCandidateAuth(token, candidate);
       toast.success('Login berhasil!');
-      navigate('/profil');
+      navigate('/blog');
     } catch (err) {
       toast.error(err.response?.data?.message || 'NISN atau password salah.');
     } finally {

@@ -215,7 +215,7 @@ export async function getProfile(req, res) {
 
 // 5. Update Candidate Profile (Self)
 export async function updateProfile(req, res) {
-  const { name, className, whatsappNumber, email, gender, reason } = req.body;
+  const { name, className, whatsappNumber, email, gender, reason, asalSekolah } = req.body;
   const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : undefined;
 
   try {
@@ -234,6 +234,7 @@ export async function updateProfile(req, res) {
           email: email ?? candidate.email,
           gender: gender ?? candidate.gender,
           reason: reason ?? candidate.reason,
+          asalSekolah: asalSekolah ?? candidate.asalSekolah,
           photoPath: photoPath ?? candidate.photoPath
         }
       });
@@ -252,6 +253,7 @@ export async function updateProfile(req, res) {
               whatsappNumber: whatsappNumber ?? correspondingMember.whatsappNumber,
               email: email ?? correspondingMember.email,
               gender: gender ?? correspondingMember.gender,
+              asalSekolah: asalSekolah ?? correspondingMember.asalSekolah,
               photoPath: photoPath ?? correspondingMember.photoPath
             }
           });
@@ -280,6 +282,7 @@ export async function updateProfile(req, res) {
           whatsappNumber: whatsappNumber ?? member.whatsappNumber,
           email: email ?? member.email,
           gender: gender ?? member.gender,
+          asalSekolah: asalSekolah ?? member.asalSekolah,
           photoPath: photoPath ?? member.photoPath
         }
       });
