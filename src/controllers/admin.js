@@ -666,16 +666,29 @@ export async function createOrgMember(req, res) {
       return res.status(400).json({ message: 'Nama/Anggota, role, jabatan, dan tahun mulai wajib diisi' });
     }
 
-    // If isCurrent, unset previous isCurrent for same role
-    if (isCurrent === 'true' || isCurrent === true) {
+    // Determine finalIsCurrent automatically based on yearEnd and current year
+    const currentYear = new Date().getFullYear();
+    const parsedYearEnd = yearEnd ? parseInt(yearEnd) : null;
+    let finalIsCurrent = isCurrent === 'true' || isCurrent === true;
+    
+    if (parsedYearEnd) {
+      if (parsedYearEnd >= currentYear) {
+        finalIsCurrent = true;
+      } else {
+        finalIsCurrent = false;
+      }
+    }
+
+    if (finalIsCurrent) {
       await prisma.orgMember.updateMany({ where: { role, isCurrent: true }, data: { isCurrent: false } });
     }
+
     const org = await prisma.orgMember.create({
       data: {
         name: finalName, role, jabatan,
         yearStart: parseInt(yearStart),
-        yearEnd: yearEnd ? parseInt(yearEnd) : null,
-        isCurrent: isCurrent === 'true' || isCurrent === true,
+        yearEnd: parsedYearEnd,
+        isCurrent: finalIsCurrent,
         photoPath,
         quote: quote || null
       }
@@ -706,7 +719,20 @@ export async function updateOrgMember(req, res) {
 
     const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : existing.photoPath;
 
-    if (isCurrent === 'true' || isCurrent === true) {
+    // Determine finalIsCurrent automatically based on yearEnd and current year
+    const currentYear = new Date().getFullYear();
+    const parsedYearEnd = yearEnd !== undefined ? (yearEnd ? parseInt(yearEnd) : null) : existing.yearEnd;
+    let finalIsCurrent = isCurrent !== undefined ? (isCurrent === 'true' || isCurrent === true) : existing.isCurrent;
+    
+    if (parsedYearEnd) {
+      if (parsedYearEnd >= currentYear) {
+        finalIsCurrent = true;
+      } else {
+        finalIsCurrent = false;
+      }
+    }
+
+    if (finalIsCurrent) {
       await prisma.orgMember.updateMany({
         where: { role: role || existing.role, isCurrent: true, id: { not: id } },
         data: { isCurrent: false }
@@ -720,8 +746,8 @@ export async function updateOrgMember(req, res) {
         role: role ?? existing.role,
         jabatan: jabatan ?? existing.jabatan,
         yearStart: yearStart ? parseInt(yearStart) : existing.yearStart,
-        yearEnd: yearEnd ? parseInt(yearEnd) : existing.yearEnd,
-        isCurrent: isCurrent !== undefined ? (isCurrent === 'true' || isCurrent === true) : existing.isCurrent,
+        yearEnd: parsedYearEnd,
+        isCurrent: finalIsCurrent,
         photoPath,
         quote: quote !== undefined ? quote : existing.quote,
       }
