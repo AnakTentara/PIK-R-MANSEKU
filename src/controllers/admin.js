@@ -679,9 +679,7 @@ export async function createOrgMember(req, res) {
       }
     }
 
-    if (finalIsCurrent) {
-      await prisma.orgMember.updateMany({ where: { role, isCurrent: true }, data: { isCurrent: false } });
-    }
+
 
     const org = await prisma.orgMember.create({
       data: {
@@ -732,12 +730,7 @@ export async function updateOrgMember(req, res) {
       }
     }
 
-    if (finalIsCurrent) {
-      await prisma.orgMember.updateMany({
-        where: { role: role || existing.role, isCurrent: true, id: { not: id } },
-        data: { isCurrent: false }
-      });
-    }
+
 
     const updated = await prisma.orgMember.update({
       where: { id },
