@@ -2,21 +2,12 @@ import { useState, useEffect } from 'react';
 import { getPublicOrg, getPublicMembers } from '@/api/public';
 import SEO from '@/components/common/SEO';
 import { getUploadUrl } from '@/api/axios';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import styles from './AnggotaPublikPage.module.css';
 
 export default function AnggotaPublikPage() {
   const [orgData, setOrgData] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedKabinet, setExpandedKabinet] = useState({});
-
-  const toggleKabinet = (id) => {
-    setExpandedKabinet(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
 
   const getDivisionStaff = (leaderJabatan) => {
     if (!leaderJabatan) return [];
@@ -144,15 +135,10 @@ export default function AnggotaPublikPage() {
                   {kabinet.map(k => {
                     const staff = getDivisionStaff(k.jabatan);
                     const hasStaff = staff.length > 0;
-                    const isExpanded = !!expandedKabinet[k.id];
 
                     return (
                       <div key={k.id} className={styles.kabinetContainer}>
-                        <div 
-                          className={`${styles.treeNode} ${styles.nodeKabinet} ${hasStaff ? styles.clickableNode : ''} ${isExpanded ? styles.nodeExpanded : ''}`}
-                          onClick={() => hasStaff && toggleKabinet(k.id)}
-                          title={hasStaff ? (isExpanded ? 'Klik untuk menutup daftar staff' : 'Klik untuk melihat daftar staff') : ''}
-                        >
+                        <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
                           <div className={styles.nodeAvatarSmall}>
                             {k.photoPath ? (
                               <img src={getUploadUrl(k.photoPath)} alt={k.name} />
@@ -162,15 +148,10 @@ export default function AnggotaPublikPage() {
                           </div>
                           <h6>{k.name}</h6>
                           <p>{k.jabatan}</p>
-                          {hasStaff && (
-                            <div className={styles.expandIcon}>
-                              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            </div>
-                          )}
                         </div>
 
-                        {/* Dropdown Staff List */}
-                        {hasStaff && isExpanded && (
+                        {/* Statically open Staff List */}
+                        {hasStaff && (
                           <div className={styles.staffDropdown}>
                             <div className={styles.staffList}>
                               {staff.map(s => (

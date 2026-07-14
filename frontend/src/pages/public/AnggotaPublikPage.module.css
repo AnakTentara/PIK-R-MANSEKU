@@ -328,43 +328,7 @@
   width: 100%;
 }
 
-.clickableNode {
-  cursor: pointer;
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
 
-.clickableNode:hover {
-  border-color: var(--color-accent);
-  transform: translateY(-2px);
-}
-
-.nodeExpanded {
-  border-color: var(--color-accent) !important;
-  box-shadow: var(--shadow-md) !important;
-  background-color: var(--color-accent-subtle) !important;
-}
-
-.expandIcon {
-  margin-top: 6px;
-  color: var(--color-text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-surface-2);
-  padding: 3px;
-  border-radius: 50%;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.clickableNode:hover .expandIcon {
-  background-color: var(--color-accent-subtle);
-  color: var(--color-accent);
-}
-
-.nodeExpanded .expandIcon {
-  background-color: var(--color-accent);
-  color: #ffffff;
-}
 
 .staffDropdown {
   width: 100%;
