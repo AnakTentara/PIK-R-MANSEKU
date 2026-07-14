@@ -10,7 +10,8 @@ import styles from './ProfilePage.module.css';
 
 const KELAS_OPTIONS = [];
 ['X', 'XI', 'XII'].forEach((t) => {
-  for (let i = 1; i <= 8; i++) KELAS_OPTIONS.push(`${t}-${i}`);
+  const maxClass = t === 'X' ? 9 : 8;
+  for (let i = 1; i <= maxClass; i++) KELAS_OPTIONS.push(`${t}-${i}`);
 });
 
 const STATUS_MAP = {

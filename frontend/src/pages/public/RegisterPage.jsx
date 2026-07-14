@@ -8,7 +8,8 @@ import styles from './RegisterPage.module.css';
 
 const KELAS_OPTIONS = [];
 ['X', 'XI', 'XII'].forEach((tingkat) => {
-  for (let i = 1; i <= 8; i++) {
+  const maxClass = tingkat === 'X' ? 9 : 8;
+  for (let i = 1; i <= maxClass; i++) {
     KELAS_OPTIONS.push(`${tingkat}-${i}`);
   }
 });
