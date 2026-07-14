@@ -319,3 +319,84 @@
   background-color: #dbeafe;
   color: #2563eb;
 }
+
+/* ── Comment Action Row ───────────────────────── */
+.commentActionsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.commentActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.6;
+}
+
+.commentActionBtn:hover {
+  background-color: var(--color-surface-2);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-strong);
+}
+
+.commentLiked {
+  color: #ef4444 !important;
+  border-color: #fca5a5 !important;
+  background-color: #fef2f2 !important;
+}
+
+.commentLiked:hover {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.commentDeleteBtn:hover {
+  color: #ef4444 !important;
+  border-color: #fca5a5 !important;
+  background-color: #fef2f2 !important;
+}
+
+/* ── Comment Edit Inline ───────────────────────── */
+.commentEditWrapper {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.commentEditWrapper textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 8px 12px;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.15s;
+  outline: none;
+}
+
+.commentEditWrapper textarea:focus {
+  border-color: var(--color-accent);
+}
+
+.commentEditActions {
+  display: flex;
+  gap: 8px;
+}
+

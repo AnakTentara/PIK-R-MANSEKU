@@ -106,38 +106,171 @@ export default function ProfilePage() {
     }
   };
 
-  const handleDownloadProfile = () => {
+  const handleDownloadProfile = async () => {
     if (!profile) return;
-    const border = "==================================================";
-    const divider = "--------------------------------------------------";
-    const text = [
-      border,
-      "        KARTU ANGGOTA RESMI PIK-R MANSEKU",
-      border,
-      `Nama Lengkap    : ${profile.name || '—'}`,
-      `NISN            : ${profile.nisn || '—'}`,
-      `Kelas           : ${profile.className || '—'}`,
-      `Jenis Kelamin   : ${profile.gender || '—'}`,
-      `Asal Sekolah    : ${profile.asalSekolah || '—'}`,
-      `No. WhatsApp    : ${profile.whatsappNumber || '—'}`,
-      `Email           : ${profile.email || '—'}`,
-      `Status          : ${STATUS_MAP[profile.status]?.label || 'ANGGOTA'}`,
-      `Tahun Gabung    : ${profile.joinYear || new Date(profile.createdAt).getFullYear()}`,
-      divider,
-      "Alasan Bergabung:",
-      `"${profile.reason || '—'}"`,
-      border,
-      "  Generasi Berencana, Generasi Berprestasi!",
-      border
-    ].join("\n");
 
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const W = 760, H = 440;
+    const canvas = document.createElement('canvas');
+    canvas.width = W * 2; canvas.height = H * 2; // retina
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+
+    // ── Background gradient ──────────────────────
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#0f172a');
+    bg.addColorStop(0.55, '#1e293b');
+    bg.addColorStop(1, '#0f2027');
+    ctx.fillStyle = bg;
+    roundRect(ctx, 0, 0, W, H, 18);
+    ctx.fill();
+
+    // ── Accent stripe left ───────────────────────
+    const stripe = ctx.createLinearGradient(0, 0, 0, H);
+    stripe.addColorStop(0, '#f97316');
+    stripe.addColorStop(1, '#ea580c');
+    ctx.fillStyle = stripe;
+    roundRect(ctx, 0, 0, 6, H, [18, 0, 0, 18]);
+    ctx.fill();
+
+    // ── Decorative circles ───────────────────────
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath(); ctx.arc(W - 80, -60, 150, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W + 20, H, 110, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // ── Logo text / org name ─────────────────────
+    ctx.fillStyle = '#f97316';
+    ctx.font = 'bold 11px system-ui, sans-serif';
+    ctx.letterSpacing = '3px';
+    ctx.fillText('PIK-R MANSEKU', 30, 40);
+    ctx.letterSpacing = '0px';
+
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = '10px system-ui, sans-serif';
+    ctx.fillText('Pusat Informasi dan Konseling Remaja', 30, 58);
+
+    // Thin separator
+    ctx.strokeStyle = 'rgba(249,115,22,0.35)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(30, 68); ctx.lineTo(W - 30, 68); ctx.stroke();
+
+    // ── KARTU ANGGOTA header ─────────────────────
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.font = 'bold 22px system-ui, sans-serif';
+    ctx.fillText('KARTU ANGGOTA RESMI', 30, 100);
+
+    // ── Avatar circle ────────────────────────────
+    const avatarX = W - 130, avatarY = 90, avatarR = 55;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI * 2);
+    ctx.clip();
+
+    // Try to draw member photo if available
+    const photoUrl = profile.photoPath ? getUploadUrl(profile.photoPath) : null;
+    if (photoUrl) {
+      try {
+        const img = await loadImage(photoUrl);
+        ctx.drawImage(img, avatarX - avatarR, avatarY - avatarR, avatarR * 2, avatarR * 2);
+      } catch {
+        drawAvatarFallback(ctx, avatarX, avatarY, avatarR, profile.name);
+      }
+    } else {
+      drawAvatarFallback(ctx, avatarX, avatarY, avatarR, profile.name);
+    }
+    ctx.restore();
+
+    // Avatar border ring
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(avatarX, avatarY, avatarR + 2, 0, Math.PI * 2); ctx.stroke();
+
+    // ── Member details ───────────────────────────
+    const fields = [
+      ['Nama Lengkap', profile.name],
+      ['NISN', profile.nisn],
+      ['Kelas', profile.className],
+      ['Jenis Kelamin', profile.gender],
+      ['Asal Sekolah', profile.asalSekolah],
+      ['Status', STATUS_MAP[profile.status]?.label || profile.status || 'Anggota'],
+      ['Tahun Bergabung', String(profile.joinYear || new Date(profile.createdAt).getFullYear())],
+    ];
+
+    let y = 130;
+    fields.forEach(([label, value]) => {
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '10px system-ui, sans-serif';
+      ctx.fillText(label.toUpperCase(), 30, y);
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.font = '13px system-ui, sans-serif';
+      ctx.fillText(value || '—', 30, y + 16);
+      y += 38;
+    });
+
+    // ── Bottom divider ───────────────────────────
+    ctx.strokeStyle = 'rgba(249,115,22,0.3)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(30, H - 52); ctx.lineTo(W - 30, H - 52); ctx.stroke();
+
+    // ── Motto ────────────────────────────────────
+    ctx.fillStyle = 'rgba(249,115,22,0.9)';
+    ctx.font = 'bold 11px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Beriman · Bertanggung Jawab · Berencana', W / 2, H - 32);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '9px system-ui, sans-serif';
+    ctx.fillText(`Dicetak otomatis oleh sistem PIK-R MANSEKU • ${new Date().getFullYear()}`, W / 2, H - 16);
+    ctx.textAlign = 'left';
+
+    // ── Export ───────────────────────────────────
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `KARTU_ANGGOTA_PIKR_${profile.nisn || 'PROFIL'}.txt`;
+    link.download = `KARTU_ANGGOTA_PIKR_${profile.nisn || 'PROFIL'}.png`;
+    link.href = canvas.toDataURL('image/png');
     link.click();
-    toast.success('Profil berhasil diunduh sebagai kartu digital!');
+    toast.success('Kartu anggota berhasil diunduh sebagai gambar PNG!');
   };
+
+  // Helper: load image as Promise
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  // Helper: draw avatar initials fallback
+  function drawAvatarFallback(ctx, cx, cy, r, name) {
+    ctx.fillStyle = '#1e3a5f';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#f97316';
+    ctx.font = `bold ${r * 0.75}px system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const initials = (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    ctx.fillText(initials, cx, cy);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  // Helper: draw rounded rect (polyfill for older browsers)
+  function roundRect(ctx, x, y, w, h, r) {
+    const radii = Array.isArray(r) ? r : [r, r, r, r];
+    ctx.beginPath();
+    ctx.moveTo(x + radii[0], y);
+    ctx.lineTo(x + w - radii[1], y);
+    ctx.arcTo(x + w, y, x + w, y + radii[1], radii[1]);
+    ctx.lineTo(x + w, y + h - radii[2]);
+    ctx.arcTo(x + w, y + h, x + w - radii[2], y + h, radii[2]);
+    ctx.lineTo(x + radii[3], y + h);
+    ctx.arcTo(x, y + h, x, y + h - radii[3], radii[3]);
+    ctx.lineTo(x, y + radii[0]);
+    ctx.arcTo(x, y, x + radii[0], y, radii[0]);
+    ctx.closePath();
+  }
 
   const handleLogout = () => {
     logoutCandidate();
