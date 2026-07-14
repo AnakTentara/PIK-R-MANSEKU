@@ -4,6 +4,22 @@ import prisma from '../config/db.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
+function isMemberExpired(joinYear, className) {
+  const cName = (className || '').trim().toUpperCase();
+  let yearsToAdd = 3; // Default 3 years (Grade 10)
+
+  if (cName.startsWith('XI-') || cName.startsWith('XI ') || cName === 'XI' || cName.startsWith('11')) {
+    yearsToAdd = 2;
+  } else if (cName.startsWith('XII-') || cName.startsWith('XII ') || cName === 'XII' || cName.startsWith('12')) {
+    yearsToAdd = 1;
+  } else if (cName.startsWith('X-') || cName.startsWith('X ') || cName === 'X' || cName.startsWith('10')) {
+    yearsToAdd = 3;
+  }
+
+  const expirationDate = new Date(joinYear + yearsToAdd, 6, 25, 23, 59, 59);
+  return new Date() > expirationDate;
+}
+
 // 1. Public Candidate Registration
 export async function registerCandidate(req, res) {
   const { nisn, name, className, whatsappNumber, email, gender, reason, asalSekolah } = req.body;
@@ -95,18 +111,43 @@ export async function loginCandidate(req, res) {
   }
 
   try {
-    const candidate = await prisma.candidate.findUnique({ where: { nisn } });
-    if (!candidate || !candidate.password) {
-      return res.status(401).json({ message: 'NISN atau password salah (Pastikan admin telah memberikan password)' });
+    // 1. Check Candidate table first
+    let user = await prisma.candidate.findUnique({ where: { nisn } });
+    let isMember = false;
+
+    if (!user) {
+      // 2. Fallback to Member table (Active Members)
+      user = await prisma.member.findUnique({ where: { nisn } });
+      isMember = true;
     }
 
-    const isMatch = await bcrypt.compare(password, candidate.password);
+    if (!user || !user.password) {
+      return res.status(401).json({ message: 'NISN atau password salah' });
+    }
+
+    // 3. For Members, check expiration (Auto-alumni check)
+    if (isMember) {
+      const joinYear = user.joinYear || new Date(user.createdAt).getFullYear();
+      if (user.status === 'ALUMNI' || isMemberExpired(joinYear, user.className)) {
+        if (user.status !== 'ALUMNI') {
+          await prisma.member.update({
+            where: { id: user.id },
+            data: { status: 'ALUMNI' }
+          });
+        }
+        return res.status(403).json({ 
+          message: 'Akun Anda telah dinonaktifkan karena masa aktif keanggotaan Anda telah habis (Sudah menjadi Alumni).' 
+        });
+      }
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'NISN atau password salah' });
     }
 
     const token = jwt.sign(
-      { id: candidate.id, nisn: candidate.nisn, role: 'candidate' },
+      { id: user.id, nisn: user.nisn, role: 'candidate', isMember },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -115,10 +156,10 @@ export async function loginCandidate(req, res) {
       message: 'Login berhasil',
       token,
       candidate: {
-        id: candidate.id,
-        nisn: candidate.nisn,
-        name: candidate.name,
-        status: candidate.status
+        id: user.id,
+        nisn: user.nisn,
+        name: user.name,
+        status: isMember ? 'MEMBER' : user.status
       }
     });
   } catch (error) {
@@ -130,15 +171,21 @@ export async function loginCandidate(req, res) {
 // 4. Get Current Logged-in Candidate Profile (Self)
 export async function getProfile(req, res) {
   try {
-    const candidate = await prisma.candidate.findUnique({
+    let user = await prisma.candidate.findUnique({
       where: { id: req.candidate.id }
     });
 
-    if (!candidate) {
-      return res.status(404).json({ message: 'Biodata pendaftar tidak ditemukan' });
+    if (!user) {
+      user = await prisma.member.findUnique({
+        where: { id: req.candidate.id }
+      });
     }
 
-    return res.json(candidate);
+    if (!user) {
+      return res.status(404).json({ message: 'Profil anggota tidak ditemukan' });
+    }
+
+    return res.json(user);
   } catch (error) {
     console.error('Error getting profile:', error);
     return res.status(500).json({ message: 'Gagal mengambil data profil' });
@@ -151,52 +198,76 @@ export async function updateProfile(req, res) {
   const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : undefined;
 
   try {
-    const candidate = await prisma.candidate.findUnique({
+    let candidate = await prisma.candidate.findUnique({
       where: { id: req.candidate.id }
     });
 
-    if (!candidate) {
-      return res.status(404).json({ message: 'Profil tidak ditemukan' });
-    }
-
-    // Calon pendaftar bisa update biodatanya sendiri
-    const updated = await prisma.candidate.update({
-      where: { id: req.candidate.id },
-      data: {
-        name: name ?? candidate.name,
-        className: className ?? candidate.className,
-        whatsappNumber: whatsappNumber ?? candidate.whatsappNumber,
-        email: email ?? candidate.email,
-        gender: gender ?? candidate.gender,
-        reason: reason ?? candidate.reason,
-        photoPath: photoPath ?? candidate.photoPath
-      }
-    });
-
-    // SINKRONISASI KE TABEL MEMBER jika candidate berstatus LULUS dan ada di tabel Member!
-    if (candidate.status === 'LULUS') {
-      const correspondingMember = await prisma.member.findUnique({
-        where: { nisn: candidate.nisn }
+    if (candidate) {
+      // Update Candidate
+      const updated = await prisma.candidate.update({
+        where: { id: req.candidate.id },
+        data: {
+          name: name ?? candidate.name,
+          className: className ?? candidate.className,
+          whatsappNumber: whatsappNumber ?? candidate.whatsappNumber,
+          email: email ?? candidate.email,
+          gender: gender ?? candidate.gender,
+          reason: reason ?? candidate.reason,
+          photoPath: photoPath ?? candidate.photoPath
+        }
       });
-      if (correspondingMember) {
-        await prisma.member.update({
-          where: { id: correspondingMember.id },
-          data: {
-            name: name ?? correspondingMember.name,
-            className: className ?? correspondingMember.className,
-            whatsappNumber: whatsappNumber ?? correspondingMember.whatsappNumber,
-            email: email ?? correspondingMember.email,
-            gender: gender ?? correspondingMember.gender,
-            photoPath: photoPath ?? correspondingMember.photoPath
-          }
-        });
-      }
-    }
 
-    return res.json({
-      message: 'Profil pendaftar berhasil diperbarui',
-      candidate: updated
-    });
+      // Synchronize with Member table if status is LULUS
+      if (candidate.status === 'LULUS') {
+        const correspondingMember = await prisma.member.findUnique({
+          where: { nisn: candidate.nisn }
+        });
+        if (correspondingMember) {
+          await prisma.member.update({
+            where: { id: correspondingMember.id },
+            data: {
+              name: name ?? correspondingMember.name,
+              className: className ?? correspondingMember.className,
+              whatsappNumber: whatsappNumber ?? correspondingMember.whatsappNumber,
+              email: email ?? correspondingMember.email,
+              gender: gender ?? correspondingMember.gender,
+              photoPath: photoPath ?? correspondingMember.photoPath
+            }
+          });
+        }
+      }
+
+      return res.json({
+        message: 'Profil pendaftar berhasil diperbarui',
+        candidate: updated
+      });
+    } else {
+      // Fallback: Update Member directly
+      const member = await prisma.member.findUnique({
+        where: { id: req.candidate.id }
+      });
+
+      if (!member) {
+        return res.status(404).json({ message: 'Profil tidak ditemukan' });
+      }
+
+      const updatedMember = await prisma.member.update({
+        where: { id: req.candidate.id },
+        data: {
+          name: name ?? member.name,
+          className: className ?? member.className,
+          whatsappNumber: whatsappNumber ?? member.whatsappNumber,
+          email: email ?? member.email,
+          gender: gender ?? member.gender,
+          photoPath: photoPath ?? member.photoPath
+        }
+      });
+
+      return res.json({
+        message: 'Profil anggota berhasil diperbarui',
+        candidate: updatedMember
+      });
+    }
   } catch (error) {
     console.error('Error updating candidate profile:', error);
     return res.status(500).json({ message: 'Gagal memperbarui profil' });
