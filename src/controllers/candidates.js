@@ -78,7 +78,7 @@ export async function checkStatus(req, res) {
   }
 
   try {
-    const candidate = await prisma.candidate.findUnique({
+    let candidate = await prisma.candidate.findUnique({
       where: { nisn },
       select: {
         name: true,
@@ -87,6 +87,27 @@ export async function checkStatus(req, res) {
         className: true
       }
     });
+
+    // If not found in candidate table, fallback to member table
+    if (!candidate) {
+      const member = await prisma.member.findUnique({
+        where: { nisn },
+        select: {
+          name: true,
+          nisn: true,
+          className: true
+        }
+      });
+
+      if (member) {
+        candidate = {
+          name: member.name,
+          nisn: member.nisn,
+          className: member.className,
+          status: 'LULUS' // If they are in the Member table, they are accepted!
+        };
+      }
+    }
 
     if (!candidate) {
       return res.status(404).json({ message: 'Data peserta tidak ditemukan' });
