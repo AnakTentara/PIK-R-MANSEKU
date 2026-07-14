@@ -193,33 +193,39 @@ export default function AnggotaPublikPage() {
                 <div key={n} className={`${styles.memberCard} skeleton`} style={{ height: 100 }} />
               ))}
             </div>
-          ) : members.length === 0 ? (
-            <p className={styles.emptyText}>Belum ada anggota aktif terdaftar.</p>
-          ) : (
-            <div className={styles.membersGrid}>
-              {members.map(m => {
-                const jabatan = getMemberJabatan(m.name);
-                return (
-                  <div key={m.id} className={styles.memberCard}>
-                    <div className={styles.memberAvatar}>
-                      {m.photoPath ? (
-                        <img src={getUploadUrl(m.photoPath)} alt={m.name} className={styles.memberAvatarImg} />
-                      ) : (
-                        <div className={styles.avatarInitials}>
-                          {m.name[0]}
-                        </div>
-                      )}
+          ) : (() => {
+            const ordinaryMembers = members.filter(m => !orgData.some(o => o.name === m.name && o.isCurrent));
+            
+            if (ordinaryMembers.length === 0) {
+              return <p className={styles.emptyText}>Belum ada anggota aktif biasa terdaftar.</p>;
+            }
+
+            return (
+              <div className={styles.membersGrid}>
+                {ordinaryMembers.map(m => {
+                  const jabatan = getMemberJabatan(m.name);
+                  return (
+                    <div key={m.id} className={styles.memberCard}>
+                      <div className={styles.memberAvatar}>
+                        {m.photoPath ? (
+                          <img src={getUploadUrl(m.photoPath)} alt={m.name} className={styles.memberAvatarImg} />
+                        ) : (
+                          <div className={styles.avatarInitials}>
+                            {m.name[0]}
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.memberInfo}>
+                        <h4>{m.name}</h4>
+                        <p>Kelas {m.className} • <span className={styles.memberJabatan}>{jabatan}</span></p>
+                        <span className={styles.joinYear}>Angkatan {m.joinYear}</span>
+                      </div>
                     </div>
-                    <div className={styles.memberInfo}>
-                      <h4>{m.name}</h4>
-                      <p>Kelas {m.className} • <span className={styles.memberJabatan}>{jabatan}</span></p>
-                      <span className={styles.joinYear}>Angkatan {m.joinYear}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
       </section>
     </div>
