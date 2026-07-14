@@ -2,12 +2,33 @@ import { useState, useEffect } from 'react';
 import { getPublicOrg, getPublicMembers } from '@/api/public';
 import SEO from '@/components/common/SEO';
 import { getUploadUrl } from '@/api/axios';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import styles from './AnggotaPublikPage.module.css';
 
 export default function AnggotaPublikPage() {
   const [orgData, setOrgData] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedKabinet, setExpandedKabinet] = useState({});
+
+  const toggleKabinet = (id) => {
+    setExpandedKabinet(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const getDivisionStaff = (leaderJabatan) => {
+    if (!leaderJabatan) return [];
+    const normalizedLeader = leaderJabatan.replace(/^(Ketua|Koordinator Bidang)\s+/i, '').trim().toLowerCase();
+    
+    return orgData.filter(m => {
+      if (!m.isCurrent) return false;
+      const jab = (m.jabatan || '').toLowerCase();
+      // Match if role is ANGGOTA and it contains both "anggota" and the division name (e.g. "medinfo")
+      return m.role === 'ANGGOTA' && jab.includes('anggota') && jab.includes(normalizedLeader);
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,19 +141,59 @@ export default function AnggotaPublikPage() {
               {/* Level 3: Kabinet */}
               {kabinet.length > 0 && (
                 <div className={styles.kabinetGrid}>
-                  {kabinet.map(k => (
-                    <div key={k.id} className={`${styles.treeNode} ${styles.nodeKabinet}`}>
-                      <div className={styles.nodeAvatarSmall}>
-                        {k.photoPath ? (
-                          <img src={getUploadUrl(k.photoPath)} alt={k.name} />
-                        ) : (
-                          <div className={styles.initialsSmall}>{k.name[0]}</div>
+                  {kabinet.map(k => {
+                    const staff = getDivisionStaff(k.jabatan);
+                    const hasStaff = staff.length > 0;
+                    const isExpanded = !!expandedKabinet[k.id];
+
+                    return (
+                      <div key={k.id} className={styles.kabinetContainer}>
+                        <div 
+                          className={`${styles.treeNode} ${styles.nodeKabinet} ${hasStaff ? styles.clickableNode : ''} ${isExpanded ? styles.nodeExpanded : ''}`}
+                          onClick={() => hasStaff && toggleKabinet(k.id)}
+                          title={hasStaff ? (isExpanded ? 'Klik untuk menutup daftar staff' : 'Klik untuk melihat daftar staff') : ''}
+                        >
+                          <div className={styles.nodeAvatarSmall}>
+                            {k.photoPath ? (
+                              <img src={getUploadUrl(k.photoPath)} alt={k.name} />
+                            ) : (
+                              <div className={styles.initialsSmall}>{k.name[0]}</div>
+                            )}
+                          </div>
+                          <h6>{k.name}</h6>
+                          <p>{k.jabatan}</p>
+                          {hasStaff && (
+                            <div className={styles.expandIcon}>
+                              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Dropdown Staff List */}
+                        {hasStaff && isExpanded && (
+                          <div className={styles.staffDropdown}>
+                            <div className={styles.staffList}>
+                              {staff.map(s => (
+                                <div key={s.id} className={styles.staffNode}>
+                                  <div className={styles.staffAvatar}>
+                                    {s.photoPath ? (
+                                      <img src={getUploadUrl(s.photoPath)} alt={s.name} />
+                                    ) : (
+                                      <div className={styles.staffInitials}>{s.name[0]}</div>
+                                    )}
+                                  </div>
+                                  <div className={styles.staffInfo}>
+                                    <strong>{s.name}</strong>
+                                    <span>{s.jabatan}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         )}
                       </div>
-                      <h6>{k.name}</h6>
-                      <p>{k.jabatan}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
