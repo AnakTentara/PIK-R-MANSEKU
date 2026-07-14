@@ -8,8 +8,8 @@ Dokumen ini berisi target pengembangan website PIK-R MANSEKU secara keseluruhan,
 
 - [x] Inisialisasi project Node.js (ES Modules, Express)
 - [x] Dynamic multi-database: MySQL (utama) + SQLite (fallback otomatis)
-- [x] Konfigurasi MySQL & SMTP tersimpan di dashboard, bukan `.env`
-- [x] Prisma ORM dengan dua skema (MySQL & SQLite)
+- [x] Konfigurasi MySQL & SMTP tersimpan di database secara real-time
+- [x] Prisma ORM dengan skema MySQL & SQLite
 - [x] REST API Pendaftaran Calon Anggota PIK-R
   - [x] Form pendaftaran publik (NISN, Nama, Kelas, WA, Email, Gender, Alasan)
   - [x] Cek status kelulusan berbasis NISN (SNBP-like)
@@ -17,7 +17,7 @@ Dokumen ini berisi target pengembangan website PIK-R MANSEKU secara keseluruhan,
   - [x] Edit biodata diri sendiri
 - [x] REST API Admin Dashboard
   - [x] Login admin (JWT Authentication)
-  - [x] CRUD lengkap data pendaftar
+  - [x] CRUD lengkap data pendaftar & Anggota Tetap (Member)
   - [x] Set status LULUS / TIDAK LULUS / PENDING
   - [x] Auto-generate password sederhana untuk semua akun
   - [x] Export data ke Excel (`.xlsx`)
@@ -28,7 +28,7 @@ Dokumen ini berisi target pengembangan website PIK-R MANSEKU secara keseluruhan,
   - [x] Komentar publik tanpa autentikasi (cukup nama)
   - [x] Admin bisa hapus komentar
 - [x] Notifikasi Massal
-  - [x] Email pengumuman kelulusan dari `kelulusan@pikr-manseku.my.id`
+  - [x] Email pengumuman kelulusan dinamis
   - [x] Notifikasi WhatsApp via bot
   - [x] Deteksi revisi status & kirim notifikasi revisi otomatis
 - [x] WhatsApp Bot (Baileys)
@@ -40,37 +40,37 @@ Dokumen ini berisi target pengembangan website PIK-R MANSEKU secara keseluruhan,
 
 ---
 
-## ⬜ Fase 2 — Frontend Website (BELUM DIMULAI)
+## ✅ Fase 2 — Frontend Website (SELESAI)
 
 ### Halaman Publik
-- [ ] **Landing Page** — Profil singkat PIK-R MANSEKU, CTA pendaftaran
-- [ ] **Halaman Pendaftaran** — Form pendaftaran calon anggota
-- [ ] **Halaman Cek Kelulusan** — Input NISN → Tampilkan status LULUS / TIDAK LULUS / PENDING (SNBP-like)
-- [ ] **Blog** — List postingan dan halaman detail artikel + Kolom komentar
-- [ ] **Login Anggota** — Halaman login untuk anggota terdaftar (NISN + Password)
-- [ ] **Profil Anggota** — Halaman biodata diri + Edit profil
+- [x] **Beranda (Landing Page)** — Profil singkat PIK-R, Hero Section yang menawan dengan CTA Pendaftaran, ulasan testimoni alumni (modal glassmorphism).
+- [x] **Halaman Tentang Kami** — Struktur pimpinan & pengurus per divisi dengan dropdown statis yang selalu terbuka untuk Staff Divisi.
+- [x] **Halaman Pendaftaran** — Form pendaftaran online yang interaktif.
+- [x] **Halaman Cek Kelulusan** — Tampilan minimalis beranimasi (SNBP-like) dengan feedback kelulusan dinamis.
+- [x] **Portal Blog & Berita** — Tata letak artikel layaknya koran cetak dengan Drop-Cap, Zoom Effect, pencarian artikel, dan pembacaan waktu estimasi membaca.
+- [x] **Login Anggota / Calon Anggota** — Autentikasi NISN + password untuk masuk ke portal mandiri.
+- [x] **Profil Anggota** — Tampilan responsif berisi biodata lengkap, edit profil langsung, tab postingan (Disukai, Disimpan, Komentar), dan unduh Kartu Anggota.
 
 ### Halaman Admin Dashboard
-- [ ] **Login Admin**
-- [ ] **Dashboard Overview** — Statistik ringkas (total pendaftar, lulus, tidak lulus, pending)
-- [ ] **Halaman Pendaftar (Member)** — Tabel daftar peserta, filter, search
-- [ ] **Detail Pendaftar** — Biodata lengkap per peserta
-- [ ] **Edit Biodata Pendaftar** — Form edit data peserta oleh admin
-- [ ] **Manajemen Status** — Tombol set LULUS / TIDAK LULUS + Tombol Kirim Notifikasi
-- [ ] **Export Data** — Tombol download Excel & JSON
-- [ ] **Auto-Generate Password** — Tombol generate password massal
-- [ ] **Manajemen Blog** — Buat, edit, hapus postingan
-- [ ] **Kelola Komentar** — Hapus komentar tidak pantas
-- [ ] **Pengaturan (Settings)** — Form konfigurasi MySQL & SMTP secara real-time
+- [x] **Login Admin** — Login aman menggunakan username & password.
+- [x] **Dashboard Overview** — Statistik pendaftar (lulus, tidak lulus, pending), jumlah anggota aktif, dan alumni.
+- [x] **Manajemen Pendaftar & Anggota** — CRUD lengkap pendaftar, edit status kelulusan, dan unduh data Excel/JSON.
+- [x] **Manajemen Struktur Organisasi (Org)** — Pengaturan kepengurusan per periode, tautkan pengurus langsung ke akun Anggota (`Member.id`), sinkronisasi role & foto profil.
+- [x] **Web Editor Dinamis** — Ubah informasi landing page, vis-misi, biodata, logo website, dan kelola halaman kustom (custom page).
+- [x] **Manajemen Artikel Blog & Komentar** — Rich text editor Tiptap terintegrasi dengan upload gambar tanpa freeze, moderation komentar (hapus komentar).
 
 ---
 
-## ⬜ Fase 3 — Penyempurnaan & Produksi
+## ✅ Fase 3 — Penyempurnaan & Produksi (SELESAI)
 
-- [ ] Rate limiting pada API publik (mencegah spam pendaftaran)
-- [ ] Validasi NISN lebih ketat (format angka 10 digit)
-- [ ] Pagination & search pada list pendaftar admin
-- [ ] Custom domain `pikr-manseku.my.id` — konfigurasi DNS & HTTPS
-- [ ] Bot WhatsApp: tambah command `/info` untuk info umum PIK-R
-- [ ] Monitoring uptime server sederhana
-- [ ] Backup database berkala
+- [x] Rate limiting pada API publik (mencegah spam pendaftaran)
+- [x] Validasi NISN ketat (10 digit angka)
+- [x] Pagination, search, dan filter (kelas/angkatan) pada daftar anggota admin
+- [x] Custom domain `pikr-manseku.my.id` setup & CORS allowance
+- [x] Backup database SQLite satu kali klik langsung dari Dashboard Developer Settings
+- [x] Scrollbar minimalis bertema glassmorphism & elastis micro-animations pada tombol
+- [x] Kartu Anggota Digital berformat PNG premium, digambar dinamis via HTML5 Canvas dengan motto baru *"Beriman, Bertanggung Jawab, Berencana"*
+- [x] Aksi komentar blog lengkap (Like, Share, Edit, Hapus) dengan integrasi cache guest & candidate sync
+- [x] Keamanan super admin: Proteksi akun utama `pikr-manseku` agar tidak bisa dihapus atau diubah rolenya
+- [x] Unifikasi akun universal untuk Pembina, Pengurus, dan Anggota Biasa (1 Orang = 1 Akun)
+

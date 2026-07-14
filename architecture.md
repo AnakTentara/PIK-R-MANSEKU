@@ -129,7 +129,7 @@ PIK-R-MANSEKU/
 
 ---
 
-## Skema Database
+### Skema Database
 
 ### Model `Candidate`
 | Field | Tipe | Keterangan |
@@ -141,20 +141,66 @@ PIK-R-MANSEKU/
 | whatsappNumber | String | Nomor WA untuk notifikasi |
 | email | String | Email untuk notifikasi |
 | gender | String | Jenis kelamin |
+| asalSekolah | String | Asal sekolah sebelumnya (default "-") |
 | reason | Text | Alasan bergabung |
 | status | Enum | `PENDING` / `LULUS` / `TIDAK_LULUS` |
+| photoPath | String? | Path foto pendaftar |
 | password | String? | Hashed password (opsional, di-generate admin) |
 | plainPassword | String? | Plaintext password (untuk export JSON oleh admin) |
 | emailNotified | Boolean | Status kirim email |
 | waNotified | Boolean | Status kirim WA |
 | lastStatus | Enum | Status terakhir saat notifikasi dikirim (untuk deteksi revisi) |
 
+### Model `Member`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| id | UUID | Primary key |
+| nisn | String | Unik, NISN anggota tetap (username login) |
+| name | String | Nama lengkap anggota |
+| className | String | Kelas aktif |
+| whatsappNumber | String | Nomor WA aktif |
+| email | String | Email aktif |
+| gender | String | Jenis kelamin |
+| asalSekolah | String | Asal sekolah SMP/MTS sebelumnya |
+| password | String | Hashed password login portal |
+| plainPassword | String? | Plaintext password untuk kemudahan admin |
+| status | Enum | `ACTIVE` / `ALUMNI` (auto-expire status ke alumni setelah 3-1 tahun) |
+| joinYear | Int | Tahun bergabung (default 2026) |
+| role | String | Hak akses portal (`member` / `PEMBINA` / `KETUA` / `WAKIL` / `KABINET`) |
+| photoPath | String? | Path foto profil anggota tetap (bisa diunggah admin) |
+| orgMember | OrgMember? | Hubungan back-relation ke model OrgMember |
+
+### Model `OrgMember`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| id | UUID | Primary key |
+| name | String | Nama lengkap pengurus |
+| role | String | Peran divisi (`PEMBINA`, `KETUA`, `WAKIL`, `KABINET`, `ANGGOTA`) |
+| jabatan | String | Jabatan spesifik (e.g. "Ketua MedInfo", "Pembina", dsb.) |
+| yearStart | Int | Tahun mulai menjabat |
+| yearEnd | Int? | Tahun selesai menjabat (null jika masih aktif menjabat) |
+| isCurrent | Boolean | Status keaktifan kepengurusan saat ini |
+| photoPath | String? | Path foto mandiri (hanya dipakai jika statusnya orphan/tanpa akun) |
+| quote | Text? | Kutipan kata motivasi / sambutan pengurus |
+| memberId | UUID? | Kunci asing (FK) terhubung ke model `Member.id` (Unik, Nullable) |
+| member | Member? | Relasi data anggota terhubung |
+
+### Model `AlumniTestimonial`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| id | UUID | Primary key |
+| name | String | Nama lengkap alumni |
+| angkatan | String | Angkatan kelulusan (e.g., "2024") |
+| photoPath | String? | Path foto alumni |
+| content | Text | Isi kutipan testimoni alumni |
+
 ### Model `Admin`
 | Field | Tipe | Keterangan |
 |---|---|---|
 | id | UUID | Primary key |
-| username | String | Unik |
+| username | String | Unik (e.g., super admin `pikr-manseku`) |
 | password | String | Hashed (bcrypt) |
+| role | String | `DEVELOPER` / `KABINET_UMUM` / `MEDINFO` |
 
 ### Model `Post`
 | Field | Tipe | Keterangan |
@@ -170,13 +216,13 @@ PIK-R-MANSEKU/
 |---|---|---|
 | id | UUID | Primary key |
 | postId | UUID | Foreign key ke Post |
-| username | String | Nama pengunjung |
+| username | String | Nama pengunjung atau nama kandidat/anggota terautentikasi |
 | content | Text | Isi komentar |
 
 ### Model `Setting`
 | Field | Tipe | Keterangan |
 |---|---|---|
-| key | String | Primary key (e.g. `MYSQL_CONFIG`, `SMTP_CONFIG`) |
+| key | String | Primary key (e.g. `MYSQL_CONFIG`, `SMTP_CONFIG`, `REGISTRATION_SESSION`) |
 | value | Text | JSON string berisi konfigurasi |
 
 ---
