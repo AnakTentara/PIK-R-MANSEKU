@@ -17,3 +17,9 @@ export const updatePost = (id, data) =>
 
 export const deletePost = (id) =>
   api.delete(`/blog/posts/${id}`);
+
+export const updateComment = (id, data) =>
+  api.put(`/blog/comments/${id}`, data);
+
+export const deleteComment = (id) =>
+  api.delete(`/blog/comments/${id}`);

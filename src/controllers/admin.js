@@ -591,7 +591,7 @@ export async function createMember(req, res) {
 // 16. Update Member
 export async function updateMember(req, res) {
   const { id } = req.params;
-  const { name, className, whatsappNumber, email, gender, status, role, plainPassword, asalSekolah } = req.body;
+  const { name, className, whatsappNumber, email, gender, status, role, plainPassword, asalSekolah, joinYear } = req.body;
   try {
     const member = await prisma.member.findUnique({ where: { id } });
     if (!member) return res.status(404).json({ message: 'Anggota tidak ditemukan' });
@@ -606,6 +606,16 @@ export async function updateMember(req, res) {
       status: status ?? member.status,
       role: role ?? member.role,
     };
+
+    // Handle joinYear update
+    if (joinYear !== undefined && joinYear !== '') {
+      updateData.joinYear = parseInt(joinYear);
+    }
+
+    // Handle photo upload
+    if (req.file) {
+      updateData.photoPath = `/uploads/photos/${req.file.filename}`;
+    }
 
     if (plainPassword) {
       updateData.plainPassword = plainPassword;
@@ -636,11 +646,23 @@ export async function deleteMember(req, res) {
 // ORG MEMBER CRUD
 // ─────────────────────────────────────────────────
 
-// 18. Get Org Members
+// 18. Get Org Members (includes linked Member data)
 export async function getOrgMembers(req, res) {
   try {
-    const members = await prisma.orgMember.findMany({ orderBy: [{ yearStart: 'desc' }, { role: 'asc' }] });
-    return res.json(members);
+    const members = await prisma.orgMember.findMany({
+      orderBy: [{ yearStart: 'desc' }, { role: 'asc' }],
+      include: {
+        member: {
+          select: { id: true, name: true, photoPath: true, className: true, status: true, role: true, nisn: true }
+        }
+      }
+    });
+    // Normalize: if linked member has a photo, use it as the effective photo
+    const normalized = members.map((m) => ({
+      ...m,
+      effectivePhoto: (m.member?.photoPath) || m.photoPath || null,
+    }));
+    return res.json(normalized);
   } catch (error) {
     console.error('Error fetching org members:', error);
     return res.status(500).json({ message: 'Gagal mengambil data struktur organisasi' });
@@ -679,16 +701,15 @@ export async function createOrgMember(req, res) {
       }
     }
 
-
-
     const org = await prisma.orgMember.create({
       data: {
         name: finalName, role, jabatan,
         yearStart: parseInt(yearStart),
         yearEnd: parsedYearEnd,
         isCurrent: finalIsCurrent,
-        photoPath,
-        quote: quote || null
+        photoPath,       // stored only for orphan entries
+        quote: quote || null,
+        memberId: memberId || null,  // FK link to Member account
       }
     });
 
@@ -710,7 +731,7 @@ export async function createOrgMember(req, res) {
 // 20. Update Org Member
 export async function updateOrgMember(req, res) {
   const { id } = req.params;
-  const { name, role, jabatan, yearStart, yearEnd, isCurrent, quote } = req.body;
+  const { name, role, jabatan, yearStart, yearEnd, isCurrent, quote, memberId } = req.body;
   try {
     const existing = await prisma.orgMember.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ message: 'Data tidak ditemukan' });
@@ -730,12 +751,22 @@ export async function updateOrgMember(req, res) {
       }
     }
 
-
+    // Resolve memberId: use sent value, fall back to existing
+    let resolvedMemberId = existing.memberId;
+    let memberRecord = null;
+    if (memberId === '' || memberId === 'NONE') {
+      resolvedMemberId = null; // explicitly unlink
+    } else if (memberId && memberId !== 'MANUAL') {
+      memberRecord = await prisma.member.findUnique({ where: { id: memberId } });
+      if (memberRecord) {
+        resolvedMemberId = memberId;
+      }
+    }
 
     const updated = await prisma.orgMember.update({
       where: { id },
       data: {
-        name: name ?? existing.name,
+        name: (memberRecord ? memberRecord.name : name) ?? existing.name,
         role: role ?? existing.role,
         jabatan: jabatan ?? existing.jabatan,
         yearStart: yearStart ? parseInt(yearStart) : existing.yearStart,
@@ -743,11 +774,19 @@ export async function updateOrgMember(req, res) {
         isCurrent: finalIsCurrent,
         photoPath,
         quote: quote !== undefined ? quote : existing.quote,
+        memberId: resolvedMemberId,
       }
     });
 
-    // Sync member role if name matches an active member
-    if (role && role !== existing.role) {
+    // Sync member role if linked member has a changed role
+    const effectiveRole = role ?? existing.role;
+    if (memberRecord && effectiveRole !== memberRecord.role) {
+      await prisma.member.update({
+        where: { id: resolvedMemberId },
+        data: { role: effectiveRole }
+      });
+    } else if (!memberRecord && role && role !== existing.role) {
+      // Fallback: still try name-match if no FK (backward compat for old entries)
       const correspondingMember = await prisma.member.findFirst({
         where: { name: name ?? existing.name, status: 'ACTIVE' }
       });

@@ -3,7 +3,7 @@ import { getOrgMembers, createOrgMember, updateOrgMember, deleteOrgMember, getMe
 import AdminHeader from '@/components/admin/AdminHeader';
 import SkeletonTable from '@/components/skeletons/SkeletonTable';
 import { useUIStore } from '@/stores/uiStore';
-import { Network, Plus, Edit2, Trash2, Check, X, Upload } from 'lucide-react';
+import { Network, Plus, Edit2, Trash2, Check, X, Upload, Link, Unlink } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getUploadUrl } from '@/api/axios';
 import styles from './AdminOrgPage.module.css';
@@ -104,9 +104,9 @@ export default function AdminOrgPage() {
   const handleOpenEditModal = (m) => {
     setEditingId(m.id);
     setName(m.name);
-    // Find corresponding member ID if it exists (by name matching, since we don't have memberId directly on database)
-    const matched = allMembers.find((member) => member.name === m.name);
-    setSelectedMemberId(matched ? matched.id : 'MANUAL');
+    // Use stored memberId FK directly (no more fragile name-matching)
+    const existingMemberId = m.memberId || '';
+    setSelectedMemberId(existingMemberId || (m.role === 'PEMBINA' ? 'MANUAL' : ''));
     setRole(m.role);
     setJabatan(m.jabatan);
     setIsPembinaMode(m.role === 'PEMBINA');
@@ -115,7 +115,8 @@ export default function AdminOrgPage() {
     setIsCurrent(m.isCurrent);
     setQuote(m.quote || '');
     setPhotoFile(null);
-    setPhotoPreview(m.photoPath ? getUploadUrl(m.photoPath) : '');
+    // Use effectivePhoto (member photo if linked, else orgMember's own photo)
+    setPhotoPreview(m.effectivePhoto ? getUploadUrl(m.effectivePhoto) : '');
     setModalOpen(true);
   };
 
@@ -141,9 +142,16 @@ export default function AdminOrgPage() {
     if (yearEnd) formData.append('yearEnd', yearEnd);
     formData.append('isCurrent', isCurrent);
     if (quote) formData.append('quote', quote);
-    if (photoFile) formData.append('photo', photoFile);
+    // Only upload photo if no member is linked (orphan entries)
+    if (photoFile && (!selectedMemberId || selectedMemberId === 'MANUAL')) {
+      formData.append('photo', photoFile);
+    }
+    // Send memberId FK
     if (selectedMemberId && selectedMemberId !== 'MANUAL') {
       formData.append('memberId', selectedMemberId);
+    } else if (editingId) {
+      // On edit: if explicitly set to MANUAL, signal unlink
+      if (selectedMemberId === 'MANUAL') formData.append('memberId', 'NONE');
     }
 
     try {
@@ -218,13 +226,14 @@ export default function AdminOrgPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>No</th>
+                                <th>No</th>
                   <th>Foto</th>
                   <th>Nama</th>
                   <th>Jabatan</th>
                   <th>Peran</th>
                   <th>Tahun</th>
                   <th>Aktif</th>
+                  <th>Akun Terhubung</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -233,8 +242,8 @@ export default function AdminOrgPage() {
                   <tr key={m.id}>
                     <td>{idx + 1}</td>
                     <td>
-                      {m.photoPath ? (
-                        <img src={getUploadUrl(m.photoPath)} alt={m.name} className={styles.avatar} />
+                      {m.effectivePhoto ? (
+                        <img src={getUploadUrl(m.effectivePhoto)} alt={m.name} className={styles.avatar} />
                       ) : (
                         <div className={styles.avatarPlaceholder}>{m.name[0]}</div>
                       )}
@@ -252,6 +261,17 @@ export default function AdminOrgPage() {
                         <span className={styles.yes}><Check size={16} /></span>
                       ) : (
                         <span className={styles.no}><X size={16} /></span>
+                      )}
+                    </td>
+                    <td>
+                      {m.memberId ? (
+                        <span className={styles.linkedBadge}>
+                          <Link size={12} /> {m.member?.nisn || 'Terhubung'}
+                        </span>
+                      ) : (
+                        <span className={styles.orphanBadge}>
+                          <Unlink size={12} /> Mandiri
+                        </span>
                       )}
                     </td>
                     <td>
@@ -280,42 +300,62 @@ export default function AdminOrgPage() {
               <button className={styles.closeBtn} onClick={() => setModalOpen(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.photoSection}>
-                <div className={styles.photoPreviewWrapper}>
-                  {photoPreview ? (
-                    <img src={photoPreview} alt="Preview" className={styles.photoPreview} />
-                  ) : (
-                    <div className={styles.photoPlaceholder}><Upload size={24} /></div>
-                  )}
+              {/* Photo upload: only shown for orphan entries (no linked Member account) */}
+              {(!selectedMemberId || selectedMemberId === 'MANUAL') && (
+                <div className={styles.photoSection}>
+                  <div className={styles.photoPreviewWrapper}>
+                    {photoPreview ? (
+                      <img src={photoPreview} alt="Preview" className={styles.photoPreview} />
+                    ) : (
+                      <div className={styles.photoPlaceholder}><Upload size={24} /></div>
+                    )}
+                  </div>
+                  <label className={styles.photoLabel}>
+                    <Upload size={14} /> Pilih Foto Pengurus
+                    <input type="file" accept="image/*" onChange={handlePhotoChange} className={styles.fileInput} />
+                  </label>
                 </div>
-                <label className={styles.photoLabel}>
-                  <Upload size={14} /> Pilih Foto Pengurus
-                  <input type="file" accept="image/*" onChange={handlePhotoChange} className={styles.fileInput} />
-                </label>
-              </div>
+              )}
+              {/* If linked to a Member, show their photo */}
+              {selectedMemberId && selectedMemberId !== 'MANUAL' && (() => {
+                const linked = allMembers.find(m => m.id === selectedMemberId);
+                return linked?.photoPath ? (
+                  <div className={styles.linkedPhotoInfo}>
+                    <img src={getUploadUrl(linked.photoPath)} alt={linked.name} className={styles.linkedPhotoAvatar} />
+                    <span>Foto diambil dari akun anggota <strong>{linked.name}</strong>. Edit foto melalui halaman Anggota.</span>
+                  </div>
+                ) : (
+                  <div className={styles.linkedPhotoInfo}>
+                    <div className={styles.linkedPhotoPlaceholder}>{linked?.name?.[0] || '?'}</div>
+                    <span>Anggota <strong>{linked?.name}</strong> belum punya foto profil. Upload foto di halaman Anggota.</span>
+                  </div>
+                );
+              })()}
 
               <div className={styles.grid}>
-                 {!isPembinaMode && !editingId && (
+                 {/* Member dropdown — shown in BOTH create and edit modes */}
+                 {!isPembinaMode && (
                    <div className="form-group">
-                     <label className="form-label">Pilih Anggota PIK-R *</label>
+                     <label className="form-label">
+                       {editingId ? 'Tautkan ke Akun Anggota' : 'Pilih Anggota PIK-R *'}
+                     </label>
                      <select
                        className="form-select"
                        value={selectedMemberId}
                        onChange={(e) => {
                          const val = e.target.value;
                          setSelectedMemberId(val);
-                         if (val) {
+                         if (val && val !== 'MANUAL') {
                            const found = allMembers.find((m) => m.id === val);
-                           if (found) {
-                             setName(found.name);
-                           }
-                         } else {
+                           if (found) setName(found.name);
+                         } else if (!editingId) {
                            setName('');
                          }
                        }}
-                       required
+                       required={!editingId}
                      >
-                       <option value="">— Pilih Anggota —</option>
+                       <option value="">{editingId ? '— Tidak diubah —' : '— Pilih Anggota —'}</option>
+                       {editingId && <option value="MANUAL">✕ Lepas tautan (tanpa akun)</option>}
                        {allMembers.map((m) => (
                          <option key={m.id} value={m.id}>
                            {m.name} (Kelas {m.className})

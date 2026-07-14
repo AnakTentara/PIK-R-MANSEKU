@@ -57,8 +57,12 @@ export const getMembers = (params) =>
 export const createMember = (data) =>
   api.post('/admin/members', data);
 
-export const updateMember = (id, data) =>
-  api.put(`/admin/members/${id}`, data);
+export const updateMember = (id, data) => {
+  if (data instanceof FormData) {
+    return api.put(`/admin/members/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
+  }
+  return api.put(`/admin/members/${id}`, data);
+};
 
 export const deleteMember = (id) =>
   api.delete(`/admin/members/${id}`);

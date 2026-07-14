@@ -92,6 +92,7 @@ model Member {
   joinYear        Int      @default(2026)
   role            String   @default("member")
   photoPath       String?
+  orgMember       OrgMember?   // back-relation: a Member can be linked to one OrgMember entry
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -109,8 +110,10 @@ model OrgMember {
   yearStart   Int
   yearEnd     Int?
   isCurrent   Boolean  @default(false)
-  photoPath   String?
+  photoPath   String?  // used only for orphan entries (no linked Member account)
   quote       String?  @db.Text
+  memberId    String?  @unique // FK to Member (nullable — allows historical orphan entries)
+  member      Member?  @relation(fields: [memberId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

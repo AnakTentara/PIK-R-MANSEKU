@@ -78,8 +78,8 @@ export default function AnggotaPublikPage() {
                 <div className={styles.treeLevel}>
                   <div className={`${styles.treeNode} ${styles.nodePembina}`}>
                     <div className={styles.nodeAvatar}>
-                      {pembina.photoPath ? (
-                        <img src={getUploadUrl(pembina.photoPath)} alt={pembina.name} />
+                      {(pembina.effectivePhoto || pembina.photoPath) ? (
+                        <img src={getUploadUrl(pembina.effectivePhoto || pembina.photoPath)} alt={pembina.name} />
                       ) : (
                         <div className={styles.initials}>{pembina.name[0]}</div>
                       )}
@@ -99,8 +99,8 @@ export default function AnggotaPublikPage() {
                   {ketua && (
                     <div className={`${styles.treeNode} ${styles.nodeKetua}`}>
                       <div className={styles.nodeAvatar}>
-                        {ketua.photoPath ? (
-                          <img src={getUploadUrl(ketua.photoPath)} alt={ketua.name} />
+                        {(ketua.effectivePhoto || ketua.photoPath) ? (
+                          <img src={getUploadUrl(ketua.effectivePhoto || ketua.photoPath)} alt={ketua.name} />
                         ) : (
                           <div className={styles.initials}>{ketua.name[0]}</div>
                         )}
@@ -113,8 +113,8 @@ export default function AnggotaPublikPage() {
                   {wakil && (
                     <div className={`${styles.treeNode} ${styles.nodeWakil}`}>
                       <div className={styles.nodeAvatar}>
-                        {wakil.photoPath ? (
-                          <img src={getUploadUrl(wakil.photoPath)} alt={wakil.name} />
+                        {(wakil.effectivePhoto || wakil.photoPath) ? (
+                          <img src={getUploadUrl(wakil.effectivePhoto || wakil.photoPath)} alt={wakil.name} />
                         ) : (
                           <div className={styles.initials}>{wakil.name[0]}</div>
                         )}
@@ -140,8 +140,8 @@ export default function AnggotaPublikPage() {
                       <div key={k.id} className={styles.kabinetContainer}>
                         <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
                           <div className={styles.nodeAvatarSmall}>
-                            {k.photoPath ? (
-                              <img src={getUploadUrl(k.photoPath)} alt={k.name} />
+                            {(k.effectivePhoto || k.photoPath) ? (
+                              <img src={getUploadUrl(k.effectivePhoto || k.photoPath)} alt={k.name} />
                             ) : (
                               <div className={styles.initialsSmall}>{k.name[0]}</div>
                             )}
@@ -157,8 +157,8 @@ export default function AnggotaPublikPage() {
                               {staff.map(s => (
                                 <div key={s.id} className={styles.staffNode}>
                                   <div className={styles.staffAvatar}>
-                                    {s.photoPath ? (
-                                      <img src={getUploadUrl(s.photoPath)} alt={s.name} />
+                                    {(s.effectivePhoto || s.photoPath) ? (
+                                      <img src={getUploadUrl(s.effectivePhoto || s.photoPath)} alt={s.name} />
                                     ) : (
                                       <div className={styles.staffInitials}>{s.name[0]}</div>
                                     )}

@@ -230,3 +230,47 @@ export async function deleteComment(req, res) {
     return res.status(500).json({ message: 'Gagal menghapus komentar' });
   }
 }
+
+// 7.5 Update Comment (Public / Client-validated)
+export async function updateComment(req, res) {
+  const { id } = req.params;
+  const { content } = req.body;
+
+  if (!content) {
+    return res.status(400).json({ message: 'Konten komentar wajib diisi' });
+  }
+
+  try {
+    const comment = await prisma.comment.findUnique({ where: { id } });
+    if (!comment) {
+      return res.status(404).json({ message: 'Komentar tidak ditemukan' });
+    }
+
+    const updated = await prisma.comment.update({
+      where: { id },
+      data: { content }
+    });
+
+    return res.json({ message: 'Komentar berhasil diperbarui', comment: updated });
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    return res.status(500).json({ message: 'Gagal memperbarui komentar' });
+  }
+}
+
+// 7.6 Delete Comment Publicly (Client-validated)
+export async function deleteCommentPublic(req, res) {
+  const { id } = req.params;
+  try {
+    const comment = await prisma.comment.findUnique({ where: { id } });
+    if (!comment) {
+      return res.status(404).json({ message: 'Komentar tidak ditemukan' });
+    }
+
+    await prisma.comment.delete({ where: { id } });
+    return res.json({ message: 'Komentar berhasil dihapus' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    return res.status(500).json({ message: 'Gagal menghapus komentar' });
+  }
+}

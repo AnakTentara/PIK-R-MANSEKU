@@ -3,6 +3,8 @@ import {
   getPosts,
   getPostBySlug,
   createComment,
+  updateComment,
+  deleteCommentPublic,
   createPost,
   updatePost,
   deletePost
@@ -15,6 +17,8 @@ const router = express.Router();
 router.get('/posts', getPosts);
 router.get('/posts/:slug', getPostBySlug);
 router.post('/posts/:postId/comments', createComment);
+router.put('/comments/:id', updateComment);
+router.delete('/comments/:id', deleteCommentPublic);
 
 // Protected Blog Routes (Admin only)
 router.post('/posts', authAdmin, createPost);

@@ -86,6 +86,7 @@ model Member {
   joinYear        Int      @default(2026)
   role            String   @default("member")
   photoPath       String?
+  orgMember       OrgMember?  // back-relation
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -98,8 +99,10 @@ model OrgMember {
   yearStart   Int
   yearEnd     Int?
   isCurrent   Boolean  @default(false)
-  photoPath   String?
+  photoPath   String?  // used only for orphan entries (no linked Member account)
   quote       String?
+  memberId    String?  @unique // FK to Member (nullable)
+  member      Member?  @relation(fields: [memberId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

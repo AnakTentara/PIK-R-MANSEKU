@@ -163,7 +163,7 @@ router.post('/session/open', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM'
 // Member CRUD (MEDINFO can read, but only DEVELOPER and KABINET_UMUM can create/edit/delete)
 router.get('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), getMembers);
 router.post('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), createMember);
-router.put('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateMember);
+router.put('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), updateMember);
 router.delete('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteMember);
 
 // Org Member CRUD (DEVELOPER and KABINET_UMUM only)

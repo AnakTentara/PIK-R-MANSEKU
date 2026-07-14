@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getPostBySlug, createComment } from '@/api/blog';
+import { getPostBySlug, createComment, updateComment, deleteComment } from '@/api/blog';
 import { formatDate, timeAgo } from '@/utils/formatDate';
-import { ArrowLeft, Send, MessageSquare, Heart, Share2, Bookmark } from 'lucide-react';
+import { ArrowLeft, Send, MessageSquare, Heart, Share2, Bookmark, Edit, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/stores/authStore';
 import SEO from '@/components/common/SEO';
@@ -17,7 +17,89 @@ export default function BlogPostPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const { isCandidateAuthenticated, candidateUser } = useAuthStore();
+  // Comment Actions State
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+  const [likedComments, setLikedComments] = useState([]);
+
+  const { isCandidateAuthenticated, candidateUser, isAdminAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    const likesKey = isCandidateAuthenticated && candidateUser 
+      ? `comment_likes_${candidateUser.nisn}` 
+      : `comment_likes_guest`;
+    setLikedComments(JSON.parse(localStorage.getItem(likesKey) || '[]'));
+  }, [isCandidateAuthenticated, candidateUser, post]);
+
+  const handleLikeComment = (commentId) => {
+    const likesKey = isCandidateAuthenticated && candidateUser 
+      ? `comment_likes_${candidateUser.nisn}` 
+      : `comment_likes_guest`;
+    let likesList = JSON.parse(localStorage.getItem(likesKey) || '[]');
+    
+    if (likesList.includes(commentId)) {
+      likesList = likesList.filter(id => id !== commentId);
+      toast.success('Batal menyukai komentar.');
+    } else {
+      likesList.push(commentId);
+      toast.success('Komentar disukai!');
+    }
+    localStorage.setItem(likesKey, JSON.stringify(likesList));
+    setLikedComments(likesList);
+  };
+
+  const handleShareComment = (commentId) => {
+    const link = `${window.location.origin}/blog/${post.slug}#comment-${commentId}`;
+    navigator.clipboard.writeText(link);
+    toast.success('Tautan komentar disalin ke papan klip!');
+  };
+
+  const handleStartEdit = (comment) => {
+    setEditingCommentId(comment.id);
+    setEditContent(comment.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditContent('');
+  };
+
+  const handleSaveComment = async (commentId) => {
+    if (!editContent.trim()) {
+      toast.error('Konten komentar tidak boleh kosong.');
+      return;
+    }
+    try {
+      await updateComment(commentId, { content: editContent });
+      toast.success('Komentar diperbarui!');
+      setEditingCommentId(null);
+      fetchPost();
+    } catch {
+      toast.error('Gagal memperbarui komentar.');
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Apakah Anda yakin ingin menghapus komentar ini?')) return;
+    try {
+      await deleteComment(commentId);
+      toast.success('Komentar berhasil dihapus!');
+      
+      const myComments = JSON.parse(localStorage.getItem('my_comments') || '[]');
+      const filtered = myComments.filter(id => id !== commentId);
+      localStorage.setItem('my_comments', JSON.stringify(filtered));
+
+      fetchPost();
+    } catch {
+      toast.error('Gagal menghapus komentar.');
+    }
+  };
+
+  const canModifyComment = (commentId) => {
+    if (isAdminAuthenticated) return true;
+    const myComments = JSON.parse(localStorage.getItem('my_comments') || '[]');
+    return myComments.includes(commentId);
+  };
 
   useEffect(() => {
     if (isCandidateAuthenticated && candidateUser) {
@@ -119,8 +201,16 @@ export default function BlogPostPage() {
     }
     setSubmitting(true);
     try {
-      await createComment(post.id, commentForm);
+      const res = await createComment(post.id, commentForm);
       toast.success('Komentar berhasil dikirim!');
+
+      // Cache comment ID locally to allow user edits/deletes
+      const newComment = res.data?.comment;
+      if (newComment && newComment.id) {
+        const myComments = JSON.parse(localStorage.getItem('my_comments') || '[]');
+        myComments.push(newComment.id);
+        localStorage.setItem('my_comments', JSON.stringify(myComments));
+      }
 
       if (isCandidateAuthenticated && candidateUser) {
         const commentKey = `comments_${candidateUser.nisn}`;
@@ -258,15 +348,93 @@ export default function BlogPostPage() {
             <p className={styles.noComments}>Belum ada komentar. Jadilah yang pertama!</p>
           ) : (
             <div className={styles.commentList}>
-              {comments.map((c, i) => (
-                <div key={c.id || i} className={styles.commentItem}>
-                  <div className={styles.commentHeader}>
-                    <strong className={styles.commentUser}>{c.username}</strong>
-                    <span className={styles.commentDate}>{timeAgo(c.createdAt)}</span>
+              {comments.map((c, i) => {
+                const commentIsLiked = likedComments.includes(c.id);
+                const hasRights = canModifyComment(c.id);
+                const isEditingThis = editingCommentId === c.id;
+
+                return (
+                  <div key={c.id || i} id={`comment-${c.id}`} className={styles.commentItem}>
+                    <div className={styles.commentHeader}>
+                      <strong className={styles.commentUser}>{c.username}</strong>
+                      <span className={styles.commentDate}>{timeAgo(c.createdAt)}</span>
+                    </div>
+
+                    {isEditingThis ? (
+                      <div className={styles.commentEditWrapper}>
+                        <textarea
+                          className="form-textarea"
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          rows={2}
+                          style={{ marginBottom: '8px', width: '100%' }}
+                        />
+                        <div className={styles.commentEditActions}>
+                          <button 
+                            onClick={() => handleSaveComment(c.id)} 
+                            className="btn btn-primary btn-sm"
+                            style={{ marginRight: '8px' }}
+                          >
+                            Simpan
+                          </button>
+                          <button 
+                            onClick={handleCancelEdit} 
+                            className="btn btn-secondary btn-sm"
+                          >
+                            Batal
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className={styles.commentContent}>{c.content}</p>
+                        
+                        <div className={styles.commentActionsRow}>
+                          <button 
+                            onClick={() => handleLikeComment(c.id)}
+                            className={`${styles.commentActionBtn} ${commentIsLiked ? styles.commentLiked : ''}`}
+                            title="Suka Komentar"
+                          >
+                            <Heart size={12} fill={commentIsLiked ? 'currentColor' : 'none'} />
+                            <span>{commentIsLiked ? '1 Suka' : '0 Suka'}</span>
+                          </button>
+
+                          <button 
+                            onClick={() => handleShareComment(c.id)}
+                            className={styles.commentActionBtn}
+                            title="Bagikan Komentar"
+                          >
+                            <Share2 size={12} />
+                            <span>Bagikan</span>
+                          </button>
+
+                          {hasRights && (
+                            <>
+                              <button 
+                                onClick={() => handleStartEdit(c)}
+                                className={styles.commentActionBtn}
+                                title="Edit Komentar"
+                              >
+                                <Edit size={12} />
+                                <span>Edit</span>
+                              </button>
+
+                              <button 
+                                onClick={() => handleDeleteComment(c.id)}
+                                className={`${styles.commentActionBtn} ${styles.commentDeleteBtn}`}
+                                title="Hapus Komentar"
+                              >
+                                <Trash2 size={12} />
+                                <span>Hapus</span>
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <p className={styles.commentContent}>{c.content}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
