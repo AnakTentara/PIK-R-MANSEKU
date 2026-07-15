@@ -45,7 +45,6 @@ import {
   deleteUploadedFile,
   getDashboardStats,
 } from '../controllers/admin.js';
-import { deleteComment } from '../controllers/blog.js';
 import { authAdmin, requireRole } from '../middlewares/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -140,9 +139,6 @@ router.post('/candidates/send-notifications', authAdmin, requireRole(['DEVELOPER
 router.get('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getCandidateById);
 router.put('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateCandidate);
 router.delete('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteCandidate);
-
-// Comments Management (All admin roles can moderate comments on posts)
-router.delete('/comments/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), deleteComment);
 
 // Settings Management (DEVELOPER only)
 router.get('/settings', authAdmin, requireRole(['DEVELOPER']), getSettings);
