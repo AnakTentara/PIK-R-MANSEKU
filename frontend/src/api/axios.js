@@ -13,7 +13,8 @@ api.interceptors.request.use(
   (config) => {
     const adminToken = localStorage.getItem('admin_token');
     const candidateToken = localStorage.getItem('candidate_token');
-    const token = config.url.startsWith('/admin') ? adminToken : (candidateToken || adminToken);
+    const isAdminPath = config.url.startsWith('/admin') || window.location.pathname.startsWith('/admin');
+    const token = isAdminPath ? adminToken : (candidateToken || adminToken);
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
