@@ -146,10 +146,11 @@ export default function AdminAnggotaPage() {
 
   const handleSaveAdd = async (e) => {
     e.preventDefault();
+    const isPembinaRole = addForm.role === 'PEMBINA';
     if (
       !addForm.nisn ||
       !addForm.name.trim() ||
-      !addForm.className ||
+      (!isPembinaRole && !addForm.className) ||
       !addForm.email.trim() ||
       !addForm.whatsappNumber.trim() ||
       !addForm.gender
@@ -557,7 +558,7 @@ export default function AdminAnggotaPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="add-class">Kelas *</label>
+                <label className="form-label" htmlFor="add-class">Kelas {addForm.role === 'PEMBINA' ? '(Opsional)' : '*'}</label>
                 <select
                   id="add-class"
                   className="form-select"

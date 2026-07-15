@@ -535,7 +535,11 @@ export async function createMember(req, res) {
   const { nisn, name, className, whatsappNumber, email, gender, role, status, asalSekolah } = req.body;
   const currentYear = new Date().getFullYear();
 
-  if (!nisn || !name || !className || !whatsappNumber || !email || !gender || !asalSekolah) {
+  // For PEMBINA, className is optional (fallback to "-"). Also make asalSekolah optional with default "-"
+  const resolvedClassName = (role === 'PEMBINA') ? (className || '-') : className;
+  const resolvedAsalSekolah = asalSekolah || '-';
+
+  if (!nisn || !name || !resolvedClassName || !whatsappNumber || !email || !gender) {
     return res.status(400).json({ message: 'Semua field keanggotaan wajib diisi' });
   }
 
@@ -554,11 +558,11 @@ export async function createMember(req, res) {
       data: {
         nisn,
         name,
-        className,
+        className: resolvedClassName,
         whatsappNumber,
         email,
         gender,
-        asalSekolah,
+        asalSekolah: resolvedAsalSekolah,
         password: hashedPassword,
         plainPassword,
         status: status || 'ACTIVE',
