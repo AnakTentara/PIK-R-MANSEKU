@@ -147,7 +147,7 @@ export async function loginCandidate(req, res) {
     }
 
     // 3. For Members, check expiration (Auto-alumni check)
-    if (isMember) {
+    if (isMember && user.role !== 'PEMBINA') {
       const joinYear = user.joinYear || new Date(user.createdAt).getFullYear();
       if (user.status === 'ALUMNI' || isMemberExpired(joinYear, user.className)) {
         if (user.status !== 'ALUMNI') {

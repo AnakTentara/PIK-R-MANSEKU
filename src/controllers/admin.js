@@ -451,8 +451,13 @@ export async function closeSession(req, res) {
       create: { key: 'REGISTRATION_SESSION', value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString(), migratedCount: lulusList.length }) }
     });
 
-    // 5. Auto-alumni check for all members based on grade and joinYear
-    const activeMembers = await prisma.member.findMany({ where: { status: 'ACTIVE' } });
+    // 5. Auto-alumni check for all members based on grade and joinYear (except PEMBINA)
+    const activeMembers = await prisma.member.findMany({
+      where: {
+        status: 'ACTIVE',
+        NOT: { role: 'PEMBINA' }
+      }
+    });
     for (const m of activeMembers) {
       const jYear = m.joinYear || new Date(m.createdAt).getFullYear();
       if (isMemberExpired(jYear, m.className)) {
@@ -496,8 +501,13 @@ export async function openSession(req, res) {
 // 15. Get All Members (with auto-alumni check)
 export async function getMembers(req, res) {
   try {
-    // Auto-update alumni status based on grade and joinYear
-    const activeMembers = await prisma.member.findMany({ where: { status: 'ACTIVE' } });
+    // Auto-update alumni status based on grade and joinYear (except PEMBINA)
+    const activeMembers = await prisma.member.findMany({
+      where: {
+        status: 'ACTIVE',
+        NOT: { role: 'PEMBINA' }
+      }
+    });
     for (const m of activeMembers) {
       const jYear = m.joinYear || new Date(m.createdAt).getFullYear();
       if (isMemberExpired(jYear, m.className)) {
