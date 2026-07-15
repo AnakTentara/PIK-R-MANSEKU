@@ -1140,3 +1140,47 @@ export async function downloadBackupDb(req, res) {
   }
 }
 
+export async function getDashboardStats(req, res) {
+  try {
+    const totalCandidates = await prisma.candidate.count();
+    const passedCandidates = await prisma.candidate.count({ where: { status: 'LULUS' } });
+    const notPassedCandidates = await prisma.candidate.count({ where: { status: 'TIDAK_LULUS' } });
+    const pendingCandidates = await prisma.candidate.count({ where: { status: 'PENDING' } });
+    
+    const totalMembers = await prisma.member.count({ where: { status: 'ACTIVE' } });
+    const totalNews = await prisma.post.count();
+    const totalBlogPosts = await prisma.blogPost.count({ where: { status: 'PUBLISHED' } });
+    const pendingBlogDrafts = await prisma.blogPost.count({ where: { status: 'DRAFT' } });
+
+    // Recent comments count (last 7 days)
+    const recentBlogCommentsCount = await prisma.blogComment.count({
+      where: {
+        createdAt: {
+          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        }
+      }
+    });
+
+    return res.json({
+      candidates: {
+        total: totalCandidates,
+        passed: passedCandidates,
+        notPassed: notPassedCandidates,
+        pending: pendingCandidates
+      },
+      members: {
+        active: totalMembers
+      },
+      blog: {
+        totalNews,
+        totalBlogPosts,
+        pendingBlogDrafts,
+        recentComments: recentBlogCommentsCount
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    return res.status(500).json({ message: 'Gagal mengambil statistik dashboard' });
+  }
+}
+

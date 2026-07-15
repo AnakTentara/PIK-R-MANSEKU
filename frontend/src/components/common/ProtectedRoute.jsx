@@ -17,5 +17,9 @@ export default function ProtectedRoute({ type, children }) {
     return <Navigate to="/login" replace />;
   }
 
+  if (type === 'any' && !isAdminAuthenticated && !isCandidateAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
   return children;
 }

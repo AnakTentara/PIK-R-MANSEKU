@@ -334,36 +334,36 @@ export default function AdminOrgPage() {
 
               <div className={styles.grid}>
                  {/* Member dropdown — shown in BOTH create and edit modes */}
-                 {!isPembinaMode && (
-                   <div className="form-group">
-                     <label className="form-label">
-                       {editingId ? 'Tautkan ke Akun Anggota' : 'Pilih Anggota PIK-R *'}
-                     </label>
-                     <select
-                       className="form-select"
-                       value={selectedMemberId}
-                       onChange={(e) => {
-                         const val = e.target.value;
-                         setSelectedMemberId(val);
-                         if (val && val !== 'MANUAL') {
-                           const found = allMembers.find((m) => m.id === val);
-                           if (found) setName(found.name);
-                         } else if (!editingId) {
-                           setName('');
-                         }
-                       }}
-                       required={!editingId}
-                     >
-                       <option value="">{editingId ? '— Tidak diubah —' : '— Pilih Anggota —'}</option>
-                       {editingId && <option value="MANUAL">✕ Lepas tautan (tanpa akun)</option>}
-                       {allMembers.map((m) => (
-                         <option key={m.id} value={m.id}>
-                           {m.name} (Kelas {m.className})
-                         </option>
-                       ))}
-                     </select>
-                   </div>
-                 )}
+                 <div className="form-group">
+                   <label className="form-label">
+                     {isPembinaMode 
+                       ? (editingId ? 'Tautkan ke Akun Pembina' : 'Tautkan ke Akun Pembina (Opsional)') 
+                       : (editingId ? 'Tautkan ke Akun Anggota' : 'Pilih Anggota PIK-R *')}
+                   </label>
+                   <select
+                     className="form-select"
+                     value={selectedMemberId}
+                     onChange={(e) => {
+                       const val = e.target.value;
+                       setSelectedMemberId(val);
+                       if (val && val !== 'MANUAL') {
+                         const found = allMembers.find((m) => m.id === val);
+                         if (found) setName(found.name);
+                       } else if (!editingId) {
+                         setName('');
+                       }
+                     }}
+                     required={!isPembinaMode && !editingId}
+                   >
+                     <option value="">{editingId ? '— Tidak diubah —' : (isPembinaMode ? '— Pilih Akun Pembina (Kosongkan jika Mandiri) —' : '— Pilih Anggota —')}</option>
+                     {editingId && <option value="MANUAL">✕ Lepas tautan (tanpa akun)</option>}
+                     {allMembers.map((m) => (
+                       <option key={m.id} value={m.id}>
+                         {m.name} ({m.role} - {m.className || 'Umum'})
+                       </option>
+                     ))}
+                   </select>
+                 </div>
                  
                  <div className="form-group">
                    <label className="form-label">Nama Lengkap *</label>
@@ -372,10 +372,10 @@ export default function AdminOrgPage() {
                      className="form-input"
                      value={name}
                      onChange={(e) => setName(e.target.value)}
-                     readOnly={!isPembinaMode}
+                     readOnly={selectedMemberId && selectedMemberId !== 'MANUAL'}
                      required
-                     style={!isPembinaMode ? { backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' } : {}}
-                     placeholder={!isPembinaMode ? "Nama otomatis terisi setelah memilih anggota" : "Masukkan nama Pembina"}
+                     style={selectedMemberId && selectedMemberId !== 'MANUAL' ? { backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' } : {}}
+                     placeholder={selectedMemberId && selectedMemberId !== 'MANUAL' ? "Nama otomatis terisi setelah memilih akun" : "Masukkan nama lengkap"}
                    />
                  </div>
                  

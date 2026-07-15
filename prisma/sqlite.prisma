@@ -41,6 +41,7 @@ model Admin {
   password  String
   role      String   @default("KABINET_UMUM")
   posts     Post[]
+  blogPosts BlogPost[] // Relation to BlogPost
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -52,17 +53,53 @@ model Post {
   content   String
   authorId  String
   author    Admin     @relation(fields: [authorId], references: [id])
-  comments  Comment[]
+  views     Int       @default(0) // views count
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
-model Comment {
+model BlogPost {
+  id           String        @id @default(uuid())
+  title        String
+  slug         String        @unique
+  content      String
+  category     String        @default("Umum")
+  tags         String        @default("") // Comma-separated tags
+  status       String        @default("DRAFT") // DRAFT | PUBLISHED
+  featuredImg  String?
+  views        Int           @default(0)
+  authorId     String?       // FK to Admin (optional)
+  memberId     String?       // FK to Member (optional)
+  author       Admin?        @relation(fields: [authorId], references: [id])
+  memberAuthor Member?       @relation(fields: [memberId], references: [id])
+  comments     BlogComment[]
+  likes        BlogLike[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model BlogComment {
+  id        String        @id @default(uuid())
+  postId    String
+  post      BlogPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  content   String
+  memberId  String?       // FK to Member (optional, if logged in)
+  member    Member?       @relation(fields: [memberId], references: [id])
+  username  String        // fallback for guest
+  parentId  String?
+  parent    BlogComment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   BlogComment[] @relation("CommentThread")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model BlogLike {
   id        String   @id @default(uuid())
   postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  username  String
-  content   String
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  memberId  String?  // Nullable for guest
+  member    Member?  @relation(fields: [memberId], references: [id])
+  guestId   String?  // string for guest
   createdAt DateTime @default(now())
 }
 
@@ -87,6 +124,9 @@ model Member {
   role            String   @default("member")
   photoPath       String?
   orgMember       OrgMember?  // back-relation
+  blogPosts       BlogPost[]   // written posts
+  blogComments    BlogComment[] // posted comments
+  blogLikes       BlogLike[]   // likes
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

@@ -126,7 +126,7 @@ export default function LandingPage() {
       <SEO />
 
       {/* ── Hero ── */}
-      <section className={styles.hero}>
+      <section className={styles.hero} id="beranda">
         {/* Full-width slideshow background */}
         <div className={styles.slideshowContainer}>
           <div className={styles.slideshow}>
@@ -310,7 +310,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Visi Misi ── */}
-      <section className={`section ${styles.visiMisiSection}`}>
+      <section className={`section ${styles.visiMisiSection}`} id="visi-misi">
         <div className="container">
           <ScrollReveal>
             <h2 className={styles.sectionTitle}>
@@ -346,7 +346,7 @@ export default function LandingPage() {
 
       {/* ── Testimonials (Apa Kata Alumni?) ── */}
       {testimonials.length > 0 && (
-        <section className={`section ${styles.testimonialsSection}`}>
+        <section className={`section ${styles.testimonialsSection}`} id="apa-kata-alumni">
           <div className={styles.testimonialsHeaderWrap}>
             <div className="container">
               <ScrollReveal>

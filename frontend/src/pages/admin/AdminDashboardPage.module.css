@@ -293,3 +293,32 @@
     gap: var(--space-sm);
   }
 }
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: -8px;
+}
+
+.draftAlertCard {
+  border-color: #fbd38d !important;
+  background-color: #fffaf0 !important;
+  box-shadow: 0 4px 6px -1px rgba(237, 137, 54, 0.1), 0 2px 4px -1px rgba(237, 137, 54, 0.06) !important;
+}
+
+.clickableCard {
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, border-color 0.2s;
+}
+
+.clickableCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent) !important;
+}
+
+.clickableCard:active {
+  transform: translateY(0) scale(0.98);
+}

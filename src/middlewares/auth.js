@@ -62,3 +62,46 @@ export function authCandidate(req, res, next) {
     return res.status(401).json({ message: 'Token tidak valid atau kedaluwarsa' });
   }
 }
+
+export function authAny(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role === 'admin') {
+      req.admin = decoded;
+    } else if (decoded.role === 'candidate') {
+      req.candidate = decoded;
+    }
+    next();
+  } catch (error) {
+    next(); // continue as guest on invalid token
+  }
+}
+
+export function authRequiredAny(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Akses ditolak, silakan login terlebih dahulu' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role === 'admin') {
+      req.admin = decoded;
+      next();
+    } else if (decoded.role === 'candidate') {
+      req.candidate = decoded;
+      next();
+    } else {
+      return res.status(403).json({ message: 'Akses ditolak' });
+    }
+  } catch (error) {
+    return res.status(401).json({ message: 'Token tidak valid atau kedaluwarsa' });
+  }
+}

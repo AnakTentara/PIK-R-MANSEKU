@@ -43,6 +43,7 @@ import {
   // File Manager
   getUploadedFiles,
   deleteUploadedFile,
+  getDashboardStats,
 } from '../controllers/admin.js';
 import { deleteComment } from '../controllers/blog.js';
 import { authAdmin, requireRole } from '../middlewares/auth.js';
@@ -125,6 +126,8 @@ const router = express.Router();
 router.post('/login', loginAdmin);
 
 // Protected Admin Routes (Requires authAdmin)
+router.get('/dashboard-stats', authAdmin, getDashboardStats);
+
 // Candidates (DEVELOPER and KABINET_UMUM only)
 router.get('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getCandidates);
 router.post('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), createCandidate);

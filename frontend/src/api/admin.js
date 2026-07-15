@@ -4,6 +4,9 @@ import api from './axios';
 export const loginAdmin = (data) =>
   api.post('/admin/login', data);
 
+export const getDashboardStats = () =>
+  api.get('/admin/dashboard-stats');
+
 // Candidates
 export const getCandidates = (params) =>
   api.get('/admin/candidates', { params });

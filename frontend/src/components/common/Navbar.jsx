@@ -11,6 +11,7 @@ const DEFAULT_NAV_LINKS = [
   { to: '/kami', label: 'Tentang Kami', key: 'tentangKami' },
   { to: '/anggota', label: 'Anggota', key: 'anggota' },
   { to: '/alumni', label: 'Alumni', key: 'alumni' },
+  { to: '/berita', label: 'Berita', key: 'berita' },
   { to: '/blog', label: 'Blog', key: 'blog' },
   { to: '/daftar', label: 'Pendaftaran' },
   { to: '/cek-kelulusan', label: 'Cek Kelulusan' },
@@ -53,9 +54,17 @@ export default function Navbar() {
 
   const logoUrl = "/media/logos/L_PIK-R_Title.png";
 
+  const isAdmin = !!localStorage.getItem('admin_token');
+
   const handleLogout = () => {
     logoutCandidate();
     navigate('/login');
+    setMenuOpen(false);
+  };
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('admin_token');
+    navigate('/admin/login');
     setMenuOpen(false);
   };
 
@@ -89,7 +98,21 @@ export default function Navbar() {
 
         {/* Desktop Right Actions */}
         <div className={styles.actions}>
-          {isCandidateAuthenticated ? (
+          {isAdmin ? (
+            <div className={styles.userMenu}>
+              <Link to="/admin" className={styles.userBtn} style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}>
+                <User size={16} />
+                <span>Dashboard (Admin)</span>
+              </Link>
+              <button
+                onClick={handleAdminLogout}
+                className={`btn btn-ghost btn-sm ${styles.logoutBtn}`}
+                title="Keluar Admin"
+              >
+                <LogOut size={15} />
+              </button>
+            </div>
+          ) : isCandidateAuthenticated ? (
             <div className={styles.userMenu}>
               <Link to="/profil" className={styles.userBtn}>
                 <User size={16} />
@@ -144,7 +167,21 @@ export default function Navbar() {
               </NavLink>
             ))}
             <hr className="divider" />
-            {isCandidateAuthenticated ? (
+             {isAdmin ? (
+              <>
+                <Link
+                  to="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className={styles.mobileLink}
+                  style={{ color: 'var(--color-accent)' }}
+                >
+                  <User size={16} /> Dashboard Admin
+                </Link>
+                <button onClick={handleAdminLogout} className={`${styles.mobileLink} ${styles.logoutMobile}`}>
+                  <LogOut size={16} /> Keluar Admin
+                </button>
+              </>
+            ) : isCandidateAuthenticated ? (
               <>
                 <Link
                   to="/profil"

@@ -18,8 +18,11 @@ function ScrollToTop() {
 import LandingPage from '@/pages/public/LandingPage';
 import RegisterPage from '@/pages/public/RegisterPage';
 import CekKelulusanPage from '@/pages/public/CekKelulusanPage';
-import BlogPage from '@/pages/public/BlogPage';
-import BlogPostPage from '@/pages/public/BlogPostPage';
+import BeritaPage from '@/pages/public/BeritaPage';
+import BeritaPostPage from '@/pages/public/BeritaPostPage';
+import ForumPage from '@/pages/public/ForumPage';
+import ForumWritePage from '@/pages/public/ForumWritePage';
+import ForumPostPage from '@/pages/public/ForumPostPage';
 import CustomPage from '@/pages/public/CustomPage';
 import NotFoundPage from '@/pages/public/NotFoundPage';
 
@@ -78,8 +81,18 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/daftar" element={<RegisterPage />} />
           <Route path="/cek-kelulusan" element={<CekKelulusanPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/berita" element={<BeritaPage />} />
+          <Route path="/berita/:slug" element={<BeritaPostPage />} />
+          <Route path="/blog" element={<ForumPage />} />
+          <Route
+            path="/blog/tulis"
+            element={
+              <ProtectedRoute type="any">
+                <ForumWritePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/blog/:slug" element={<ForumPostPage />} />
           <Route path="/p/:slug" element={<CustomPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/kami" element={<KamiPage />} />

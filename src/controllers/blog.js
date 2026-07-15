@@ -26,7 +26,7 @@ async function generateUniqueSlug(title) {
 
 // ==================== PUBLIC CONTROLLERS ====================
 
-// 1. Get All Blog Posts (with search and pagination)
+// 1. Get All News Posts (with search and pagination)
 export async function getPosts(req, res) {
   const { search, page = 1, limit = 10 } = req.query;
   const pageNum = parseInt(page, 10);
@@ -51,9 +51,6 @@ export async function getPosts(req, res) {
       include: {
         author: {
           select: { username: true }
-        },
-        _count: {
-          select: { comments: true }
         }
       }
     });
@@ -71,71 +68,49 @@ export async function getPosts(req, res) {
     });
   } catch (error) {
     console.error('Error fetching posts:', error);
-    return res.status(500).json({ message: 'Gagal mengambil postingan blog' });
+    return res.status(500).json({ message: 'Gagal mengambil berita' });
   }
 }
 
-// 2. Get Single Blog Post by Slug with comments
+// 2. Get Single News Post by Slug
 export async function getPostBySlug(req, res) {
   const { slug } = req.params;
 
   try {
-    const post = await prisma.post.findUnique({
+    let post = await prisma.post.findUnique({
       where: { slug },
       include: {
         author: {
           select: { username: true }
-        },
-        comments: {
-          orderBy: { createdAt: 'desc' }
         }
       }
     });
 
     if (!post) {
-      return res.status(404).json({ message: 'Postingan blog tidak ditemukan' });
+      return res.status(404).json({ message: 'Berita tidak ditemukan' });
     }
+
+    // Increment views
+    post = await prisma.post.update({
+      where: { id: post.id },
+      data: { views: { increment: 1 } },
+      include: {
+        author: {
+          select: { username: true }
+        }
+      }
+    });
 
     return res.json(post);
   } catch (error) {
     console.error('Error fetching single post:', error);
-    return res.status(500).json({ message: 'Gagal mengambil detail postingan' });
-  }
-}
-
-// 3. Create Public Comment (No Auth required)
-export async function createComment(req, res) {
-  const { postId } = req.params;
-  const { username, content } = req.body;
-
-  if (!username || !content) {
-    return res.status(400).json({ message: 'Username dan isi komentar wajib diisi' });
-  }
-
-  try {
-    const post = await prisma.post.findUnique({ where: { id: postId } });
-    if (!post) {
-      return res.status(404).json({ message: 'Postingan blog tidak ditemukan' });
-    }
-
-    const comment = await prisma.comment.create({
-      data: {
-        postId,
-        username,
-        content
-      }
-    });
-
-    return res.status(201).json({ message: 'Komentar berhasil ditambahkan', comment });
-  } catch (error) {
-    console.error('Error creating comment:', error);
-    return res.status(500).json({ message: 'Gagal menambahkan komentar' });
+    return res.status(500).json({ message: 'Gagal mengambil detail berita' });
   }
 }
 
 // ==================== ADMIN CONTROLLERS ====================
 
-// 4. Create Blog Post (Admin only)
+// 3. Create News Post (Admin only)
 export async function createPost(req, res) {
   const { title, content, slug } = req.body;
 
@@ -164,14 +139,14 @@ export async function createPost(req, res) {
       }
     });
 
-    return res.status(201).json({ message: 'Postingan blog berhasil dipublikasikan', post });
+    return res.status(201).json({ message: 'Berita berhasil dipublikasikan', post });
   } catch (error) {
     console.error('Error creating post:', error);
-    return res.status(500).json({ message: 'Gagal membuat postingan blog' });
+    return res.status(500).json({ message: 'Gagal membuat berita' });
   }
 }
 
-// 5. Update Blog Post (Admin only)
+// 4. Update News Post (Admin only)
 export async function updatePost(req, res) {
   const { id } = req.params;
   const { title, content, slug } = req.body;
@@ -179,7 +154,7 @@ export async function updatePost(req, res) {
   try {
     const post = await prisma.post.findUnique({ where: { id } });
     if (!post) {
-      return res.status(404).json({ message: 'Postingan blog tidak ditemukan' });
+      return res.status(404).json({ message: 'Berita tidak ditemukan' });
     }
 
     let finalSlug = post.slug;
@@ -200,77 +175,21 @@ export async function updatePost(req, res) {
       }
     });
 
-    return res.json({ message: 'Postingan blog berhasil diperbarui', post: updated });
+    return res.json({ message: 'Berita berhasil diperbarui', post: updated });
   } catch (error) {
     console.error('Error updating post:', error);
-    return res.status(500).json({ message: 'Gagal memperbarui postingan blog' });
+    return res.status(500).json({ message: 'Gagal memperbarui berita' });
   }
 }
 
-// 6. Delete Blog Post (Admin only)
+// 5. Delete News Post (Admin only)
 export async function deletePost(req, res) {
   const { id } = req.params;
   try {
     await prisma.post.delete({ where: { id } });
-    return res.json({ message: 'Postingan blog berhasil dihapus' });
+    return res.json({ message: 'Berita berhasil dihapus' });
   } catch (error) {
     console.error('Error deleting post:', error);
-    return res.status(500).json({ message: 'Gagal menghapus postingan blog' });
-  }
-}
-
-// 7. Delete Comment (Admin only)
-export async function deleteComment(req, res) {
-  const { id } = req.params;
-  try {
-    await prisma.comment.delete({ where: { id } });
-    return res.json({ message: 'Komentar berhasil dihapus' });
-  } catch (error) {
-    console.error('Error deleting comment:', error);
-    return res.status(500).json({ message: 'Gagal menghapus komentar' });
-  }
-}
-
-// 7.5 Update Comment (Public / Client-validated)
-export async function updateComment(req, res) {
-  const { id } = req.params;
-  const { content } = req.body;
-
-  if (!content) {
-    return res.status(400).json({ message: 'Konten komentar wajib diisi' });
-  }
-
-  try {
-    const comment = await prisma.comment.findUnique({ where: { id } });
-    if (!comment) {
-      return res.status(404).json({ message: 'Komentar tidak ditemukan' });
-    }
-
-    const updated = await prisma.comment.update({
-      where: { id },
-      data: { content }
-    });
-
-    return res.json({ message: 'Komentar berhasil diperbarui', comment: updated });
-  } catch (error) {
-    console.error('Error updating comment:', error);
-    return res.status(500).json({ message: 'Gagal memperbarui komentar' });
-  }
-}
-
-// 7.6 Delete Comment Publicly (Client-validated)
-export async function deleteCommentPublic(req, res) {
-  const { id } = req.params;
-  try {
-    const comment = await prisma.comment.findUnique({ where: { id } });
-    if (!comment) {
-      return res.status(404).json({ message: 'Komentar tidak ditemukan' });
-    }
-
-    await prisma.comment.delete({ where: { id } });
-    return res.json({ message: 'Komentar berhasil dihapus' });
-  } catch (error) {
-    console.error('Error deleting comment:', error);
-    return res.status(500).json({ message: 'Gagal menghapus komentar' });
+    return res.status(500).json({ message: 'Gagal menghapus berita' });
   }
 }
