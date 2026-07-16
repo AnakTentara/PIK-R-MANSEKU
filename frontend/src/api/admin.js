@@ -23,6 +23,9 @@ export const updateCandidate = (id, data) =>
 export const deleteCandidate = (id) =>
   api.delete(`/admin/candidates/${id}`);
 
+export const promoteCandidateToMember = (id) =>
+  api.post(`/admin/candidates/${id}/promote-to-member`);
+
 export const generatePasswords = () =>
   api.post('/admin/candidates/generate-passwords');
 
