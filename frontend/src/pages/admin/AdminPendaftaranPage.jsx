@@ -117,6 +117,8 @@ export default function AdminPendaftaranPage() {
 
   // Promote single candidate directly to member
   const handlePromoteToMember = (c) => {
+    // Close edit modal first so confirm dialog renders on top
+    setEditModalOpen(false);
     openConfirm({
       title: 'Tambahkan ke Anggota Langsung',
       message: `Pindahkan "${c.name}" ke data Anggota PIK-R sekarang? Pendaftar ini akan dihapus dari daftar pendaftaran dan langsung menjadi anggota aktif.`,
@@ -124,7 +126,6 @@ export default function AdminPendaftaranPage() {
         try {
           const res = await promoteCandidateToMember(c.id);
           toast.success(res.data.message || `${c.name} berhasil dipindahkan ke Anggota.`);
-          setEditModalOpen(false);
           fetchSessionAndCandidates();
         } catch (err) {
           toast.error(err.response?.data?.message || 'Gagal memindahkan ke anggota.');
