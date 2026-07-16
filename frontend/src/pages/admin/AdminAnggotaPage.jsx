@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import axios from 'axios';
 import { getMembers, createMember, updateMember, deleteMember } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import SkeletonTable from '@/components/skeletons/SkeletonTable';
@@ -49,6 +50,11 @@ export default function AdminAnggotaPage() {
   });
   const [editPhotoFile, setEditPhotoFile] = useState(null);
   const [editPhotoPreview, setEditPhotoPreview] = useState('');
+
+  // Upload photo states
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const abortControllerRef = useRef(null);
 
   // Add Modal State
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -104,12 +110,27 @@ export default function AdminAnggotaPage() {
     setEditModalOpen(true);
   };
 
+  const handleCancelUpload = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setUploading(false);
+      setUploadProgress(0);
+      abortControllerRef.current = null;
+    }
+  };
+
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     if (!editForm.name.trim() || !editForm.email.trim() || !editForm.whatsappNumber.trim()) {
       toast.error('Semua kolom wajib diisi.');
       return;
     }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    setUploading(true);
+    setUploadProgress(0);
 
     try {
       // Use FormData if there's a photo to upload
@@ -121,12 +142,29 @@ export default function AdminAnggotaPage() {
       } else {
         payload = editForm;
       }
-      await updateMember(selectedMember.id, payload);
+      await updateMember(selectedMember.id, payload, {
+        timeout: 0, // Disable timeout for uploads
+        signal: controller.signal,
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          }
+        }
+      });
       toast.success('Data anggota berhasil diperbarui.');
       setEditModalOpen(false);
       fetchMembers();
-    } catch {
-      toast.error('Gagal memperbarui data anggota.');
+    } catch (err) {
+      if (axios.isCancel(err) || err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
+        toast.error('Upload dibatalkan.');
+      } else {
+        toast.error('Gagal memperbarui data anggota.');
+      }
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+      abortControllerRef.current = null;
     }
   };
 
@@ -406,118 +444,138 @@ export default function AdminAnggotaPage() {
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: 2 }}>NISN: <strong>{selectedMember?.nisn}</strong></p>
             </div>
             <form onSubmit={handleSaveEdit} className={styles.modalForm}>
-              {/* Photo Upload */}
-              <div className={styles.photoEditSection}>
-                <div className={styles.photoEditPreview}>
-                  {editPhotoPreview ? (
-                    <img src={editPhotoPreview} alt="Foto" />
-                  ) : (
-                    <div className={styles.photoEditPlaceholder}><User size={28} /></div>
-                  )}
-                </div>
-                <label className={styles.photoEditBtn}>
-                  <Upload size={14} /> {editPhotoPreview ? 'Ganti Foto' : 'Upload Foto'}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setEditPhotoFile(file);
-                        setEditPhotoPreview(URL.createObjectURL(file));
-                      }
-                    }}
-                  />
-                </label>
-                <p className={styles.photoEditHint}>Foto profil anggota akan tampil di pohon organisasi jika anggota ini terhubung sebagai pengurus.</p>
-              </div>
-
-              <div className={styles.editGrid}>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-name">Nama Lengkap *</label>
-                  <input id="edit-name" type="text" className="form-input" value={editForm.name}
-                    onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
+              <fieldset disabled={uploading} style={{ border: 'none', padding: 0, margin: 0, display: 'contents' }}>
+                {/* Photo Upload */}
+                <div className={styles.photoEditSection}>
+                  <div className={styles.photoEditPreview}>
+                    {editPhotoPreview ? (
+                      <img src={editPhotoPreview} alt="Foto" />
+                    ) : (
+                      <div className={styles.photoEditPlaceholder}><User size={28} /></div>
+                    )}
+                  </div>
+                  <label className={`${styles.photoEditBtn} ${uploading ? styles.disabledBtn : ''}`} style={uploading ? { opacity: 0.6, cursor: 'not-allowed' } : {}}>
+                    <Upload size={14} /> {editPhotoPreview ? 'Ganti Foto' : 'Upload Foto'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      disabled={uploading}
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setEditPhotoFile(file);
+                          setEditPhotoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                  </label>
+                  <p className={styles.photoEditHint}>Foto profil anggota akan tampil di pohon organisasi jika anggota ini terhubung sebagai pengurus.</p>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-class">Kelas</label>
-                  <input id="edit-class" type="text" className="form-input" value={editForm.className}
-                    onChange={(e) => setEditForm((f) => ({ ...f, className: e.target.value }))} />
-                </div>
+                <div className={styles.editGrid}>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-name">Nama Lengkap *</label>
+                    <input id="edit-name" type="text" className="form-input" value={editForm.name}
+                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
+                  </div>
 
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-email">Email *</label>
-                  <input id="edit-email" type="email" className="form-input" value={editForm.email}
-                    onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))} />
-                </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-class">Kelas</label>
+                    <input id="edit-class" type="text" className="form-input" value={editForm.className}
+                      onChange={(e) => setEditForm((f) => ({ ...f, className: e.target.value }))} />
+                  </div>
 
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-wa">No. WhatsApp *</label>
-                  <input id="edit-wa" type="text" className="form-input" value={editForm.whatsappNumber}
-                    onChange={(e) => setEditForm((f) => ({ ...f, whatsappNumber: e.target.value }))} />
-                </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-email">Email *</label>
+                    <input id="edit-email" type="email" className="form-input" value={editForm.email}
+                      onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))} />
+                  </div>
 
-                <div className="form-group">
-                  <label className="form-label">Jenis Kelamin</label>
-                  <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
-                    {['Laki-laki', 'Perempuan'].map((g) => (
-                      <label key={g} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.875rem' }}>
-                        <input type="radio" name="edit-gender" value={g}
-                          checked={editForm.gender === g}
-                          onChange={(e) => setEditForm((f) => ({ ...f, gender: e.target.value }))} />
-                        {g}
-                      </label>
-                    ))}
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-wa">No. WhatsApp *</label>
+                    <input id="edit-wa" type="text" className="form-input" value={editForm.whatsappNumber}
+                      onChange={(e) => setEditForm((f) => ({ ...f, whatsappNumber: e.target.value }))} />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Jenis Kelamin</label>
+                    <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+                      {['Laki-laki', 'Perempuan'].map((g) => (
+                        <label key={g} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.875rem' }}>
+                          <input type="radio" name="edit-gender" value={g}
+                            checked={editForm.gender === g}
+                            onChange={(e) => setEditForm((f) => ({ ...f, gender: e.target.value }))} />
+                          {g}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-asal">Asal Sekolah</label>
+                    <input id="edit-asal" type="text" className="form-input" value={editForm.asalSekolah}
+                      onChange={(e) => setEditForm((f) => ({ ...f, asalSekolah: e.target.value }))} />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-year">Tahun Bergabung</label>
+                    <input id="edit-year" type="number" className="form-input" value={editForm.joinYear}
+                      min="2000" max="2099"
+                      onChange={(e) => setEditForm((f) => ({ ...f, joinYear: e.target.value }))} />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-role">Peran Organisasi</label>
+                    <select id="edit-role" className="form-select" value={editForm.role}
+                      onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}>
+                      <option value="member">Anggota Biasa</option>
+                      <option value="PEMBINA">PEMBINA</option>
+                      <option value="KETUA">KETUA</option>
+                      <option value="WAKIL">WAKIL KETUA</option>
+                      <option value="KABINET">KABINET/PENGURUS</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-status">Status Keanggotaan</label>
+                    <select id="edit-status" className="form-select" value={editForm.status}
+                      onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))}>
+                      <option value="ACTIVE">AKTIF</option>
+                      <option value="ALUMNI">ALUMNI</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="edit-password">Sandi Akun (Plaintext)</label>
+                    <input id="edit-password" type="text" className="form-input"
+                      placeholder="Kosongkan jika tidak ingin mengubah sandi..."
+                      value={editForm.plainPassword}
+                      onChange={(e) => setEditForm((f) => ({ ...f, plainPassword: e.target.value }))} />
                   </div>
                 </div>
-
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-asal">Asal Sekolah</label>
-                  <input id="edit-asal" type="text" className="form-input" value={editForm.asalSekolah}
-                    onChange={(e) => setEditForm((f) => ({ ...f, asalSekolah: e.target.value }))} />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-year">Tahun Bergabung</label>
-                  <input id="edit-year" type="number" className="form-input" value={editForm.joinYear}
-                    min="2000" max="2099"
-                    onChange={(e) => setEditForm((f) => ({ ...f, joinYear: e.target.value }))} />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-role">Peran Organisasi</label>
-                  <select id="edit-role" className="form-select" value={editForm.role}
-                    onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}>
-                    <option value="member">Anggota Biasa</option>
-                    <option value="PEMBINA">PEMBINA</option>
-                    <option value="KETUA">KETUA</option>
-                    <option value="WAKIL">WAKIL KETUA</option>
-                    <option value="KABINET">KABINET/PENGURUS</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-status">Status Keanggotaan</label>
-                  <select id="edit-status" className="form-select" value={editForm.status}
-                    onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))}>
-                    <option value="ACTIVE">AKTIF</option>
-                    <option value="ALUMNI">ALUMNI</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label" htmlFor="edit-password">Sandi Akun (Plaintext)</label>
-                  <input id="edit-password" type="text" className="form-input"
-                    placeholder="Kosongkan jika tidak ingin mengubah sandi..."
-                    value={editForm.plainPassword}
-                    onChange={(e) => setEditForm((f) => ({ ...f, plainPassword: e.target.value }))} />
-                </div>
-              </div>
+              </fieldset>
 
               <div className={styles.modalActions}>
-                <button type="submit" className="btn btn-primary">Simpan Perubahan</button>
-                <button type="button" className="btn btn-secondary" onClick={() => setEditModalOpen(false)}>Batal</button>
+                {uploading ? (
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>Mengupload foto profil...</span>
+                      <strong style={{ color: 'var(--color-primary)' }}>{uploadProgress}%</strong>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--color-surface-2)', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                      <div style={{ width: `${uploadProgress}%`, height: '100%', backgroundColor: 'var(--color-primary)', transition: 'width 0.2s ease-out' }}></div>
+                    </div>
+                    <button type="button" className="btn btn-danger" onClick={handleCancelUpload} style={{ width: '100%', marginTop: '8px', justifyContent: 'center' }}>
+                      Batal Upload
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <button type="submit" className="btn btn-primary">Simpan Perubahan</button>
+                    <button type="button" className="btn btn-secondary" onClick={() => setEditModalOpen(false)}>Batal</button>
+                  </>
+                )}
               </div>
             </form>
           </div>
