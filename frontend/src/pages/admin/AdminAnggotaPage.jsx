@@ -8,6 +8,7 @@ import { Edit, Trash2, Search, AlertTriangle, Key, Eye, EyeOff, ChevronLeft, Che
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/stores/authStore';
 import { getUploadUrl } from '@/api/axios';
+import { compressImage } from '@/utils/compressor';
 import styles from './AdminAnggotaPage.module.css';
 
 const KELAS_OPTIONS = [];
@@ -464,8 +465,22 @@ export default function AdminAnggotaPage() {
                       onChange={(e) => {
                         const file = e.target.files[0];
                         if (file) {
-                          setEditPhotoFile(file);
-                          setEditPhotoPreview(URL.createObjectURL(file));
+                          if (file.size > 25 * 1024 * 1024) {
+                            toast.error('Ukuran foto profil maksimal adalah 25MB.');
+                            return;
+                          }
+                          const compToast = toast.loading('Mengompresi foto...');
+                          compressImage(file)
+                            .then((compressed) => {
+                              setEditPhotoFile(compressed);
+                              setEditPhotoPreview(URL.createObjectURL(compressed));
+                              toast.success('Foto siap diupload (berhasil dikompresi).', { id: compToast });
+                            })
+                            .catch(() => {
+                              setEditPhotoFile(file);
+                              setEditPhotoPreview(URL.createObjectURL(file));
+                              toast.error('Gagal mengompresi, menggunakan file asli.', { id: compToast });
+                            });
                         }
                       }}
                     />

@@ -5,6 +5,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { Plus, Edit2, Trash2, X, Upload, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getUploadUrl } from '@/api/axios';
+import { compressImage } from '@/utils/compressor';
 import styles from './AdminTestimonialsPage.module.css';
 
 export default function AdminTestimonialsPage() {
@@ -61,8 +62,22 @@ export default function AdminTestimonialsPage() {
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setPhotoFile(file);
-      setPhotoPreview(URL.createObjectURL(file));
+      if (file.size > 25 * 1024 * 1024) {
+        toast.error('Ukuran foto maksimal adalah 25MB.');
+        return;
+      }
+      const compToast = toast.loading('Mengompresi foto...');
+      compressImage(file)
+        .then((compressed) => {
+          setPhotoFile(compressed);
+          setPhotoPreview(URL.createObjectURL(compressed));
+          toast.success('Foto siap diupload (berhasil dikompresi).', { id: compToast });
+        })
+        .catch(() => {
+          setPhotoFile(file);
+          setPhotoPreview(URL.createObjectURL(file));
+          toast.error('Gagal mengompresi, menggunakan file asli.', { id: compToast });
+        });
     }
   };
 
