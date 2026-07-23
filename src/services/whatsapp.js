@@ -218,6 +218,17 @@ export async function initWhatsApp() {
           return;
         }
 
+        // Pastikan user adalah Anggota, bukan sekadar Pendaftar
+        const isMember = await prisma.member.findUnique({ where: { id: user.id } });
+        if (!isMember) {
+          await replyToMessage(
+            fromJid,
+            `⏳ *BELUM JADI ANGGOTA*\n\nHalo *${user.name}*,\n\nKamu masih berstatus *Pendaftar* dan belum memiliki akun anggota PIK-R MANSEKU.\n\nTunggu pengumuman kelulusan dari panitia seleksi ya! 💪`,
+            msg
+          );
+          return;
+        }
+
         // Generate 6-digit OTP
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
@@ -253,6 +264,17 @@ export async function initWhatsApp() {
           await replyToMessage(
             fromJid,
             `❌ *DATA TIDAK DITEMUKAN*\n\nNomor WhatsApp / Nama WhatsApp Anda (*${msg.pushName || cleanPhone || 'Pengguna'}*) belum terdaftar.\n\n💡 *Tips*: Ketik perintah */sandi [NISN Anda]* (contoh: \`/sandi 3102603365\`) untuk mengecek kata sandi NISN Anda secara langsung.`,
+            msg
+          );
+          return;
+        }
+
+        // Pastikan user adalah Anggota, bukan sekadar Pendaftar
+        const isMember = await prisma.member.findUnique({ where: { id: user.id } });
+        if (!isMember) {
+          await replyToMessage(
+            fromJid,
+            `⏳ *BELUM JADI ANGGOTA*\n\nHalo *${user.name}*,\n\nKamu masih berstatus *Pendaftar* dan belum memiliki akun anggota PIK-R MANSEKU.\n\nTunggu pengumuman kelulusan dari panitia seleksi ya! 💪`,
             msg
           );
           return;
