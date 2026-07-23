@@ -87,23 +87,117 @@ export async function initWhatsApp() {
     const text = msg.message.conversation || 
                  msg.message.extendedTextMessage?.text || '';
                  
+    const fromJid = msg.key.remoteJid;
+    const cleanPhone = fromJid ? fromJid.replace(/@.*$/, '').replace(/\D/g, '') : '';
+
+    if (text.trim().startsWith('/sandi ganti')) {
+      try {
+        // Search member or candidate by WhatsApp number
+        let user = await prisma.member.findFirst({
+          where: {
+            OR: [
+              { whatsappNumber: { contains: cleanPhone.slice(-9) } },
+              { whatsappNumber: cleanPhone }
+            ]
+          }
+        });
+
+        if (!user) {
+          user = await prisma.candidate.findFirst({
+            where: {
+              OR: [
+                { whatsappNumber: { contains: cleanPhone.slice(-9) } },
+                { whatsappNumber: cleanPhone }
+              ]
+            }
+          });
+        }
+
+        if (!user) {
+          await replyToMessage(
+            fromJid,
+            `❌ *NOMOR TIDAK TERDAFTAR*\n\nNomor WhatsApp ini (*+${cleanPhone}*) tidak terdaftar dalam database anggota PIK-R MANSEKU. Pastikan Anda menghubungi kami menggunakan nomor yang terdaftar saat pendaftaran.`,
+            msg
+          );
+          return;
+        }
+
+        // Generate 6-digit OTP
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+        await prisma.passwordResetOtp.create({
+          data: {
+            identifier: user.nisn || user.whatsappNumber || cleanPhone,
+            otpCode,
+            expiresAt
+          }
+        });
+
+        const nisnParam = user.nisn ? `nisn=${user.nisn}` : `wa=${user.whatsappNumber}`;
+        const replyText = `🔐 *KODE OTP RESET SANDI PIK-R MANSEKU*\n\nHalo *${user.name}*,\n\nKode OTP Anda untuk mengganti kata sandi adalah: *${otpCode}*\n\n⏰ *Berlaku:* 10 Menit\n\nSilakan buka link di bawah ini dan masukkan kode OTP di atas untuk mengatur kata sandi baru:\n🔗 https://pikr-manseku.my.id/reset-sandi?${nisnParam}\n\n⚠️ *PERINGATAN*: Rahasiakan kode OTP ini dari siapa pun!`;
+
+        await replyToMessage(fromJid, replyText, msg);
+      } catch (err) {
+        console.error('Error handling /sandi ganti:', err);
+        await replyToMessage(fromJid, 'Terjadi kesalahan sistem saat membuat kode OTP reset sandi.', msg);
+      }
+      return;
+    }
+
+    if (text.trim().startsWith('/sandi')) {
+      try {
+        let user = await prisma.member.findFirst({
+          where: {
+            OR: [
+              { whatsappNumber: { contains: cleanPhone.slice(-9) } },
+              { whatsappNumber: cleanPhone }
+            ]
+          }
+        });
+
+        if (!user) {
+          user = await prisma.candidate.findFirst({
+            where: {
+              OR: [
+                { whatsappNumber: { contains: cleanPhone.slice(-9) } },
+                { whatsappNumber: cleanPhone }
+              ]
+            }
+          });
+        }
+
+        if (!user) {
+          await replyToMessage(
+            fromJid,
+            `❌ *NOMOR TIDAK TERDAFTAR*\n\nNomor WhatsApp ini (*+${cleanPhone}*) tidak terdaftar di sistem. Silakan periksa kembali nomor WhatsApp yang Anda gunakan saat pendaftaran.`,
+            msg
+          );
+          return;
+        }
+
+        const replyText = `🔑 *INFORMASI AKUN & SANDI PIK-R MANSEKU*\n\nHalo *${user.name}*,\n${user.nisn ? `📌 NISN: *${user.nisn}*\n` : ''}🔑 Sandi Anda: *${user.plainPassword || '(Sandi telah diubah atau belum diatur)'}*\n\n⚠️ *PERINGATAN PRIVASI*: Kata sandi bersifat pribadi dan rahasia. Jangan pernah membagikan sandi ini kepada siapa pun demi keamanan akun Anda!\n\n💡 *Ingin mengganti kata sandi?*\nKetik perintah: */sandi ganti* untuk menerima kode OTP verifikasi dan tautan ubah sandi.`;
+
+        await replyToMessage(fromJid, replyText, msg);
+      } catch (err) {
+        console.error('Error handling /sandi:', err);
+        await replyToMessage(fromJid, 'Terjadi kesalahan sistem saat memeriksa data sandi.', msg);
+      }
+      return;
+    }
+
     if (text.startsWith('/cek ')) {
       const query = text.substring(5).trim();
-      const fromJid = msg.key.remoteJid;
-
       if (!query) {
         await replyToMessage(fromJid, 'Format salah. Gunakan: */cek [Nama atau NISN]*\nContoh: `/cek Haikal Mabrur` atau `/cek 3102603365`', msg);
         return;
       }
 
       console.log(`WhatsApp Bot menerima request cek dari ${fromJid} untuk query: "${query}"`);
-      
-      // Determine if query is NISN (digits only)
       const isNisn = /^\d+$/.test(query);
 
       try {
         if (isNisn) {
-          // 1. Search by NISN
           const candidate = await prisma.candidate.findUnique({
             where: { nisn: query }
           });
@@ -115,7 +209,6 @@ export async function initWhatsApp() {
             await replyToMessage(fromJid, `Maaf, data pendaftaran dengan NISN *${query}* tidak ditemukan di database.`, msg);
           }
         } else {
-          // 2. Search by Name (Similarity)
           const allCandidates = await prisma.candidate.findMany({
             select: { id: true, name: true, nisn: true, className: true }
           });
@@ -129,16 +222,12 @@ export async function initWhatsApp() {
             const replyText = `Halo *${candidate.name}* (${candidate.className}),\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${candidate.nisn}\n\nTerima kasih!`;
             await replyToMessage(fromJid, replyText, msg);
           } else {
-            // Suggest similar matches
             let replyText = `Data pendaftar dengan nama *"${query}"* tidak ditemukan secara persis.\n\n*Mungkin yang kamu maksud:*\n`;
-            
-            // Limit to top 3 suggestions
             const suggestions = matches.slice(0, 3);
             suggestions.forEach((match, index) => {
               const c = match.candidate;
               replyText += `\n${index + 1}. *${c.name}* (Kelas ${c.className})\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${c.nisn}\n`;
             });
-            
             replyText += `\nSilakan klik link di atas jika sesuai dengan nama Anda.`;
             await replyToMessage(fromJid, replyText, msg);
           }

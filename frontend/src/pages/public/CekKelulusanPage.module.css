@@ -263,6 +263,61 @@
   background-color: #f1f5f9;
 }
 
+.actionBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 440px;
+  margin-top: 8px;
+}
+
+.privacyNotice {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.825rem;
+  color: #fca5a5;
+  text-align: left;
+  line-height: 1.5;
+  width: 100%;
+}
+
+.infoNotice {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.825rem;
+  color: #93c5fd;
+  text-align: left;
+  line-height: 1.5;
+  width: 100%;
+}
+
+.infoNotice code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #fef08a;
+}
+
+.loginLink {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  margin-top: 4px;
+  transition: color 0.15s;
+}
+
+.loginLink:hover {
+  color: #ffffff;
+}
+
+
 @media (max-width: 480px) {
   .searchCenter {
     padding: var(--space-lg);

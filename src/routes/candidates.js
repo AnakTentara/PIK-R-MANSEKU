@@ -8,7 +8,8 @@ import {
   checkStatus,
   loginCandidate,
   getProfile,
-  updateProfile
+  updateProfile,
+  verifyResetOtp
 } from '../controllers/candidates.js';
 import { authCandidate } from '../middlewares/auth.js';
 import prisma from '../config/db.js';
@@ -63,9 +64,11 @@ router.get('/settings/public', async (req, res) => {
 router.post('/register', registerCandidate);
 router.get('/check', checkStatus);
 router.post('/login', loginCandidate);
+router.post('/reset-sandi/verify-otp', verifyResetOtp);
 
 // Protected Candidate Routes
 router.get('/me', authCandidate, getProfile);
 router.put('/me', authCandidate, upload.single('photo'), updateProfile);
 
 export default router;
+

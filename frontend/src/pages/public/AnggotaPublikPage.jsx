@@ -14,9 +14,7 @@ export default function AnggotaPublikPage() {
     const normalizedLeader = leaderJabatan.replace(/^(Ketua|Koordinator Bidang)\s+/i, '').trim().toLowerCase();
     
     return orgData.filter(m => {
-      if (!m.isCurrent) return false;
       const jab = (m.jabatan || '').toLowerCase();
-      // Match if role is ANGGOTA and it contains both "anggota" and the division name (e.g. "medinfo")
       return m.role === 'ANGGOTA' && jab.includes('anggota') && jab.includes(normalizedLeader);
     });
   };
@@ -36,14 +34,14 @@ export default function AnggotaPublikPage() {
     fetchData();
   }, []);
 
-  // Filter current active leadership
-  const pembina = orgData.find(m => m.jabatan === 'Pembina' && m.isCurrent);
-  const ketua = orgData.find(m => m.jabatan === 'Ketua Umum' && m.isCurrent);
-  const wakil = orgData.find(m => m.jabatan === 'Wakil Ketua Umum' && m.isCurrent);
-  const kabinet = orgData.filter(m => m.role === 'KABINET' && m.isCurrent);
+  // Filter active leadership
+  const pembina = orgData.find(m => m.role === 'PEMBINA' || m.jabatan === 'Pembina');
+  const ketua = orgData.find(m => m.jabatan === 'Ketua Umum');
+  const wakil = orgData.find(m => m.jabatan === 'Wakil Ketua Umum');
+  const kabinet = orgData.filter(m => m.role === 'KABINET');
 
   const getMemberJabatan = (memberName) => {
-    const found = orgData.find(o => o.name === memberName && o.isCurrent);
+    const found = orgData.find(o => o.name === memberName);
     return found ? found.jabatan : 'Anggota Biasa';
   };
 

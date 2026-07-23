@@ -32,14 +32,14 @@ export default function KamiPage() {
     fetchData();
   }, []);
 
-  // Filter current active leadership
-  const pembinaCurrent = orgData.find(m => m.jabatan === 'Pembina' && m.isCurrent);
-  const ketuaCurrent = orgData.find(m => m.jabatan === 'Ketua Umum' && m.isCurrent);
-  const wakilCurrent = orgData.find(m => m.jabatan === 'Wakil Ketua Umum' && m.isCurrent);
+  // Filter active leadership
+  const pembinaCurrent = orgData.find(m => m.role === 'PEMBINA' || m.jabatan === 'Pembina');
+  const ketuaCurrent = orgData.find(m => m.jabatan === 'Ketua Umum');
+  const wakilCurrent = orgData.find(m => m.jabatan === 'Wakil Ketua Umum');
   
   // Sekretaris & Bendahara (Pengurus Harian Inti)
-  const sekretarisCurrent = orgData.find(m => m.jabatan === 'Sekretaris Umum' && m.isCurrent);
-  const bendaharaCurrent = orgData.find(m => m.jabatan === 'Bendahara Umum' && m.isCurrent);
+  const sekretarisCurrent = orgData.find(m => m.jabatan === 'Sekretaris Umum');
+  const bendaharaCurrent = orgData.find(m => m.jabatan === 'Bendahara Umum');
 
   // List of Divisions
   const DIVISIONS = [
@@ -54,8 +54,8 @@ export default function KamiPage() {
 
   // Map division data
   const activeDivisions = DIVISIONS.map(div => {
-    const ketua = orgData.find(m => m.jabatan === div.ketuaTitle && m.isCurrent);
-    const anggota = orgData.filter(m => m.jabatan === div.anggotaTitle && m.isCurrent);
+    const ketua = orgData.find(m => m.jabatan === div.ketuaTitle);
+    const anggota = orgData.filter(m => m.jabatan === div.anggotaTitle);
     return {
       ...div,
       ketua,
@@ -292,47 +292,7 @@ export default function KamiPage() {
         </div>
       </section>
 
-      {/* 4. Arsip Kepemimpinan */}
-      {!loading && archiveYears.length > 0 && (
-        <section className={`section ${styles.archiveSection}`}>
-          <div className="container">
-            <h2 className={styles.sectionTitle}>Arsip Kepengurusan (Masa Jabatan)</h2>
-            <div className={styles.accordionList}>
-              {archiveYears.map(year => (
-                <div key={year} className={styles.accordionItem}>
-                  <button className={styles.accordionHeader} onClick={() => toggleYear(year)}>
-                    <span>Kepengurusan Tahun {year}</span>
-                    {expandedYear === year ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </button>
-                  {expandedYear === year && (
-                    <div className={styles.accordionContent}>
-                      <div className={styles.archiveGrid}>
-                        {archivesGrouped[year].map(m => (
-                          <div key={m.id} className={styles.archiveMemberCard}>
-                            <div className={styles.archiveMemberAvatar}>
-                              {m.photoPath ? (
-                                <img src={getUploadUrl(m.photoPath)} alt={m.name} />
-                              ) : (
-                                <div className={styles.initialsMini}>{m.name[0]}</div>
-                              )}
-                            </div>
-                            <div>
-                              <h5>{m.name}</h5>
-                              <p>{m.jabatan} ({m.role})</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 5. CTA Ajakan Bergabung */}
+      {/* 4. CTA Ajakan Bergabung */}
       <section className={styles.cta}>
         <div className={`container ${styles.ctaInner}`}>
           <h2>Ingin Menjadi Bagian Dari Kami?</h2>

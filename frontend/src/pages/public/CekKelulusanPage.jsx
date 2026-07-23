@@ -137,6 +137,9 @@ export default function CekKelulusanPage() {
   const candidateNisn = result?.nisn || result?.candidate?.nisn || nisn;
 
   if (status === 'LULUS') {
+    const waText = encodeURIComponent('/sandi\n*KIRIMKAN PESAN INI UNTUK MENGECEK SANDI*');
+    const waUrl = `https://wa.me/6281273940176?text=${waText}`;
+
     return (
       <div className={`${styles.resultScreen} ${styles.resultLulus}`}>
         <SEO title="Selamat! Anda Dinyatakan Lulus" description="Selamat! Hasil seleksi menyatakan Anda LULUS menjadi anggota/pengurus PIK-R MANSEKU." />
@@ -156,11 +159,26 @@ export default function CekKelulusanPage() {
           </div>
           <p className={styles.resultMsg}>
             Anda dinyatakan <strong>LULUS</strong> seleksi sebagai anggota PIK-R MANSEKU.
-            Silakan login untuk melihat profil dan informasi selanjutnya.
           </p>
-          <Link to="/login" className={`btn btn-lg ${styles.btnWhite}`}>
-            Login Anggota →
-          </Link>
+
+          <div className={styles.actionBox}>
+            <a href={waUrl} target="_blank" rel="noopener noreferrer" className={`btn btn-lg ${styles.btnWhite}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+              💬 Cek Sandi (WhatsApp) →
+            </a>
+
+            <div className={styles.privacyNotice}>
+              <p>🔒 <strong>PERINGATAN PRIVASI:</strong> Kata sandi Anda bersifat rahasia. Harap simpan sandi dengan aman dan jangan bagikan kepada siapa pun.</p>
+            </div>
+
+            <div className={styles.infoNotice}>
+              <p>💡 <strong>Ingin Mengganti Sandi?</strong><br />
+              Kirimkan pesan <code>/sandi ganti</code> pada obrolan WhatsApp Bot untuk menerima kode OTP verifikasi dan tautan ubah kata sandi.</p>
+            </div>
+
+            <Link to="/login" className={styles.loginLink}>
+              Sudah Punya Sandi? Langsung Login Anggota →
+            </Link>
+          </div>
         </div>
       </div>
     );

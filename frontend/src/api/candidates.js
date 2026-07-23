@@ -21,3 +21,7 @@ export const updateProfile = (data) => {
 
 export const getPublicSettings = () =>
   api.get('/candidates/settings/public');
+
+export const verifyResetOtp = (data) =>
+  api.post('/candidates/reset-sandi/verify-otp', data);
+

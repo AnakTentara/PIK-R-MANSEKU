@@ -297,3 +297,93 @@ export async function updateProfile(req, res) {
     return res.status(500).json({ message: 'Gagal memperbarui profil' });
   }
 }
+
+// 6. Verify OTP & Reset Password
+export async function verifyResetOtp(req, res) {
+  const { identifier, otpCode, newPassword } = req.body;
+
+  if (!identifier || !otpCode || !newPassword) {
+    return res.status(400).json({ message: 'NISN/Nomor WA, Kode OTP, dan Kata Sandi baru wajib diisi' });
+  }
+
+  try {
+    const cleanId = identifier.trim();
+    const cleanOtp = otpCode.trim();
+
+    // 1. Find OTP record
+    const otpRecord = await prisma.passwordResetOtp.findFirst({
+      where: {
+        otpCode: cleanOtp,
+        isUsed: false,
+        expiresAt: { gte: new Date() }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ message: 'Kode OTP tidak valid atau telah kedaluwarsa (berlaku 10 menit).' });
+    }
+
+    // 2. Find Member or Candidate
+    let member = await prisma.member.findFirst({
+      where: {
+        OR: [
+          { nisn: cleanId },
+          { whatsappNumber: { contains: cleanId.slice(-9) } },
+          { whatsappNumber: cleanId }
+        ]
+      }
+    });
+
+    let candidate = null;
+    if (!member) {
+      candidate = await prisma.candidate.findFirst({
+        where: {
+          OR: [
+            { nisn: cleanId },
+            { whatsappNumber: { contains: cleanId.slice(-9) } },
+            { whatsappNumber: cleanId }
+          ]
+        }
+      });
+    }
+
+    if (!member && !candidate) {
+      return res.status(404).json({ message: 'Akun pendaftar/anggota tidak ditemukan' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    if (member) {
+      await prisma.member.update({
+        where: { id: member.id },
+        data: {
+          password: hashedPassword,
+          plainPassword: newPassword
+        }
+      });
+    }
+
+    if (candidate) {
+      await prisma.candidate.update({
+        where: { id: candidate.id },
+        data: {
+          password: hashedPassword,
+          plainPassword: newPassword
+        }
+      });
+    }
+
+    // 3. Mark OTP as used
+    await prisma.passwordResetOtp.update({
+      where: { id: otpRecord.id },
+      data: { isUsed: true }
+    });
+
+    return res.json({ message: 'Kata sandi berhasil diperbarui! Silakan login dengan kata sandi baru Anda.' });
+  } catch (error) {
+    console.error('Error verifying reset OTP:', error);
+    return res.status(500).json({ message: 'Gagal mereset kata sandi' });
+  }
+}
+

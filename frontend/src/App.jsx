@@ -29,9 +29,11 @@ import NotFoundPage from '@/pages/public/NotFoundPage';
 // Auth & Profil (Candidates)
 import LoginPage from '@/pages/public/LoginPage';
 import ProfilePage from '@/pages/public/ProfilePage';
+import ResetSandiPage from '@/pages/public/ResetSandiPage';
 import KamiPage from '@/pages/public/KamiPage';
 import AnggotaPublikPage from '@/pages/public/AnggotaPublikPage';
 import AlumniPage from '@/pages/public/AlumniPage';
+
 
 // Admin Pages
 import AdminLoginPage from '@/pages/admin/AdminLoginPage';
@@ -95,7 +97,9 @@ function App() {
           <Route path="/blog/:slug" element={<ForumPostPage />} />
           <Route path="/p/:slug" element={<CustomPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-sandi" element={<ResetSandiPage />} />
           <Route path="/kami" element={<KamiPage />} />
+
           <Route path="/anggota" element={<AnggotaPublikPage />} />
           <Route path="/alumni" element={<AlumniPage />} />
           <Route

@@ -595,31 +595,40 @@ export async function getMembers(req, res) {
 
 // 15.5 Create Member manually
 export async function createMember(req, res) {
-  const { nisn, name, className, whatsappNumber, email, gender, role, status, asalSekolah } = req.body;
+  const { nisn, name, className, whatsappNumber, email, gender, role, status, asalSekolah, plainPassword: customPassword } = req.body;
   const currentYear = new Date().getFullYear();
 
-  // For PEMBINA, className is optional (fallback to "-"). Also make asalSekolah optional with default "-"
-  const resolvedClassName = (role === 'PEMBINA') ? (className || '-') : className;
+  const isPembina = role === 'PEMBINA';
+  const resolvedClassName = isPembina ? (className || 'Pembina') : className;
   const resolvedAsalSekolah = asalSekolah || '-';
+  const resolvedNisn = (nisn && nisn.trim()) ? nisn.trim() : (isPembina ? null : null);
 
-  if (!nisn || !name || !resolvedClassName || !whatsappNumber || !email || !gender) {
-    return res.status(400).json({ message: 'Semua field keanggotaan wajib diisi' });
+  if (!isPembina && !resolvedNisn) {
+    return res.status(400).json({ message: 'NISN wajib diisi untuk anggota biasa' });
+  }
+
+  if (!name || !whatsappNumber || !email || !gender) {
+    return res.status(400).json({ message: 'Nama, Nomor WhatsApp, Email, dan Jenis Kelamin wajib diisi' });
   }
 
   try {
-    // Check if duplicate NISN
-    const existing = await prisma.member.findUnique({ where: { nisn } });
-    if (existing) {
-      return res.status(400).json({ message: 'NISN sudah terdaftar sebagai anggota tetap' });
+    // Check if duplicate NISN if NISN is provided
+    if (resolvedNisn) {
+      const existing = await prisma.member.findUnique({ where: { nisn: resolvedNisn } });
+      if (existing) {
+        return res.status(400).json({ message: 'NISN sudah terdaftar sebagai anggota tetap' });
+      }
     }
 
-    // Generate random 6-digit password
-    const plainPassword = Math.floor(100000 + Math.random() * 900000).toString();
+    // Password handling
+    const plainPassword = customPassword && customPassword.trim() 
+      ? customPassword.trim() 
+      : Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
     const member = await prisma.member.create({
       data: {
-        nisn,
+        nisn: resolvedNisn,
         name,
         className: resolvedClassName,
         whatsappNumber,
@@ -633,6 +642,7 @@ export async function createMember(req, res) {
         role: role || 'member'
       }
     });
+
 
     // If role is a leadership role, automatically create an OrgMember entry
     if (role && role !== 'member') {

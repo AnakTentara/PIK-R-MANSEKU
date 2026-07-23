@@ -116,7 +116,7 @@ model Setting {
 
 model Member {
   id              String   @id @default(uuid())
-  nisn            String   @unique
+  nisn            String?  @unique
   name            String
   className       String
   whatsappNumber  String
@@ -158,6 +158,15 @@ model OrgMember {
   updatedAt   DateTime @updatedAt
 }
 
+model PasswordResetOtp {
+  id          String   @id @default(uuid())
+  identifier  String   // NISN or WA number
+  otpCode     String
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
 model AlumniTestimonial {
   id          String   @id @default(uuid())
   name        String
@@ -167,3 +176,4 @@ model AlumniTestimonial {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+

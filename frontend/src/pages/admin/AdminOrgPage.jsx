@@ -201,20 +201,17 @@ export default function AdminOrgPage() {
     });
   };
 
-  const ROLE_ORDER = { KETUA: 1, WAKIL: 2, KABINET: 3, PEMBINA: 4 };
+  const ROLE_ORDER = { KETUA: 1, WAKIL: 2, KABINET: 3, PEMBINA: 4, ANGGOTA: 5 };
 
-  const filteredMembers = members
-    .filter((m) => {
-      if (tab === 'CURRENT') return m.isCurrent;
-      if (tab === 'ARCHIVE') return !m.isCurrent;
-      return true;
-    })
-    .sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9));
+  const sortedMembers = [...members].sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9));
 
+  // Exclude members already assigned to the structure (except current editing member)
+  const assignedMemberIds = new Set(members.map((m) => m.memberId).filter(Boolean));
+  const availableMembers = allMembers.filter((m) => !assignedMemberIds.has(m.id) || m.id === selectedMemberId);
 
   return (
     <div className={styles.page}>
-      <AdminHeader title="Struktur Organisasi" subtitle="Manajemen pengurus, pembina, dan kabinet PIK-R MANSEKU">
+      <AdminHeader title="Struktur Organisasi" subtitle="Manajemen pengurus dan pembina aktif PIK-R MANSEKU">
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className="btn btn-primary" onClick={() => handleOpenAddModal(false)}>
             <Plus size={16} /> Tambah Pengurus
@@ -226,34 +223,27 @@ export default function AdminOrgPage() {
       </AdminHeader>
 
       <div className={styles.content}>
-        <div className={styles.tabs}>
-          <button className={`${styles.tab} ${tab === 'ALL' ? styles.active : ''}`} onClick={() => setTab('ALL')}>Semua</button>
-          <button className={`${styles.tab} ${tab === 'CURRENT' ? styles.active : ''}`} onClick={() => setTab('CURRENT')}>Menjabat Saat Ini</button>
-          <button className={`${styles.tab} ${tab === 'ARCHIVE' ? styles.active : ''}`} onClick={() => setTab('ARCHIVE')}>Arsip Kepengurusan</button>
-        </div>
-
         {loading ? (
-          <SkeletonTable rows={5} cols={8} />
-        ) : filteredMembers.length === 0 ? (
-          <div className={styles.empty}>Belum ada data pengurus di kategori ini.</div>
+          <SkeletonTable rows={5} cols={7} />
+        ) : sortedMembers.length === 0 ? (
+          <div className={styles.empty}>Belum ada data pengurus aktif terdaftar.</div>
         ) : (
           <div className={styles.tableCard}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                                <th>No</th>
+                  <th>No</th>
                   <th>Foto</th>
-                  <th>Nama</th>
+                  <th>Nama Pengurus</th>
                   <th>Jabatan</th>
-                  <th>Peran</th>
-                  <th>Tahun</th>
-                  <th>Aktif</th>
+                  <th>Tingkat Peran</th>
+                  <th>Tahun Mulai</th>
                   <th>Akun Terhubung</th>
-                  <th>Aksi</th>
+                  <th style={{ textAlign: 'right' }}>Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredMembers.map((m, idx) => (
+                {sortedMembers.map((m, idx) => (
                   <tr key={m.id}>
                     <td>{idx + 1}</td>
                     <td>
@@ -264,24 +254,17 @@ export default function AdminOrgPage() {
                       )}
                     </td>
                     <td className={styles.name}>{m.name}</td>
-                    <td>{m.jabatan}</td>
+                    <td><strong>{m.jabatan}</strong></td>
                     <td>
                       <span className={`${styles.roleBadge} ${styles[m.role.toLowerCase()]}`}>
                         {m.role}
                       </span>
                     </td>
-                    <td>{m.yearStart}{m.yearEnd ? ` - ${m.yearEnd}` : ' - sekarang'}</td>
-                    <td>
-                      {m.isCurrent ? (
-                        <span className={styles.yes}><Check size={16} /></span>
-                      ) : (
-                        <span className={styles.no}><X size={16} /></span>
-                      )}
-                    </td>
+                    <td>{m.yearStart}</td>
                     <td>
                       {m.memberId ? (
                         <span className={styles.linkedBadge}>
-                          <Link size={12} /> {m.member?.nisn || 'Terhubung'}
+                          <Link size={12} /> {m.member?.nisn ? `NISN: ${m.member.nisn}` : 'Terhubung (Pembina)'}
                         </span>
                       ) : (
                         <span className={styles.orphanBadge}>
@@ -289,8 +272,8 @@ export default function AdminOrgPage() {
                         </span>
                       )}
                     </td>
-                    <td>
-                      <div className={styles.actions}>
+                    <td style={{ textAlign: 'right' }}>
+                      <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => handleOpenEditModal(m)} title="Edit">
                           <Edit2 size={14} />
                         </button>
@@ -311,11 +294,10 @@ export default function AdminOrgPage() {
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h3>{editingId ? 'Edit Data Pengurus' : 'Tambah Pengurus Baru'}</h3>
+              <h3>{editingId ? 'Edit Data Pengurus' : (isPembinaMode ? 'Tambah Pembina Baru' : 'Tambah Pengurus Baru')}</h3>
               <button className={styles.closeBtn} onClick={() => setModalOpen(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className={styles.form}>
-              {/* Photo upload: only shown for orphan entries (no linked Member account) */}
               {(!selectedMemberId || selectedMemberId === 'MANUAL') && (
                 <div className={styles.photoSection}>
                   <div className={styles.photoPreviewWrapper}>
@@ -331,29 +313,28 @@ export default function AdminOrgPage() {
                   </label>
                 </div>
               )}
-              {/* If linked to a Member, show their photo */}
+
               {selectedMemberId && selectedMemberId !== 'MANUAL' && (() => {
                 const linked = allMembers.find(m => m.id === selectedMemberId);
                 return linked?.photoPath ? (
                   <div className={styles.linkedPhotoInfo}>
                     <img src={getUploadUrl(linked.photoPath)} alt={linked.name} className={styles.linkedPhotoAvatar} />
-                    <span>Foto diambil dari akun anggota <strong>{linked.name}</strong>. Edit foto melalui halaman Anggota.</span>
+                    <span>Foto & Data diambil otomatis dari akun <strong>{linked.name}</strong>.</span>
                   </div>
                 ) : (
                   <div className={styles.linkedPhotoInfo}>
                     <div className={styles.linkedPhotoPlaceholder}>{linked?.name?.[0] || '?'}</div>
-                    <span>Anggota <strong>{linked?.name}</strong> belum punya foto profil. Upload foto di halaman Anggota.</span>
+                    <span>Anggota <strong>{linked?.name}</strong> terhubung (Belum ada foto).</span>
                   </div>
                 );
               })()}
 
               <div className={styles.grid}>
-                 {/* Member dropdown — shown in BOTH create and edit modes */}
                  <div className="form-group">
                    <label className="form-label">
                      {isPembinaMode 
-                       ? (editingId ? 'Tautkan ke Akun Pembina' : 'Tautkan ke Akun Pembina (Opsional)') 
-                       : (editingId ? 'Tautkan ke Akun Anggota' : 'Pilih Anggota PIK-R *')}
+                       ? (editingId ? 'Tautkan ke Akun Pembina' : 'Pilih Akun Pembina *') 
+                       : (editingId ? 'Tautkan ke Akun Anggota' : 'Pilih Akun Anggota *')}
                    </label>
                    <select
                      className="form-select"
@@ -370,13 +351,15 @@ export default function AdminOrgPage() {
                      }}
                      required={!isPembinaMode && !editingId}
                    >
-                     <option value="">{editingId ? '— Tidak diubah —' : (isPembinaMode ? '— Pilih Akun Pembina (Kosongkan jika Mandiri) —' : '— Pilih Anggota —')}</option>
+                     <option value="">{editingId ? '— Pilih Akun —' : '— Pilih Akun Terdaftar —'}</option>
                      {editingId && <option value="MANUAL">✕ Lepas tautan (tanpa akun)</option>}
-                     {allMembers.map((m) => (
-                       <option key={m.id} value={m.id}>
-                         {m.name} ({m.role} - {m.className || 'Umum'})
-                       </option>
-                     ))}
+                     {availableMembers
+                       .filter(m => isPembinaMode ? m.role === 'PEMBINA' : m.role !== 'PEMBINA')
+                       .map((m) => (
+                         <option key={m.id} value={m.id}>
+                           {m.name} ({m.role} - {m.className || 'Umum'})
+                         </option>
+                       ))}
                    </select>
                  </div>
                  
@@ -390,7 +373,7 @@ export default function AdminOrgPage() {
                      readOnly={selectedMemberId && selectedMemberId !== 'MANUAL'}
                      required
                      style={selectedMemberId && selectedMemberId !== 'MANUAL' ? { backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' } : {}}
-                     placeholder={selectedMemberId && selectedMemberId !== 'MANUAL' ? "Nama otomatis terisi setelah memilih akun" : "Masukkan nama lengkap"}
+                     placeholder={selectedMemberId && selectedMemberId !== 'MANUAL' ? "Terisi otomatis dari akun" : "Masukkan nama lengkap"}
                    />
                  </div>
                  
@@ -427,19 +410,10 @@ export default function AdminOrgPage() {
                      </select>
                    )}
                  </div>
+
                 <div className="form-group">
                   <label className="form-label">Tahun Mulai Menjabat *</label>
                   <input type="number" className="form-input" value={yearStart} onChange={(e) => setYearStart(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Tahun Selesai Menjabat (kosongkan jika masih menjabat)</label>
-                  <input type="number" className="form-input" value={yearEnd} onChange={(e) => setYearEnd(e.target.value)} />
-                </div>
-                <div className="form-group checkbox-group">
-                  <label className={styles.checkboxLabel}>
-                    <input type="checkbox" checked={isCurrent} onChange={(e) => setIsCurrent(e.target.checked)} />
-                    Menjabat Saat Ini (Aktif)
-                  </label>
                 </div>
               </div>
 
@@ -447,6 +421,7 @@ export default function AdminOrgPage() {
                 <label className="form-label">Kata Sambutan / Kutipan (Quote)</label>
                 <textarea className="form-textarea" rows={3} value={quote} onChange={(e) => setQuote(e.target.value)} placeholder="Tuliskan kata motivasi atau sambutan singkat..." />
               </div>
+
 
               <div className={styles.modalActions}>
                 <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Batal</button>
