@@ -301,10 +301,10 @@ export async function verifyResetOtp(req, res) {
       return res.status(400).json({ message: 'Layanan OTP sedang dalam pembaruan. Silakan coba beberapa saat lagi.' });
     }
 
+    // 1. Find active OTP by code
     const otpRecord = await otpModel.findFirst({
       where: {
         otpCode: cleanOtp,
-        identifier: { contains: cleanId.slice(-9) }, // ← binding keamanan: OTP harus milik identifier ini
         isUsed: false,
         expiresAt: { gte: new Date() }
       },
@@ -315,32 +315,49 @@ export async function verifyResetOtp(req, res) {
       return res.status(400).json({ message: 'Kode OTP tidak valid atau telah kedaluwarsa (berlaku 10 menit).' });
     }
 
-    // 2. Find Member or Candidate
-    let member = await prisma.member.findFirst({
-      where: {
-        OR: [
-          { nisn: cleanId },
-          { whatsappNumber: { contains: cleanId.slice(-9) } },
-          { whatsappNumber: cleanId }
-        ]
+    // 2. Find Member or Candidate using input identifier OR OTP stored identifier
+    const searchIds = [cleanId, otpRecord.identifier].filter(Boolean);
+    const searchConditions = [];
+
+    for (const id of searchIds) {
+      const cleanStr = id.trim();
+      searchConditions.push({ nisn: cleanStr });
+      searchConditions.push({ whatsappNumber: cleanStr });
+      if (cleanStr.length >= 6) {
+        searchConditions.push({ whatsappNumber: { contains: cleanStr.slice(-9) } });
       }
+    }
+
+    let member = await prisma.member.findFirst({
+      where: { OR: searchConditions }
     });
 
     let candidate = null;
     if (!member) {
       candidate = await prisma.candidate.findFirst({
-        where: {
-          OR: [
-            { nisn: cleanId },
-            { whatsappNumber: { contains: cleanId.slice(-9) } },
-            { whatsappNumber: cleanId }
-          ]
-        }
+        where: { OR: searchConditions }
       });
     }
 
     if (!member && !candidate) {
       return res.status(404).json({ message: 'Akun pendaftar/anggota tidak ditemukan' });
+    }
+
+    // 3. Verify OTP ownership
+    const userNisn = member?.nisn || candidate?.nisn || '';
+    const userWa = member?.whatsappNumber || candidate?.whatsappNumber || '';
+    const otpId = otpRecord.identifier || '';
+
+    const isOtpOwner =
+      otpId === cleanId ||
+      (userNisn && otpId.includes(userNisn)) ||
+      (userWa && userWa.includes(otpId.slice(-9))) ||
+      (userWa && otpId.includes(userWa.slice(-9))) ||
+      (userNisn && cleanId.includes(userNisn)) ||
+      (userWa && cleanId.includes(userWa.slice(-9)));
+
+    if (!isOtpOwner) {
+      return res.status(400).json({ message: 'Kode OTP ini tidak terhubung dengan akun yang dimasukkan.' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -365,13 +382,11 @@ export async function verifyResetOtp(req, res) {
       });
     }
 
-    // 3. Mark OTP as used
-    if (otpModel) {
-      await otpModel.update({
-        where: { id: otpRecord.id },
-        data: { isUsed: true }
-      });
-    }
+    // 4. Mark OTP as used
+    await otpModel.update({
+      where: { id: otpRecord.id },
+      data: { isUsed: true }
+    });
 
     return res.json({ message: 'Kata sandi berhasil diperbarui! Silakan login dengan kata sandi baru Anda.' });
   } catch (error) {
