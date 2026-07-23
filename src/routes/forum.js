@@ -23,7 +23,7 @@ const __dirname = path.dirname(__filename);
 // Multer storage configuration for blog featured images
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../public/uploads/photos');
+    const uploadDir = path.join(__dirname, '../../public/uploads/blog');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -31,7 +31,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+    cb(null, `forum-${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
   }
 });
 
