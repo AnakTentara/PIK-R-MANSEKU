@@ -15,15 +15,16 @@ import { initWhatsApp, isWhatsAppReady } from './services/whatsapp.js';
 
 dotenv.config();
 
-// ─── Validasi ENV wajib saat startup ───────────────────────────────────────
-const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL'];
-const missingEnv = REQUIRED_ENV.filter(k => !process.env[k]);
+// ─── Validasi ENV — hanya peringatan, tidak crash server ────────────────────
+// Di Pterodactyl, env vars di-set via panel (bukan file .env), jadi bisa tetap jalan.
+const RECOMMENDED_ENV = ['JWT_SECRET', 'DATABASE_URL'];
+const missingEnv = RECOMMENDED_ENV.filter(k => !process.env[k]);
 if (missingEnv.length > 0) {
-  console.error(`❌ [ENV] Variable wajib tidak di-set: ${missingEnv.join(', ')}`);
-  console.error('   Pastikan file .env sudah dikonfigurasi dengan benar sebelum menjalankan server.');
-  process.exit(1);
+  console.warn(`⚠️  [ENV] Variable belum di-set: ${missingEnv.join(', ')}`);
+  console.warn('    Pastikan sudah dikonfigurasi di panel Pterodactyl atau file .env');
 }
-// ───────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────────────
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
