@@ -33,6 +33,9 @@ const app = express();
 const PORT = process.env.PORT || 25552;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:25551';
 
+// Trust reverse proxy (Pterodactyl/Nginx) agar rate limiter bisa baca IP asli user
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: [FRONTEND_URL, 'http://localhost:25551', 'https://pikr-manseku.my.id'],
