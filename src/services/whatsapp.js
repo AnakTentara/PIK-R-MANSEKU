@@ -27,6 +27,96 @@ export function formatPhoneNumber(num) {
   return cleaned;
 }
 
+export function extractSenderPhone(msg) {
+  const candidates = [
+    msg?.key?.remoteJidAlt,
+    msg?.key?.participant,
+    msg?.key?.remoteJid,
+    msg?.message?.extendedTextMessage?.contextInfo?.participant
+  ].filter(Boolean);
+
+  for (const jid of candidates) {
+    if (jid.endsWith('@s.whatsapp.net') || jid.endsWith('@c.us')) {
+      const clean = jid.replace(/@.*$/, '').replace(/\D/g, '');
+      if (clean.length >= 9 && clean.length <= 15) {
+        return clean;
+      }
+    }
+  }
+
+  for (const jid of candidates) {
+    const clean = jid.replace(/@.*$/, '').replace(/\D/g, '');
+    if (clean.length >= 9 && clean.length <= 15) {
+      return clean;
+    }
+  }
+
+  return '';
+}
+
+export async function findUserFromWA(msg, extraText = '') {
+  const cleanPhone = extractSenderPhone(msg);
+  const pushName = msg?.pushName ? msg.pushName.trim() : '';
+  const query = extraText.trim();
+
+  // 1. Search by explicitly passed query (NISN or Name)
+  if (query) {
+    const isNisn = /^\d+$/.test(query);
+    if (isNisn) {
+      const m = await prisma.member.findUnique({ where: { nisn: query } });
+      if (m) return m;
+      const c = await prisma.candidate.findUnique({ where: { nisn: query } });
+      if (c) return c;
+    }
+
+    const m = await prisma.member.findFirst({ where: { name: { contains: query } } });
+    if (m) return m;
+    const c = await prisma.candidate.findFirst({ where: { name: { contains: query } } });
+    if (c) return c;
+  }
+
+  // 2. Search by phone number (if extracted)
+  if (cleanPhone) {
+    const searchSlice = cleanPhone.length > 9 ? cleanPhone.slice(-9) : cleanPhone;
+    const m = await prisma.member.findFirst({
+      where: {
+        OR: [
+          { whatsappNumber: { contains: searchSlice } },
+          { whatsappNumber: cleanPhone }
+        ]
+      }
+    });
+    if (m) return m;
+
+    const c = await prisma.candidate.findFirst({
+      where: {
+        OR: [
+          { whatsappNumber: { contains: searchSlice } },
+          { whatsappNumber: cleanPhone }
+        ]
+      }
+    });
+    if (c) return c;
+  }
+
+  // 3. Fallback: Search by WhatsApp display name (pushName)
+  if (pushName && pushName.length > 2) {
+    const allMembers = await prisma.member.findMany();
+    const matchedM = findSimilarCandidates(pushName, allMembers);
+    if (matchedM.length > 0 && (matchedM[0].exact || matchedM[0].score > 0.8)) {
+      return matchedM[0].candidate;
+    }
+
+    const allCandidates = await prisma.candidate.findMany();
+    const matchedC = findSimilarCandidates(pushName, allCandidates);
+    if (matchedC.length > 0 && (matchedC[0].exact || matchedC[0].score > 0.8)) {
+      return matchedC[0].candidate;
+    }
+  }
+
+  return null;
+}
+
 export async function initWhatsApp() {
   const authFolder = path.join(process.cwd(), '.baileys_auth');
   const { state, saveCreds } = await useMultiFileAuthState(authFolder);
