@@ -176,7 +176,9 @@ export async function initWhatsApp() {
           return;
         }
 
-        const replyText = `🔑 *INFORMASI AKUN & SANDI PIK-R MANSEKU*\n\nHalo *${user.name}*,\n${user.nisn ? `📌 NISN: *${user.nisn}*\n` : ''}🔑 Sandi Anda: *${user.plainPassword || '(Sandi telah diubah atau belum diatur)'}*\n\n⚠️ *PERINGATAN PRIVASI*: Kata sandi bersifat pribadi dan rahasia. Jangan pernah membagikan sandi ini kepada siapa pun demi keamanan akun Anda!\n\n💡 *Ingin mengganti kata sandi?*\nKetik perintah: */sandi ganti* untuk menerima kode OTP verifikasi dan tautan ubah sandi.`;
+        const readMore = '\u200B'.repeat(4000);
+
+        const replyText = `🔒 *PEMBERITAHUAN KEAMANAN SANDI*\n\nHalo *${user.name}*,\nKata sandi Anda bersifat sangat rahasia. Pastikan Anda berada di tempat yang aman sebelum membuka rincian sandi Anda.\n\n💡 *Cara Mengganti Kata Sandi:*\nKetik perintah */sandi ganti* untuk menerima kode OTP verifikasi dan tautan pembuatan kata sandi baru.\n\nTekan *Baca Selengkapnya* di bawah ini untuk melihat kata sandi Anda.${readMore}\n\n🔑 *INFORMASI KREDENSIAL AKUN*\n\n👤 Nama: *${user.name}*\n${user.nisn ? `📌 NISN: *${user.nisn}*\n` : ''}🔑 Kata Sandi: *${user.plainPassword || '(Sandi telah diubah atau belum diatur)'}*\n\n⚠️ *PERINGATAN PRIVASI*: Kata sandi ini bersifat pribadi. Jaga kerahasiaan sandi Anda dan jangan bagikan kepada siapa pun!`;
 
         await replyToMessage(fromJid, replyText, msg);
       } catch (err) {
