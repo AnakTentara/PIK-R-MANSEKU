@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '@/stores/authStore';
 import { getUploadUrl } from '@/api/axios';
 import { compressImage } from '@/utils/compressor';
+import ImageCropModal from '@/components/common/ImageCropModal';
 import styles from './AdminAnggotaPage.module.css';
 
 const KELAS_OPTIONS = [];
@@ -51,11 +52,20 @@ export default function AdminAnggotaPage() {
   });
   const [editPhotoFile, setEditPhotoFile] = useState(null);
   const [editPhotoPreview, setEditPhotoPreview] = useState('');
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [rawPhotoSrc, setRawPhotoSrc] = useState('');
 
   // Upload photo states
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const abortControllerRef = useRef(null);
+
+  const handleCropComplete = (croppedFile, previewUrl) => {
+    setEditPhotoFile(croppedFile);
+    setEditPhotoPreview(previewUrl);
+    setCropModalOpen(false);
+    toast.success('Foto profil berhasil dipotong & siap diupload!');
+  };
 
   // Add Modal State
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -469,18 +479,13 @@ export default function AdminAnggotaPage() {
                             toast.error('Ukuran foto profil maksimal adalah 25MB.');
                             return;
                           }
-                          const compToast = toast.loading('Mengompresi foto...');
-                          compressImage(file)
-                            .then((compressed) => {
-                              setEditPhotoFile(compressed);
-                              setEditPhotoPreview(URL.createObjectURL(compressed));
-                              toast.success('Foto siap diupload (berhasil dikompresi).', { id: compToast });
-                            })
-                            .catch(() => {
-                              setEditPhotoFile(file);
-                              setEditPhotoPreview(URL.createObjectURL(file));
-                              toast.error('Gagal mengompresi, menggunakan file asli.', { id: compToast });
-                            });
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            setRawPhotoSrc(reader.result);
+                            setCropModalOpen(true);
+                          };
+                          reader.readAsDataURL(file);
+                          e.target.value = ''; // reset input so same file can be selected again
                         }
                       }}
                     />
@@ -793,6 +798,15 @@ export default function AdminAnggotaPage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Image Crop & Rotate Modal */}
+      {cropModalOpen && (
+        <ImageCropModal
+          imageSrc={rawPhotoSrc}
+          onCropComplete={handleCropComplete}
+          onClose={() => setCropModalOpen(false)}
+        />
       )}
     </div>
   );
