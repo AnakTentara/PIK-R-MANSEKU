@@ -311,7 +311,12 @@ export async function verifyResetOtp(req, res) {
     const cleanOtp = otpCode.trim();
 
     // 1. Find OTP record
-    const otpRecord = await prisma.passwordResetOtp.findFirst({
+    const otpModel = prisma.passwordResetOtp || prisma.PasswordResetOtp;
+    if (!otpModel) {
+      return res.status(400).json({ message: 'Layanan OTP sedang dalam pembaruan. Silakan coba beberapa saat lagi.' });
+    }
+
+    const otpRecord = await otpModel.findFirst({
       where: {
         otpCode: cleanOtp,
         isUsed: false,
@@ -375,10 +380,12 @@ export async function verifyResetOtp(req, res) {
     }
 
     // 3. Mark OTP as used
-    await prisma.passwordResetOtp.update({
-      where: { id: otpRecord.id },
-      data: { isUsed: true }
-    });
+    if (otpModel) {
+      await otpModel.update({
+        where: { id: otpRecord.id },
+        data: { isUsed: true }
+      });
+    }
 
     return res.json({ message: 'Kata sandi berhasil diperbarui! Silakan login dengan kata sandi baru Anda.' });
   } catch (error) {
