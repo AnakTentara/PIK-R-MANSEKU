@@ -88,35 +88,17 @@ export async function initWhatsApp() {
                  msg.message.extendedTextMessage?.text || '';
                  
     const fromJid = msg.key.remoteJid;
-    const cleanPhone = fromJid ? fromJid.replace(/@.*$/, '').replace(/\D/g, '') : '';
+    const cleanPhone = extractSenderPhone(msg);
 
     if (text.trim().startsWith('/sandi ganti')) {
       try {
-        // Search member or candidate by WhatsApp number
-        let user = await prisma.member.findFirst({
-          where: {
-            OR: [
-              { whatsappNumber: { contains: cleanPhone.slice(-9) } },
-              { whatsappNumber: cleanPhone }
-            ]
-          }
-        });
-
-        if (!user) {
-          user = await prisma.candidate.findFirst({
-            where: {
-              OR: [
-                { whatsappNumber: { contains: cleanPhone.slice(-9) } },
-                { whatsappNumber: cleanPhone }
-              ]
-            }
-          });
-        }
+        const extra = text.trim().substring(12).trim();
+        const user = await findUserFromWA(msg, extra);
 
         if (!user) {
           await replyToMessage(
             fromJid,
-            `❌ *NOMOR TIDAK TERDAFTAR*\n\nNomor WhatsApp ini (*+${cleanPhone}*) tidak terdaftar dalam database anggota PIK-R MANSEKU. Pastikan Anda menghubungi kami menggunakan nomor yang terdaftar saat pendaftaran.`,
+            `❌ *DATA TIDAK DITEMUKAN*\n\nNomor WhatsApp / Nama WhatsApp Anda (*${msg.pushName || cleanPhone || 'Pengguna'}*) belum terhubung dengan akun terdaftar.\n\n💡 *Tips*: Ketik perintah */sandi ganti [NISN Anda]* untuk memverifikasi akun Anda.`,
             msg
           );
           return;
@@ -147,30 +129,13 @@ export async function initWhatsApp() {
 
     if (text.trim().startsWith('/sandi')) {
       try {
-        let user = await prisma.member.findFirst({
-          where: {
-            OR: [
-              { whatsappNumber: { contains: cleanPhone.slice(-9) } },
-              { whatsappNumber: cleanPhone }
-            ]
-          }
-        });
-
-        if (!user) {
-          user = await prisma.candidate.findFirst({
-            where: {
-              OR: [
-                { whatsappNumber: { contains: cleanPhone.slice(-9) } },
-                { whatsappNumber: cleanPhone }
-              ]
-            }
-          });
-        }
+        const extra = text.trim().substring(6).trim();
+        const user = await findUserFromWA(msg, extra);
 
         if (!user) {
           await replyToMessage(
             fromJid,
-            `❌ *NOMOR TIDAK TERDAFTAR*\n\nNomor WhatsApp ini (*+${cleanPhone}*) tidak terdaftar di sistem. Silakan periksa kembali nomor WhatsApp yang Anda gunakan saat pendaftaran.`,
+            `❌ *DATA TIDAK DITEMUKAN*\n\nNomor WhatsApp / Nama WhatsApp Anda (*${msg.pushName || cleanPhone || 'Pengguna'}*) belum terdaftar.\n\n💡 *Tips*: Ketik perintah */sandi [NISN Anda]* (contoh: \`/sandi 3102603365\`) untuk mengecek kata sandi NISN Anda secara langsung.`,
             msg
           );
           return;

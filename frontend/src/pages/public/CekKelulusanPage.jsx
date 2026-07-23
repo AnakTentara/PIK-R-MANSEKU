@@ -138,7 +138,7 @@ export default function CekKelulusanPage() {
 
   if (status === 'LULUS') {
     const waText = encodeURIComponent('/sandi\n*KIRIMKAN PESAN INI UNTUK MENGECEK SANDI*');
-    const waUrl = `https://wa.me/6281273940176?text=${waText}`;
+    const waUrl = `https://wa.me/6282373352409?text=${waText}`;
 
     return (
       <div className={`${styles.resultScreen} ${styles.resultLulus}`}>
@@ -165,15 +165,6 @@ export default function CekKelulusanPage() {
             <a href={waUrl} target="_blank" rel="noopener noreferrer" className={`btn btn-lg ${styles.btnWhite}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
               💬 Cek Sandi (WhatsApp) →
             </a>
-
-            <div className={styles.privacyNotice}>
-              <p>🔒 <strong>PERINGATAN PRIVASI:</strong> Kata sandi Anda bersifat rahasia. Harap simpan sandi dengan aman dan jangan bagikan kepada siapa pun.</p>
-            </div>
-
-            <div className={styles.infoNotice}>
-              <p>💡 <strong>Ingin Mengganti Sandi?</strong><br />
-              Kirimkan pesan <code>/sandi ganti</code> pada obrolan WhatsApp Bot untuk menerima kode OTP verifikasi dan tautan ubah kata sandi.</p>
-            </div>
 
             <Link to="/login" className={styles.loginLink}>
               Sudah Punya Sandi? Langsung Login Anggota →
