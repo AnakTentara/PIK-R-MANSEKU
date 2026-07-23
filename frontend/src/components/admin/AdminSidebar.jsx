@@ -30,7 +30,7 @@ export default function AdminSidebar({ isOpen = false, onClose }) {
     { to: '/admin/blog', label: 'Blog', icon: FileText, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/web-editor', label: 'Web Editor', icon: LayoutDashboard, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/file-manager', label: 'File Manager', icon: FolderOpen, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
-    { to: '/admin/users', label: 'Manajemen Admin', icon: Shield, allowedRoles: ['DEVELOPER'] },
+    { to: '/admin/users', label: 'Akun', icon: Shield, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['DEVELOPER'] },
   ].filter(item => item.allowedRoles.includes(role));
 
