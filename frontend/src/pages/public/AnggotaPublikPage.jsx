@@ -38,7 +38,17 @@ export default function AnggotaPublikPage() {
   const pembina = orgData.find(m => m.role === 'PEMBINA' || m.jabatan === 'Pembina');
   const ketua = orgData.find(m => m.jabatan === 'Ketua Umum');
   const wakil = orgData.find(m => m.jabatan === 'Wakil Ketua Umum');
-  const kabinet = orgData.filter(m => m.role === 'KABINET');
+  
+  // Level 3: Sekretaris & Bendahara (Pengurus Harian Inti / Pengurus Umum)
+  const sekretaris = orgData.find(m => m.jabatan === 'Sekretaris Umum');
+  const bendahara = orgData.find(m => m.jabatan === 'Bendahara Umum');
+
+  // Level 4: Ketua Divisi (selain Sekrum & Bendum)
+  const ketuaDivisiList = orgData.filter(m => 
+    m.role === 'KABINET' && 
+    m.jabatan !== 'Sekretaris Umum' && 
+    m.jabatan !== 'Bendahara Umum'
+  );
 
   const getMemberJabatan = (memberName) => {
     const found = orgData.find(o => o.name === memberName);
@@ -124,13 +134,49 @@ export default function AnggotaPublikPage() {
                 </div>
               )}
 
-              {/* Line Connector to Kabinet */}
-              {kabinet.length > 0 && <div className={styles.connectorLine} />}
+              {/* Line Connector to Pengurus Umum */}
+              {(sekretaris || bendahara) && <div className={styles.connectorLine} />}
 
-              {/* Level 3: Kabinet */}
-              {kabinet.length > 0 && (
+              {/* Level 3: Pengurus Umum (Sekretaris & Bendahara) */}
+              {(sekretaris || bendahara) && (
+                <div className={styles.treeLevelRow}>
+                  {sekretaris && (
+                    <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
+                      <div className={styles.nodeAvatarSmall}>
+                        {(sekretaris.effectivePhoto || sekretaris.photoPath) ? (
+                          <img src={getUploadUrl(sekretaris.effectivePhoto || sekretaris.photoPath)} alt={sekretaris.name} />
+                        ) : (
+                          <div className={styles.initialsSmall}>{sekretaris.name[0]}</div>
+                        )}
+                      </div>
+                      <h6>{sekretaris.name}</h6>
+                      <p>{sekretaris.jabatan}</p>
+                    </div>
+                  )}
+
+                  {bendahara && (
+                    <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
+                      <div className={styles.nodeAvatarSmall}>
+                        {(bendahara.effectivePhoto || bendahara.photoPath) ? (
+                          <img src={getUploadUrl(bendahara.effectivePhoto || bendahara.photoPath)} alt={bendahara.name} />
+                        ) : (
+                          <div className={styles.initialsSmall}>{bendahara.name[0]}</div>
+                        )}
+                      </div>
+                      <h6>{bendahara.name}</h6>
+                      <p>{bendahara.jabatan}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Line Connector to Ketua Divisi */}
+              {ketuaDivisiList.length > 0 && <div className={styles.connectorLine} />}
+
+              {/* Level 4: Ketua Divisi & Level 5: Anggota Divisi */}
+              {ketuaDivisiList.length > 0 && (
                 <div className={styles.kabinetGrid}>
-                  {kabinet.map(k => {
+                  {ketuaDivisiList.map(k => {
                     const staff = getDivisionStaff(k.jabatan);
                     const hasStaff = staff.length > 0;
 
@@ -148,7 +194,7 @@ export default function AnggotaPublikPage() {
                           <p>{k.jabatan}</p>
                         </div>
 
-                        {/* Statically open Staff List */}
+                        {/* Level 5: Staf/Anggota Divisi */}
                         {hasStaff && (
                           <div className={styles.staffDropdown}>
                             <div className={styles.staffList}>
