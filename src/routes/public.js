@@ -9,7 +9,7 @@ router.get('/members', async (req, res) => {
     const members = await prisma.member.findMany({
       where: { status: 'ACTIVE' },
       orderBy: { joinYear: 'asc' },
-      select: { id: true, name: true, className: true, gender: true, joinYear: true, role: true }
+      select: { id: true, name: true, className: true, gender: true, joinYear: true, role: true, photoPath: true }
     });
     return res.json(members);
   } catch (error) {
@@ -24,7 +24,7 @@ router.get('/alumni', async (req, res) => {
     const members = await prisma.member.findMany({
       where: { status: 'ALUMNI' },
       orderBy: { joinYear: 'desc' },
-      select: { id: true, name: true, className: true, gender: true, joinYear: true }
+      select: { id: true, name: true, className: true, gender: true, joinYear: true, photoPath: true }
     });
     return res.json(members);
   } catch (error) {
@@ -37,9 +37,33 @@ router.get('/alumni', async (req, res) => {
 router.get('/org', async (req, res) => {
   try {
     const org = await prisma.orgMember.findMany({
-      orderBy: [{ yearStart: 'desc' }, { role: 'asc' }]
+      orderBy: [{ yearStart: 'desc' }, { role: 'asc' }],
+      include: {
+        member: {
+          select: { id: true, name: true, photoPath: true, className: true, status: true, role: true, nisn: true }
+        }
+      }
     });
-    return res.json(org);
+
+    // Also fetch active members for fallback name matching if memberId is not linked
+    const activeMembers = await prisma.member.findMany({
+      where: { status: 'ACTIVE' },
+      select: { id: true, name: true, photoPath: true }
+    });
+    const memberByName = new Map(activeMembers.map(m => [m.name.toLowerCase().trim(), m.photoPath]));
+
+    const normalized = org.map((m) => {
+      const linkedPhoto = m.member?.photoPath;
+      const matchedPhoto = memberByName.get((m.name || '').toLowerCase().trim());
+      const effectivePhoto = linkedPhoto || matchedPhoto || m.photoPath || null;
+      return {
+        ...m,
+        effectivePhoto,
+        photoPath: effectivePhoto // ensure both properties hold the resolved photo URL
+      };
+    });
+
+    return res.json(normalized);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Gagal mengambil data struktur organisasi' });
