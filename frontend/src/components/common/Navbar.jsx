@@ -56,6 +56,8 @@ export default function Navbar() {
 
   const isAdmin = !!localStorage.getItem('admin_token');
 
+  const { logoutAdmin } = useAuthStore();
+
   const handleLogout = () => {
     logoutCandidate();
     navigate('/login');
@@ -63,8 +65,8 @@ export default function Navbar() {
   };
 
   const handleAdminLogout = () => {
-    localStorage.removeItem('admin_token');
-    navigate('/admin/login');
+    logoutAdmin();
+    navigate('/');
     setMenuOpen(false);
   };
 

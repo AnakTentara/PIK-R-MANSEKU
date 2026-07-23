@@ -97,9 +97,9 @@ function App() {
           <Route path="/blog/:slug" element={<ForumPostPage />} />
           <Route path="/p/:slug" element={<CustomPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/reset-sandi" element={<ResetSandiPage />} />
           <Route path="/kami" element={<KamiPage />} />
-
           <Route path="/anggota" element={<AnggotaPublikPage />} />
           <Route path="/alumni" element={<AlumniPage />} />
           <Route
@@ -111,9 +111,6 @@ function App() {
             }
           />
         </Route>
-
-        {/* ── Admin Login (standalone, no layout) ── */}
-        <Route path="/admin/login" element={<AdminLoginPage />} />
 
         {/* ── Admin Protected Routes (with Sidebar Layout) ── */}
         <Route

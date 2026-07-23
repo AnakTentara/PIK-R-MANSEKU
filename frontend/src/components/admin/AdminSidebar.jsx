@@ -36,7 +36,7 @@ export default function AdminSidebar({ isOpen = false, onClose }) {
 
   const handleLogout = () => {
     logoutAdmin();
-    navigate('/admin/login');
+    navigate('/');
   };
 
   const getRoleBadgeLabel = (roleVal) => {

@@ -4,6 +4,7 @@ import { loginAdmin } from '@/api/admin';
 import { useAuthStore } from '@/stores/authStore';
 import { Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
+import SEO from '@/components/common/SEO';
 import styles from './AdminLoginPage.module.css';
 
 export default function AdminLoginPage() {
@@ -43,7 +44,8 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className={styles.page}>
+    <div className={`page-wrapper ${styles.page}`}>
+      <SEO title="Login Admin" description="Halaman masuk ke Dashboard Administrasi PIK-R MANSEKU." />
       <div className={styles.card}>
         <div className={styles.header}>
           <img
