@@ -53,7 +53,10 @@ export const getUploadUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
   
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  let cleanPath = path.startsWith('/') ? path : `/${path}`;
+  if (cleanPath.startsWith('/uploads/') && !cleanPath.startsWith('/api/uploads/')) {
+    cleanPath = `/api${cleanPath}`;
+  }
   
   if (import.meta.env.VITE_API_URL) {
     const base = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');

@@ -301,18 +301,24 @@ export async function verifyResetOtp(req, res) {
       return res.status(400).json({ message: 'Layanan OTP sedang dalam pembaruan. Silakan coba beberapa saat lagi.' });
     }
 
-    // 1. Find active OTP by code
+    // 1. Find active OTP by code (without timezone-dependent SQL filter)
     const otpRecord = await otpModel.findFirst({
       where: {
         otpCode: cleanOtp,
-        isUsed: false,
-        expiresAt: { gte: new Date() }
+        isUsed: false
       },
       orderBy: { createdAt: 'desc' }
     });
 
     if (!otpRecord) {
-      return res.status(400).json({ message: 'Kode OTP tidak valid atau telah kedaluwarsa (berlaku 10 menit).' });
+      return res.status(400).json({ message: 'Kode OTP tidak ditemukan atau telah digunakan. Silakan minta kode OTP baru di WhatsApp.' });
+    }
+
+    // Check expiry in JS (10 mins)
+    const otpCreatedAt = new Date(otpRecord.createdAt).getTime();
+    const otpExpiresAt = otpRecord.expiresAt ? new Date(otpRecord.expiresAt).getTime() : otpCreatedAt + 10 * 60 * 1000;
+    if (Date.now() > otpExpiresAt) {
+      return res.status(400).json({ message: 'Kode OTP telah kedaluwarsa (berlaku 10 menit). Silakan minta kode OTP baru di WhatsApp.' });
     }
 
     // 2. Find Member or Candidate using input identifier OR OTP stored identifier
@@ -320,7 +326,8 @@ export async function verifyResetOtp(req, res) {
     const searchConditions = [];
 
     for (const id of searchIds) {
-      const cleanStr = id.trim();
+      const cleanStr = String(id).trim();
+      if (!cleanStr) continue;
       searchConditions.push({ nisn: cleanStr });
       searchConditions.push({ whatsappNumber: cleanStr });
       if (cleanStr.length >= 6) {
@@ -340,17 +347,19 @@ export async function verifyResetOtp(req, res) {
     }
 
     if (!member && !candidate) {
-      return res.status(404).json({ message: 'Akun pendaftar/anggota tidak ditemukan' });
+      return res.status(404).json({ message: 'Akun pendaftar/anggota tidak ditemukan.' });
     }
 
     // 3. Verify OTP ownership
-    const userNisn = member?.nisn || candidate?.nisn || '';
-    const userWa = member?.whatsappNumber || candidate?.whatsappNumber || '';
-    const otpId = otpRecord.identifier || '';
+    const userNisn = String(member?.nisn || candidate?.nisn || '').trim();
+    const userWa = String(member?.whatsappNumber || candidate?.whatsappNumber || '').trim();
+    const otpId = String(otpRecord.identifier || '').trim();
 
     const isOtpOwner =
+      !otpId ||
       otpId === cleanId ||
       (userNisn && otpId.includes(userNisn)) ||
+      (userNisn && userNisn.includes(otpId)) ||
       (userWa && userWa.includes(otpId.slice(-9))) ||
       (userWa && otpId.includes(userWa.slice(-9))) ||
       (userNisn && cleanId.includes(userNisn)) ||
