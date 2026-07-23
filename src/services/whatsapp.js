@@ -198,13 +198,16 @@ export async function initWhatsApp() {
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
-        await prisma.passwordResetOtp.create({
-          data: {
-            identifier: user.nisn || user.whatsappNumber || cleanPhone,
-            otpCode,
-            expiresAt
-          }
-        });
+        const otpModel = prisma.passwordResetOtp || prisma.PasswordResetOtp;
+        if (otpModel) {
+          await otpModel.create({
+            data: {
+              identifier: user.nisn || user.whatsappNumber || cleanPhone,
+              otpCode,
+              expiresAt
+            }
+          });
+        }
 
         const nisnParam = user.nisn ? `nisn=${user.nisn}` : `wa=${user.whatsappNumber}`;
         const replyText = `🔐 *KODE OTP RESET SANDI PIK-R MANSEKU*\n\nHalo *${user.name}*,\n\nKode OTP Anda untuk mengganti kata sandi adalah: *${otpCode}*\n\n⏰ *Berlaku:* 10 Menit\n\nSilakan buka link di bawah ini dan masukkan kode OTP di atas untuk mengatur kata sandi baru:\n🔗 https://pikr-manseku.my.id/reset-sandi?${nisnParam}\n\n⚠️ *PERINGATAN*: Rahasiakan kode OTP ini dari siapa pun!`;

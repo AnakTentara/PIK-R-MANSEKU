@@ -19,6 +19,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Automatically remove default application/json header when data is FormData
+    // so axios automatically sets multipart/form-data with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -49,15 +56,15 @@ export const getUploadUrl = (path) => {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   
   if (import.meta.env.VITE_API_URL) {
-    return `${import.meta.env.VITE_API_URL}${cleanPath}`;
+    const base = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');
+    return `${base}${cleanPath}`;
   }
   
   if (window.location.hostname === 'localhost') {
     return `http://localhost:25552${cleanPath}`;
   }
   
-  const apiPath = cleanPath.startsWith('/api') ? cleanPath : `/api${cleanPath}`;
-  return `${window.location.origin}${apiPath}`;
+  return `${window.location.origin}${cleanPath}`;
 };
 
 export default api;

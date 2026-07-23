@@ -130,7 +130,7 @@ router.get('/dashboard-stats', authAdmin, getDashboardStats);
 
 // Candidates (DEVELOPER and KABINET_UMUM only)
 router.get('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getCandidates);
-router.post('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), createCandidate);
+router.post('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), createCandidate);
 router.get('/candidates/export-json', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), exportJSON);
 router.get('/candidates/export-excel', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), exportExcel);
 router.post('/candidates/generate-passwords', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), generatePasswords);
@@ -138,7 +138,7 @@ router.post('/candidates/send-notifications', authAdmin, requireRole(['DEVELOPER
 
 // Candidate CRUD by ID (DEVELOPER and KABINET_UMUM only)
 router.get('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getCandidateById);
-router.put('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateCandidate);
+router.put('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), updateCandidate);
 router.delete('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteCandidate);
 router.post('/candidates/:id/promote-to-member', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), promoteCandidateToMember);
 
@@ -147,11 +147,11 @@ router.get('/settings', authAdmin, requireRole(['DEVELOPER']), getSettings);
 router.put('/settings', authAdmin, requireRole(['DEVELOPER']), saveSettings);
 router.get('/settings/backup-db', authAdmin, requireRole(['DEVELOPER']), downloadBackupDb);
 
-// Admin User Accounts CRUD (DEVELOPER only)
-router.get('/users', authAdmin, requireRole(['DEVELOPER']), getAdminUsers);
-router.post('/users', authAdmin, requireRole(['DEVELOPER']), createAdminUser);
-router.put('/users/:id', authAdmin, requireRole(['DEVELOPER']), updateAdminUser);
-router.delete('/users/:id', authAdmin, requireRole(['DEVELOPER']), deleteAdminUser);
+// Admin User Accounts CRUD (DEVELOPER and KABINET_UMUM)
+router.get('/users', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getAdminUsers);
+router.post('/users', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), createAdminUser);
+router.put('/users/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateAdminUser);
+router.delete('/users/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteAdminUser);
 
 // File Manager (DEVELOPER and KABINET_UMUM only)
 router.get('/files', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getUploadedFiles);
@@ -163,7 +163,7 @@ router.post('/session/open', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM'
 
 // Member CRUD (MEDINFO can read, but only DEVELOPER and KABINET_UMUM can create/edit/delete)
 router.get('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), getMembers);
-router.post('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), createMember);
+router.post('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), createMember);
 router.put('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), updateMember);
 router.delete('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteMember);
 

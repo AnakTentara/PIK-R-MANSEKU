@@ -154,6 +154,10 @@ export async function updateCandidate(req, res) {
       status: status ?? candidate.status
     };
 
+    if (req.file) {
+      updateData.photoPath = `/uploads/photos/${req.file.filename}`;
+    }
+
     if (plainPassword !== undefined) {
       updateData.plainPassword = plainPassword;
       if (plainPassword) {
@@ -626,6 +630,8 @@ export async function createMember(req, res) {
       : Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
+    const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : null;
+
     const member = await prisma.member.create({
       data: {
         nisn: resolvedNisn,
@@ -637,6 +643,7 @@ export async function createMember(req, res) {
         asalSekolah: resolvedAsalSekolah,
         password: hashedPassword,
         plainPassword,
+        photoPath,
         status: status || 'ACTIVE',
         joinYear: currentYear,
         role: role || 'member'
