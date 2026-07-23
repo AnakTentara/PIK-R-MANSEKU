@@ -11,12 +11,22 @@ import candidateRoutes from './routes/candidates.js';
 import blogRoutes from './routes/blog.js';
 import forumRoutes from './routes/forum.js';
 import publicRoutes from './routes/public.js';
-import { initWhatsApp } from './services/whatsapp.js';
+import { initWhatsApp, isWhatsAppReady } from './services/whatsapp.js';
+
+dotenv.config();
+
+// ─── Validasi ENV wajib saat startup ───────────────────────────────────────
+const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL'];
+const missingEnv = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missingEnv.length > 0) {
+  console.error(`❌ [ENV] Variable wajib tidak di-set: ${missingEnv.join(', ')}`);
+  console.error('   Pastikan file .env sudah dikonfigurasi dengan benar sebelum menjalankan server.');
+  process.exit(1);
+}
+// ───────────────────────────────────────────────────────────────────────────
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 25552;
@@ -118,9 +128,21 @@ app.get('/sitemap.xml', async (req, res) => {
   }
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'PIK-R MANSEKU API is running smoothly' });
+// Health check endpoint — cek DB dan WA Bot
+app.get('/health', async (req, res) => {
+  let dbStatus = 'OK';
+  try { await prisma.$queryRaw`SELECT 1`; }
+  catch { dbStatus = 'ERROR'; }
+
+  const waStatus = isWhatsAppReady() ? 'CONNECTED' : 'DISCONNECTED';
+  const overall = dbStatus === 'OK' ? 'OK' : 'DEGRADED';
+
+  return res.status(dbStatus === 'OK' ? 200 : 503).json({
+    status: overall,
+    services: { db: dbStatus, whatsapp: waStatus },
+    uptime: Math.floor(process.uptime()) + 's',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Helper function to seed default admin
@@ -229,4 +251,26 @@ app.listen(PORT, async () => {
   } catch (error) {
     console.error('[Server] Gagal menginisialisasi WhatsApp Bot:', error);
   }
+
+  // ─── OTP Cleanup Cron: hapus OTP expired/used setiap 1 jam ────────────────
+  setInterval(async () => {
+    try {
+      const otpModel = prisma.passwordResetOtp || prisma.PasswordResetOtp;
+      if (otpModel) {
+        const { count } = await otpModel.deleteMany({
+          where: {
+            OR: [
+              { expiresAt: { lt: new Date() } }, // sudah expired
+              { isUsed: true }                    // sudah digunakan
+            ]
+          }
+        });
+        if (count > 0) console.log(`[Cleanup] ${count} OTP kedaluwarsa berhasil dihapus.`);
+      }
+    } catch (e) {
+      // silent — jangan crash server karena cleanup gagal
+    }
+  }, 60 * 60 * 1000); // setiap 1 jam
+  // ──────────────────────────────────────────────────────────────────────────
 });
+

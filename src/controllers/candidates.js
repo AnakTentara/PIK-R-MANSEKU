@@ -1,24 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/db.js';
+import { isMemberExpired } from '../utils/memberUtils.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
-
-function isMemberExpired(joinYear, className) {
-  const cName = (className || '').trim().toUpperCase();
-  let yearsToAdd = 3; // Default 3 years (Grade 10)
-
-  if (cName.startsWith('XI-') || cName.startsWith('XI ') || cName === 'XI' || cName.startsWith('11')) {
-    yearsToAdd = 2;
-  } else if (cName.startsWith('XII-') || cName.startsWith('XII ') || cName === 'XII' || cName.startsWith('12')) {
-    yearsToAdd = 1;
-  } else if (cName.startsWith('X-') || cName.startsWith('X ') || cName === 'X' || cName.startsWith('10')) {
-    yearsToAdd = 3;
-  }
-
-  const expirationDate = new Date(joinYear + yearsToAdd, 6, 25, 23, 59, 59);
-  return new Date() > expirationDate;
-}
 
 // 1. Public Candidate Registration
 export async function registerCandidate(req, res) {
@@ -310,7 +295,7 @@ export async function verifyResetOtp(req, res) {
     const cleanId = identifier.trim();
     const cleanOtp = otpCode.trim();
 
-    // 1. Find OTP record
+    // 1. Find OTP record — ikat ke identifier supaya OTP user A tidak bisa dipakai user B
     const otpModel = prisma.passwordResetOtp || prisma.PasswordResetOtp;
     if (!otpModel) {
       return res.status(400).json({ message: 'Layanan OTP sedang dalam pembaruan. Silakan coba beberapa saat lagi.' });
@@ -319,6 +304,7 @@ export async function verifyResetOtp(req, res) {
     const otpRecord = await otpModel.findFirst({
       where: {
         otpCode: cleanOtp,
+        identifier: { contains: cleanId.slice(-9) }, // ← binding keamanan: OTP harus milik identifier ini
         isUsed: false,
         expiresAt: { gte: new Date() }
       },

@@ -12,6 +12,7 @@ import {
   verifyResetOtp
 } from '../controllers/candidates.js';
 import { authCandidate } from '../middlewares/auth.js';
+import { loginLimiter, otpLimiter, registerLimiter } from '../middlewares/rateLimit.js';
 import prisma from '../config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -61,10 +62,10 @@ router.get('/settings/public', async (req, res) => {
 });
 
 // Public Candidate Routes
-router.post('/register', registerCandidate);
+router.post('/register', registerLimiter, registerCandidate);
 router.get('/check', checkStatus);
-router.post('/login', loginCandidate);
-router.post('/reset-sandi/verify-otp', verifyResetOtp);
+router.post('/login', loginLimiter, loginCandidate);
+router.post('/reset-sandi/verify-otp', otpLimiter, verifyResetOtp);
 
 // Protected Candidate Routes
 router.get('/me', authCandidate, getProfile);

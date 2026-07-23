@@ -12,6 +12,8 @@ import { findSimilarCandidates } from '../utils/similarity.js';
 
 let sock = null;
 let isConnected = false;
+let reconnectDelay = 5000; // Exponential backoff: mulai 5 detik, max 5 menit
+const MAX_RECONNECT_DELAY = 5 * 60 * 1000;
 
 export function formatPhoneNumber(num) {
   let cleaned = num.replace(/\D/g, ''); // Keep only digits
@@ -99,15 +101,33 @@ export async function findUserFromWA(msg, extraText = '') {
     if (c) return c;
   }
 
-  // 3. Fallback: Search by WhatsApp display name (pushName)
+  // 3. Fallback: Search by WhatsApp display name (pushName) — batasi query untuk efisiensi
   if (pushName && pushName.length > 2) {
-    const allMembers = await prisma.member.findMany();
+    // Coba cari dengan LIKE dulu (lebih efisien dari full fuzzy)
+    const quickMatch = await prisma.member.findFirst({
+      where: { name: { contains: pushName.split(' ')[0] } }
+    });
+    if (quickMatch) return quickMatch;
+
+    const quickCandMatch = await prisma.candidate.findFirst({
+      where: { name: { contains: pushName.split(' ')[0] } }
+    });
+    if (quickCandMatch) return quickCandMatch;
+
+    // Fallback fuzzy hanya jika LIKE tidak menemukan hasil
+    const allMembers = await prisma.member.findMany({
+      select: { id: true, name: true, nisn: true, whatsappNumber: true, plainPassword: true },
+      take: 200 // batasi max 200 baris agar tidak membebani memory
+    });
     const matchedM = findSimilarCandidates(pushName, allMembers);
     if (matchedM.length > 0 && (matchedM[0].exact || matchedM[0].score > 0.8)) {
       return matchedM[0].candidate;
     }
 
-    const allCandidates = await prisma.candidate.findMany();
+    const allCandidates = await prisma.candidate.findMany({
+      select: { id: true, name: true, nisn: true, whatsappNumber: true, plainPassword: true },
+      take: 200
+    });
     const matchedC = findSimilarCandidates(pushName, allCandidates);
     if (matchedC.length > 0 && (matchedC[0].exact || matchedC[0].score > 0.8)) {
       return matchedC[0].candidate;
@@ -147,10 +167,13 @@ export async function initWhatsApp() {
       console.log('Koneksi WhatsApp terputus. Penyebab: ', lastDisconnect?.error, 'Mencoba menghubungkan kembali:', shouldReconnect);
       
       if (shouldReconnect) {
+        console.log(`[WA] Reconnect dalam ${reconnectDelay / 1000} detik...`);
         setTimeout(() => {
           initWhatsApp();
-        }, 5000);
+          reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
+        }, reconnectDelay);
       } else {
+        reconnectDelay = 5000; // reset delay setelah logout manual
         console.log('WhatsApp ter-logout. Hapus folder .baileys_auth untuk menscan ulang.');
         try {
           fs.rmSync(authFolder, { recursive: true, force: true });
@@ -163,6 +186,7 @@ export async function initWhatsApp() {
       }
     } else if (connection === 'open') {
       isConnected = true;
+      reconnectDelay = 5000; // reset delay setelah berhasil konek
       console.log('WhatsApp Bot BERHASIL terhubung dan AKTIF!');
     }
   });

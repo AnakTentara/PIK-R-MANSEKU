@@ -47,6 +47,7 @@ import {
   getDashboardStats,
 } from '../controllers/admin.js';
 import { authAdmin, requireRole } from '../middlewares/auth.js';
+import { loginLimiter } from '../middlewares/rateLimit.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -123,7 +124,7 @@ const uploadLogo = multer({
 const router = express.Router();
 
 // Public Admin Login
-router.post('/login', loginAdmin);
+router.post('/login', loginLimiter, loginAdmin);
 
 // Protected Admin Routes (Requires authAdmin)
 router.get('/dashboard-stats', authAdmin, getDashboardStats);

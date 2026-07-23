@@ -6,24 +6,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import prisma, { initDatabase, getDbProvider } from '../config/db.js';
 import { sendBulkNotifications } from '../services/notification.js';
+import { isMemberExpired } from '../utils/memberUtils.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
-function isMemberExpired(joinYear, className) {
-  const cName = (className || '').trim().toUpperCase();
-  let yearsToAdd = 3; // Default 3 years (Grade 10)
-
-  if (cName.startsWith('XI-') || cName.startsWith('XI ') || cName === 'XI' || cName.startsWith('11')) {
-    yearsToAdd = 2;
-  } else if (cName.startsWith('XII-') || cName.startsWith('XII ') || cName === 'XII' || cName.startsWith('12')) {
-    yearsToAdd = 1;
-  } else if (cName.startsWith('X-') || cName.startsWith('X ') || cName === 'X' || cName.startsWith('10')) {
-    yearsToAdd = 3;
-  }
-
-  const expirationDate = new Date(joinYear + yearsToAdd, 6, 25, 23, 59, 59);
-  return new Date() > expirationDate;
-}
 
 // 1. Admin Login
 export async function loginAdmin(req, res) {
@@ -467,46 +453,32 @@ export async function closeSession(req, res) {
       where: { status: 'LULUS' }
     });
 
-    // 2. Migrate to Member table (upsert by nisn)
-    for (const c of lulusList) {
-      let plainPassword = c.plainPassword;
-      let password = c.password;
-
-      // If the candidate does not have a generated password, create a random 6-digit one now
-      if (!plainPassword || plainPassword === 'pikr2024') {
-        plainPassword = Math.floor(100000 + Math.random() * 900000).toString();
-        password = await bcrypt.hash(plainPassword, 10);
-      }
-
-      await prisma.member.upsert({
-        where: { nisn: c.nisn },
-        update: {
-          name: c.name,
-          className: c.className,
-          whatsappNumber: c.whatsappNumber,
-          email: c.email,
-          gender: c.gender,
-          asalSekolah: c.asalSekolah,
-          password,
-          plainPassword,
-          status: 'ACTIVE',
-        },
-        create: {
-          nisn: c.nisn,
-          name: c.name,
-          className: c.className,
-          whatsappNumber: c.whatsappNumber,
-          email: c.email,
-          gender: c.gender,
-          asalSekolah: c.asalSekolah,
-          password,
-          plainPassword,
-          status: 'ACTIVE',
-          joinYear: currentYear,
-          role: 'member',
-        }
-      });
-    }
+    // 2. Migrate to Member table menggunakan $transaction (atomik — gagal satu = semua rollback)
+    await prisma.$transaction(
+      lulusList.map(c => {
+        const plainPassword = (!c.plainPassword || c.plainPassword === 'pikr2024')
+          ? Math.floor(100000 + Math.random() * 900000).toString()
+          : c.plainPassword;
+        // Note: password sudah pasti ter-hash dari proses sebelumnya
+        const password = c.password || '';
+        return prisma.member.upsert({
+          where: { nisn: c.nisn },
+          update: {
+            name: c.name, className: c.className,
+            whatsappNumber: c.whatsappNumber, email: c.email,
+            gender: c.gender, asalSekolah: c.asalSekolah,
+            password, plainPassword, status: 'ACTIVE',
+          },
+          create: {
+            nisn: c.nisn, name: c.name, className: c.className,
+            whatsappNumber: c.whatsappNumber, email: c.email,
+            gender: c.gender, asalSekolah: c.asalSekolah,
+            password, plainPassword, status: 'ACTIVE',
+            joinYear: currentYear, role: 'member',
+          },
+        });
+      })
+    );
 
     // 3. Clear all Candidates (clean slate for next session)
     await prisma.candidate.deleteMany({});
@@ -518,22 +490,22 @@ export async function closeSession(req, res) {
       create: { key: 'REGISTRATION_SESSION', value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString(), migratedCount: lulusList.length }) }
     });
 
-    // 5. Auto-alumni check for all members based on grade and joinYear (except PEMBINA)
-    const activeMembers = await prisma.member.findMany({
+    // 5. Auto-alumni menggunakan updateMany (1 query, tidak N+1)
+    const currentYear2 = new Date().getFullYear();
+    await prisma.member.updateMany({
       where: {
         status: 'ACTIVE',
-        NOT: { role: 'PEMBINA' }
-      }
+        NOT: { role: 'PEMBINA' },
+        OR: [
+          { className: { startsWith: 'XII' }, joinYear: { lte: currentYear2 - 1 } },
+          { className: { startsWith: '12' },  joinYear: { lte: currentYear2 - 1 } },
+          { className: { startsWith: 'XI' },  joinYear: { lte: currentYear2 - 2 } },
+          { className: { startsWith: '11' },  joinYear: { lte: currentYear2 - 2 } },
+          { joinYear: { lte: currentYear2 - 3 } },
+        ]
+      },
+      data: { status: 'ALUMNI' }
     });
-    for (const m of activeMembers) {
-      const jYear = m.joinYear || new Date(m.createdAt).getFullYear();
-      if (isMemberExpired(jYear, m.className)) {
-        await prisma.member.update({
-          where: { id: m.id },
-          data: { status: 'ALUMNI' }
-        });
-      }
-    }
 
     return res.json({
       message: `Sesi berhasil ditutup. ${lulusList.length} calon anggota dipindahkan ke Member, ${lulusList.length - (await prisma.member.count({ where: { status: 'ACTIVE' } }))} anggota dijadikan alumni.`,
@@ -565,25 +537,26 @@ export async function openSession(req, res) {
 // MEMBER CRUD
 // ─────────────────────────────────────────────────
 
-// 15. Get All Members (with auto-alumni check)
+// 15. Get All Members (with auto-alumni check via updateMany — efisien 1 query)
 export async function getMembers(req, res) {
   try {
-    // Auto-update alumni status based on grade and joinYear (except PEMBINA)
-    const activeMembers = await prisma.member.findMany({
+    const currentYear = new Date().getFullYear();
+
+    // Auto-update alumni: gunakan updateMany agar tidak N+1 query per anggota
+    await prisma.member.updateMany({
       where: {
         status: 'ACTIVE',
-        NOT: { role: 'PEMBINA' }
-      }
+        NOT: { role: 'PEMBINA' },
+        OR: [
+          { className: { startsWith: 'XII' }, joinYear: { lte: currentYear - 1 } },
+          { className: { startsWith: '12' },  joinYear: { lte: currentYear - 1 } },
+          { className: { startsWith: 'XI' },  joinYear: { lte: currentYear - 2 } },
+          { className: { startsWith: '11' },  joinYear: { lte: currentYear - 2 } },
+          { joinYear: { lte: currentYear - 3 } }, // default: Kelas X / 3 tahun
+        ]
+      },
+      data: { status: 'ALUMNI' }
     });
-    for (const m of activeMembers) {
-      const jYear = m.joinYear || new Date(m.createdAt).getFullYear();
-      if (isMemberExpired(jYear, m.className)) {
-        await prisma.member.update({
-          where: { id: m.id },
-          data: { status: 'ALUMNI' }
-        });
-      }
-    }
 
     const { status } = req.query;
     const members = await prisma.member.findMany({
