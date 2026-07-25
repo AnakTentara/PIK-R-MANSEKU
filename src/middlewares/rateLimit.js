@@ -41,10 +41,10 @@ export const otpLimiter = rateLimit({
  */
 export const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: isDev ? 100 : 5,
+  max: isDev ? 100 : 50,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
-    message: 'Terlalu banyak percobaan pendaftaran. Silakan coba lagi dalam 1 jam.'
+    message: 'Terlalu banyak percobaan pendaftaran dari koneksi ini. Silakan coba lagi nanti.'
   }
 });

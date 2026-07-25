@@ -100,19 +100,23 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      toast.error('Mohon lengkapi seluruh kolom formulir sesuai petunjuk (periksa kolom bertanda merah).');
+      return;
+    }
     setLoading(true);
     try {
       await registerCandidate(form);
       toast.success('Pendaftaran berhasil!');
       setSuccess(true);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Terjadi kesalahan.';
-      if (err.response?.status === 409) {
-        setErrors((prev) => ({ ...prev, nisn: msg }));
-      } else {
-        toast.error(msg);
+      const msg = err.response?.data?.message || 'Terjadi kesalahan saat pendaftaran.';
+      if (err.response?.status === 409 || err.response?.status === 400) {
+        if (msg.toLowerCase().includes('nisn')) {
+          setErrors((prev) => ({ ...prev, nisn: msg }));
+        }
       }
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
