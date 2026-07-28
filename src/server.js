@@ -242,6 +242,9 @@ async function seedDummyOrgData() {
     console.log('[Seed] Data dummy organisasi & testimoni berhasil ditambahkan.');
   } catch (error) {
     console.error('[Seed] Gagal menambahkan data dummy organisasi:', error.message);
+  }
+}
+
 // SPA Static Fallback & HTML Serving for Google Crawler / Direct Route Requests
 const distPath = path.join(__dirname, '../frontend/dist');
 if (fs.existsSync(distPath)) {
