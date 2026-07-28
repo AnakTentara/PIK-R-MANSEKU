@@ -1470,9 +1470,9 @@ export async function sendSelectionNotifications(req, res) {
         failCount++;
       }
 
-      // Small delay between mass messages to prevent WA rate limit
+      // Small delay between mass messages (300ms) so 50+ messages complete in ~15s without HTTP gateway timeout
       if (candidates.length > 1) {
-        await new Promise(r => setTimeout(r, 1500));
+        await new Promise(r => setTimeout(r, 300));
       }
     }
 

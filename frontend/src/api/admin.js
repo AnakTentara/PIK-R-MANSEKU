@@ -47,10 +47,11 @@ export const randomizeSelectionDays = (data) =>
 export const sendSelectionNotifications = (data) => {
   if (data instanceof FormData) {
     return api.post('/admin/candidates/send-selection-notifications', data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 180000
     });
   }
-  return api.post('/admin/candidates/send-selection-notifications', data);
+  return api.post('/admin/candidates/send-selection-notifications', data, { timeout: 180000 });
 };
 
 // Blog / Comments
