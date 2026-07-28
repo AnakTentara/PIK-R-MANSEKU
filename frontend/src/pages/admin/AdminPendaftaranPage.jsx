@@ -185,21 +185,23 @@ export default function AdminPendaftaranPage() {
   // Export handlers
   const handleExportExcel = async () => {
     try {
-      const blob = await exportExcel();
-      downloadBlob(blob, 'rekap_pendaftaran.xlsx');
+      const res = await exportExcel();
+      downloadBlob(res.data, 'rekap_pendaftaran.xlsx');
       toast.success('Data pendaftaran berhasil diexport ke Excel.');
-    } catch {
-      toast.error('Gagal mengeksport data.');
+    } catch (err) {
+      console.error('Export Excel error:', err);
+      toast.error('Gagal mengeksport data ke Excel.');
     }
   };
 
   const handleExportJSON = async () => {
     try {
-      const blob = await exportJSON();
-      downloadBlob(blob, 'akun_pendaftaran.json');
+      const res = await exportJSON();
+      downloadBlob(res.data, 'akun_pendaftaran.json');
       toast.success('Data pendaftaran berhasil diexport ke JSON.');
-    } catch {
-      toast.error('Gagal mengeksport data.');
+    } catch (err) {
+      console.error('Export JSON error:', err);
+      toast.error('Gagal mengeksport data ke JSON.');
     }
   };
 

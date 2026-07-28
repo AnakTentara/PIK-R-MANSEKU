@@ -19,7 +19,8 @@ export function slugify(text) {
 }
 
 export function downloadBlob(blob, filename) {
-  const url = URL.createObjectURL(blob);
+  const actualBlob = (blob && blob.data instanceof Blob) ? blob.data : blob;
+  const url = URL.createObjectURL(actualBlob);
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
