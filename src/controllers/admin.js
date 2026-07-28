@@ -10,6 +10,9 @@ import { isMemberExpired } from '../utils/memberUtils.js';
 import { toTitleCase } from '../utils/nameUtils.js';
 import { sendWhatsApp, sendWhatsAppWithAttachments } from '../services/whatsapp.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
 
@@ -247,15 +250,17 @@ export async function exportJSON(req, res) {
 export async function exportExcel(req, res) {
   try {
     const currentYear = new Date().getFullYear();
-    const templatePath = path.join(__dirname, '../../public/file/pendaftaran/xlsx/[this_year]-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx');
+    const templatePath1 = path.join(__dirname, '../../public/file/pendaftaran/xlsx/[this_year]-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx');
+    const templatePath2 = path.join(__dirname, `../../public/file/pendaftaran/xlsx/${currentYear}-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx`);
+    const finalTemplatePath = fs.existsSync(templatePath1) ? templatePath1 : (fs.existsSync(templatePath2) ? templatePath2 : null);
 
     const candidates = await prisma.candidate.findMany({
       orderBy: [{ className: 'asc' }, { name: 'asc' }]
     });
 
     let workbook;
-    if (fs.existsSync(templatePath)) {
-      workbook = XLSX.readFile(templatePath);
+    if (finalTemplatePath) {
+      workbook = XLSX.readFile(finalTemplatePath);
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
 
@@ -1486,15 +1491,17 @@ export async function sendSelectionNotifications(req, res) {
 export async function exportSelectionExcel(req, res) {
   try {
     const currentYear = new Date().getFullYear();
-    const templatePath = path.join(__dirname, '../../public/file/pendaftaran/xlsx/[this_year]-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx');
+    const templatePath1 = path.join(__dirname, '../../public/file/pendaftaran/xlsx/[this_year]-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx');
+    const templatePath2 = path.join(__dirname, `../../public/file/pendaftaran/xlsx/${currentYear}-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx`);
+    const finalTemplatePath = fs.existsSync(templatePath1) ? templatePath1 : (fs.existsSync(templatePath2) ? templatePath2 : null);
 
     const candidates = await prisma.candidate.findMany({
       orderBy: [{ selectionDay: 'asc' }, { className: 'asc' }, { name: 'asc' }]
     });
 
     let workbook;
-    if (fs.existsSync(templatePath)) {
-      workbook = XLSX.readFile(templatePath);
+    if (finalTemplatePath) {
+      workbook = XLSX.readFile(finalTemplatePath);
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
 
