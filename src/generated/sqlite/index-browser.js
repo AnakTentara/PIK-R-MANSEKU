@@ -135,6 +135,9 @@ exports.Prisma.CandidateScalarFieldEnum = {
   emailNotified: 'emailNotified',
   waNotified: 'waNotified',
   lastStatus: 'lastStatus',
+  selectionDate: 'selectionDate',
+  selectionDay: 'selectionDay',
+  selectionNotified: 'selectionNotified',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
