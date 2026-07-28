@@ -246,7 +246,7 @@ export async function exportJSON(req, res) {
   }
 }
 
-// 9. Export Candidates to Excel using template file (A4 to L1000)
+// 9. Export Candidates to Excel using styled template file (A4 to L1000)
 export async function exportExcel(req, res) {
   try {
     const currentYear = new Date().getFullYear();
@@ -260,12 +260,17 @@ export async function exportExcel(req, res) {
 
     let workbook;
     if (finalTemplatePath) {
-      workbook = XLSX.readFile(finalTemplatePath);
+      workbook = XLSX.readFile(finalTemplatePath, { cellStyles: true, cellFormattings: true, cellDates: true, cellNF: true });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
 
-      // Update A2 title text with current year
-      sheet['A2'] = { t: 's', v: `TAHUN ${currentYear}` };
+      // Update A2 title text with current year without losing cell formatting
+      if (sheet['A2']) {
+        sheet['A2'].v = `TAHUN ${currentYear}`;
+        delete sheet['A2'].w;
+      } else {
+        sheet['A2'] = { t: 's', v: `TAHUN ${currentYear}` };
+      }
 
       // Populate candidate rows starting from row 4 (index r = 3) up to L1000
       candidates.forEach((c, index) => {
@@ -289,13 +294,29 @@ export async function exportExcel(req, res) {
         rowValues.forEach((val, colIndex) => {
           const cellAddr = XLSX.utils.encode_cell({ r, c: colIndex });
           const cellType = typeof val === 'number' ? 'n' : 's';
-          sheet[cellAddr] = { t: cellType, v: val };
+          if (sheet[cellAddr]) {
+            sheet[cellAddr].v = val;
+            sheet[cellAddr].t = cellType;
+            delete sheet[cellAddr].w;
+          } else {
+            sheet[cellAddr] = { t: cellType, v: val };
+          }
         });
       });
 
-      // Update range reference to L1000
-      const lastRow = Math.max(999, 3 + candidates.length);
-      sheet['!ref'] = `A1:L${lastRow}`;
+      // Clear dummy text from remaining unused rows up to 1000 while preserving cell styles
+      const maxRows = 1000;
+      for (let r = 3 + candidates.length; r < maxRows; r++) {
+        for (let c = 0; c < 12; c++) {
+          const cellAddr = XLSX.utils.encode_cell({ r, c });
+          if (sheet[cellAddr]) {
+            delete sheet[cellAddr].v;
+            delete sheet[cellAddr].w;
+          }
+        }
+      }
+
+      sheet['!ref'] = `A1:L${maxRows}`;
 
       // Rename sheet from 'this_year' to currentYear
       if (sheetName !== String(currentYear)) {
@@ -324,7 +345,7 @@ export async function exportExcel(req, res) {
       XLSX.utils.book_append_sheet(workbook, worksheet, String(currentYear));
     }
 
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx', cellStyles: true });
 
     res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -1513,7 +1534,7 @@ export async function sendSelectionNotifications(req, res) {
   }
 }
 
-// 23. Export Selection Schedule to Excel using template file (A4 to I1000)
+// 23. Export Selection Schedule to Excel using styled template file (A4 to I1000)
 export async function exportSelectionExcel(req, res) {
   try {
     const currentYear = new Date().getFullYear();
@@ -1527,18 +1548,35 @@ export async function exportSelectionExcel(req, res) {
 
     let workbook;
     if (finalTemplatePath) {
-      workbook = XLSX.readFile(finalTemplatePath);
+      workbook = XLSX.readFile(finalTemplatePath, { cellStyles: true, cellFormattings: true, cellDates: true, cellNF: true });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
 
-      sheet['A1'] = { t: 's', v: 'REKAP JADWAL SELEKSI CALON ANGGOTA PIK-R MANSEKU' };
-      sheet['A2'] = { t: 's', v: `TAHUN ${currentYear}` };
+      if (sheet['A1']) {
+        sheet['A1'].v = 'REKAP JADWAL SELEKSI CALON ANGGOTA PIK-R MANSEKU';
+        delete sheet['A1'].w;
+      } else {
+        sheet['A1'] = { t: 's', v: 'REKAP JADWAL SELEKSI CALON ANGGOTA PIK-R MANSEKU' };
+      }
+
+      if (sheet['A2']) {
+        sheet['A2'].v = `TAHUN ${currentYear}`;
+        delete sheet['A2'].w;
+      } else {
+        sheet['A2'] = { t: 's', v: `TAHUN ${currentYear}` };
+      }
 
       // Row 3 Headers A to I
       const headers = ['No.', 'NISN', 'Nama Lengkap', 'Kelas', 'Hari Seleksi', 'Status WA Notif', 'Status Seleksi', 'No. WhatsApp', 'Tanggal Daftar'];
       headers.forEach((h, colIndex) => {
         const cellAddr = XLSX.utils.encode_cell({ r: 2, c: colIndex });
-        sheet[cellAddr] = { t: 's', v: h };
+        if (sheet[cellAddr]) {
+          sheet[cellAddr].v = h;
+          sheet[cellAddr].t = 's';
+          delete sheet[cellAddr].w;
+        } else {
+          sheet[cellAddr] = { t: 's', v: h };
+        }
       });
 
       // Clear unused header cells (J3 to M3)
@@ -1563,13 +1601,29 @@ export async function exportSelectionExcel(req, res) {
         rowValues.forEach((val, colIndex) => {
           const cellAddr = XLSX.utils.encode_cell({ r, c: colIndex });
           const cellType = typeof val === 'number' ? 'n' : 's';
-          sheet[cellAddr] = { t: cellType, v: val };
+          if (sheet[cellAddr]) {
+            sheet[cellAddr].v = val;
+            sheet[cellAddr].t = cellType;
+            delete sheet[cellAddr].w;
+          } else {
+            sheet[cellAddr] = { t: cellType, v: val };
+          }
         });
       });
 
-      // Update range reference to I1000
-      const lastRow = Math.max(999, 3 + candidates.length);
-      sheet['!ref'] = `A1:I${lastRow}`;
+      // Clear dummy text from remaining unused rows up to 1000 while preserving cell styles
+      const maxRows = 1000;
+      for (let r = 3 + candidates.length; r < maxRows; r++) {
+        for (let c = 0; c < 9; c++) {
+          const cellAddr = XLSX.utils.encode_cell({ r, c });
+          if (sheet[cellAddr]) {
+            delete sheet[cellAddr].v;
+            delete sheet[cellAddr].w;
+          }
+        }
+      }
+
+      sheet['!ref'] = `A1:I${maxRows}`;
 
       if (sheetName !== String(currentYear)) {
         workbook.SheetNames[0] = String(currentYear);
@@ -1594,7 +1648,7 @@ export async function exportSelectionExcel(req, res) {
       XLSX.utils.book_append_sheet(workbook, worksheet, String(currentYear));
     }
 
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx', cellStyles: true });
 
     res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-JADWAL_SELEKSI_PIK-R_MANSEKU.xlsx`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
