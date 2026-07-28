@@ -202,11 +202,10 @@
   font-size: 0.9375rem;
 }
 
-/* Modal styling */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 23, 42, 0.4);
+  background-color: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -224,10 +223,13 @@
   max-height: 90vh;
   box-shadow: var(--shadow-md);
   animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  /* Flex column so header + actions are pinned, only form scrolls */
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.wideModalCard {
+  max-width: 820px !important;
 }
 
 @keyframes modalScale {
@@ -236,10 +238,13 @@
 }
 
 .modalHeader {
-  padding: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
   border-bottom: 1px solid var(--color-border-strong);
   background-color: var(--color-surface);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .modalHeader h3 {
@@ -249,24 +254,182 @@
   color: var(--color-text-primary);
 }
 
+/* 3-Tab Header in Modal */
+.modalTabNav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-border-strong);
+  background-color: var(--color-surface-2);
+  padding: 6px 16px 0 16px;
+  flex-shrink: 0;
+}
+
+.modalTabBtn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.modalTabBtn:hover {
+  color: var(--color-text-primary);
+}
+
+.modalTabActive {
+  color: var(--color-accent) !important;
+  border-bottom-color: var(--color-accent) !important;
+  background-color: var(--color-surface);
+  border-radius: 6px 6px 0 0;
+}
+
 .modalForm {
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
   gap: 16px;
-  /* Only this area scrolls */
   overflow-y: auto;
   flex: 1 1 auto;
 }
 
+.twoColGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
 .modalActions {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-sm);
   padding: var(--space-md) var(--space-lg);
   border-top: 1px solid var(--color-border-strong);
   background-color: var(--color-surface);
   flex-shrink: 0;
+}
+
+.modalActionsRight {
+  display: flex;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+/* Sub-Tab Navigation Header */
+.subTabNav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--color-border-strong);
+  margin-bottom: var(--space-sm);
+}
+
+.subTabBtn {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s;
+}
+
+.subTabBtn:hover {
+  color: var(--color-text-primary);
+}
+
+.subTabActive {
+  color: var(--color-accent) !important;
+  border-bottom-color: var(--color-accent) !important;
+}
+
+/* Badges */
+.badgeDay {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.badgeNotified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+
+.badgeUnnotified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+/* Checklist & Quota Box */
+.checklistCard {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: var(--color-surface-2);
+}
+
+.checklistItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.checklistItem:hover {
+  border-color: var(--color-accent);
+}
+
+.quotaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background-color: var(--color-surface-2);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
 }
 
 /* Pagination */
@@ -365,5 +528,19 @@
   .pagination {
     flex-direction: column;
     align-items: center;
+  }
+  .twoColGrid {
+    grid-template-columns: 1fr;
+  }
+  .quotaGrid {
+    grid-template-columns: 1fr;
+  }
+  .modalActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .modalActionsRight {
+    width: 100%;
+    justify-content: flex-end;
   }
 }

@@ -1,13 +1,30 @@
 import { useState, useEffect, useMemo } from 'react';
-import { getCandidates, updateCandidate, deleteCandidate, promoteCandidateToMember, sendNotifications, getSettings, closeSession, openSession } from '@/api/admin';
+import {
+  getCandidates,
+  updateCandidate,
+  deleteCandidate,
+  promoteCandidateToMember,
+  sendNotifications,
+  getSettings,
+  closeSession,
+  openSession,
+  exportExcel,
+  exportSelectionExcel,
+  exportJSON,
+  randomizeSelectionDays,
+  sendSelectionNotifications
+} from '@/api/admin';
 import { useUIStore } from '@/stores/uiStore';
 import AdminHeader from '@/components/admin/AdminHeader';
 import SkeletonTable from '@/components/skeletons/SkeletonTable';
-import { Edit, Trash2, Search, CheckCircle, XCircle, AlertCircle, ToggleLeft, ToggleRight, Bell, FileSpreadsheet, FileJson, Mail, ChevronLeft, ChevronRight, UserCheck } from 'lucide-react';
+import {
+  Edit, Trash2, Search, CheckCircle, XCircle, AlertCircle, ToggleLeft, ToggleRight,
+  FileSpreadsheet, FileJson, ChevronLeft, ChevronRight, UserCheck, Calendar,
+  Send, Paperclip, Shuffle, User, Layers, CheckSquare, Square, X, Eye, EyeOff
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminPendaftaranPage.module.css';
 import { downloadBlob } from '@/utils/truncate';
-import { exportExcel, exportJSON } from '@/api/admin';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -18,22 +35,62 @@ export default function AdminPendaftaranPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [filterKelas, setFilterKelas] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Sub-Tab State: 'data' | 'seleksi'
+  const [activeSubTab, setActiveSubTab] = useState('data');
+
+  // Registration Session State
   const [isSessionOpen, setIsSessionOpen] = useState(true);
   const [savingSession, setSavingSession] = useState(false);
-  const [notifying, setNotifying] = useState(false);
   const [sessionInfo, setSessionInfo] = useState(null);
 
-  // Edit Modal State
+  // ─── Modal 1: 3-Tab Candidate Detail/Edit Modal State ──────────────────
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState('biodata'); // 'biodata' | 'seleksi' | 'status'
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
+    nisn: '',
     className: '',
     asalSekolah: '',
     email: '',
     whatsappNumber: '',
-    status: '',
+    gender: '',
+    reason: '',
+    status: 'PENDING',
+    selectionDay: '',
+    selectionDate: '',
+    selectionNotified: false
   });
+
+  // Single WA Notification State inside Modal
+  const [singleWaText, setSingleWaText] = useState('');
+  const [singlePdfFiles, setSinglePdfFiles] = useState([]);
+  const [sendingSingleWa, setSendingSingleWa] = useState(false);
+
+  // ─── Modal 2: Atur Hari Seleksi Massal Modal State ─────────────────────
+  const [randomizeModalOpen, setRandomizeModalOpen] = useState(false);
+  const [selectionMode, setSelectionMode] = useState('proceed'); // 'proceed' | 'exclude' | 'all'
+  const [selectedChecklistIds, setSelectedChecklistIds] = useState([]);
+  const [checklistSearch, setChecklistSearch] = useState('');
+  
+  // Quota configuration state (Wednesday & Thursday default)
+  const [day1Name, setDay1Name] = useState('Rabu, 29 Juli 2026');
+  const [day1Date, setDay1Date] = useState('2026-07-29');
+  const [day1Quota, setDay1Quota] = useState('25');
+
+  const [day2Name, setDay2Name] = useState('Kamis, 30 Juli 2026');
+  const [day2Date, setDay2Date] = useState('2026-07-30');
+  const [day2Quota, setDay2Quota] = useState('26');
+
+  const [savingRandomize, setSavingRandomize] = useState(false);
+
+  // ─── Modal 3: Kirim WA Massal + PDF Modal State ─────────────────────────
+  const [waModalOpen, setWaModalOpen] = useState(false);
+  const [massWaTemplate, setMassWaTemplate] = useState('');
+  const [massPdfFiles, setMassPdfFiles] = useState([]);
+  const [sendingMassWa, setSendingMassWa] = useState(false);
 
   const { openConfirm } = useUIStore();
 
@@ -44,7 +101,6 @@ export default function AdminPendaftaranPage() {
   const fetchSessionAndCandidates = async () => {
     setLoading(true);
     try {
-      // Load settings to check session status
       const settingsRes = await getSettings();
       const settingsList = settingsRes.data?.settings || [];
       const sessionSetting = settingsList.find((s) => s.key === 'REGISTRATION_SESSION');
@@ -56,7 +112,6 @@ export default function AdminPendaftaranPage() {
         setIsSessionOpen(true);
       }
 
-      // Load candidates
       const candRes = await getCandidates();
       setCandidates(candRes.data || []);
     } catch {
@@ -66,28 +121,29 @@ export default function AdminPendaftaranPage() {
     }
   };
 
+  // Toggle Registration Session
   const handleToggleSession = async () => {
     const actionText = isSessionOpen 
-      ? 'Menutup sesi akan memindahkan seluruh peserta LULUS ke data Anggota Tetap PIK-R, lalu membersihkan seluruh database pendaftaran calon peserta saat ini.' 
-      : 'Membuka sesi pendaftaran baru akan membersihkan data pendaftaran lama dan mengizinkan calon peserta baru mendaftar kembali.';
+      ? 'Menutup sesi akan memindahkan seluruh peserta LULUS ke data Anggota Tetap (nama diformat menjadi Title Case), lalu memicu pembersihan pendaftaran.' 
+      : 'Membuka sesi pendaftaran baru akan membersihkan data pendaftaran lama.';
 
     openConfirm({
       title: `${isSessionOpen ? 'Tutup' : 'Buka'} Sesi Pendaftaran`,
-      message: `${actionText} Apakah Anda sangat yakin?`,
+      message: `${actionText} Apakah Anda yakin?`,
       danger: isSessionOpen,
       onConfirm: async () => {
         setSavingSession(true);
         try {
           if (isSessionOpen) {
             const res = await closeSession();
-            toast.success(res.data.message || 'Sesi pendaftaran berhasil ditutup & diarsipkan.');
+            toast.success(res.data.message || 'Sesi pendaftaran ditutup.');
           } else {
             await openSession();
-            toast.success('Sesi pendaftaran baru berhasil dibuka.');
+            toast.success('Sesi pendaftaran baru dibuka.');
           }
           await fetchSessionAndCandidates();
         } catch (err) {
-          toast.error(err.response?.data?.message || 'Gagal memperbarui sesi pendaftaran.');
+          toast.error(err.response?.data?.message || 'Gagal memperbarui sesi.');
         } finally {
           setSavingSession(false);
         }
@@ -95,63 +151,42 @@ export default function AdminPendaftaranPage() {
     });
   };
 
-  // Notification trigger
-  const handleSendNotifications = () => {
-    openConfirm({
-      title: 'Kirim Notifikasi Massal',
-      message: 'Kirim notifikasi hasil kelulusan ke semua peserta via Email & WhatsApp? Ini membutuhkan waktu beberapa saat.',
-      onConfirm: async () => {
-        setNotifying(true);
-        try {
-          await sendNotifications();
-          toast.success('Proses pengiriman notifikasi berhasil dimulai!');
-          fetchSessionAndCandidates();
-        } catch {
-          toast.error('Gagal mengirimkan notifikasi.');
-        } finally {
-          setNotifying(false);
-        }
-      },
-    });
-  };
-
-  // Promote single candidate directly to member
-  const handlePromoteToMember = (c) => {
-    // Close edit modal first so confirm dialog renders on top
-    setEditModalOpen(false);
-    openConfirm({
-      title: 'Tambahkan ke Anggota Langsung',
-      message: `Pindahkan "${c.name}" ke data Anggota PIK-R sekarang? Pendaftar ini akan dihapus dari daftar pendaftaran dan langsung menjadi anggota aktif.`,
-      onConfirm: async () => {
-        try {
-          const res = await promoteCandidateToMember(c.id);
-          toast.success(res.data.message || `${c.name} berhasil dipindahkan ke Anggota.`);
-          fetchSessionAndCandidates();
-        } catch (err) {
-          toast.error(err.response?.data?.message || 'Gagal memindahkan ke anggota.');
-        }
-      },
-    });
-  };
-
-  // CRUD handlers
-  const handleEditClick = (c) => {
-    setSelectedCandidate(c);
+  // ─── Modal 1 Handlers (Candidate Edit / Detail) ───────────────────────
+  const openEditModal = (candidate, initialTab = 'biodata') => {
+    setSelectedCandidate(candidate);
+    setModalTab(initialTab);
     setEditForm({
-      name: c.name || '',
-      className: c.className || '',
-      asalSekolah: c.asalSekolah || '',
-      email: c.email || '',
-      whatsappNumber: c.whatsappNumber || '',
-      status: c.status || 'PENDING',
+      name: candidate.name || '',
+      nisn: candidate.nisn || '',
+      className: candidate.className || '',
+      asalSekolah: candidate.asalSekolah || '',
+      email: candidate.email || '',
+      whatsappNumber: candidate.whatsappNumber || '',
+      gender: candidate.gender || 'Laki-laki',
+      reason: candidate.reason || '',
+      status: candidate.status || 'PENDING',
+      selectionDay: candidate.selectionDay || 'Rabu, 29 Juli 2026',
+      selectionDate: candidate.selectionDate ? candidate.selectionDate.split('T')[0] : '2026-07-29',
+      selectionNotified: candidate.selectionNotified || false
     });
+
+    const defaultSingleMsg =
+      `Halo {nama} ({kelas}),\n\n` +
+      `Kamu dijadwalkan mengikuti *Tahap Seleksi Calon Anggota PIK-R MANSEKU* pada:\n` +
+      `📅 *Hari/Tanggal:* ${candidate.selectionDay || 'Rabu, 29 Juli 2026'}\n` +
+      `📍 *Lokasi:* Ruang PIK-R MAN 1 Muara Enim\n\n` +
+      `Harap hadir tepat waktu ya! 💪`;
+
+    setSingleWaText(defaultSingleMsg);
+    setSinglePdfFiles([]);
+    setShowPassword(false);
     setEditModalOpen(true);
   };
 
   const handleSaveEdit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     if (!editForm.name.trim() || !editForm.email.trim() || !editForm.whatsappNumber.trim()) {
-      toast.error('Semua kolom wajib diisi.');
+      toast.error('Kolom Nama, Email, dan WhatsApp wajib diisi.');
       return;
     }
 
@@ -165,15 +200,33 @@ export default function AdminPendaftaranPage() {
     }
   };
 
-  const handleDeleteClick = (id, name) => {
+  const handlePromoteCandidate = (candidate) => {
+    setEditModalOpen(false);
+    openConfirm({
+      title: 'Promosikan ke Anggota Tetap',
+      message: `Promosikan "${candidate.name}" ke data Anggota Tetap? Peserta ini akan dinyatakan LULUS, namanya diubah ke Title Case, dan otomatis menerima notifikasi WhatsApp kelulusan.`,
+      onConfirm: async () => {
+        try {
+          const res = await promoteCandidateToMember(candidate.id);
+          toast.success(res.data.message || `${candidate.name} berhasil dipromosikan!`);
+          fetchSessionAndCandidates();
+        } catch (err) {
+          toast.error(err.response?.data?.message || 'Gagal mempromosikan peserta.');
+        }
+      },
+    });
+  };
+
+  const handleDeleteCandidate = (id, name) => {
     openConfirm({
       title: 'Hapus Calon Peserta',
-      message: `Hapus pendaftar "${name}"? Tindakan ini permanen.`,
+      message: `Yakin menghapus pendaftar "${name}" secara permanen?`,
       danger: true,
       onConfirm: async () => {
         try {
           await deleteCandidate(id);
           toast.success('Pendaftar berhasil dihapus.');
+          setEditModalOpen(false);
           fetchSessionAndCandidates();
         } catch {
           toast.error('Gagal menghapus pendaftar.');
@@ -182,15 +235,183 @@ export default function AdminPendaftaranPage() {
     });
   };
 
-  // Export handlers
+  // Send Single WA in Modal Tab 2
+  const handleSendSingleWa = async () => {
+    if (!selectedCandidate) return;
+    setSendingSingleWa(true);
+    try {
+      const formData = new FormData();
+      formData.append('singleCandidateId', selectedCandidate.id);
+      formData.append('template', singleWaText);
+      
+      singlePdfFiles.forEach((file) => {
+        formData.append('documents', file);
+      });
+
+      const res = await sendSelectionNotifications(formData);
+      toast.success(res.data.message || 'Pesan Notifikasi WA Seleksi berhasil dikirim!');
+      setEditForm(prev => ({ ...prev, selectionNotified: true }));
+      fetchSessionAndCandidates();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal mengirim pesan WA.');
+    } finally {
+      setSendingSingleWa(false);
+    }
+  };
+
+  // ─── Modal 2 Handlers (Atur Hari Seleksi Massal) ──────────────────────
+  const openRandomizeModal = () => {
+    const pendingIds = candidates.filter(c => c.status === 'PENDING').map(c => c.id);
+    setSelectedChecklistIds(pendingIds);
+    setSelectionMode('proceed');
+    setChecklistSearch('');
+    
+    const half = Math.floor(pendingIds.length / 2);
+    setDay1Quota(String(half));
+    setDay2Quota(String(pendingIds.length - half));
+
+    setRandomizeModalOpen(true);
+  };
+
+  const handleToggleChecklist = (id) => {
+    setSelectedChecklistIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAllChecklist = (shouldSelectAll) => {
+    if (shouldSelectAll) {
+      const allIds = candidates.filter(c => c.status === 'PENDING').map(c => c.id);
+      setSelectedChecklistIds(allIds);
+    } else {
+      setSelectedChecklistIds([]);
+    }
+  };
+
+  const checklistCandidates = useMemo(() => {
+    return candidates.filter(c => {
+      const q = checklistSearch.toLowerCase();
+      return (
+        c.status === 'PENDING' &&
+        (c.name.toLowerCase().includes(q) || (c.nisn || '').includes(q) || c.className.toLowerCase().includes(q))
+      );
+    });
+  }, [candidates, checklistSearch]);
+
+  const targetCandidatesForSelection = useMemo(() => {
+    const allPending = candidates.filter(c => c.status === 'PENDING');
+    if (selectionMode === 'proceed') {
+      return allPending.filter(c => selectedChecklistIds.includes(c.id));
+    } else if (selectionMode === 'exclude') {
+      return allPending.filter(c => !selectedChecklistIds.includes(c.id));
+    }
+    return allPending;
+  }, [candidates, selectionMode, selectedChecklistIds]);
+
+  const handleExecuteRandomize = async () => {
+    if (targetCandidatesForSelection.length === 0) {
+      toast.error('Tidak ada peserta yang terpilih untuk diatur hari seleksi.');
+      return;
+    }
+
+    const q1 = parseInt(day1Quota) || 0;
+    const q2 = parseInt(day2Quota) || 0;
+
+    if (q1 + q2 === 0) {
+      toast.error('Masukkan alokasi kuota minimal untuk salah satu hari seleksi.');
+      return;
+    }
+
+    setSavingRandomize(true);
+    try {
+      const targetIds = targetCandidatesForSelection.map(c => c.id);
+      const excludedIds = candidates
+        .filter(c => c.status === 'PENDING' && !targetIds.includes(c.id))
+        .map(c => c.id);
+
+      const dayQuotas = [
+        { day: day1Name.trim(), date: day1Date, quota: q1 },
+        { day: day2Name.trim(), date: day2Date, quota: q2 }
+      ];
+
+      const res = await randomizeSelectionDays({
+        targetCandidateIds: targetIds,
+        excludedCandidateIds: excludedIds,
+        dayQuotas
+      });
+
+      toast.success(res.data.message || 'Jadwal seleksi berhasil dialokasikan!');
+      setRandomizeModalOpen(false);
+      fetchSessionAndCandidates();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal mengalokasikan jadwal seleksi.');
+    } finally {
+      setSavingRandomize(false);
+    }
+  };
+
+  // ─── Modal 3 Handlers (Kirim WA Seleksi Massal + PDF) ─────────────────
+  const openMassWaModal = () => {
+    const defaultTemplate =
+      `Halo {nama} ({kelas}),\n\n` +
+      `Selamat! Kamu dijadwalkan untuk mengikuti *Tahap Seleksi Calon Anggota PIK-R MANSEKU* pada:\n` +
+      `📅 *Hari/Tanggal:* {hari_seleksi}\n` +
+      `📌 *NISN:* {nisn}\n` +
+      `📍 *Lokasi:* Ruang PIK-R MAN 1 Muara Enim\n\n` +
+      `Harap hadir tepat waktu dan membawa dokumen terlampir ya.\n\n` +
+      `Semangat dan persiapkan dirimu sebaik mungkin! 💪`;
+
+    setMassWaTemplate(defaultTemplate);
+    setMassPdfFiles([]);
+    setWaModalOpen(true);
+  };
+
+  const handleExecuteMassWa = async () => {
+    const scheduledCandidates = candidates.filter(c => c.status === 'PENDING' && c.selectionDay);
+    if (scheduledCandidates.length === 0) {
+      toast.error('Belum ada peserta yang memiliki jadwal seleksi.');
+      return;
+    }
+
+    setSendingMassWa(true);
+    try {
+      const formData = new FormData();
+      formData.append('template', massWaTemplate);
+      formData.append('candidateIds', JSON.stringify(scheduledCandidates.map(c => c.id)));
+
+      massPdfFiles.forEach((file) => {
+        formData.append('documents', file);
+      });
+
+      const res = await sendSelectionNotifications(formData);
+      toast.success(res.data.message || 'Pengiriman WA seleksi massal berhasil!');
+      setWaModalOpen(false);
+      fetchSessionAndCandidates();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal mengirim WA massal.');
+    } finally {
+      setSendingMassWa(false);
+    }
+  };
+
+  // ─── Export Handlers ──────────────────────────────────────────────────
   const handleExportExcel = async () => {
     try {
       const res = await exportExcel();
-      downloadBlob(res.data, 'rekap_pendaftaran.xlsx');
+      downloadBlob(res.data, 'rekap_pendaftaran_pikr.xlsx');
       toast.success('Data pendaftaran berhasil diexport ke Excel.');
-    } catch (err) {
-      console.error('Export Excel error:', err);
-      toast.error('Gagal mengeksport data ke Excel.');
+    } catch {
+      toast.error('Gagal mengeksport data.');
+    }
+  };
+
+  const handleExportSelectionExcel = async () => {
+    try {
+      const res = await exportSelectionExcel();
+      downloadBlob(res.data, 'jadwal_seleksi_pikr.xlsx');
+      toast.success('Jadwal seleksi berhasil diexport ke Excel.');
+    } catch {
+      toast.error('Gagal mengeksport jadwal seleksi.');
     }
   };
 
@@ -199,26 +420,31 @@ export default function AdminPendaftaranPage() {
       const res = await exportJSON();
       downloadBlob(res.data, 'akun_pendaftaran.json');
       toast.success('Data pendaftaran berhasil diexport ke JSON.');
-    } catch (err) {
-      console.error('Export JSON error:', err);
-      toast.error('Gagal mengeksport data ke JSON.');
+    } catch {
+      toast.error('Gagal mengeksport data.');
     }
   };
 
-  // Unique kelas for filter
+  // ─── Filtering & Pagination Logic ─────────────────────────────────────
   const kelasOptions = useMemo(() => [...new Set(candidates.map(c => c.className).filter(Boolean))].sort(), [candidates]);
 
-  // Search & Filter
-  const filteredCandidates = useMemo(() => candidates.filter((c) => {
-    const matchesSearch =
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      (c.nisn || '').includes(search);
-    const matchesStatus = statusFilter ? c.status === statusFilter : true;
-    const matchesKelas = filterKelas ? c.className === filterKelas : true;
-    return matchesSearch && matchesStatus && matchesKelas;
-  }), [candidates, search, statusFilter, filterKelas]);
+  const filteredCandidates = useMemo(() => {
+    return candidates.filter((c) => {
+      const matchesSearch =
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        (c.nisn || '').includes(search);
 
-  // Pagination
+      const matchesStatus = statusFilter ? c.status === statusFilter : true;
+      const matchesKelas = filterKelas ? c.className === filterKelas : true;
+
+      if (activeSubTab === 'seleksi') {
+        return matchesSearch && matchesKelas && (c.status === 'PENDING');
+      }
+
+      return matchesSearch && matchesStatus && matchesKelas;
+    });
+  }, [candidates, search, statusFilter, filterKelas, activeSubTab]);
+
   const totalPages = Math.max(1, Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE));
   const paginatedCandidates = filteredCandidates.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -230,7 +456,7 @@ export default function AdminPendaftaranPage() {
   return (
     <div className={styles.page}>
       <AdminHeader
-        title="Manajemen Pendaftaran"
+        title="Manajemen Pendaftaran & Penyeleksian"
         subtitle={`${candidates.length} total calon peserta terdaftar`}
       >
         <div className={styles.headerActions}>
@@ -246,282 +472,863 @@ export default function AdminPendaftaranPage() {
       </AdminHeader>
 
       <div className={styles.body}>
-        {/* Banner Sesi */}
+        {/* Banner Status Sesi */}
         <div className={`${styles.sessionBanner} ${isSessionOpen ? styles.openBanner : styles.closedBanner}`}>
           <div className={styles.bannerIcon}>
             <AlertCircle size={20} />
           </div>
           <div className={styles.bannerText}>
-            <strong>Sesi Pendaftaran Saat Ini: {isSessionOpen ? 'TERBUKA' : 'DITUTUP (ARSIP)'}</strong>
-            <p>
+            <strong>Status Sesi Pendaftaran: {isSessionOpen ? 'TERBUKA' : 'DITUTUP'}</strong>
+            <span>
               {isSessionOpen
-                ? 'Calon peserta dapat melakukan pendaftaran baru melalui form publik. Penutupan sesi akan mengarsipkan data pendaftaran.'
-                : `Pendaftaran ditutup pada ${sessionInfo?.closedAt ? new Date(sessionInfo.closedAt).toLocaleString() : ''}. Sebanyak ${sessionInfo?.migratedCount || 0} anggota dipindahkan ke Anggota PIK-R.`}
-            </p>
+                ? 'Calon anggota dapat mendaftar secara online melalui halaman /daftar.'
+                : 'Pendaftaran ditutup. Sesi ini siap diarsipkan atau mempromosikan peserta LULUS ke Anggota Tetap.'}
+            </span>
           </div>
         </div>
 
-        {/* Toolbar */}
-        <div className={styles.toolbar}>
-          <div className={styles.toolbarLeft}>
-            <div className={styles.searchWrap}>
-              <Search size={16} className={styles.searchIcon} />
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Cari nama atau NISN..."
-                value={search}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                disabled={!isSessionOpen && candidates.length === 0}
-              />
-            </div>
-            <select
-              className={styles.filterSelect}
-              value={statusFilter}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              disabled={!isSessionOpen && candidates.length === 0}
-            >
-              <option value="">Semua Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="LULUS">Lulus</option>
-              <option value="TIDAK_LULUS">Tidak Lulus</option>
-            </select>
-            <select
-              className={styles.filterSelect}
-              value={filterKelas}
-              onChange={(e) => handleKelasChange(e.target.value)}
-              disabled={!isSessionOpen && candidates.length === 0}
-            >
-              <option value="">Semua Kelas</option>
-              {kelasOptions.map(k => <option key={k} value={k}>{k}</option>)}
-            </select>
-          </div>
-
-          <div className={styles.toolbarRight}>
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={handleSendNotifications}
-              disabled={notifying || (!isSessionOpen && candidates.length === 0)}
-              title="Kirim notifikasi kelulusan masal"
-            >
-              <Bell size={15} />
-              Kirim Notifikasi
-            </button>
-            <button className="btn btn-secondary btn-sm" onClick={handleExportExcel} disabled={candidates.length === 0} title="Export ke Excel">
-              <FileSpreadsheet size={15} />
-              Excel
-            </button>
-            <button className="btn btn-secondary btn-sm" onClick={handleExportJSON} disabled={candidates.length === 0} title="Export ke JSON">
-              <FileJson size={15} />
-              JSON
-            </button>
-          </div>
+        {/* ── Sub-Tab Navigation Header ── */}
+        <div className={styles.subTabNav}>
+          <button
+            className={`${styles.subTabBtn} ${activeSubTab === 'data' ? styles.subTabActive : ''}`}
+            onClick={() => { setActiveSubTab('data'); setCurrentPage(1); }}
+          >
+            <Layers size={18} />
+            📋 Data Pendaftaran ({candidates.length})
+          </button>
+          <button
+            className={`${styles.subTabBtn} ${activeSubTab === 'seleksi' ? styles.subTabActive : ''}`}
+            onClick={() => { setActiveSubTab('seleksi'); setCurrentPage(1); }}
+          >
+            <Calendar size={18} />
+            📅 Jadwal & Tahap Seleksi ({candidates.filter(c => c.status === 'PENDING').length})
+          </button>
         </div>
 
-        {/* Table */}
-        <div className={styles.tableWrap}>
-          {loading ? (
-            <SkeletonTable rows={6} cols={7} />
-          ) : filteredCandidates.length === 0 ? (
-            <div className={styles.empty}>Belum ada data pendaftar.</div>
-          ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>NISN</th>
-                  <th>Nama Lengkap</th>
-                  <th>Kelas & Sekolah</th>
-                  <th>Status</th>
-                  <th>Email / WA</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedCandidates.map((c, i) => (
-                  <tr key={c.id} className={i % 2 === 1 ? styles.rowAlt : ''}>
-                    <td className={styles.tdNum}>{(currentPage - 1) * ITEMS_PER_PAGE + i + 1}</td>
-                    <td className={styles.tdMono}>{c.nisn}</td>
-                    <td className={styles.tdName}>{c.name}</td>
-                    <td>
-                      <div>{c.className}</div>
-                      <div style={{ fontSize: '0.8em', color: 'var(--color-text-secondary)' }}>{c.asalSekolah}</div>
-                    </td>
-                    <td>
-                      <span className={`badge badge-${c.status.toLowerCase()}`}>
-                        {c.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div className={styles.notifStatus}>
-                        <Mail
-                          size={14}
-                          className={c.emailNotified ? styles.iconOk : styles.iconNo}
-                          title={c.emailNotified ? 'Email Terkirim' : 'Email Belum Terkirim'}
-                        />
-                        <span className={c.waNotified ? styles.iconOk : styles.iconNo}>WA</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className={styles.rowActions}>
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => handleEditClick(c)}
-                          title="Edit Biodata & Status"
-                        >
-                          <Edit size={14} />
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDeleteClick(c.id, c.name)}
-                          title="Hapus Calon Peserta"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+        {/* ── SUB-TAB 1: DATA PENDAFTARAN ── */}
+        {activeSubTab === 'data' && (
+          <>
+            <div className={styles.toolbar}>
+              <div className={styles.toolbarLeft}>
+                <div className={styles.searchWrap}>
+                  <Search size={16} className={styles.searchIcon} />
+                  <input
+                    type="text"
+                    placeholder="Cari nama atau NISN..."
+                    value={search}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    className={styles.searchInput}
+                  />
+                </div>
 
-          {/* Pagination */}
-          {!loading && totalPages > 1 && (
-            <div className={styles.pagination}>
-              <span className={styles.paginationInfo}>
-                Menampilkan {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredCandidates.length)}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredCandidates.length)} dari {filteredCandidates.length} pendaftar
-              </span>
-              <div className={styles.paginationControls}>
-                <button className={styles.pageBtn} onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-                  <ChevronLeft size={16} />
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-                  .reduce((acc, p, idx, arr) => {
-                    if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
-                    acc.push(p);
-                    return acc;
-                  }, [])
-                  .map((p, idx) =>
-                    typeof p === 'string' ? (
-                      <span key={`ellipsis-${idx}`} className={styles.pageEllipsis}>…</span>
-                    ) : (
-                      <button key={p} className={`${styles.pageBtn} ${currentPage === p ? styles.pageBtnActive : ''}`} onClick={() => handlePageChange(p)}>{p}</button>
-                    )
-                  )}
-                <button className={styles.pageBtn} onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Edit Modal */}
-      {editModalOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalCard}>
-            <div className={styles.modalHeader}>
-              <h3>Edit Calon Peserta</h3>
-            </div>
-            <form onSubmit={handleSaveEdit} className={styles.modalForm}>
-              <div className="form-group">
-                <label className="form-label" htmlFor="edit-name">Nama Lengkap</label>
-                <input
-                  id="edit-name"
-                  type="text"
-                  className="form-input"
-                  value={editForm.name}
-                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="edit-class">Kelas</label>
-                <input
-                  id="edit-class"
-                  type="text"
-                  className="form-input"
-                  value={editForm.className}
-                  onChange={(e) => setEditForm((f) => ({ ...f, className: e.target.value }))}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="edit-asal">Asal Sekolah</label>
-                <input
-                  id="edit-asal"
-                  type="text"
-                  className="form-input"
-                  value={editForm.asalSekolah}
-                  onChange={(e) => setEditForm((f) => ({ ...f, asalSekolah: e.target.value }))}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="edit-email">Email</label>
-                <input
-                  id="edit-email"
-                  type="email"
-                  className="form-input"
-                  value={editForm.email}
-                  onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="edit-wa">No. WhatsApp</label>
-                <input
-                  id="edit-wa"
-                  type="text"
-                  className="form-input"
-                  value={editForm.whatsappNumber}
-                  onChange={(e) => setEditForm((f) => ({ ...f, whatsappNumber: e.target.value }))}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="edit-status">Status Kelulusan</label>
                 <select
-                  id="edit-status"
-                  className="form-select"
-                  value={editForm.status}
-                  onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))}
+                  value={filterKelas}
+                  onChange={(e) => handleKelasChange(e.target.value)}
+                  className={styles.filterSelect}
                 >
+                  <option value="">Semua Kelas</option>
+                  {kelasOptions.map((k) => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={statusFilter}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="">Semua Status</option>
                   <option value="PENDING">PENDING</option>
                   <option value="LULUS">LULUS</option>
                   <option value="TIDAK_LULUS">TIDAK LULUS</option>
                 </select>
               </div>
 
-              <div className={styles.modalActions}>
-                <button type="submit" className="btn btn-primary">
-                  Simpan Perubahan
+              <div className={styles.toolbarRight}>
+                <button onClick={handleExportExcel} className="btn btn-secondary btn-sm">
+                  <FileSpreadsheet size={16} /> Export Excel
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-success"
-                  onClick={() => handlePromoteToMember(selectedCandidate)}
-                  title="Pindahkan langsung ke Anggota PIK-R tanpa menutup sesi"
+                <button onClick={handleExportJSON} className="btn btn-secondary btn-sm">
+                  <FileJson size={16} /> Export JSON
+                </button>
+              </div>
+            </div>
+
+            {loading ? (
+              <SkeletonTable rows={5} columns={8} />
+            ) : paginatedCandidates.length === 0 ? (
+              <div className={styles.empty}>
+                <p>Tidak ada pendaftar yang cocok dengan pencarian/filter.</p>
+              </div>
+            ) : (
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>NISN</th>
+                      <th>Nama Lengkap</th>
+                      <th>Kelas</th>
+                      <th>Asal Sekolah</th>
+                      <th>No. WhatsApp</th>
+                      <th>Status</th>
+                      <th>Hari Seleksi</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedCandidates.map((c, i) => (
+                      <tr key={c.id} className={i % 2 === 1 ? styles.rowAlt : ''}>
+                        <td className={styles.tdNum}>{(currentPage - 1) * ITEMS_PER_PAGE + i + 1}</td>
+                        <td className={styles.tdMono}>{c.nisn}</td>
+                        <td className={styles.tdName}>{c.name}</td>
+                        <td>{c.className}</td>
+                        <td>{c.asalSekolah || '-'}</td>
+                        <td className={styles.tdMono}>{c.whatsappNumber}</td>
+                        <td>
+                          <span className={`badge ${
+                            c.status === 'LULUS'
+                              ? 'badge-success'
+                              : c.status === 'TIDAK_LULUS'
+                              ? 'badge-accent'
+                              : 'badge-warning'
+                          }`}>
+                            {c.status}
+                          </span>
+                        </td>
+                        <td>
+                          {c.selectionDay ? (
+                            <span className={styles.badgeDay}>{c.selectionDay}</span>
+                          ) : (
+                            <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>Belum Set</span>
+                          )}
+                        </td>
+                        <td>
+                          <div className={styles.rowActions}>
+                            <button
+                              onClick={() => openEditModal(c, 'biodata')}
+                              className="btn btn-secondary btn-sm"
+                              title="Edit / Detail Pendaftar"
+                            >
+                              <Edit size={14} /> Detail
+                            </button>
+                            <button
+                              onClick={() => handlePromoteCandidate(c)}
+                              className="btn btn-primary btn-sm"
+                              title="Promosikan ke Anggota Tetap"
+                              style={{ backgroundColor: '#16a34a', borderColor: '#16a34a' }}
+                            >
+                              <UserCheck size={14} /> Promosi
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCandidate(c.id, c.name)}
+                              className="btn btn-danger btn-sm"
+                              title="Hapus Peserta"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── SUB-TAB 2: JADWAL & TAHAP SELEKSI ── */}
+        {activeSubTab === 'seleksi' && (
+          <>
+            {/* Selection Toolbar */}
+            <div className={styles.toolbar}>
+              <div className={styles.toolbarLeft}>
+                <div className={styles.searchWrap}>
+                  <Search size={16} className={styles.searchIcon} />
+                  <input
+                    type="text"
+                    placeholder="Cari nama atau NISN..."
+                    value={search}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    className={styles.searchInput}
+                  />
+                </div>
+
+                <select
+                  value={filterKelas}
+                  onChange={(e) => handleKelasChange(e.target.value)}
+                  className={styles.filterSelect}
                 >
-                  <UserCheck size={15} />
-                  Tambahkan ke Anggota
+                  <option value="">Semua Kelas</option>
+                  {kelasOptions.map((k) => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.toolbarRight}>
+                <button onClick={openRandomizeModal} className="btn btn-secondary btn-sm">
+                  <Shuffle size={16} /> 🎲 Atur Hari Seleksi Massal
                 </button>
+
+                <button onClick={openMassWaModal} className="btn btn-primary btn-sm">
+                  <Send size={16} /> 📢 Kirim WA Seleksi + PDF
+                </button>
+
+                <button onClick={handleExportSelectionExcel} className="btn btn-secondary btn-sm">
+                  <FileSpreadsheet size={16} /> Export Excel Jadwal
+                </button>
+              </div>
+            </div>
+
+            {loading ? (
+              <SkeletonTable rows={5} columns={7} />
+            ) : paginatedCandidates.length === 0 ? (
+              <div className={styles.empty}>
+                <p>Tidak ada peserta seleksi yang cocok dengan filter.</p>
+              </div>
+            ) : (
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>NISN</th>
+                      <th>Nama Lengkap</th>
+                      <th>Kelas</th>
+                      <th>Jadwal Seleksi</th>
+                      <th>Status WA Notif</th>
+                      <th>Aksi Penjadwalan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedCandidates.map((c, i) => (
+                      <tr key={c.id} className={i % 2 === 1 ? styles.rowAlt : ''}>
+                        <td className={styles.tdNum}>{(currentPage - 1) * ITEMS_PER_PAGE + i + 1}</td>
+                        <td className={styles.tdMono}>{c.nisn}</td>
+                        <td className={styles.tdName}>{c.name}</td>
+                        <td>{c.className}</td>
+                        <td>
+                          {c.selectionDay ? (
+                            <span className={styles.badgeDay}><Calendar size={13} /> {c.selectionDay}</span>
+                          ) : (
+                            <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>Belum Ditentukan</span>
+                          )}
+                        </td>
+                        <td>
+                          {c.selectionNotified ? (
+                            <span className={styles.badgeNotified}><CheckCircle size={13} /> Terkirim</span>
+                          ) : (
+                            <span className={styles.badgeUnnotified}><AlertCircle size={13} /> Belum Dikirim</span>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => openEditModal(c, 'seleksi')}
+                            className="btn btn-secondary btn-sm"
+                            title="Edit Hari Seleksi Cepat"
+                          >
+                            <Calendar size={14} /> Edit Hari Seleksi
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Pagination Footer */}
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <div className={styles.paginationInfo}>
+              Menampilkan {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredCandidates.length)} dari {filteredCandidates.length} data
+            </div>
+
+            <div className={styles.paginationControls}>
+              <button
+                className={styles.pageBtn}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  className={`${styles.pageBtn} ${p === currentPage ? styles.pageBtnActive : ''}`}
+                  onClick={() => handlePageChange(p)}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button
+                className={styles.pageBtn}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ─── MODAL 1: 3-TAB CANDIDATE DETAIL/EDIT MODAL ────────────────── */}
+      {editModalOpen && selectedCandidate && (
+        <div className={styles.modalOverlay} onClick={() => setEditModalOpen(false)}>
+          <div className={`${styles.modalCard} ${styles.wideModalCard}`} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div>
+                <h3>Detail & Pengaturan Calon Anggota</h3>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                  {selectedCandidate.name} ({selectedCandidate.className})
+                </span>
+              </div>
+              <button
+                onClick={() => setEditModalOpen(false)}
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--color-text-muted)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* 3-Tab Header in Modal */}
+            <div className={styles.modalTabNav}>
+              <button
+                className={`${styles.modalTabBtn} ${modalTab === 'biodata' ? styles.modalTabActive : ''}`}
+                onClick={() => setModalTab('biodata')}
+              >
+                <User size={16} /> 📄 Biodata Pendaftar
+              </button>
+              <button
+                className={`${styles.modalTabBtn} ${modalTab === 'seleksi' ? styles.modalTabActive : ''}`}
+                onClick={() => setModalTab('seleksi')}
+              >
+                <Calendar size={16} /> 📅 Jadwal & Notif Seleksi
+              </button>
+              <button
+                className={`${styles.modalTabBtn} ${modalTab === 'status' ? styles.modalTabActive : ''}`}
+                onClick={() => setModalTab('status')}
+              >
+                <UserCheck size={16} /> 🎓 Status Kelulusan
+              </button>
+            </div>
+
+            <div className={styles.modalForm}>
+              {/* TAB 1: BIODATA */}
+              {modalTab === 'biodata' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div className={styles.twoColGrid}>
+                    <div className="form-group">
+                      <label className="form-label">NISN</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editForm.nisn}
+                        onChange={(e) => setEditForm({ ...editForm, nisn: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Nama Lengkap</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.twoColGrid}>
+                    <div className="form-group">
+                      <label className="form-label">Kelas</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editForm.className}
+                        onChange={(e) => setEditForm({ ...editForm, className: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Asal Sekolah SMP/MTs</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editForm.asalSekolah}
+                        onChange={(e) => setEditForm({ ...editForm, asalSekolah: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.twoColGrid}>
+                    <div className="form-group">
+                      <label className="form-label">No. WhatsApp</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editForm.whatsappNumber}
+                        onChange={(e) => setEditForm({ ...editForm, whatsappNumber: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Email</label>
+                      <input
+                        type="email"
+                        className="form-input"
+                        value={editForm.email}
+                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Jenis Kelamin</label>
+                    <select
+                      className="form-select"
+                      value={editForm.gender}
+                      onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                    >
+                      <option value="Laki-laki">Laki-laki</option>
+                      <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Alasan Bergabung</label>
+                    <textarea
+                      rows={3}
+                      className="form-textarea"
+                      value={editForm.reason}
+                      onChange={(e) => setEditForm({ ...editForm, reason: e.target.value })}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: JADWAL SELEKSI & WA NOTIFIKASI INDIVIDU */}
+              {modalTab === 'seleksi' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div className={styles.twoColGrid}>
+                    <div className="form-group">
+                      <label className="form-label">Hari Seleksi</label>
+                      <select
+                        className="form-select"
+                        value={editForm.selectionDay}
+                        onChange={(e) => setEditForm({ ...editForm, selectionDay: e.target.value })}
+                      >
+                        <option value="Rabu, 29 Juli 2026">Rabu, 29 Juli 2026</option>
+                        <option value="Kamis, 30 Juli 2026">Kamis, 30 Juli 2026</option>
+                        <option value="Jumat, 31 Juli 2026">Jumat, 31 Juli 2026</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Tanggal Seleksi</label>
+                      <input
+                        type="date"
+                        className="form-input"
+                        value={editForm.selectionDate}
+                        onChange={(e) => setEditForm({ ...editForm, selectionDate: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <hr className="divider" />
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <label className="form-label" style={{ margin: 0 }}>Pesan WhatsApp Notifikasi Seleksi</label>
+                      <span className={editForm.selectionNotified ? styles.badgeNotified : styles.badgeUnnotified}>
+                        {editForm.selectionNotified ? '✅ WA Notif Terkirim' : '⚠️ Belum Dikirim'}
+                      </span>
+                    </div>
+
+                    <textarea
+                      rows={4}
+                      className="form-textarea"
+                      value={singleWaText}
+                      onChange={(e) => setSingleWaText(e.target.value)}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                      Gunakan placeholder: <code>&#123;nama&#125;</code>, <code>&#123;nisn&#125;</code>, <code>&#123;kelas&#125;</code>, <code>&#123;hari_seleksi&#125;</code>
+                    </span>
+                  </div>
+
+                  {/* PDF Attachment Input */}
+                  <div className="form-group">
+                    <label className="form-label"><Paperclip size={14} /> Lampirkan File PDF (Opsional)</label>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      multiple
+                      onChange={(e) => setSinglePdfFiles(Array.from(e.target.files))}
+                      className="form-input"
+                    />
+                    {singlePdfFiles.length > 0 && (
+                      <span style={{ fontSize: '0.8125rem', color: 'var(--color-success)', fontWeight: 600 }}>
+                        {singlePdfFiles.length} file PDF dilampirkan.
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSendSingleWa}
+                    disabled={sendingSingleWa}
+                    className="btn btn-primary btn-sm"
+                    style={{ alignSelf: 'flex-start' }}
+                  >
+                    {sendingSingleWa ? <span className="spinner" /> : <Send size={14} />}
+                    {sendingSingleWa ? 'Mengirim WA...' : `Kirim WA Seleksi ke ${selectedCandidate.name}`}
+                  </button>
+                </div>
+              )}
+
+              {/* TAB 3: STATUS KELULUSAN & PROMOSI */}
+              {modalTab === 'status' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Status Seleksi Candidate</label>
+                    <select
+                      className="form-select"
+                      value={editForm.status}
+                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    >
+                      <option value="PENDING">PENDING (Proses Seleksi)</option>
+                      <option value="LULUS">LULUS (Siap Dipromosikan)</option>
+                      <option value="TIDAK_LULUS">TIDAK LULUS</option>
+                    </select>
+                  </div>
+
+                  <div style={{ backgroundColor: 'var(--color-surface-2)', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border-strong)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>Password Akun Anggota:</span>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        {showPassword ? 'Sembunyikan' : 'Tampilkan'}
+                      </button>
+                    </div>
+                    <span style={{ fontFamily: 'monospace', fontSize: '1rem', color: 'var(--color-accent)', fontWeight: 700 }}>
+                      {showPassword ? selectedCandidate.plainPassword || 'pikr2024' : '••••••••'}
+                    </span>
+                  </div>
+
+                  <hr className="divider" />
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="form-label">Promosi Langsung ke Anggota Tetap</label>
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                      Memindahkan pendaftar ke tabel Member aktif, memformat nama ke Title Case, dan mengirimkan pesan WA kelulusan.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handlePromoteCandidate(selectedCandidate)}
+                      className="btn btn-primary"
+                      style={{ backgroundColor: '#16a34a', borderColor: '#16a34a', alignSelf: 'flex-start' }}
+                    >
+                      <UserCheck size={16} /> Promosikan Sebagai Anggota Aktif Now
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Bottom Actions (Structured Left-Right) */}
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                onClick={() => handleDeleteCandidate(selectedCandidate.id, selectedCandidate.name)}
+                className="btn btn-danger btn-sm"
+              >
+                <Trash2 size={14} /> Hapus Pendaftar
+              </button>
+
+              <div className={styles.modalActionsRight}>
                 <button
                   type="button"
-                  className="btn btn-secondary"
                   onClick={() => setEditModalOpen(false)}
+                  className="btn btn-secondary btn-sm"
                 >
                   Batal
                 </button>
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  className="btn btn-primary btn-sm"
+                >
+                  Simpan Perubahan
+                </button>
               </div>
-            </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL 2: ATUR HARI SELEKSI MASSAL MODAL ────────────────────── */}
+      {randomizeModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setRandomizeModalOpen(false)}>
+          <div className={`${styles.modalCard} ${styles.wideModalCard}`} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div>
+                <h3>🎲 Acak & Atur Hari Seleksi Massal</h3>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                  Alokasikan hari seleksi dan kuota spesifik per hari
+                </span>
+              </div>
+              <button
+                onClick={() => setRandomizeModalOpen(false)}
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--color-text-muted)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className={styles.modalForm}>
+              {/* 1. Mode Pemilihan Peserta */}
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: 700 }}>1. Mode Pemilihan Peserta Seleksi</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.875rem' }}>
+                    <input
+                      type="radio"
+                      name="selectionMode"
+                      value="proceed"
+                      checked={selectionMode === 'proceed'}
+                      onChange={() => setSelectionMode('proceed')}
+                    />
+                    <span><strong>Mode A: Pilih Peserta yang LANJUT Seleksi</strong> (Checklist peserta yang hadir/lanjut)</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.875rem' }}>
+                    <input
+                      type="radio"
+                      name="selectionMode"
+                      value="exclude"
+                      checked={selectionMode === 'exclude'}
+                      onChange={() => setSelectionMode('exclude')}
+                    />
+                    <span><strong>Mode B: Pilih Peserta yang TIDAK Lanjut</strong> (Checklist peserta yang absen/gugur)</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.875rem' }}>
+                    <input
+                      type="radio"
+                      name="selectionMode"
+                      value="all"
+                      checked={selectionMode === 'all'}
+                      onChange={() => setSelectionMode('all')}
+                    />
+                    <span><strong>Mode C: Semua Pendaftar PENDING Lanjut Seleksi</strong></span>
+                  </label>
+                </div>
+              </div>
+
+              {/* 2. Candidate Checklist */}
+              {selectionMode !== 'all' && (
+                <div className="form-group">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <label className="form-label" style={{ margin: 0 }}>
+                      2. Daftar Peserta ({selectedChecklistIds.length} dari {candidates.filter(c => c.status === 'PENDING').length} Tercentang)
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => handleSelectAllChecklist(true)}
+                        style={{ padding: '2px 8px', fontSize: '0.75rem' }}
+                      >
+                        Pilih Semua
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => handleSelectAllChecklist(false)}
+                        style={{ padding: '2px 8px', fontSize: '0.75rem' }}
+                      >
+                        Hapus Semua
+                      </button>
+                    </div>
+                  </div>
+
+                  <input
+                    type="text"
+                    placeholder="Cari nama/NISN di daftar checklist..."
+                    value={checklistSearch}
+                    onChange={(e) => setChecklistSearch(e.target.value)}
+                    className="form-input"
+                    style={{ marginBottom: '8px', padding: '6px 10px', fontSize: '0.8125rem' }}
+                  />
+
+                  <div className={styles.checklistCard}>
+                    {checklistCandidates.map((c) => {
+                      const checked = selectedChecklistIds.includes(c.id);
+                      return (
+                        <div
+                          key={c.id}
+                          className={styles.checklistItem}
+                          onClick={() => handleToggleChecklist(c.id)}
+                        >
+                          {checked ? <CheckSquare size={16} color="var(--color-accent)" /> : <Square size={16} color="var(--color-text-muted)" />}
+                          <span style={{ fontWeight: 600 }}>{c.name}</span>
+                          <span style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>({c.className})</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Alokasi Kuota Per Hari */}
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: 700 }}>
+                  3. Alokasi Kuota Peserta Per Hari ({targetCandidatesForSelection.length} Peserta Akan Diacak)
+                </label>
+
+                <div className={styles.quotaGrid}>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.8125rem' }}>Hari 1 (Contoh: Rabu)</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={day1Name}
+                      onChange={(e) => setDay1Name(e.target.value)}
+                      placeholder="Nama Hari (e.g. Rabu, 29 Juli 2026)"
+                      style={{ marginBottom: '6px' }}
+                    />
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={day1Quota}
+                      onChange={(e) => setDay1Quota(e.target.value)}
+                      placeholder="Jumlah Peserta Kuota Hari 1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.8125rem' }}>Hari 2 (Contoh: Kamis)</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={day2Name}
+                      onChange={(e) => setDay2Name(e.target.value)}
+                      placeholder="Nama Hari (e.g. Kamis, 30 Juli 2026)"
+                      style={{ marginBottom: '6px' }}
+                    />
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={day2Quota}
+                      onChange={(e) => setDay2Quota(e.target.value)}
+                      placeholder="Jumlah Peserta Kuota Hari 2"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                onClick={() => setRandomizeModalOpen(false)}
+                className="btn btn-secondary btn-sm"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleExecuteRandomize}
+                disabled={savingRandomize}
+                className="btn btn-primary btn-sm"
+              >
+                {savingRandomize ? <span className="spinner" /> : <Shuffle size={14} />}
+                {savingRandomize ? 'Memproses...' : `Terapkan Jadwal ke ${targetCandidatesForSelection.length} Peserta`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL 3: KIRIM WA SELEKSI MASSAL + PDF MODAL ───────────── */}
+      {waModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setWaModalOpen(false)}>
+          <div className={`${styles.modalCard} ${styles.wideModalCard}`} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div>
+                <h3>📢 Kirim Notifikasi WA Seleksi Massal + PDF</h3>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                  Akan dikirim ke {candidates.filter(c => c.status === 'PENDING' && c.selectionDay).length} peserta yang memiliki jadwal seleksi
+                </span>
+              </div>
+              <button
+                onClick={() => setWaModalOpen(false)}
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--color-text-muted)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className={styles.modalForm}>
+              <div className="form-group">
+                <label className="form-label">Template Teks Pesan WhatsApp</label>
+                <textarea
+                  rows={6}
+                  className="form-textarea"
+                  value={massWaTemplate}
+                  onChange={(e) => setMassWaTemplate(e.target.value)}
+                />
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                  Placeholder otomatis: <code>&#123;nama&#125;</code>, <code>&#123;nisn&#125;</code>, <code>&#123;kelas&#125;</code>, <code>&#123;hari_seleksi&#125;</code>
+                </span>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label"><Paperclip size={14} /> Lampirkan File PDF Panduan (Opsional)</label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  multiple
+                  onChange={(e) => setMassPdfFiles(Array.from(e.target.files))}
+                  className="form-input"
+                />
+                {massPdfFiles.length > 0 && (
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-success)', fontWeight: 600 }}>
+                    {massPdfFiles.length} file PDF terlampir.
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                onClick={() => setWaModalOpen(false)}
+                className="btn btn-secondary btn-sm"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleExecuteMassWa}
+                disabled={sendingMassWa}
+                className="btn btn-primary btn-sm"
+              >
+                {sendingMassWa ? <span className="spinner" /> : <Send size={14} />}
+                {sendingMassWa ? 'Mengirim Massal...' : 'Kirim Pesan & PDF Massal'}
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
-

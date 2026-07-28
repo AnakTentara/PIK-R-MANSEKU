@@ -1899,6 +1899,9 @@ export namespace Prisma {
     emailNotified: boolean | null
     waNotified: boolean | null
     lastStatus: $Enums.Status | null
+    selectionDate: Date | null
+    selectionDay: string | null
+    selectionNotified: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1920,6 +1923,9 @@ export namespace Prisma {
     emailNotified: boolean | null
     waNotified: boolean | null
     lastStatus: $Enums.Status | null
+    selectionDate: Date | null
+    selectionDay: string | null
+    selectionNotified: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1941,6 +1947,9 @@ export namespace Prisma {
     emailNotified: number
     waNotified: number
     lastStatus: number
+    selectionDate: number
+    selectionDay: number
+    selectionNotified: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1964,6 +1973,9 @@ export namespace Prisma {
     emailNotified?: true
     waNotified?: true
     lastStatus?: true
+    selectionDate?: true
+    selectionDay?: true
+    selectionNotified?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1985,6 +1997,9 @@ export namespace Prisma {
     emailNotified?: true
     waNotified?: true
     lastStatus?: true
+    selectionDate?: true
+    selectionDay?: true
+    selectionNotified?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2006,6 +2021,9 @@ export namespace Prisma {
     emailNotified?: true
     waNotified?: true
     lastStatus?: true
+    selectionDate?: true
+    selectionDay?: true
+    selectionNotified?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2100,6 +2118,9 @@ export namespace Prisma {
     emailNotified: boolean
     waNotified: boolean
     lastStatus: $Enums.Status
+    selectionDate: Date | null
+    selectionDay: string | null
+    selectionNotified: boolean
     createdAt: Date
     updatedAt: Date
     _count: CandidateCountAggregateOutputType | null
@@ -2138,6 +2159,9 @@ export namespace Prisma {
     emailNotified?: boolean
     waNotified?: boolean
     lastStatus?: boolean
+    selectionDate?: boolean
+    selectionDay?: boolean
+    selectionNotified?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["candidate"]>
@@ -2161,11 +2185,14 @@ export namespace Prisma {
     emailNotified?: boolean
     waNotified?: boolean
     lastStatus?: boolean
+    selectionDate?: boolean
+    selectionDay?: boolean
+    selectionNotified?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CandidateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "asalSekolah" | "reason" | "status" | "photoPath" | "password" | "plainPassword" | "emailNotified" | "waNotified" | "lastStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["candidate"]>
+  export type CandidateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "asalSekolah" | "reason" | "status" | "photoPath" | "password" | "plainPassword" | "emailNotified" | "waNotified" | "lastStatus" | "selectionDate" | "selectionDay" | "selectionNotified" | "createdAt" | "updatedAt", ExtArgs["result"]["candidate"]>
 
   export type $CandidatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Candidate"
@@ -2187,6 +2214,9 @@ export namespace Prisma {
       emailNotified: boolean
       waNotified: boolean
       lastStatus: $Enums.Status
+      selectionDate: Date | null
+      selectionDay: string | null
+      selectionNotified: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["candidate"]>
@@ -2574,6 +2604,9 @@ export namespace Prisma {
     readonly emailNotified: FieldRef<"Candidate", 'Boolean'>
     readonly waNotified: FieldRef<"Candidate", 'Boolean'>
     readonly lastStatus: FieldRef<"Candidate", 'Status'>
+    readonly selectionDate: FieldRef<"Candidate", 'DateTime'>
+    readonly selectionDay: FieldRef<"Candidate", 'String'>
+    readonly selectionNotified: FieldRef<"Candidate", 'Boolean'>
     readonly createdAt: FieldRef<"Candidate", 'DateTime'>
     readonly updatedAt: FieldRef<"Candidate", 'DateTime'>
   }
@@ -12957,6 +12990,9 @@ export namespace Prisma {
     emailNotified: 'emailNotified',
     waNotified: 'waNotified',
     lastStatus: 'lastStatus',
+    selectionDate: 'selectionDate',
+    selectionDay: 'selectionDay',
+    selectionNotified: 'selectionNotified',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13135,7 +13171,8 @@ export namespace Prisma {
     reason: 'reason',
     photoPath: 'photoPath',
     password: 'password',
-    plainPassword: 'plainPassword'
+    plainPassword: 'plainPassword',
+    selectionDay: 'selectionDay'
   };
 
   export type CandidateOrderByRelevanceFieldEnum = (typeof CandidateOrderByRelevanceFieldEnum)[keyof typeof CandidateOrderByRelevanceFieldEnum]
@@ -13336,6 +13373,9 @@ export namespace Prisma {
     emailNotified?: BoolFilter<"Candidate"> | boolean
     waNotified?: BoolFilter<"Candidate"> | boolean
     lastStatus?: EnumStatusFilter<"Candidate"> | $Enums.Status
+    selectionDate?: DateTimeNullableFilter<"Candidate"> | Date | string | null
+    selectionDay?: StringNullableFilter<"Candidate"> | string | null
+    selectionNotified?: BoolFilter<"Candidate"> | boolean
     createdAt?: DateTimeFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeFilter<"Candidate"> | Date | string
   }
@@ -13357,6 +13397,9 @@ export namespace Prisma {
     emailNotified?: SortOrder
     waNotified?: SortOrder
     lastStatus?: SortOrder
+    selectionDate?: SortOrderInput | SortOrder
+    selectionDay?: SortOrderInput | SortOrder
+    selectionNotified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _relevance?: CandidateOrderByRelevanceInput
@@ -13382,6 +13425,9 @@ export namespace Prisma {
     emailNotified?: BoolFilter<"Candidate"> | boolean
     waNotified?: BoolFilter<"Candidate"> | boolean
     lastStatus?: EnumStatusFilter<"Candidate"> | $Enums.Status
+    selectionDate?: DateTimeNullableFilter<"Candidate"> | Date | string | null
+    selectionDay?: StringNullableFilter<"Candidate"> | string | null
+    selectionNotified?: BoolFilter<"Candidate"> | boolean
     createdAt?: DateTimeFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeFilter<"Candidate"> | Date | string
   }, "id" | "nisn">
@@ -13403,6 +13449,9 @@ export namespace Prisma {
     emailNotified?: SortOrder
     waNotified?: SortOrder
     lastStatus?: SortOrder
+    selectionDate?: SortOrderInput | SortOrder
+    selectionDay?: SortOrderInput | SortOrder
+    selectionNotified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CandidateCountOrderByAggregateInput
@@ -13430,6 +13479,9 @@ export namespace Prisma {
     emailNotified?: BoolWithAggregatesFilter<"Candidate"> | boolean
     waNotified?: BoolWithAggregatesFilter<"Candidate"> | boolean
     lastStatus?: EnumStatusWithAggregatesFilter<"Candidate"> | $Enums.Status
+    selectionDate?: DateTimeNullableWithAggregatesFilter<"Candidate"> | Date | string | null
+    selectionDay?: StringNullableWithAggregatesFilter<"Candidate"> | string | null
+    selectionNotified?: BoolWithAggregatesFilter<"Candidate"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Candidate"> | Date | string
   }
@@ -14208,6 +14260,9 @@ export namespace Prisma {
     emailNotified?: boolean
     waNotified?: boolean
     lastStatus?: $Enums.Status
+    selectionDate?: Date | string | null
+    selectionDay?: string | null
+    selectionNotified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14229,6 +14284,9 @@ export namespace Prisma {
     emailNotified?: boolean
     waNotified?: boolean
     lastStatus?: $Enums.Status
+    selectionDate?: Date | string | null
+    selectionDay?: string | null
+    selectionNotified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14250,6 +14308,9 @@ export namespace Prisma {
     emailNotified?: BoolFieldUpdateOperationsInput | boolean
     waNotified?: BoolFieldUpdateOperationsInput | boolean
     lastStatus?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
+    selectionNotified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14271,6 +14332,9 @@ export namespace Prisma {
     emailNotified?: BoolFieldUpdateOperationsInput | boolean
     waNotified?: BoolFieldUpdateOperationsInput | boolean
     lastStatus?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
+    selectionNotified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14292,6 +14356,9 @@ export namespace Prisma {
     emailNotified?: boolean
     waNotified?: boolean
     lastStatus?: $Enums.Status
+    selectionDate?: Date | string | null
+    selectionDay?: string | null
+    selectionNotified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14313,6 +14380,9 @@ export namespace Prisma {
     emailNotified?: BoolFieldUpdateOperationsInput | boolean
     waNotified?: BoolFieldUpdateOperationsInput | boolean
     lastStatus?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
+    selectionNotified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14334,6 +14404,9 @@ export namespace Prisma {
     emailNotified?: BoolFieldUpdateOperationsInput | boolean
     waNotified?: BoolFieldUpdateOperationsInput | boolean
     lastStatus?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
+    selectionNotified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15198,6 +15271,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -15237,6 +15321,9 @@ export namespace Prisma {
     emailNotified?: SortOrder
     waNotified?: SortOrder
     lastStatus?: SortOrder
+    selectionDate?: SortOrder
+    selectionDay?: SortOrder
+    selectionNotified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15258,6 +15345,9 @@ export namespace Prisma {
     emailNotified?: SortOrder
     waNotified?: SortOrder
     lastStatus?: SortOrder
+    selectionDate?: SortOrder
+    selectionDay?: SortOrder
+    selectionNotified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15279,6 +15369,9 @@ export namespace Prisma {
     emailNotified?: SortOrder
     waNotified?: SortOrder
     lastStatus?: SortOrder
+    selectionDate?: SortOrder
+    selectionDay?: SortOrder
+    selectionNotified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15335,6 +15428,20 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -15941,6 +16048,10 @@ export namespace Prisma {
     set?: boolean
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -16513,6 +16624,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -16598,6 +16720,20 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {

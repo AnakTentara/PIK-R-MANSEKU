@@ -373,6 +373,48 @@ export async function sendWhatsApp(to, text) {
   }
 }
 
+/**
+ * Send WhatsApp text message and optional document attachments (e.g. PDF guidelines).
+ * @param {string} to - Phone number
+ * @param {string} text - Message caption or text
+ * @param {Array<{ path: string, filename: string, mimetype?: string }>} attachments
+ */
+export async function sendWhatsAppWithAttachments(to, text, attachments = []) {
+  if (!sock || !isConnected) {
+    console.warn(`[WhatsApp] Gagal mengirim pesan/dokumen ke ${to} karena bot belum aktif/terkoneksi.`);
+    return false;
+  }
+
+  try {
+    const formattedJid = formatPhoneNumber(to);
+    
+    // Send main text message first
+    if (text && text.trim()) {
+      await sock.sendMessage(formattedJid, { text: text.trim() });
+    }
+
+    // Send attached document files (PDFs)
+    if (Array.isArray(attachments) && attachments.length > 0) {
+      for (const att of attachments) {
+        if (!att.path || !fs.existsSync(att.path)) continue;
+        const buffer = fs.readFileSync(att.path);
+        const mimetype = att.mimetype || 'application/pdf';
+        const fileName = att.filename || path.basename(att.path);
+
+        await sock.sendMessage(formattedJid, {
+          document: buffer,
+          mimetype,
+          fileName
+        });
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error(`[WhatsApp] Gagal mengirim dokumen/pesan ke ${to}:`, error);
+    return false;
+  }
+}
+
 export function isWhatsAppReady() {
   return isConnected;
 }

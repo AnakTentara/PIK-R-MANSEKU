@@ -14,6 +14,9 @@ import {
   exportJSON,
   exportExcel,
   triggerNotifications,
+  randomizeSelectionDays,
+  sendSelectionNotifications,
+  exportSelectionExcel,
   getSettings,
   saveSettings,
   downloadBackupDb,
@@ -48,6 +51,7 @@ import {
 } from '../controllers/admin.js';
 import { authAdmin, requireRole } from '../middlewares/auth.js';
 import { loginLimiter } from '../middlewares/rateLimit.js';
+import { uploadDocs } from '../utils/multerConfig.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -134,8 +138,11 @@ router.get('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']),
 router.post('/candidates', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), createCandidate);
 router.get('/candidates/export-json', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), exportJSON);
 router.get('/candidates/export-excel', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), exportExcel);
+router.get('/candidates/export-selection-excel', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), exportSelectionExcel);
 router.post('/candidates/generate-passwords', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), generatePasswords);
 router.post('/candidates/send-notifications', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), triggerNotifications);
+router.post('/candidates/randomize-selection', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), randomizeSelectionDays);
+router.post('/candidates/send-selection-notifications', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), uploadDocs.any(), sendSelectionNotifications);
 
 // Candidate CRUD by ID (DEVELOPER and KABINET_UMUM only)
 router.get('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getCandidateById);

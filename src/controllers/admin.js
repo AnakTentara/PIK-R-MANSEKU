@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url';
 import prisma, { initDatabase, getDbProvider } from '../config/db.js';
 import { sendBulkNotifications } from '../services/notification.js';
 import { isMemberExpired } from '../utils/memberUtils.js';
+import { toTitleCase } from '../utils/nameUtils.js';
+import { sendWhatsApp, sendWhatsAppWithAttachments } from '../services/whatsapp.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
@@ -401,11 +403,13 @@ export async function promoteCandidateToMember(req, res) {
       password = await bcrypt.hash(plainPassword, 10);
     }
 
+    const formattedName = toTitleCase(candidate.name);
+
     // Upsert the member record
     await prisma.member.upsert({
       where: { nisn: candidate.nisn },
       update: {
-        name: candidate.name,
+        name: formattedName,
         className: candidate.className,
         whatsappNumber: candidate.whatsappNumber,
         email: candidate.email,
@@ -417,7 +421,7 @@ export async function promoteCandidateToMember(req, res) {
       },
       create: {
         nisn: candidate.nisn,
-        name: candidate.name,
+        name: formattedName,
         className: candidate.className,
         whatsappNumber: candidate.whatsappNumber,
         email: candidate.email,
@@ -434,8 +438,16 @@ export async function promoteCandidateToMember(req, res) {
     // Remove from candidates table
     await prisma.candidate.delete({ where: { id } });
 
+    // Send automatic WA congratulation notification
+    try {
+      const waMsg = `🎉 *SELAMAT ${formattedName.toUpperCase()}!*\n\nKamu telah resmi dinyatakan *LULUS* dan dipromosikan sebagai *Anggota PIK-R MANSEKU*.\n\nSilakan cek status kelulusan dan kredensial akun kamu melalui tautan di bawah ini:\n🔗 https://pikr-manseku.my.id/cek-kelulusan\n\nSelamat bergabung di keluarga besar PIK-R MANSEKU! 💪`;
+      await sendWhatsApp(candidate.whatsappNumber, waMsg);
+    } catch (waErr) {
+      console.error('Gagal mengirim WA promosi anggota:', waErr);
+    }
+
     return res.json({
-      message: `${candidate.name} berhasil dipindahkan ke Anggota PIK-R.`,
+      message: `${formattedName} berhasil dipindahkan ke Anggota PIK-R dan pesan WhatsApp telah dikirim.`,
       memberId: candidate.nisn,
     });
   } catch (error) {
@@ -461,16 +473,17 @@ export async function closeSession(req, res) {
           : c.plainPassword;
         // Note: password sudah pasti ter-hash dari proses sebelumnya
         const password = c.password || '';
+        const formattedName = toTitleCase(c.name);
         return prisma.member.upsert({
           where: { nisn: c.nisn },
           update: {
-            name: c.name, className: c.className,
+            name: formattedName, className: c.className,
             whatsappNumber: c.whatsappNumber, email: c.email,
             gender: c.gender, asalSekolah: c.asalSekolah,
             password, plainPassword, status: 'ACTIVE',
           },
           create: {
-            nisn: c.nisn, name: c.name, className: c.className,
+            nisn: c.nisn, name: formattedName, className: c.className,
             whatsappNumber: c.whatsappNumber, email: c.email,
             gender: c.gender, asalSekolah: c.asalSekolah,
             password, plainPassword, status: 'ACTIVE',
@@ -1236,4 +1249,221 @@ export async function getDashboardStats(req, res) {
     return res.status(500).json({ message: 'Gagal mengambil statistik dashboard' });
   }
 }
+
+// ─────────────────────────────────────────────────
+// SELECTION SCHEDULE & NOTIFICATION CONTROLLERS
+// ─────────────────────────────────────────────────
+
+// 21. Randomize / Assign Selection Days with specific daily quotas
+export async function randomizeSelectionDays(req, res) {
+  const { targetCandidateIds, dayQuotas, excludedCandidateIds } = req.body;
+
+  if (!Array.isArray(dayQuotas) || dayQuotas.length === 0) {
+    return res.status(400).json({ message: 'Daftar alokasi kuota hari seleksi wajib diisi' });
+  }
+
+  try {
+    let candidateIds = targetCandidateIds;
+    if (!Array.isArray(candidateIds) || candidateIds.length === 0) {
+      const pendingCandidates = await prisma.candidate.findMany({
+        where: { status: 'PENDING' },
+        select: { id: true }
+      });
+      candidateIds = pendingCandidates.map(c => c.id);
+    }
+
+    // Exclude candidate IDs if provided
+    if (Array.isArray(excludedCandidateIds) && excludedCandidateIds.length > 0) {
+      candidateIds = candidateIds.filter(id => !excludedCandidateIds.includes(id));
+      
+      // Update excluded candidates: clear selection schedule
+      await prisma.candidate.updateMany({
+        where: { id: { in: excludedCandidateIds } },
+        data: { selectionDay: null, selectionDate: null }
+      });
+    }
+
+    // Randomize order of selected candidate IDs
+    const shuffled = [...candidateIds].sort(() => Math.random() - 0.5);
+
+    let currentIndex = 0;
+    const updates = [];
+
+    for (const dq of dayQuotas) {
+      const quota = parseInt(dq.quota) || 0;
+      const assignedIds = shuffled.slice(currentIndex, currentIndex + quota);
+      currentIndex += quota;
+
+      if (assignedIds.length > 0) {
+        updates.push(
+          prisma.candidate.updateMany({
+            where: { id: { in: assignedIds } },
+            data: {
+              selectionDay: dq.day,
+              selectionDate: dq.date ? new Date(dq.date) : null,
+              selectionNotified: false
+            }
+          })
+        );
+      }
+    }
+
+    // If there are remaining candidates beyond total specified quota, assign to last day
+    if (currentIndex < shuffled.length) {
+      const remainingIds = shuffled.slice(currentIndex);
+      const lastDay = dayQuotas[dayQuotas.length - 1];
+      updates.push(
+        prisma.candidate.updateMany({
+          where: { id: { in: remainingIds } },
+          data: {
+            selectionDay: lastDay.day,
+            selectionDate: lastDay.date ? new Date(lastDay.date) : null,
+            selectionNotified: false
+          }
+        })
+      );
+    }
+
+    await prisma.$transaction(updates);
+
+    return res.json({
+      message: `Berhasil mengalokasikan jadwal seleksi untuk ${shuffled.length} peserta.`
+    });
+  } catch (error) {
+    console.error('Error randomizing selection days:', error);
+    return res.status(500).json({ message: 'Gagal mengacak jadwal seleksi' });
+  }
+}
+
+// 22. Send Selection Notifications (WA message + optional PDF attachments)
+export async function sendSelectionNotifications(req, res) {
+  try {
+    const { candidateIds, template, singleCandidateId } = req.body;
+    let targetIds = [];
+
+    if (singleCandidateId) {
+      targetIds = [singleCandidateId];
+    } else if (Array.isArray(candidateIds)) {
+      targetIds = candidateIds;
+    } else if (typeof candidateIds === 'string' && candidateIds.trim()) {
+      try { targetIds = JSON.parse(candidateIds); }
+      catch { targetIds = candidateIds.split(',').map(s => s.trim()); }
+    }
+
+    if (targetIds.length === 0) {
+      const scheduled = await prisma.candidate.findMany({
+        where: {
+          status: 'PENDING',
+          selectionDay: { not: null }
+        },
+        select: { id: true }
+      });
+      targetIds = scheduled.map(c => c.id);
+    }
+
+    const candidates = await prisma.candidate.findMany({
+      where: { id: { in: targetIds } }
+    });
+
+    if (candidates.length === 0) {
+      return res.status(404).json({ message: 'Tidak ada peserta yang ditemukan untuk dikirim notifikasi.' });
+    }
+
+    // Process attached files (uploaded via multer fields or files)
+    const attachments = [];
+    if (req.files) {
+      const fileList = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+      for (const f of fileList) {
+        attachments.push({
+          path: f.path,
+          filename: f.originalname,
+          mimetype: f.mimetype
+        });
+      }
+    }
+
+    const defaultTemplate =
+      `Halo {nama} ({kelas}),\n\n` +
+      `Selamat! Kamu dijadwalkan untuk mengikuti *Tahap Seleksi Calon Anggota PIK-R MANSEKU* pada:\n` +
+      `📅 *Hari/Tanggal:* {hari_seleksi}\n` +
+      `📌 *NISN:* {nisn}\n` +
+      `📍 *Lokasi:* Ruang PIK-R MAN 1 Muara Enim\n\n` +
+      `Harap hadir tepat waktu dan membawa dokumen yang terlampir.\n\n` +
+      `Semangat dan persiapkan dirimu sebaik mungkin! 💪`;
+
+    const msgTemplate = (template && template.trim()) ? template : defaultTemplate;
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const c of candidates) {
+      const formattedName = toTitleCase(c.name);
+      const text = msgTemplate
+        .replace(/{nama}/gi, formattedName)
+        .replace(/{nisn}/gi, c.nisn)
+        .replace(/{kelas}/gi, c.className)
+        .replace(/{hari_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal')
+        .replace(/{tanggal_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal');
+
+      const ok = await sendWhatsAppWithAttachments(c.whatsappNumber, text, attachments);
+      if (ok) {
+        successCount++;
+        await prisma.candidate.update({
+          where: { id: c.id },
+          data: { selectionNotified: true }
+        });
+      } else {
+        failCount++;
+      }
+
+      // Small delay between mass messages to prevent WA rate limit
+      if (candidates.length > 1) {
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    }
+
+    return res.json({
+      message: `Pengiriman notifikasi seleksi selesai. Berhasil: ${successCount}, Gagal: ${failCount}`,
+      successCount,
+      failCount
+    });
+  } catch (error) {
+    console.error('Error sending selection notifications:', error);
+    return res.status(500).json({ message: 'Gagal mengirimkan notifikasi seleksi' });
+  }
+}
+
+// 23. Export Selection Schedule to Excel (No, Nama, Kelas, Hari Seleksi, Status WA)
+export async function exportSelectionExcel(req, res) {
+  try {
+    const candidates = await prisma.candidate.findMany({
+      orderBy: [{ selectionDay: 'asc' }, { className: 'asc' }, { name: 'asc' }]
+    });
+
+    const data = candidates.map((c, index) => ({
+      'No': index + 1,
+      'Nama Lengkap': toTitleCase(c.name),
+      'NISN': c.nisn,
+      'Kelas': c.className,
+      'Hari Seleksi': c.selectionDay || 'Belum Diatur',
+      'Status Notifikasi WA': c.selectionNotified ? 'Sudah Dikirim' : 'Belum Dikirim',
+      'Status Seleksi': c.status,
+      'No. WhatsApp': c.whatsappNumber
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Jadwal Seleksi');
+
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', 'attachment; filename=jadwal_seleksi_pikr.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    return res.send(buffer);
+  } catch (error) {
+    console.error('Error exporting selection Excel:', error);
+    return res.status(500).json({ message: 'Gagal mengekspor jadwal seleksi ke Excel' });
+  }
+}
+
 

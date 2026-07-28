@@ -35,8 +35,23 @@ export const sendNotifications = () =>
 export const exportExcel = () =>
   api.get('/admin/candidates/export-excel', { responseType: 'blob' });
 
+export const exportSelectionExcel = () =>
+  api.get('/admin/candidates/export-selection-excel', { responseType: 'blob' });
+
 export const exportJSON = () =>
   api.get('/admin/candidates/export-json', { responseType: 'blob' });
+
+export const randomizeSelectionDays = (data) =>
+  api.post('/admin/candidates/randomize-selection', data);
+
+export const sendSelectionNotifications = (data) => {
+  if (data instanceof FormData) {
+    return api.post('/admin/candidates/send-selection-notifications', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  }
+  return api.post('/admin/candidates/send-selection-notifications', data);
+};
 
 // Blog / Comments
 export const deleteComment = (id) =>

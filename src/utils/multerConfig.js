@@ -47,3 +47,22 @@ export const uploadLogo = makeUpload('logos', 'logo-', 2);
 
 // Featured image forum/blog anggota (max 5MB)
 export const uploadForum = makeUpload('blog', 'forum-', 5);
+
+// Dokumen lampiran (PDF, max 15MB)
+function makeDocUpload(subfolder, sizeMB = 15) {
+  const dir = path.join(__dirname, `../../public/uploads/${subfolder}`);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  return multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => cb(null, dir),
+      filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `doc-${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+      }
+    }),
+    limits: { fileSize: sizeMB * 1024 * 1024 }
+  });
+}
+
+export const uploadDocs = makeDocUpload('documents', 15);

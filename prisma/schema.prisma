@@ -31,6 +31,11 @@ model Candidate {
   waNotified      Boolean  @default(false)
   lastStatus      Status   @default(PENDING)
   
+  // Selection schedule fields
+  selectionDate       DateTime?
+  selectionDay        String?  // e.g. "Rabu, 29 Juli 2026"
+  selectionNotified   Boolean  @default(false)
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

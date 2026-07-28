@@ -138,6 +138,9 @@ exports.Prisma.CandidateScalarFieldEnum = {
   emailNotified: 'emailNotified',
   waNotified: 'waNotified',
   lastStatus: 'lastStatus',
+  selectionDate: 'selectionDate',
+  selectionDay: 'selectionDay',
+  selectionNotified: 'selectionNotified',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -277,7 +280,8 @@ exports.Prisma.CandidateOrderByRelevanceFieldEnum = {
   reason: 'reason',
   photoPath: 'photoPath',
   password: 'password',
-  plainPassword: 'plainPassword'
+  plainPassword: 'plainPassword',
+  selectionDay: 'selectionDay'
 };
 
 exports.Prisma.AdminOrderByRelevanceFieldEnum = {
