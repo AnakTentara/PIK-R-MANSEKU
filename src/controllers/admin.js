@@ -1447,10 +1447,9 @@ export async function sendSelectionNotifications(req, res) {
 
     const msgTemplate = (template && template.trim()) ? template : defaultTemplate;
 
-    let successCount = 0;
-    let failCount = 0;
-
-    for (const c of candidates) {
+    // Single Candidate: process synchronously and return result immediately
+    if (singleCandidateId || candidates.length === 1) {
+      const c = candidates[0];
       const formattedName = toTitleCase(c.name);
       const text = msgTemplate
         .replace(/{nama}/gi, formattedName)
@@ -1461,26 +1460,66 @@ export async function sendSelectionNotifications(req, res) {
 
       const ok = await sendWhatsAppWithAttachments(c.whatsappNumber, text, attachments);
       if (ok) {
-        successCount++;
         await prisma.candidate.update({
           where: { id: c.id },
           data: { selectionNotified: true }
         });
+        return res.json({ message: `Notifikasi seleksi berhasil dikirim ke ${formattedName}.` });
       } else {
-        failCount++;
-      }
-
-      // Small delay between mass messages (300ms) so 50+ messages complete in ~15s without HTTP gateway timeout
-      if (candidates.length > 1) {
-        await new Promise(r => setTimeout(r, 300));
+        return res.status(500).json({ message: `Gagal mengirimkan notifikasi ke ${formattedName}. Pastikan bot WA aktif.` });
       }
     }
 
-    return res.json({
-      message: `Pengiriman notifikasi seleksi selesai. Berhasil: ${successCount}, Gagal: ${failCount}`,
-      successCount,
-      failCount
+    // Mass Broadcast: Respond immediately and process safely in background (Anti-Ban 3.5s-5.5s dynamic delay)
+    res.json({
+      message: `Proses pengiriman WA massal untuk ${candidates.length} peserta telah dimulai di latar belakang. Menggunakan jeda acak 3.5 - 5.5 detik per pesan agar aman dari blokir WhatsApp.`,
+      totalCount: candidates.length
     });
+
+    // Background Async Task
+    (async () => {
+      console.log(`[WA Massal] Memulai pengiriman massal ke ${candidates.length} peserta...`);
+      let successCount = 0;
+      let failCount = 0;
+
+      for (let i = 0; i < candidates.length; i++) {
+        const c = candidates[i];
+        const formattedName = toTitleCase(c.name);
+        const text = msgTemplate
+          .replace(/{nama}/gi, formattedName)
+          .replace(/{nisn}/gi, c.nisn)
+          .replace(/{kelas}/gi, c.className)
+          .replace(/{hari_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal')
+          .replace(/{tanggal_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal');
+
+        try {
+          const ok = await sendWhatsAppWithAttachments(c.whatsappNumber, text, attachments);
+          if (ok) {
+            successCount++;
+            await prisma.candidate.update({
+              where: { id: c.id },
+              data: { selectionNotified: true }
+            });
+          } else {
+            failCount++;
+          }
+        } catch (err) {
+          console.error(`[WA Massal Error] Gagal mengirim ke ${c.whatsappNumber}:`, err);
+          failCount++;
+        }
+
+        // Safe randomized delay: 3500ms to 5500ms per message (Anti-Spam WA Protection)
+        const delay = Math.floor(Math.random() * 2000) + 3500;
+        await new Promise(r => setTimeout(r, delay));
+
+        // Extra rest pause every 5 messages
+        if ((i + 1) % 5 === 0 && i < candidates.length - 1) {
+          console.log(`[WA Massal] Istirahat sejenak 5 detik setelah mengirim ${i + 1} pesan...`);
+          await new Promise(r => setTimeout(r, 5000));
+        }
+      }
+      console.log(`[WA Massal Finished] Selesai! Berhasil: ${successCount}, Gagal: ${failCount}`);
+    })();
   } catch (error) {
     console.error('Error sending selection notifications:', error);
     return res.status(500).json({ message: 'Gagal mengirimkan notifikasi seleksi' });
