@@ -91,7 +91,9 @@ app.get('/sitemap.xml', async (req, res) => {
     '/daftar',
     '/cek-kelulusan',
     '/berita',
-    '/blog'
+    '/blog',
+    '/anggota',
+    '/alumni'
   ];
   
   try {
@@ -240,7 +242,16 @@ async function seedDummyOrgData() {
     console.log('[Seed] Data dummy organisasi & testimoni berhasil ditambahkan.');
   } catch (error) {
     console.error('[Seed] Gagal menambahkan data dummy organisasi:', error.message);
-  }
+// SPA Static Fallback & HTML Serving for Google Crawler / Direct Route Requests
+const distPath = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots')) {
+      return next();
+    }
+    return res.sendFile(path.join(distPath, 'index.html'));
+  });
 }
 
 // Start Server
