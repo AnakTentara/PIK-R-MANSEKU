@@ -322,16 +322,17 @@
   overflow-y: auto;
 }
 
-/* Visual Calendar Picker Styles */
+/* Visual Calendar Picker Styles - Compact (50% Size) */
 .calendarContainer {
   background-color: var(--color-surface);
   border: 1.5px solid var(--color-border-strong);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  gap: 8px;
+  max-width: 330px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .calendarHeader {
@@ -342,7 +343,7 @@
 
 .calendarTitle {
   font-weight: 700;
-  font-size: 0.9375rem;
+  font-size: 0.8125rem;
   color: var(--color-text-primary);
 }
 
@@ -350,7 +351,7 @@
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
-  padding: 4px 8px;
+  padding: 2px 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -368,26 +369,26 @@
 .calendarWeekDays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
   text-align: center;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: var(--color-text-muted);
 }
 
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
 }
 
 .calendarDayCell {
-  aspect-ratio: 1.2;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
-  font-size: 0.8125rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
@@ -405,7 +406,7 @@
   background-color: var(--color-accent) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.3);
 }
 
 .calendarDayEmpty {
@@ -420,12 +421,12 @@
   justify-content: space-between;
   background-color: #eff6ff;
   border: 1px solid #bfdbfe;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: #1e40af;
   font-weight: 600;
-  flex: 1 1 auto;
+}  flex: 1 1 auto;
 }
 
 .twoColGrid {
