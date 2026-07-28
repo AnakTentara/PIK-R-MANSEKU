@@ -429,7 +429,7 @@ export default function AdminPendaftaranPage() {
   const kelasOptions = useMemo(() => [...new Set(candidates.map(c => c.className).filter(Boolean))].sort(), [candidates]);
 
   const filteredCandidates = useMemo(() => {
-    return candidates.filter((c) => {
+    const list = candidates.filter((c) => {
       const matchesSearch =
         c.name.toLowerCase().includes(search.toLowerCase()) ||
         (c.nisn || '').includes(search);
@@ -443,6 +443,36 @@ export default function AdminPendaftaranPage() {
 
       return matchesSearch && matchesStatus && matchesKelas;
     });
+
+    if (activeSubTab === 'seleksi') {
+      return [...list].sort((a, b) => {
+        // 1. Peserta yang sudah mendapat hari seleksi tampil di paling atas
+        const hasDayA = Boolean(a.selectionDay || a.selectionDate);
+        const hasDayB = Boolean(b.selectionDay || b.selectionDate);
+
+        if (hasDayA && !hasDayB) return -1;
+        if (!hasDayA && hasDayB) return 1;
+
+        // 2. Jika keduanya punya hari seleksi, urutkan dari tanggal terdekat ke terlama (Rabu sebelum Kamis)
+        if (hasDayA && hasDayB) {
+          const dateA = a.selectionDate ? new Date(a.selectionDate).getTime() : 0;
+          const dateB = b.selectionDate ? new Date(b.selectionDate).getTime() : 0;
+
+          if (dateA && dateB && dateA !== dateB) {
+            return dateA - dateB; // Terdekat ke terlama
+          }
+
+          if (a.selectionDay && b.selectionDay) {
+            return a.selectionDay.localeCompare(b.selectionDay);
+          }
+        }
+
+        // 3. Peserta dengan kelas / nama awal
+        return a.name.localeCompare(b.name);
+      });
+    }
+
+    return list;
   }, [candidates, search, statusFilter, filterKelas, activeSubTab]);
 
   const totalPages = Math.max(1, Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE));
