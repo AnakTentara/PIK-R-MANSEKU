@@ -71,6 +71,30 @@
   align-items: center;
 }
 
+.batchActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-surface-2);
+  border: 1.5px solid var(--color-accent);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-xs);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.debugBox {
+  background-color: #fffdf0;
+  border: 1.5px dashed #f59e0b;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .searchWrap {
   position: relative;
 }

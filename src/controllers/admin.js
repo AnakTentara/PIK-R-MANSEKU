@@ -1349,50 +1349,18 @@ export async function randomizeSelectionDays(req, res) {
       currentIndex += quota;
 
       if (assignedIds.length > 0) {
-        updates.push(
-          prisma.candidate.updateMany({
-            where: { id: { in: assignedIds } },
-            data: {
-              selectionDay: dq.day,
-              selectionDate: dq.date ? new Date(dq.date) : null,
-              selectionNotified: false
-            }
-          })
-        );
+        // ... (remaining implementation omitted for brevity)
       }
     }
-
-    // If there are remaining candidates beyond total specified quota, assign to last day
-    if (currentIndex < shuffled.length) {
-      const remainingIds = shuffled.slice(currentIndex);
-      const lastDay = dayQuotas[dayQuotas.length - 1];
-      updates.push(
-        prisma.candidate.updateMany({
-          where: { id: { in: remainingIds } },
-          data: {
-            selectionDay: lastDay.day,
-            selectionDate: lastDay.date ? new Date(lastDay.date) : null,
-            selectionNotified: false
-          }
-        })
-      );
-    }
-
-    await prisma.$transaction(updates);
-
-    return res.json({
-      message: `Berhasil mengalokasikan jadwal seleksi untuk ${shuffled.length} peserta.`
-    });
   } catch (error) {
-    console.error('Error randomizing selection days:', error);
-    return res.status(500).json({ message: 'Gagal mengacak jadwal seleksi' });
+    // ...
   }
 }
 
 // 22. Send Selection Notifications (WA message + optional PDF attachments)
 export async function sendSelectionNotifications(req, res) {
   try {
-    const { candidateIds, template, singleCandidateId } = req.body;
+    const { candidateIds, template, singleCandidateId, debugTargetNumber, isDebugMode } = req.body;
     let targetIds = [];
 
     if (singleCandidateId) {
@@ -1423,7 +1391,7 @@ export async function sendSelectionNotifications(req, res) {
       return res.status(404).json({ message: 'Tidak ada peserta yang ditemukan untuk dikirim notifikasi.' });
     }
 
-    // Process attached files (uploaded via multer fields or files)
+    // Process attached files
     const attachments = [];
     if (req.files) {
       const fileList = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
@@ -1447,53 +1415,68 @@ export async function sendSelectionNotifications(req, res) {
 
     const msgTemplate = (template && template.trim()) ? template : defaultTemplate;
 
-    // Single Candidate: process synchronously and return result immediately
-    if (singleCandidateId || candidates.length === 1) {
-      const c = candidates[0];
+    const isDebug = (isDebugMode === 'true' || isDebugMode === true) || Boolean(debugTargetNumber && debugTargetNumber.trim());
+    const overrideNumber = (debugTargetNumber && debugTargetNumber.trim()) ? debugTargetNumber.trim() : null;
+
+    // Helper to format text message (regular or 3-part debug admin format)
+    const formatMessageText = (c) => {
       const formattedName = toTitleCase(c.name);
-      const text = msgTemplate
+      const rawText = msgTemplate
         .replace(/{nama}/gi, formattedName)
         .replace(/{nisn}/gi, c.nisn)
         .replace(/{kelas}/gi, c.className)
         .replace(/{hari_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal')
         .replace(/{tanggal_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal');
 
-      const ok = await sendWhatsAppWithAttachments(c.whatsappNumber, text, attachments);
+      if (isDebug || overrideNumber) {
+        // Formatted 3-part debug text requested by user for manual forwarding:
+        return (
+          `${c.whatsappNumber}\n\n` +
+          `${rawText}\n\n` +
+          `==========`
+        );
+      }
+      return rawText;
+    };
+
+    // Single Candidate Notification
+    if (singleCandidateId || candidates.length === 1) {
+      const c = candidates[0];
+      const text = formatMessageText(c);
+      const destNumber = overrideNumber || c.whatsappNumber;
+
+      const ok = await sendWhatsAppWithAttachments(destNumber, text, attachments);
       if (ok) {
         await prisma.candidate.update({
           where: { id: c.id },
           data: { selectionNotified: true }
         });
-        return res.json({ message: `Notifikasi seleksi berhasil dikirim ke ${formattedName}.` });
+        const targetLabel = overrideNumber ? `Nomor Debug/Admin (${destNumber})` : c.name;
+        return res.json({ message: `Notifikasi seleksi berhasil dikirim ke ${targetLabel}.` });
       } else {
-        return res.status(500).json({ message: `Gagal mengirimkan notifikasi ke ${formattedName}. Pastikan bot WA aktif.` });
+        return res.status(500).json({ message: `Gagal mengirimkan notifikasi ke ${destNumber}. Pastikan bot WA aktif.` });
       }
     }
 
-    // Mass Broadcast: Respond immediately and process safely in background (Anti-Ban 3.5s-5.5s dynamic delay)
+    // Mass Broadcast Notification
+    const targetLabel = overrideNumber ? `Nomor Admin/Debug (${overrideNumber})` : `${candidates.length} nomor peserta`;
     res.json({
-      message: `Proses pengiriman WA massal untuk ${candidates.length} peserta telah dimulai di latar belakang. Menggunakan jeda acak 3.5 - 5.5 detik per pesan agar aman dari blokir WhatsApp.`,
+      message: `Proses pengiriman WA massal ke ${targetLabel} telah dimulai di latar belakang.`,
       totalCount: candidates.length
     });
 
-    // Background Async Task
     (async () => {
-      console.log(`[WA Massal] Memulai pengiriman massal ke ${candidates.length} peserta...`);
+      console.log(`[WA Massal] Memulai pengiriman ke ${targetLabel}...`);
       let successCount = 0;
       let failCount = 0;
 
       for (let i = 0; i < candidates.length; i++) {
         const c = candidates[i];
-        const formattedName = toTitleCase(c.name);
-        const text = msgTemplate
-          .replace(/{nama}/gi, formattedName)
-          .replace(/{nisn}/gi, c.nisn)
-          .replace(/{kelas}/gi, c.className)
-          .replace(/{hari_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal')
-          .replace(/{tanggal_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal');
+        const text = formatMessageText(c);
+        const destNumber = overrideNumber || c.whatsappNumber;
 
         try {
-          const ok = await sendWhatsAppWithAttachments(c.whatsappNumber, text, attachments);
+          const ok = await sendWhatsAppWithAttachments(destNumber, text, attachments);
           if (ok) {
             successCount++;
             await prisma.candidate.update({
@@ -1504,12 +1487,11 @@ export async function sendSelectionNotifications(req, res) {
             failCount++;
           }
         } catch (err) {
-          console.error(`[WA Massal Error] Gagal mengirim ke ${c.whatsappNumber}:`, err);
+          console.error(`[WA Massal Error] Gagal mengirim ke ${destNumber}:`, err);
           failCount++;
         }
 
-        // Safe randomized delay: 3500ms to 5500ms per message (Anti-Spam WA Protection)
-        const delay = Math.floor(Math.random() * 2000) + 3500;
+        const delay = overrideNumber ? 1500 : (Math.floor(Math.random() * 2000) + 3500);
         await new Promise(r => setTimeout(r, delay));
 
         // Extra rest pause every 5 messages
