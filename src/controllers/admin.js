@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -246,7 +247,7 @@ export async function exportJSON(req, res) {
   }
 }
 
-// 9. Export Candidates to Excel using styled template file (A4 to L1000)
+// 9. Export Candidates to Excel using styled template file with ExcelJS
 export async function exportExcel(req, res) {
   try {
     const currentYear = new Date().getFullYear();
@@ -258,72 +259,61 @@ export async function exportExcel(req, res) {
       orderBy: [{ className: 'asc' }, { name: 'asc' }]
     });
 
-    let workbook;
+    let buffer;
     if (finalTemplatePath) {
-      workbook = XLSX.readFile(finalTemplatePath, { cellStyles: true, cellFormattings: true, cellDates: true, cellNF: true });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(finalTemplatePath);
 
-      // Update A2 title text with current year without losing cell formatting
-      if (sheet['A2']) {
-        sheet['A2'].v = `TAHUN ${currentYear}`;
-        delete sheet['A2'].w;
-      } else {
-        sheet['A2'] = { t: 's', v: `TAHUN ${currentYear}` };
-      }
+      const worksheet = workbook.worksheets[0];
+      if (worksheet) {
+        worksheet.name = String(currentYear);
 
-      // Populate candidate rows starting from row 4 (index r = 3) up to L1000
-      candidates.forEach((c, index) => {
-        const r = 3 + index; // Row 4 = index 3
-        const formattedName = toTitleCase(c.name || '');
-        const rowValues = [
-          index + 1,
-          c.nisn || '',
-          formattedName,
-          c.className || '',
-          c.gender || '',
-          c.whatsappNumber || '',
-          c.email || '',
-          c.status || 'PENDING',
-          c.plainPassword || '-',
-          c.emailNotified ? 'Ya' : 'Belum',
-          c.waNotified ? 'Ya' : 'Belum',
-          c.createdAt ? new Date(c.createdAt).toLocaleDateString('id-ID') : '-'
-        ];
+        // Update A2 title text
+        const cellA2 = worksheet.getCell('A2');
+        cellA2.value = `TAHUN ${currentYear}`;
 
-        rowValues.forEach((val, colIndex) => {
-          const cellAddr = XLSX.utils.encode_cell({ r, c: colIndex });
-          const cellType = typeof val === 'number' ? 'n' : 's';
-          if (sheet[cellAddr]) {
-            sheet[cellAddr].v = val;
-            sheet[cellAddr].t = cellType;
-            delete sheet[cellAddr].w;
-          } else {
-            sheet[cellAddr] = { t: cellType, v: val };
-          }
+        // Populate candidate data rows starting at Row 4 (1-indexed)
+        candidates.forEach((c, index) => {
+          const rowNum = 4 + index;
+          const row = worksheet.getRow(rowNum);
+          const formattedName = toTitleCase(c.name || '');
+
+          const values = [
+            index + 1,
+            c.nisn || '',
+            formattedName,
+            c.className || '',
+            c.gender || '',
+            c.whatsappNumber || '',
+            c.email || '',
+            c.status || 'PENDING',
+            c.plainPassword || '-',
+            c.emailNotified ? 'Ya' : 'Belum',
+            c.waNotified ? 'Ya' : 'Belum',
+            c.createdAt ? new Date(c.createdAt).toLocaleDateString('id-ID') : '-'
+          ];
+
+          values.forEach((val, colIdx) => {
+            const cell = row.getCell(colIdx + 1);
+            cell.value = val;
+          });
+
+          row.commit();
         });
-      });
 
-      // Clear dummy text from remaining unused rows up to 1000 while preserving cell styles
-      const maxRows = 1000;
-      for (let r = 3 + candidates.length; r < maxRows; r++) {
-        for (let c = 0; c < 12; c++) {
-          const cellAddr = XLSX.utils.encode_cell({ r, c });
-          if (sheet[cellAddr]) {
-            delete sheet[cellAddr].v;
-            delete sheet[cellAddr].w;
+        // Clear placeholder text in remaining rows up to 1000 without clearing cell styles
+        for (let r = 4 + candidates.length; r <= 1000; r++) {
+          const row = worksheet.getRow(r);
+          for (let colIdx = 1; colIdx <= 12; colIdx++) {
+            const cell = row.getCell(colIdx);
+            if (cell.value !== null && cell.value !== undefined) {
+              cell.value = null;
+            }
           }
         }
       }
 
-      sheet['!ref'] = `A1:L${maxRows}`;
-
-      // Rename sheet from 'this_year' to currentYear
-      if (sheetName !== String(currentYear)) {
-        workbook.SheetNames[0] = String(currentYear);
-        workbook.Sheets[String(currentYear)] = sheet;
-        delete workbook.Sheets[sheetName];
-      }
+      buffer = await workbook.xlsx.writeBuffer();
     } else {
       const data = candidates.map((c, index) => ({
         'No': index + 1,
@@ -341,11 +331,10 @@ export async function exportExcel(req, res) {
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(data);
-      workbook = XLSX.utils.book_new();
+      const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, String(currentYear));
+      buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
     }
-
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx', cellStyles: true });
 
     res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -1534,7 +1523,7 @@ export async function sendSelectionNotifications(req, res) {
   }
 }
 
-// 23. Export Selection Schedule to Excel using styled template file (A4 to I1000)
+// 23. Export Selection Schedule to Excel using styled template file with ExcelJS
 export async function exportSelectionExcel(req, res) {
   try {
     const currentYear = new Date().getFullYear();
@@ -1546,90 +1535,71 @@ export async function exportSelectionExcel(req, res) {
       orderBy: [{ selectionDay: 'asc' }, { className: 'asc' }, { name: 'asc' }]
     });
 
-    let workbook;
+    let buffer;
     if (finalTemplatePath) {
-      workbook = XLSX.readFile(finalTemplatePath, { cellStyles: true, cellFormattings: true, cellDates: true, cellNF: true });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(finalTemplatePath);
 
-      if (sheet['A1']) {
-        sheet['A1'].v = 'REKAP JADWAL SELEKSI CALON ANGGOTA PIK-R MANSEKU';
-        delete sheet['A1'].w;
-      } else {
-        sheet['A1'] = { t: 's', v: 'REKAP JADWAL SELEKSI CALON ANGGOTA PIK-R MANSEKU' };
-      }
+      const worksheet = workbook.worksheets[0];
+      if (worksheet) {
+        worksheet.name = String(currentYear);
 
-      if (sheet['A2']) {
-        sheet['A2'].v = `TAHUN ${currentYear}`;
-        delete sheet['A2'].w;
-      } else {
-        sheet['A2'] = { t: 's', v: `TAHUN ${currentYear}` };
-      }
+        const cellA1 = worksheet.getCell('A1');
+        cellA1.value = 'REKAP JADWAL SELEKSI CALON ANGGOTA PIK-R MANSEKU';
 
-      // Row 3 Headers A to I
-      const headers = ['No.', 'NISN', 'Nama Lengkap', 'Kelas', 'Hari Seleksi', 'Status WA Notif', 'Status Seleksi', 'No. WhatsApp', 'Tanggal Daftar'];
-      headers.forEach((h, colIndex) => {
-        const cellAddr = XLSX.utils.encode_cell({ r: 2, c: colIndex });
-        if (sheet[cellAddr]) {
-          sheet[cellAddr].v = h;
-          sheet[cellAddr].t = 's';
-          delete sheet[cellAddr].w;
-        } else {
-          sheet[cellAddr] = { t: 's', v: h };
-        }
-      });
+        const cellA2 = worksheet.getCell('A2');
+        cellA2.value = `TAHUN ${currentYear}`;
 
-      // Clear unused header cells (J3 to M3)
-      ['J3', 'K3', 'L3', 'M3'].forEach(addr => { delete sheet[addr]; });
-
-      // Populate candidate rows starting from row 4 (index r = 3) up to I1000
-      candidates.forEach((c, index) => {
-        const r = 3 + index;
-        const formattedName = toTitleCase(c.name || '');
-        const rowValues = [
-          index + 1,
-          c.nisn || '',
-          formattedName,
-          c.className || '',
-          c.selectionDay || 'Belum Diatur',
-          c.selectionNotified ? 'Sudah Dikirim' : 'Belum Dikirim',
-          c.status || 'PENDING',
-          c.whatsappNumber || '',
-          c.createdAt ? new Date(c.createdAt).toLocaleDateString('id-ID') : '-'
-        ];
-
-        rowValues.forEach((val, colIndex) => {
-          const cellAddr = XLSX.utils.encode_cell({ r, c: colIndex });
-          const cellType = typeof val === 'number' ? 'n' : 's';
-          if (sheet[cellAddr]) {
-            sheet[cellAddr].v = val;
-            sheet[cellAddr].t = cellType;
-            delete sheet[cellAddr].w;
-          } else {
-            sheet[cellAddr] = { t: cellType, v: val };
-          }
+        // Row 3 Headers A to I
+        const headers = ['No.', 'NISN', 'Nama Lengkap', 'Kelas', 'Hari Seleksi', 'Status WA Notif', 'Status Seleksi', 'No. WhatsApp', 'Tanggal Daftar'];
+        headers.forEach((h, colIdx) => {
+          worksheet.getRow(3).getCell(colIdx + 1).value = h;
         });
-      });
 
-      // Clear dummy text from remaining unused rows up to 1000 while preserving cell styles
-      const maxRows = 1000;
-      for (let r = 3 + candidates.length; r < maxRows; r++) {
-        for (let c = 0; c < 9; c++) {
-          const cellAddr = XLSX.utils.encode_cell({ r, c });
-          if (sheet[cellAddr]) {
-            delete sheet[cellAddr].v;
-            delete sheet[cellAddr].w;
+        // Clear header columns J3 to M3
+        for (let colIdx = 10; colIdx <= 13; colIdx++) {
+          worksheet.getRow(3).getCell(colIdx).value = null;
+        }
+
+        // Populate candidate rows starting at Row 4 (1-indexed)
+        candidates.forEach((c, index) => {
+          const rowNum = 4 + index;
+          const row = worksheet.getRow(rowNum);
+          const formattedName = toTitleCase(c.name || '');
+
+          const values = [
+            index + 1,
+            c.nisn || '',
+            formattedName,
+            c.className || '',
+            c.selectionDay || 'Belum Diatur',
+            c.selectionNotified ? 'Sudah Dikirim' : 'Belum Dikirim',
+            c.status || 'PENDING',
+            c.whatsappNumber || '',
+            c.createdAt ? new Date(c.createdAt).toLocaleDateString('id-ID') : '-'
+          ];
+
+          values.forEach((val, colIdx) => {
+            const cell = row.getCell(colIdx + 1);
+            cell.value = val;
+          });
+
+          row.commit();
+        });
+
+        // Clear placeholder text in remaining rows up to 1000 without clearing cell styles
+        for (let r = 4 + candidates.length; r <= 1000; r++) {
+          const row = worksheet.getRow(r);
+          for (let colIdx = 1; colIdx <= 9; colIdx++) {
+            const cell = row.getCell(colIdx);
+            if (cell.value !== null && cell.value !== undefined) {
+              cell.value = null;
+            }
           }
         }
       }
 
-      sheet['!ref'] = `A1:I${maxRows}`;
-
-      if (sheetName !== String(currentYear)) {
-        workbook.SheetNames[0] = String(currentYear);
-        workbook.Sheets[String(currentYear)] = sheet;
-        delete workbook.Sheets[sheetName];
-      }
+      buffer = await workbook.xlsx.writeBuffer();
     } else {
       const data = candidates.map((c, index) => ({
         'No.': index + 1,
@@ -1644,11 +1614,10 @@ export async function exportSelectionExcel(req, res) {
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(data);
-      workbook = XLSX.utils.book_new();
+      const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, String(currentYear));
+      buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
     }
-
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx', cellStyles: true });
 
     res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-JADWAL_SELEKSI_PIK-R_MANSEKU.xlsx`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
