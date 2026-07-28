@@ -156,6 +156,63 @@ export default function AdminPendaftaranPage() {
     });
   };
 
+  // ─── Filtering & Pagination Logic ─────────────────────────────────────
+  const kelasOptions = useMemo(() => [...new Set(candidates.map(c => c.className).filter(Boolean))].sort(), [candidates]);
+
+  const filteredCandidates = useMemo(() => {
+    const list = candidates.filter((c) => {
+      const matchesSearch =
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        (c.nisn || '').includes(search);
+
+      const matchesStatus = statusFilter ? c.status === statusFilter : true;
+      const matchesKelas = filterKelas ? c.className === filterKelas : true;
+
+      if (activeSubTab === 'seleksi') {
+        return matchesSearch && matchesKelas && (c.status === 'PENDING');
+      }
+
+      return matchesSearch && matchesStatus && matchesKelas;
+    });
+
+    if (activeSubTab === 'seleksi') {
+      return [...list].sort((a, b) => {
+        const hasDayA = Boolean(a.selectionDay || a.selectionDate);
+        const hasDayB = Boolean(b.selectionDay || b.selectionDate);
+
+        if (hasDayA && !hasDayB) return -1;
+        if (!hasDayA && hasDayB) return 1;
+
+        if (hasDayA && hasDayB) {
+          const dateA = a.selectionDate ? new Date(a.selectionDate).getTime() : 0;
+          const dateB = b.selectionDate ? new Date(b.selectionDate).getTime() : 0;
+
+          if (dateA && dateB && dateA !== dateB) {
+            return dateA - dateB;
+          }
+
+          if (a.selectionDay && b.selectionDay) {
+            return a.selectionDay.localeCompare(b.selectionDay);
+          }
+        }
+
+        return a.name.localeCompare(b.name);
+      });
+    }
+
+    return list;
+  }, [candidates, search, statusFilter, filterKelas, activeSubTab]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE));
+  const paginatedCandidates = useMemo(() => {
+    return filteredCandidates.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  }, [filteredCandidates, currentPage]);
+
+  const handlePageChange = (page) => setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  const handleSearchChange = (val) => { setSearch(val); setCurrentPage(1); };
+  const handleStatusChange = (val) => { setStatusFilter(val); setCurrentPage(1); };
+  const handleKelasChange = (val) => { setFilterKelas(val); setCurrentPage(1); };
+
   // ─── Table Multiple Selected Action Handlers ──────────────────────────
   const handleToggleSelectRow = (id) => {
     setSelectedRowIds(prev =>
@@ -499,60 +556,6 @@ export default function AdminPendaftaranPage() {
     }
   };
 
-  // ─── Filtering & Pagination Logic ─────────────────────────────────────
-  const kelasOptions = useMemo(() => [...new Set(candidates.map(c => c.className).filter(Boolean))].sort(), [candidates]);
-
-  const filteredCandidates = useMemo(() => {
-    const list = candidates.filter((c) => {
-      const matchesSearch =
-        c.name.toLowerCase().includes(search.toLowerCase()) ||
-        (c.nisn || '').includes(search);
-
-      const matchesStatus = statusFilter ? c.status === statusFilter : true;
-      const matchesKelas = filterKelas ? c.className === filterKelas : true;
-
-      if (activeSubTab === 'seleksi') {
-        return matchesSearch && matchesKelas && (c.status === 'PENDING');
-      }
-
-      return matchesSearch && matchesStatus && matchesKelas;
-    });
-
-    if (activeSubTab === 'seleksi') {
-      return [...list].sort((a, b) => {
-        const hasDayA = Boolean(a.selectionDay || a.selectionDate);
-        const hasDayB = Boolean(b.selectionDay || b.selectionDate);
-
-        if (hasDayA && !hasDayB) return -1;
-        if (!hasDayA && hasDayB) return 1;
-
-        if (hasDayA && hasDayB) {
-          const dateA = a.selectionDate ? new Date(a.selectionDate).getTime() : 0;
-          const dateB = b.selectionDate ? new Date(b.selectionDate).getTime() : 0;
-
-          if (dateA && dateB && dateA !== dateB) {
-            return dateA - dateB;
-          }
-
-          if (a.selectionDay && b.selectionDay) {
-            return a.selectionDay.localeCompare(b.selectionDay);
-          }
-        }
-
-        return a.name.localeCompare(b.name);
-      });
-    }
-
-    return list;
-  }, [candidates, search, statusFilter, filterKelas, activeSubTab]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE));
-  const paginatedCandidates = filteredCandidates.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
-  const handlePageChange = (page) => setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  const handleSearchChange = (val) => { setSearch(val); setCurrentPage(1); };
-  const handleStatusChange = (val) => { setStatusFilter(val); setCurrentPage(1); };
-  const handleKelasChange = (val) => { setFilterKelas(val); setCurrentPage(1); };
 
   return (
     <div className={styles.page}>
