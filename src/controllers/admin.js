@@ -272,7 +272,8 @@ export async function exportExcel(req, res) {
 
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-    res.setHeader('Content-Disposition', 'attachment; filename=rekap_pendaftar_pikr.xlsx');
+    const currentYear = new Date().getFullYear();
+    res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     return res.send(buffer);
   } catch (error) {
