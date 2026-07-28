@@ -62,7 +62,8 @@ export default function ProfilePage() {
         gender: data.gender || ''
       });
 
-      if (data && data.nisn) {
+      if (data) {
+        setPhotoPreview(data.photoPath ? getUploadUrl(data.photoPath) : '');
         const likedKey = `likes_${data.nisn}`;
         const savedKey = `bookmarks_${data.nisn}`;
         const commentedKey = `comments_${data.nisn}`;
@@ -304,80 +305,20 @@ export default function ProfilePage() {
             {/* Top: Profile Card */}
             <div className={styles.profileCard}>
               <div className={styles.cardHeader}>
-                <div className={styles.avatarWrap}>
-                  {profile?.photoPath ? (
-                    <img src={getUploadUrl(profile.photoPath)} alt={profile.name} className={styles.avatarImg} />
+                <div className={styles.avatarWrap} style={{ position: 'relative' }}>
+                  {photoPreview || profile?.photoPath ? (
+                    <img
+                      src={photoPreview || getUploadUrl(profile.photoPath)}
+                      alt={profile?.name}
+                      className={styles.avatarImg}
+                    />
                   ) : (
                     <div className={styles.avatarText}>{initials}</div>
                   )}
-                </div>
-                <div className={styles.primaryInfo}>
-                  <h1 className={styles.name}>{profile?.name}</h1>
-                  <div className={styles.metaRow}>
-                    <span className={styles.nisn}>NISN: {profile?.nisn}</span>
-                    <span className={`badge ${statusInfo.cls}`}>{statusInfo.label}</span>
-                  </div>
-                </div>
-                <div className={styles.headerActions}>
-                  <button onClick={() => setEditing(!editing)} className="btn btn-secondary btn-sm" style={{ gap: '6px' }}>
-                    {editing ? <X size={13} /> : <Edit2 size={13} />}
-                    {editing ? 'Batal' : 'Edit Profil'}
-                  </button>
-                  <button onClick={handleDownloadProfile} className="btn btn-primary btn-sm" style={{ gap: '6px' }}>
-                    <Download size={13} />
-                    Unduh Info
-                  </button>
-                  <button onClick={handleLogout} className="btn btn-ghost btn-sm" style={{ color: 'var(--color-text-muted)' }}>
-                    <LogOut size={13} />
-                  </button>
-                </div>
-              </div>
 
-              <div className={styles.cardBodyDetails}>
-                <div className={styles.detailsGrid}>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Kelas</span>
-                    <span className={styles.detailValue}>{profile?.className || '—'}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Asal Sekolah (Lama)</span>
-                    <span className={styles.detailValue}>{profile?.asalSekolah || '—'}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Jenis Kelamin</span>
-                    <span className={styles.detailValue}>{profile?.gender || '—'}</span>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>No. WhatsApp</span>
-                    <span className={styles.detailValue}>{profile?.whatsappNumber || '—'}</span>
-                  </div>
-                  <div className={styles.detailItem} style={{ gridColumn: 'span 2' }}>
-                    <span className={styles.detailLabel}>Email</span>
-                    <span className={styles.detailValue}>{profile?.email || '—'}</span>
-                  </div>
-                  <div className={styles.detailItem} style={{ gridColumn: 'span 2' }}>
-                    <span className={styles.detailLabel}>Alasan Masuk PIK-R</span>
-                    <p className={styles.detailQuote}>"{profile?.reason || '—'}"</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Collapsible Edit Form */}
-            {editing && (
-              <div className={styles.editCardPanel}>
-                <h2 className={styles.panelTitle}>Perbarui Informasi Profil</h2>
-                <form onSubmit={handleSave} className={styles.editForm}>
-                  <div className={styles.photoUploadSection}>
-                    <div className={styles.photoPreviewWrapper}>
-                      {photoPreview ? (
-                        <img src={photoPreview} alt="Preview" className={styles.photoPreview} />
-                      ) : (
-                        <div className={styles.photoPlaceholder}>{initials}</div>
-                      )}
-                    </div>
-                    <label className={styles.photoLabel}>
-                      Unggah Foto Profil
+                  {editing && (
+                    <label className={styles.photoUploadOverlay} title="Ganti Foto Profil">
+                      <Edit2 size={16} color="#ffffff" />
                       <input
                         type="file"
                         accept="image/*"
@@ -403,10 +344,67 @@ export default function ProfilePage() {
                           }
                         }}
                         className={styles.fileInput}
+                        style={{ display: 'none' }}
                       />
                     </label>
-                  </div>
+                  )}
+                </div>
 
+                <div className={styles.primaryInfo}>
+                  <h1 className={styles.name}>{profile?.name}</h1>
+                  <div className={styles.metaRow}>
+                    <span className={styles.nisn}>NISN: {profile?.nisn}</span>
+                    <span className={`badge ${statusInfo.cls}`}>{statusInfo.label}</span>
+                  </div>
+                </div>
+
+                <div className={styles.headerActions}>
+                  <button onClick={() => setEditing(!editing)} className="btn btn-secondary btn-sm" style={{ gap: '6px' }}>
+                    {editing ? <X size={13} /> : <Edit2 size={13} />}
+                    {editing ? 'Batal' : 'Edit Profil'}
+                  </button>
+                  <button onClick={handleDownloadProfile} className="btn btn-primary btn-sm" style={{ gap: '6px' }}>
+                    <Download size={13} />
+                    Unduh Info
+                  </button>
+                  <button onClick={handleLogout} className="btn btn-ghost btn-sm" style={{ color: 'var(--color-text-muted)' }}>
+                    <LogOut size={13} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Card Body: Display Mode vs Inline Edit Mode */}
+              {!editing ? (
+                <div className={styles.cardBodyDetails}>
+                  <div className={styles.detailsGrid}>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Kelas</span>
+                      <span className={styles.detailValue}>{profile?.className || '—'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Asal Sekolah (Lama)</span>
+                      <span className={styles.detailValue}>{profile?.asalSekolah || '—'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Jenis Kelamin</span>
+                      <span className={styles.detailValue}>{profile?.gender || '—'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>No. WhatsApp</span>
+                      <span className={styles.detailValue}>{profile?.whatsappNumber || '—'}</span>
+                    </div>
+                    <div className={styles.detailItem} style={{ gridColumn: 'span 2' }}>
+                      <span className={styles.detailLabel}>Email</span>
+                      <span className={styles.detailValue}>{profile?.email || '—'}</span>
+                    </div>
+                    <div className={styles.detailItem} style={{ gridColumn: 'span 2' }}>
+                      <span className={styles.detailLabel}>Alasan Masuk PIK-R</span>
+                      <p className={styles.detailQuote}>"{profile?.reason || '—'}"</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSave} className={styles.editForm} style={{ padding: '24px', borderTop: '1px solid var(--color-border-strong)' }}>
                   <div className={styles.editGrid}>
                     <div className="form-group">
                       <label className="form-label" htmlFor="edit-name">Nama Lengkap</label>
@@ -485,18 +483,19 @@ export default function ProfilePage() {
                       />
                     </div>
                   </div>
-                  <div className={styles.editActions}>
+
+                  <div className={styles.editActions} style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                    <button type="button" className="btn btn-secondary" onClick={() => setEditing(false)}>
+                      Batal
+                    </button>
                     <button type="submit" className="btn btn-primary" disabled={saving}>
                       {saving ? <span className="spinner" /> : <Save size={14} />}
                       {saving ? 'Menyimpan...' : 'Simpan Profil'}
                     </button>
-                    <button type="button" className="btn btn-secondary" onClick={() => setEditing(false)}>
-                      Batal
-                    </button>
                   </div>
                 </form>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Bottom: Tabs (Likes, Saved, Commented) */}
             <div className={styles.tabsSection}>
