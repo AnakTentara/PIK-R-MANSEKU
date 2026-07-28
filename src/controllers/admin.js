@@ -243,36 +243,84 @@ export async function exportJSON(req, res) {
   }
 }
 
-// 9. Export Candidates to Excel
+// 9. Export Candidates to Excel using template file (A4 to L1000)
 export async function exportExcel(req, res) {
   try {
+    const currentYear = new Date().getFullYear();
+    const templatePath = path.join(__dirname, '../../public/file/pendaftaran/xlsx/[this_year]-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx');
+
     const candidates = await prisma.candidate.findMany({
-      orderBy: { className: 'asc' }
+      orderBy: [{ className: 'asc' }, { name: 'asc' }]
     });
 
-    const data = candidates.map((c, index) => ({
-      'No': index + 1,
-      'NISN': c.nisn,
-      'Nama': c.name,
-      'Kelas': c.className,
-      'Jenis Kelamin': c.gender,
-      'No. WhatsApp': c.whatsappNumber,
-      'Email': c.email,
-      'Alasan Bergabung': c.reason,
-      'Status Kelulusan': c.status,
-      'Password Akun': c.plainPassword || '-',
-      'Sudah Email': c.emailNotified ? 'Ya' : 'Belum',
-      'Sudah WA': c.waNotified ? 'Ya' : 'Belum',
-      'Tanggal Daftar': c.createdAt.toISOString()
-    }));
+    let workbook;
+    if (fs.existsSync(templatePath)) {
+      workbook = XLSX.readFile(templatePath);
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Pendaftar PIK-R');
+      // Update A2 title text with current year
+      sheet['A2'] = { t: 's', v: `TAHUN ${currentYear}` };
+
+      // Populate candidate rows starting from row 4 (index r = 3) up to L1000
+      candidates.forEach((c, index) => {
+        const r = 3 + index; // Row 4 = index 3
+        const formattedName = toTitleCase(c.name || '');
+        const rowValues = [
+          index + 1,
+          c.nisn || '',
+          formattedName,
+          c.className || '',
+          c.gender || '',
+          c.whatsappNumber || '',
+          c.email || '',
+          c.status || 'PENDING',
+          c.plainPassword || '-',
+          c.emailNotified ? 'Ya' : 'Belum',
+          c.waNotified ? 'Ya' : 'Belum',
+          c.createdAt ? new Date(c.createdAt).toLocaleDateString('id-ID') : '-'
+        ];
+
+        rowValues.forEach((val, colIndex) => {
+          const cellAddr = XLSX.utils.encode_cell({ r, c: colIndex });
+          const cellType = typeof val === 'number' ? 'n' : 's';
+          sheet[cellAddr] = { t: cellType, v: val };
+        });
+      });
+
+      // Update range reference to L1000
+      const lastRow = Math.max(999, 3 + candidates.length);
+      sheet['!ref'] = `A1:L${lastRow}`;
+
+      // Rename sheet from 'this_year' to currentYear
+      if (sheetName !== String(currentYear)) {
+        workbook.SheetNames[0] = String(currentYear);
+        workbook.Sheets[String(currentYear)] = sheet;
+        delete workbook.Sheets[sheetName];
+      }
+    } else {
+      const data = candidates.map((c, index) => ({
+        'No': index + 1,
+        'NISN': c.nisn,
+        'Nama': toTitleCase(c.name),
+        'Kelas': c.className,
+        'Jenis Kelamin': c.gender,
+        'No. WhatsApp': c.whatsappNumber,
+        'Email': c.email,
+        'Status Kelulusan': c.status,
+        'Password Akun': c.plainPassword || '-',
+        'Sudah Email': c.emailNotified ? 'Ya' : 'Belum',
+        'Sudah WA': c.waNotified ? 'Ya' : 'Belum',
+        'Tanggal Daftar': c.createdAt ? new Date(c.createdAt).toLocaleDateString('id-ID') : '-'
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, String(currentYear));
+    }
 
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-    const currentYear = new Date().getFullYear();
     res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     return res.send(buffer);
@@ -1434,31 +1482,88 @@ export async function sendSelectionNotifications(req, res) {
   }
 }
 
-// 23. Export Selection Schedule to Excel (No, Nama, Kelas, Hari Seleksi, Status WA)
+// 23. Export Selection Schedule to Excel using template file (A4 to I1000)
 export async function exportSelectionExcel(req, res) {
   try {
+    const currentYear = new Date().getFullYear();
+    const templatePath = path.join(__dirname, '../../public/file/pendaftaran/xlsx/[this_year]-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx');
+
     const candidates = await prisma.candidate.findMany({
       orderBy: [{ selectionDay: 'asc' }, { className: 'asc' }, { name: 'asc' }]
     });
 
-    const data = candidates.map((c, index) => ({
-      'No': index + 1,
-      'Nama Lengkap': toTitleCase(c.name),
-      'NISN': c.nisn,
-      'Kelas': c.className,
-      'Hari Seleksi': c.selectionDay || 'Belum Diatur',
-      'Status Notifikasi WA': c.selectionNotified ? 'Sudah Dikirim' : 'Belum Dikirim',
-      'Status Seleksi': c.status,
-      'No. WhatsApp': c.whatsappNumber
-    }));
+    let workbook;
+    if (fs.existsSync(templatePath)) {
+      workbook = XLSX.readFile(templatePath);
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Jadwal Seleksi');
+      sheet['A1'] = { t: 's', v: 'REKAP JADWAL SELEKSI CALON ANGGOTA PIK-R MANSEKU' };
+      sheet['A2'] = { t: 's', v: `TAHUN ${currentYear}` };
+
+      // Row 3 Headers A to I
+      const headers = ['No.', 'NISN', 'Nama Lengkap', 'Kelas', 'Hari Seleksi', 'Status WA Notif', 'Status Seleksi', 'No. WhatsApp', 'Tanggal Daftar'];
+      headers.forEach((h, colIndex) => {
+        const cellAddr = XLSX.utils.encode_cell({ r: 2, c: colIndex });
+        sheet[cellAddr] = { t: 's', v: h };
+      });
+
+      // Clear unused header cells (J3 to M3)
+      ['J3', 'K3', 'L3', 'M3'].forEach(addr => { delete sheet[addr]; });
+
+      // Populate candidate rows starting from row 4 (index r = 3) up to I1000
+      candidates.forEach((c, index) => {
+        const r = 3 + index;
+        const formattedName = toTitleCase(c.name || '');
+        const rowValues = [
+          index + 1,
+          c.nisn || '',
+          formattedName,
+          c.className || '',
+          c.selectionDay || 'Belum Diatur',
+          c.selectionNotified ? 'Sudah Dikirim' : 'Belum Dikirim',
+          c.status || 'PENDING',
+          c.whatsappNumber || '',
+          c.createdAt ? new Date(c.createdAt).toLocaleDateString('id-ID') : '-'
+        ];
+
+        rowValues.forEach((val, colIndex) => {
+          const cellAddr = XLSX.utils.encode_cell({ r, c: colIndex });
+          const cellType = typeof val === 'number' ? 'n' : 's';
+          sheet[cellAddr] = { t: cellType, v: val };
+        });
+      });
+
+      // Update range reference to I1000
+      const lastRow = Math.max(999, 3 + candidates.length);
+      sheet['!ref'] = `A1:I${lastRow}`;
+
+      if (sheetName !== String(currentYear)) {
+        workbook.SheetNames[0] = String(currentYear);
+        workbook.Sheets[String(currentYear)] = sheet;
+        delete workbook.Sheets[sheetName];
+      }
+    } else {
+      const data = candidates.map((c, index) => ({
+        'No.': index + 1,
+        'NISN': c.nisn,
+        'Nama Lengkap': toTitleCase(c.name),
+        'Kelas': c.className,
+        'Hari Seleksi': c.selectionDay || 'Belum Diatur',
+        'Status WA Notif': c.selectionNotified ? 'Sudah Dikirim' : 'Belum Dikirim',
+        'Status Seleksi': c.status,
+        'No. WhatsApp': c.whatsappNumber,
+        'Tanggal Daftar': c.createdAt ? new Date(c.createdAt).toLocaleDateString('id-ID') : '-'
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, String(currentYear));
+    }
 
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-    res.setHeader('Content-Disposition', 'attachment; filename=jadwal_seleksi_pikr.xlsx');
+    res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-JADWAL_SELEKSI_PIK-R_MANSEKU.xlsx`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     return res.send(buffer);
   } catch (error) {
