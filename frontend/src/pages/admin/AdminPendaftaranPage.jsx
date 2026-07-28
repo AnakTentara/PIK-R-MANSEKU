@@ -27,6 +27,134 @@ import styles from './AdminPendaftaranPage.module.css';
 import { downloadBlob } from '@/utils/truncate';
 
 const ITEMS_PER_PAGE = 10;
+const DAYS_OF_WEEK = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const DAY_FULL_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+// ─── Visual Calendar Picker Component ─────────────────────────────────────
+function SelectionCalendarPicker({ selectedDate, selectedDay, onSelectDate }) {
+  const parseDate = (dStr) => {
+    if (!dStr) return new Date(2026, 6, 29);
+    const parsed = new Date(dStr);
+    return isNaN(parsed.getTime()) ? new Date(2026, 6, 29) : parsed;
+  };
+
+  const initial = parseDate(selectedDate);
+  const [viewYear, setViewYear] = useState(initial.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initial.getMonth());
+
+  useEffect(() => {
+    const updated = parseDate(selectedDate);
+    setViewYear(updated.getFullYear());
+    setViewMonth(updated.getMonth());
+  }, [selectedDate]);
+
+  const handlePrevMonth = () => {
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear(prev => prev - 1);
+    } else {
+      setViewMonth(prev => prev - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear(prev => prev + 1);
+    } else {
+      setViewMonth(prev => prev + 1);
+    }
+  };
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDayOfWeek = new Date(viewYear, viewMonth, 1).getDay();
+
+  const calendarDays = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      arr.push(null);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      arr.push(d);
+    }
+    return arr;
+  }, [viewYear, viewMonth, firstDayOfWeek, daysInMonth]);
+
+  const activeDate = parseDate(selectedDate);
+  const isSameDate = (dayNum) => {
+    if (!dayNum) return false;
+    return (
+      activeDate.getDate() === dayNum &&
+      activeDate.getMonth() === viewMonth &&
+      activeDate.getFullYear() === viewYear
+    );
+  };
+
+  const handleDayClick = (dayNum) => {
+    if (!dayNum) return;
+    const newDateObj = new Date(viewYear, viewMonth, dayNum);
+    const dayName = DAY_FULL_NAMES[newDateObj.getDay()];
+    const monthName = MONTH_NAMES[viewMonth];
+
+    const yyyy = viewYear;
+    const mm = String(viewMonth + 1).padStart(2, '0');
+    const dd = String(dayNum).padStart(2, '0');
+    const formattedDateStr = `${yyyy}-${mm}-${dd}`;
+    const formattedDayStr = `${dayName}, ${dayNum} ${monthName} ${viewYear}`;
+
+    onSelectDate({
+      selectionDate: formattedDateStr,
+      selectionDay: formattedDayStr
+    });
+  };
+
+  return (
+    <div className={styles.calendarContainer}>
+      <div className={styles.calendarHeader}>
+        <button type="button" onClick={handlePrevMonth} className={styles.calendarNavBtn}>
+          <ChevronLeft size={16} />
+        </button>
+        <div className={styles.calendarTitle}>
+          {MONTH_NAMES[viewMonth]} {viewYear}
+        </div>
+        <button type="button" onClick={handleNextMonth} className={styles.calendarNavBtn}>
+          <ChevronRight size={16} />
+        </button>
+      </div>
+
+      <div className={styles.calendarWeekDays}>
+        {DAYS_OF_WEEK.map(dw => (
+          <div key={dw}>{dw}</div>
+        ))}
+      </div>
+
+      <div className={styles.calendarGrid}>
+        {calendarDays.map((dayNum, idx) => (
+          dayNum === null ? (
+            <div key={`empty-${idx}`} className={styles.calendarDayEmpty} />
+          ) : (
+            <button
+              key={dayNum}
+              type="button"
+              onClick={() => handleDayClick(dayNum)}
+              className={`${styles.calendarDayCell} ${isSameDate(dayNum) ? styles.calendarDaySelected : ''}`}
+            >
+              {dayNum}
+            </button>
+          )
+        ))}
+      </div>
+
+      {selectedDay && (
+        <div className={styles.calendarFooterSelected}>
+          <span>📅 Hari Terpilih:</span>
+          <span>{selectedDay}</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminPendaftaranPage() {
   const [candidates, setCandidates] = useState([]);
@@ -78,7 +206,7 @@ export default function AdminPendaftaranPage() {
   const [selectionMode, setSelectionMode] = useState('proceed'); // 'proceed' | 'exclude' | 'all'
   const [selectedChecklistIds, setSelectedChecklistIds] = useState([]);
   const [checklistSearch, setChecklistSearch] = useState('');
-  
+
   const [day1Name, setDay1Name] = useState('Rabu, 29 Juli 2026');
   const [day1Date, setDay1Date] = useState('2026-07-29');
   const [day1Quota, setDay1Quota] = useState('25');
@@ -95,7 +223,7 @@ export default function AdminPendaftaranPage() {
   const [massPdfFiles, setMassPdfFiles] = useState([]);
   const [massDebugMode, setMassDebugMode] = useState(false);
   const [massDebugNumber, setMassDebugNumber] = useState('');
-  const [targetBatchIds, setTargetBatchIds] = useState([]); // If sent via multi-select
+  const [targetBatchIds, setTargetBatchIds] = useState([]);
   const [sendingMassWa, setSendingMassWa] = useState(false);
 
   const { openConfirm } = useUIStore();
@@ -307,7 +435,7 @@ export default function AdminPendaftaranPage() {
 
     try {
       await updateCandidate(selectedCandidate.id, editForm);
-      toast.success('Data peserta berhasil diperbarui.');
+      toast.success('Data peserta & hari seleksi berhasil diperbarui.');
       setEditModalOpen(false);
       fetchSessionAndCandidates();
     } catch {
@@ -362,7 +490,7 @@ export default function AdminPendaftaranPage() {
         formData.append('debugTargetNumber', singleDebugNumber.trim());
         formData.append('isDebugMode', 'true');
       }
-      
+
       singlePdfFiles.forEach((file) => {
         formData.append('documents', file);
       });
@@ -384,7 +512,7 @@ export default function AdminPendaftaranPage() {
     setSelectedChecklistIds(pendingIds);
     setSelectionMode('proceed');
     setChecklistSearch('');
-    
+
     const half = Math.floor(pendingIds.length / 2);
     setDay1Quota(String(half));
     setDay2Quota(String(pendingIds.length - half));
@@ -555,7 +683,6 @@ export default function AdminPendaftaranPage() {
       toast.error('Gagal mengeksport data.');
     }
   };
-
 
   return (
     <div className={styles.page}>
@@ -1078,29 +1205,25 @@ export default function AdminPendaftaranPage() {
               {/* TAB 2: JADWAL SELEKSI & WA NOTIFIKASI INDIVIDU */}
               {modalTab === 'seleksi' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <div className={styles.twoColGrid}>
-                    <div className="form-group">
-                      <label className="form-label">Hari Seleksi</label>
-                      <select
-                        className="form-select"
-                        value={editForm.selectionDay}
-                        onChange={(e) => setEditForm({ ...editForm, selectionDay: e.target.value })}
-                      >
-                        <option value="Rabu, 29 Juli 2026">Rabu, 29 Juli 2026</option>
-                        <option value="Kamis, 30 Juli 2026">Kamis, 30 Juli 2026</option>
-                        <option value="Jumat, 31 Juli 2026">Jumat, 31 Juli 2026</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">Tanggal Seleksi</label>
-                      <input
-                        type="date"
-                        className="form-input"
-                        value={editForm.selectionDate}
-                        onChange={(e) => setEditForm({ ...editForm, selectionDate: e.target.value })}
-                      />
-                    </div>
+                  {/* Interactive Visual Calendar Component */}
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontWeight: 700 }}>
+                      🗓️ Pilih Hari & Tanggal Seleksi (Klik Tanggal di Kalender Interaktif)
+                    </label>
+                    <SelectionCalendarPicker
+                      selectedDate={editForm.selectionDate}
+                      selectedDay={editForm.selectionDay}
+                      onSelectDate={({ selectionDate, selectionDay }) => {
+                        setEditForm(prev => ({ ...prev, selectionDate, selectionDay }));
+                        setSingleWaText(
+                          `Halo {nama} ({kelas}),\n\n` +
+                          `Kamu dijadwalkan mengikuti *Tahap Seleksi Calon Anggota PIK-R MANSEKU* pada:\n` +
+                          `📅 *Hari/Tanggal:* ${selectionDay}\n` +
+                          `📍 *Lokasi:* Ruang PIK-R MAN 1 Muara Enim\n\n` +
+                          `Harap hadir tepat waktu ya! 💪`
+                        );
+                      }}
+                    />
                   </div>
 
                   <hr className="divider" />
@@ -1127,7 +1250,7 @@ export default function AdminPendaftaranPage() {
                           style={{ fontSize: '0.8125rem' }}
                         />
                         <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-                          Pesan akan dikirim ke nomor Admin dalam format 3 bagian (Nomor Target, Teks + PDF, dan ==========) agar mudah di-copy/forward manual saat bot utama diblokir 24 jam.
+                          Pesan akan dikirim ke nomor Admin dalam urutan terpisah (Teks Nomor Peserta, Teks Isi Notifikasi + PDF, dan =========) agar mudah di-copy/forward manual saat bot utama diblokir 24 jam.
                         </span>
                       </div>
                     )}
@@ -1388,14 +1511,14 @@ export default function AdminPendaftaranPage() {
 
                 <div className={styles.quotaGrid}>
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.8125rem' }}>Hari 1 (Contoh: Rabu)</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={day1Name}
-                      onChange={(e) => setDay1Name(e.target.value)}
-                      placeholder="Nama Hari (e.g. Rabu, 29 Juli 2026)"
-                      style={{ marginBottom: '6px' }}
+                    <label className="form-label" style={{ fontSize: '0.8125rem' }}>Pilih Tanggal Hari 1</label>
+                    <SelectionCalendarPicker
+                      selectedDate={day1Date}
+                      selectedDay={day1Name}
+                      onSelectDate={({ selectionDate, selectionDay }) => {
+                        setDay1Date(selectionDate);
+                        setDay1Name(selectionDay);
+                      }}
                     />
                     <input
                       type="number"
@@ -1403,18 +1526,19 @@ export default function AdminPendaftaranPage() {
                       value={day1Quota}
                       onChange={(e) => setDay1Quota(e.target.value)}
                       placeholder="Jumlah Peserta Kuota Hari 1"
+                      style={{ marginTop: '8px' }}
                     />
                   </div>
 
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.8125rem' }}>Hari 2 (Contoh: Kamis)</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={day2Name}
-                      onChange={(e) => setDay2Name(e.target.value)}
-                      placeholder="Nama Hari (e.g. Kamis, 30 Juli 2026)"
-                      style={{ marginBottom: '6px' }}
+                    <label className="form-label" style={{ fontSize: '0.8125rem' }}>Pilih Tanggal Hari 2</label>
+                    <SelectionCalendarPicker
+                      selectedDate={day2Date}
+                      selectedDay={day2Name}
+                      onSelectDate={({ selectionDate, selectionDay }) => {
+                        setDay2Date(selectionDate);
+                        setDay2Name(selectionDay);
+                      }}
                     />
                     <input
                       type="number"
@@ -1422,6 +1546,7 @@ export default function AdminPendaftaranPage() {
                       value={day2Quota}
                       onChange={(e) => setDay2Quota(e.target.value)}
                       placeholder="Jumlah Peserta Kuota Hari 2"
+                      style={{ marginTop: '8px' }}
                     />
                   </div>
                 </div>
@@ -1492,7 +1617,7 @@ export default function AdminPendaftaranPage() {
                       style={{ fontSize: '0.8125rem' }}
                     />
                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-                      Pesan akan dikirim ke nomor Admin dalam format 3 bagian (Nomor WA Peserta, Teks + PDF, dan ==========) agar Anda bisa dengan mudah me-forward manual pesan ke peserta saat bot utama diblokir 24 jam.
+                      Pesan akan dikirim ke nomor Admin dalam urutan terpisah (Teks Nomor Peserta, Teks Isi Notifikasi + PDF, dan =========) agar Anda bisa dengan mudah me-forward manual pesan ke peserta saat bot utama diblokir 24 jam.
                     </span>
                   </div>
                 )}

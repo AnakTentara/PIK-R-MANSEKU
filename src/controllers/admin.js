@@ -119,7 +119,7 @@ export async function createCandidate(req, res) {
 // 5. Update Candidate
 export async function updateCandidate(req, res) {
   const { id } = req.params;
-  const { nisn, name, className, whatsappNumber, email, gender, reason, status, plainPassword, asalSekolah } = req.body;
+  const { nisn, name, className, whatsappNumber, email, gender, reason, status, plainPassword, asalSekolah, selectionDay, selectionDate, selectionNotified } = req.body;
 
   try {
     const candidate = await prisma.candidate.findUnique({ where: { id } });
@@ -146,6 +146,10 @@ export async function updateCandidate(req, res) {
       status: status ?? candidate.status
     };
 
+    if (selectionDay !== undefined) updateData.selectionDay = selectionDay;
+    if (selectionDate !== undefined) updateData.selectionDate = selectionDate ? new Date(selectionDate) : null;
+    if (selectionNotified !== undefined) updateData.selectionNotified = Boolean(selectionNotified);
+
     if (req.file) {
       updateData.photoPath = `/uploads/photos/${req.file.filename}`;
     }
@@ -164,10 +168,10 @@ export async function updateCandidate(req, res) {
       data: updateData
     });
 
-    return res.json({ message: 'Biodata pendaftar berhasil diperbarui', candidate: updated });
+    return res.json({ message: 'Data pendaftar berhasil diperbarui', candidate: updated });
   } catch (error) {
     console.error('Error update candidate:', error);
-    return res.status(500).json({ message: 'Gagal memperbarui biodata pendaftar' });
+    return res.status(500).json({ message: 'Gagal memperbarui data pendaftar' });
   }
 }
 
