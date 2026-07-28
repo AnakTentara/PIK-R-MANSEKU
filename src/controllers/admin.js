@@ -1523,12 +1523,12 @@ export async function sendSelectionNotifications(req, res) {
   }
 }
 
-// 23. Export Selection Schedule to Excel using styled template file with ExcelJS
+// 23. Export Selection Schedule to Excel using styled template file from /public/file/seleksi/xlsx
 export async function exportSelectionExcel(req, res) {
   try {
     const currentYear = new Date().getFullYear();
-    const templatePath1 = path.join(__dirname, '../../public/file/pendaftaran/xlsx/[this_year]-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx');
-    const templatePath2 = path.join(__dirname, `../../public/file/pendaftaran/xlsx/${currentYear}-REKAP_DATA_PENDAFTARAN_PIK-R_MANSEKU.xlsx`);
+    const templatePath1 = path.join(__dirname, '../../public/file/seleksi/xlsx/[this_year]-REKAP_DATA_SELEKSI_PIK-R_MANSEKU.xlsx');
+    const templatePath2 = path.join(__dirname, `../../public/file/seleksi/xlsx/${currentYear}-REKAP_DATA_SELEKSI_PIK-R_MANSEKU.xlsx`);
     const finalTemplatePath = fs.existsSync(templatePath1) ? templatePath1 : (fs.existsSync(templatePath2) ? templatePath2 : null);
 
     const candidates = await prisma.candidate.findMany({
@@ -1544,24 +1544,10 @@ export async function exportSelectionExcel(req, res) {
       if (worksheet) {
         worksheet.name = String(currentYear);
 
-        const cellA1 = worksheet.getCell('A1');
-        cellA1.value = 'REKAP JADWAL SELEKSI CALON ANGGOTA PIK-R MANSEKU';
-
         const cellA2 = worksheet.getCell('A2');
         cellA2.value = `TAHUN ${currentYear}`;
 
-        // Row 3 Headers A to I
-        const headers = ['No.', 'NISN', 'Nama Lengkap', 'Kelas', 'Hari Seleksi', 'Status WA Notif', 'Status Seleksi', 'No. WhatsApp', 'Tanggal Daftar'];
-        headers.forEach((h, colIdx) => {
-          worksheet.getRow(3).getCell(colIdx + 1).value = h;
-        });
-
-        // Clear header columns J3 to M3
-        for (let colIdx = 10; colIdx <= 13; colIdx++) {
-          worksheet.getRow(3).getCell(colIdx).value = null;
-        }
-
-        // Populate candidate rows starting at Row 4 (1-indexed)
+        // Populate candidate rows starting at Row 4 (1-indexed, Columns A to I)
         candidates.forEach((c, index) => {
           const rowNum = 4 + index;
           const row = worksheet.getRow(rowNum);
@@ -1619,7 +1605,7 @@ export async function exportSelectionExcel(req, res) {
       buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
     }
 
-    res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-JADWAL_SELEKSI_PIK-R_MANSEKU.xlsx`);
+    res.setHeader('Content-Disposition', `attachment; filename=${currentYear}-REKAP_DATA_SELEKSI_PIK-R_MANSEKU.xlsx`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     return res.send(buffer);
   } catch (error) {
