@@ -1418,8 +1418,8 @@ export async function sendSelectionNotifications(req, res) {
     const isDebug = (isDebugMode === 'true' || isDebugMode === true) || Boolean(debugTargetNumber && debugTargetNumber.trim());
     const overrideNumber = (debugTargetNumber && debugTargetNumber.trim()) ? debugTargetNumber.trim() : null;
 
-    // Helper to format text message (regular or 3-part debug admin format)
-    const formatMessageText = (c) => {
+    // Helper to send candidate notification (supports Debug Mode step-by-step sequence)
+    const sendCandidateNotification = async (c, destNumber) => {
       const formattedName = toTitleCase(c.name);
       const rawText = msgTemplate
         .replace(/{nama}/gi, formattedName)
@@ -1429,23 +1429,29 @@ export async function sendSelectionNotifications(req, res) {
         .replace(/{tanggal_seleksi}/gi, c.selectionDay || 'Sesuai Jadwal');
 
       if (isDebug || overrideNumber) {
-        // Formatted 3-part debug text requested by user for manual forwarding:
-        return (
-          `${c.whatsappNumber}\n\n` +
-          `${rawText}\n\n` +
-          `==========`
-        );
+        // Step 1: Send candidate phone number as a standalone message (easy 1-click copy/chat)
+        await sendWhatsAppWithAttachments(destNumber, `${c.whatsappNumber}`);
+        await new Promise(r => setTimeout(r, 600));
+
+        // Step 2: Send notification body text + PDF attachments
+        const ok = await sendWhatsAppWithAttachments(destNumber, rawText, attachments);
+        await new Promise(r => setTimeout(r, 600));
+
+        // Step 3: Send divider line
+        await sendWhatsAppWithAttachments(destNumber, `==============================`);
+        return ok;
+      } else {
+        // Direct sending to candidate's own number
+        return await sendWhatsAppWithAttachments(destNumber, rawText, attachments);
       }
-      return rawText;
     };
 
     // Single Candidate Notification
     if (singleCandidateId || candidates.length === 1) {
       const c = candidates[0];
-      const text = formatMessageText(c);
       const destNumber = overrideNumber || c.whatsappNumber;
 
-      const ok = await sendWhatsAppWithAttachments(destNumber, text, attachments);
+      const ok = await sendCandidateNotification(c, destNumber);
       if (ok) {
         await prisma.candidate.update({
           where: { id: c.id },
@@ -1472,11 +1478,10 @@ export async function sendSelectionNotifications(req, res) {
 
       for (let i = 0; i < candidates.length; i++) {
         const c = candidates[i];
-        const text = formatMessageText(c);
         const destNumber = overrideNumber || c.whatsappNumber;
 
         try {
-          const ok = await sendWhatsAppWithAttachments(destNumber, text, attachments);
+          const ok = await sendCandidateNotification(c, destNumber);
           if (ok) {
             successCount++;
             await prisma.candidate.update({
