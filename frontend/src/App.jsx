@@ -9,6 +9,16 @@ function ScrollToTop() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    // Dynamically update Canonical Tag for Google SEO
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    const cleanPath = pathname === '/' ? '' : pathname;
+    canonicalLink.setAttribute('href', `https://pikr-manseku.my.id${cleanPath}`);
   }, [pathname]);
 
   return null;

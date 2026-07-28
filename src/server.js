@@ -36,6 +36,15 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:25551';
 // Trust reverse proxy (Pterodactyl/Nginx) agar rate limiter bisa baca IP asli user
 app.set('trust proxy', 1);
 
+// Force HTTP -> HTTPS 301 Permanent Redirect for Google SEO Canonical compliance
+app.use((req, res, next) => {
+  const xfp = req.headers['x-forwarded-proto'];
+  if (xfp && xfp.toLowerCase() === 'http') {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
+
 // Middleware
 app.use(cors({
   origin: [FRONTEND_URL, 'http://localhost:25551', 'https://pikr-manseku.my.id'],
