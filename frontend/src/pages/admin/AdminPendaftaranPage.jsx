@@ -162,6 +162,13 @@ function SelectionCalendarPicker({ selectedDate, selectedDay, onSelectDate }) {
 }
 
 export default function AdminPendaftaranPage() {
+  const getAvgBadgeClass = (val) => {
+    if (val === null || val === undefined || isNaN(val)) return '';
+    if (val >= 7.5) return styles.avgHigh;
+    if (val >= 6.0) return styles.avgMed;
+    return styles.avgLow;
+  };
+
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -828,55 +835,97 @@ export default function AdminPendaftaranPage() {
           </div>
         </div>
 
-        {/* ── Header Module Bar (Dropdown Selector) ── */}
-        <div className={styles.moduleHeader}>
-          <div className={styles.moduleTitleGroup}>
-            <div className={styles.moduleIconBadge}>
-              {mainMode === 'pendaftaran' && <FileText size={22} />}
-              {mainMode === 'seleksi' && <Target size={22} />}
-              {mainMode === 'kelulusan' && <GraduationCap size={22} />}
+        {/* ── Hero KPI Stat Cards Grid ── */}
+        <div className={styles.heroStatsGrid}>
+          <div className={styles.statCard}>
+            <div className={`${styles.statIconBadge} ${styles.iconBlue}`}>
+              <UserCheck size={26} />
             </div>
-            <div className={styles.moduleTitleText}>
-              <h2>
-                {mainMode === 'pendaftaran' && 'Modul Data Pendaftaran'}
-                {mainMode === 'seleksi' && 'Modul Penyeleksian & Evaluasi POS (1, 2, 3)'}
-                {mainMode === 'kelulusan' && 'Modul Penetapan & Pengumuman Kelulusan'}
-              </h2>
-              <p>
-                {mainMode === 'pendaftaran' && 'Kelola biodata, akun pendaftar, dan reset kata sandi.'}
-                {mainMode === 'seleksi' && 'Kelola jadwal seleksi, atur penyeleksi, dan isi Rapor POS 1, POS 2, POS 3.'}
-                {mainMode === 'kelulusan' && 'Tentukan status kelulusan pendaftar dan promosikan ke Anggota Resmi.'}
-              </p>
+            <div className={styles.statMeta}>
+              <span className={styles.statValue}>{candidates.length}</span>
+              <span className={styles.statLabel}>Total Pendaftar</span>
             </div>
           </div>
 
-          <div className={styles.modeDropdownWrap}>
-            <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#475569' }}>Navigasi Modul:</span>
-            <select
-              value={mainMode}
-              onChange={(e) => {
-                setMainMode(e.target.value);
-                if (e.target.value === 'seleksi' && Object.keys(scoresMap).length === 0) {
-                  fetchSelectionData();
-                }
-              }}
-              className={styles.modeSelect}
-            >
-              <option value="pendaftaran">📋 Pendaftaran (Biodata)</option>
-              <option value="seleksi">🎯 Seleksi (Form Rapor POS 1, 2, 3)</option>
-              <option value="kelulusan">🎓 Kelulusan & Notifikasi</option>
-            </select>
+          <div className={styles.statCard}>
+            <div className={`${styles.statIconBadge} ${isSessionOpen ? styles.iconGreen : styles.iconAmber}`}>
+              {isSessionOpen ? <CheckCircle size={26} /> : <AlertCircle size={26} />}
+            </div>
+            <div className={styles.statMeta}>
+              <span className={styles.statValue}>{isSessionOpen ? 'TERBUKA' : 'DITUTUP'}</span>
+              <span className={styles.statLabel}>Sesi Pendaftaran</span>
+            </div>
           </div>
+
+          <div className={styles.statCard}>
+            <div className={`${styles.statIconBadge} ${styles.iconPurple}`}>
+              <Target size={26} />
+            </div>
+            <div className={styles.statMeta}>
+              <span className={styles.statValue}>
+                {Object.keys(scoresMap).length > 0 ? Object.keys(scoresMap).length : candidates.length}
+              </span>
+              <span className={styles.statLabel}>Peserta Dievaluasi</span>
+            </div>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={`${styles.statIconBadge} ${styles.iconAmber}`}>
+              <Star size={26} />
+            </div>
+            <div className={styles.statMeta}>
+              <span className={styles.statValue}>
+                {candidates.filter(c => c.status === 'LULUS').length}
+              </span>
+              <span className={styles.statLabel}>Peserta Lulus</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Main Module Segmented Navigation Tabs ── */}
+        <div className={styles.mainNavContainer}>
+          <button
+            type="button"
+            className={`${styles.mainNavTab} ${mainMode === 'pendaftaran' ? styles.mainNavActive : ''}`}
+            onClick={() => setMainMode('pendaftaran')}
+          >
+            <FileText size={18} />
+            <span>📋 Data Pendaftaran</span>
+            <span className={styles.mainNavBadge}>{candidates.length}</span>
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.mainNavTab} ${mainMode === 'seleksi' ? styles.mainNavActive : ''}`}
+            onClick={() => {
+              setMainMode('seleksi');
+              if (Object.keys(scoresMap).length === 0) fetchSelectionData();
+            }}
+          >
+            <Target size={18} />
+            <span>🎯 Penyeleksian POS (1, 2, 3)</span>
+            <span className={styles.mainNavBadge}>Rapor Seleksi</span>
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.mainNavTab} ${mainMode === 'kelulusan' ? styles.mainNavActive : ''}`}
+            onClick={() => setMainMode('kelulusan')}
+          >
+            <GraduationCap size={18} />
+            <span>🎓 Kelulusan & Promosi</span>
+            <span className={styles.mainNavBadge}>{candidates.filter(c => c.status === 'LULUS').length} Lulus</span>
+          </button>
         </div>
 
         {mainMode === 'seleksi' && (
         <div className={styles.raporCard} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* ── Sub-Tab POS Navigation Pills ── */}
-          <div className={styles.subTabContainer}>
+          {/* ── POS Sub-Tab Navigation Pills ── */}
+          <div className={styles.posSubNavContainer}>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('pos1')}
-              className={`${styles.subTabItem} ${seleksiSubTab === 'pos1' ? styles.subTabActive : ''}`}
+              className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos1' ? styles.pos1Active : ''}`}
             >
               <Award size={18} />
               <span>POS 1: Wawancara & Perkenalan</span>
@@ -884,7 +933,7 @@ export default function AdminPendaftaranPage() {
             <button
               type="button"
               onClick={() => setSeleksiSubTab('pos2')}
-              className={`${styles.subTabItem} ${seleksiSubTab === 'pos2' ? styles.subTabActive : ''}`}
+              className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos2' ? styles.pos2Active : ''}`}
             >
               <Star size={18} />
               <span>POS 2: Tes Minat Bakat</span>
@@ -892,7 +941,7 @@ export default function AdminPendaftaranPage() {
             <button
               type="button"
               onClick={() => setSeleksiSubTab('pos3')}
-              className={`${styles.subTabItem} ${seleksiSubTab === 'pos3' ? styles.subTabActive : ''}`}
+              className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos3' ? styles.pos3Active : ''}`}
             >
               <FileText size={18} />
               <span>POS 3: Studi Kasus</span>
@@ -900,18 +949,18 @@ export default function AdminPendaftaranPage() {
             <button
               type="button"
               onClick={() => setSeleksiSubTab('rekap')}
-              className={`${styles.subTabItem} ${seleksiSubTab === 'rekap' ? styles.subTabActive : ''}`}
+              className={`${styles.posSubNavTab} ${seleksiSubTab === 'rekap' ? styles.posRekapActive : ''}`}
             >
-              <Award size={18} style={{ color: '#059669' }} />
-              <span>📊 Rekap Rapor & Ranking</span>
+              <Award size={18} />
+              <span>📊 Rekap Rapor Total & Ranking</span>
             </button>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('jadwal')}
-              className={`${styles.subTabItem} ${seleksiSubTab === 'jadwal' ? styles.subTabActive : ''}`}
+              className={`${styles.posSubNavTab} ${seleksiSubTab === 'jadwal' ? styles.posJadwalActive : ''}`}
             >
               <Calendar size={18} />
-              <span>📅 Jadwal Seleksi</span>
+              <span>📅 Jadwal & Notifikasi</span>
             </button>
           </div>
 
@@ -1052,7 +1101,7 @@ export default function AdminPendaftaranPage() {
                             />
                           </td>
                           <td>
-                            <span className={styles.avgBadge}>
+                            <span className={`${styles.avgBadge} ${getAvgBadgeClass(s.pos1Avg)}`}>
                               {s.pos1Avg !== null && s.pos1Avg !== undefined ? s.pos1Avg.toFixed(2) : '-'}
                             </span>
                           </td>
@@ -1237,7 +1286,7 @@ export default function AdminPendaftaranPage() {
                             />
                           </td>
                           <td>
-                            <span className={styles.avgBadge}>
+                            <span className={`${styles.avgBadge} ${getAvgBadgeClass(s.pos2Avg)}`}>
                               {s.pos2Avg !== null && s.pos2Avg !== undefined ? s.pos2Avg.toFixed(2) : '-'}
                             </span>
                           </td>
@@ -1392,7 +1441,7 @@ export default function AdminPendaftaranPage() {
                             />
                           </td>
                           <td>
-                            <span className={styles.avgBadge}>
+                            <span className={`${styles.avgBadge} ${getAvgBadgeClass(s.pos3Avg)}`}>
                               {s.pos3Avg !== null && s.pos3Avg !== undefined ? s.pos3Avg.toFixed(2) : '-'}
                             </span>
                           </td>
@@ -1558,6 +1607,138 @@ export default function AdminPendaftaranPage() {
           )}
         </div>
       )}
+
+
+      {/* ── 3. MODUL KELULUSAN & PROMOSI VIEW ── */}
+      {mainMode === 'kelulusan' && (
+        <div className={styles.raporCard} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className={styles.posHeaderBar}>
+            <div className={styles.posTitleGroup}>
+              <span className={`${styles.posBadge} ${styles.posAllBadge}`}>MODUL KELULUSAN</span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Penetapan Status & Promosi Anggota Tetap</h3>
+                <p style={{ margin: 0, fontSize: '0.84rem', color: '#64748b' }}>
+                  Tentukan kelulusan pendaftar berdasarkan Nilai Akhir Rapor dan promosikan peserta LULUS ke data Anggota Tetap
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={openMassWaModal}
+                className="btn btn-primary btn-sm"
+              >
+                <Send size={16} /> Kirim Pengumuman WA
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th style={{ width: '40px', textAlign: 'center' }}>No</th>
+                  <th>Nama Kandidat</th>
+                  <th>Kelas</th>
+                  <th>No. WhatsApp</th>
+                  <th>Nilai Rapor Akhir</th>
+                  <th style={{ textAlign: 'center' }}>Status Kelulusan</th>
+                  <th style={{ textAlign: 'center' }}>Aksi Status & Promosi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {candidates.map((c, idx) => {
+                  const scoreObj = scoresMap[c.id] || {};
+                  const finalScore = scoreObj.finalScore;
+
+                  return (
+                    <tr key={`kelulusan-${c.id}`}>
+                      <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                      <td>
+                        <strong>{c.name}</strong>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
+                      </td>
+                      <td>{c.className}</td>
+                      <td>{c.whatsappNumber}</td>
+                      <td>
+                        <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e40af' }}>
+                          {finalScore !== null && finalScore !== undefined ? finalScore.toFixed(2) : '-'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        {c.status === 'LULUS' && (
+                          <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#dcfce7', color: '#15803d', fontWeight: 700, fontSize: '0.82rem' }}>
+                            ✓ LULUS
+                          </span>
+                        )}
+                        {c.status === 'TIDAK_LULUS' && (
+                          <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#fee2e2', color: '#b91c1c', fontWeight: 700, fontSize: '0.82rem' }}>
+                            ✕ TIDAK LULUS
+                          </span>
+                        )}
+                        {c.status === 'PENDING' && (
+                          <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#fef3c7', color: '#b45309', fontWeight: 700, fontSize: '0.82rem' }}>
+                            ⏳ PROSES
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px' }}>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await updateCandidate(c.id, { status: 'LULUS' });
+                                toast.success(`Status ${c.name} diubah ke LULUS`);
+                                fetchSessionAndCandidates();
+                              } catch {
+                                toast.error('Gagal merubah status');
+                              }
+                            }}
+                            className="btn btn-success btn-xs"
+                            style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                          >
+                            Set Lulus
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await updateCandidate(c.id, { status: 'TIDAK_LULUS' });
+                                toast.success(`Status ${c.name} diubah ke TIDAK LULUS`);
+                                fetchSessionAndCandidates();
+                              } catch {
+                                toast.error('Gagal merubah status');
+                              }
+                            }}
+                            className="btn btn-danger btn-xs"
+                            style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                          >
+                            Set Tidak Lulus
+                          </button>
+                          {c.status === 'LULUS' && (
+                            <button
+                              type="button"
+                              onClick={() => handlePromoteCandidate(c)}
+                              className="btn btn-primary btn-xs"
+                              style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                              title="Promosikan peserta ke data Anggota Tetap"
+                            >
+                              Promosi Anggota
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
 
       {/* Floating / Top Multiple Selected Action Bar */}
         {selectedRowIds.length > 0 && (

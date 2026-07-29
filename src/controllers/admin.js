@@ -1861,13 +1861,13 @@ export async function exportPOSScoreExcel(req, res) {
       const ws = wb.addWorksheet('POS 1 - Wawancara');
       ws.views = [{ showGridLines: true }];
 
-      ws.append(['LEMBAR PENILAIAN POS 1: WAWANCARA & PERKENALAN']);
+      ws.addRow(['LEMBAR PENILAIAN POS 1: WAWANCARA & PERKENALAN']);
       ws.getCell('A1').font = fontTitle;
-      ws.append([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
-      ws.append([]);
+      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.addRow([]);
 
       const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kepercayaan Diri (1-10)', 'Komunikasi (1-10)', 'Argumentasi (1-10)', 'Etika (1-10)', 'Motivasi (1-10)', 'Rata-Rata POS 1', 'Penyeleksi', 'Status', 'Catatan'];
-      ws.append(headers);
+      ws.addRow(headers);
 
       const headerRow = ws.getRow(4);
       headerRow.height = 25;
@@ -1881,7 +1881,7 @@ export async function exportPOSScoreExcel(req, res) {
 
       candidates.forEach((c, index) => {
         const s = c.selectionScore || {};
-        const row = ws.append([
+        const row = ws.addRow([
           index + 1,
           c.nisn,
           toTitleCase(c.name),
@@ -1913,13 +1913,13 @@ export async function exportPOSScoreExcel(req, res) {
       const ws = wb.addWorksheet('POS 2 - Minat Bakat');
       ws.views = [{ showGridLines: true }];
 
-      ws.append(['LEMBAR PENILAIAN POS 2: TES MINAT BAKAT']);
+      ws.addRow(['LEMBAR PENILAIAN POS 2: TES MINAT BAKAT']);
       ws.getCell('A1').font = fontTitle;
-      ws.append([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
-      ws.append([]);
+      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.addRow([]);
 
       const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kreativitas', 'Penguasaan', 'Presentasi', 'Orisinalitas', 'Potensi', 'Percaya Diri', 'Rata-Rata POS 2', 'Penyeleksi', 'Status', 'Catatan'];
-      ws.append(headers);
+      ws.addRow(headers);
 
       const headerRow = ws.getRow(4);
       headerRow.height = 25;
@@ -1933,7 +1933,7 @@ export async function exportPOSScoreExcel(req, res) {
 
       candidates.forEach((c, index) => {
         const s = c.selectionScore || {};
-        ws.append([
+        ws.addRow([
           index + 1,
           c.nisn,
           toTitleCase(c.name),
@@ -1966,13 +1966,13 @@ export async function exportPOSScoreExcel(req, res) {
       const ws = wb.addWorksheet('POS 3 - Studi Kasus');
       ws.views = [{ showGridLines: true }];
 
-      ws.append(['LEMBAR PENILAIAN POS 3: STUDI KASUS']);
+      ws.addRow(['LEMBAR PENILAIAN POS 3: STUDI KASUS']);
       ws.getCell('A1').font = fontTitle;
-      ws.append([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
-      ws.append([]);
+      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.addRow([]);
 
       const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Aura Penyampaian', 'Analisis', 'Public Speaking', 'Solusi', 'Rata-Rata POS 3', 'Penyeleksi', 'Status', 'Catatan'];
-      ws.append(headers);
+      ws.addRow(headers);
 
       const headerRow = ws.getRow(4);
       headerRow.height = 25;
@@ -1986,7 +1986,7 @@ export async function exportPOSScoreExcel(req, res) {
 
       candidates.forEach((c, index) => {
         const s = c.selectionScore || {};
-        ws.append([
+        ws.addRow([
           index + 1,
           c.nisn,
           toTitleCase(c.name),
@@ -2017,13 +2017,13 @@ export async function exportPOSScoreExcel(req, res) {
       const ws = wb.addWorksheet('RAPOR TOTAL SELEKSI');
       ws.views = [{ showGridLines: true }];
 
-      ws.append(['REKAPITULASI RAPOR SELEKSI PENDAFTAR PIK-R MANSEKU']);
+      ws.addRow(['REKAPITULASI RAPOR SELEKSI PENDAFTAR PIK-R MANSEKU']);
       ws.getCell('A1').font = fontTitle;
-      ws.append([`RAPOR PENILAIAN AKHIR 33.3% PER POS - TAHUN ${currentYear}`]);
-      ws.append([]);
+      ws.addRow([`RAPOR PENILAIAN AKHIR 33.3% PER POS - TAHUN ${currentYear}`]);
+      ws.addRow([]);
 
       const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Rata-Rata POS 1', 'Rata-Rata POS 2', 'Rata-Rata POS 3', 'NILAI AKHIR RAPOR', 'STATUS SELEKSI', 'STATUS HASIL'];
-      ws.append(headers);
+      ws.addRow(headers);
 
       const headerRow = ws.getRow(4);
       headerRow.height = 25;
@@ -2044,7 +2044,7 @@ export async function exportPOSScoreExcel(req, res) {
 
       sortedCandidates.forEach((c, index) => {
         const s = c.selectionScore || {};
-        ws.append([
+        ws.addRow([
           index + 1,
           c.nisn,
           toTitleCase(c.name),
