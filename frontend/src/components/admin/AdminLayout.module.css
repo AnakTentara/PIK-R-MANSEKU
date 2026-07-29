@@ -9,6 +9,11 @@
   min-height: 100vh;
   background-color: var(--color-bg);
   min-width: 0;
+  transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mainExpanded {
+  margin-left: 0 !important;
 }
 
 /* Mobile top bar — hidden on desktop */

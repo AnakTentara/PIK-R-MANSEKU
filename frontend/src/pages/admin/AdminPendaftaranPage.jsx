@@ -1029,7 +1029,7 @@ export default function AdminPendaftaranPage() {
                   <thead>
                     <tr>
                       <th style={{ width: '40px' }}>No</th>
-                      <th>Nama Kandidat</th>
+                      <th className={styles.stickyNameCol}>Nama Kandidat</th>
                       <th>Kelas</th>
                       <th>Kepercayaan Diri</th>
                       <th>Komunikasi</th>
@@ -1048,7 +1048,7 @@ export default function AdminPendaftaranPage() {
                       return (
                         <tr key={`pos1-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
                           <td style={{ textAlign: 'center' }}>{idx + 1}</td>
-                          <td>
+                          <td className={`${styles.tdName} ${styles.stickyNameCol}`}>
                             <strong>{c.name}</strong>
                             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
                           </td>
@@ -1205,7 +1205,7 @@ export default function AdminPendaftaranPage() {
                   <thead>
                     <tr>
                       <th style={{ width: '40px' }}>No</th>
-                      <th>Nama Kandidat</th>
+                      <th className={styles.stickyNameCol}>Nama Kandidat</th>
                       <th>Kelas</th>
                       <th>Kreativitas</th>
                       <th>Penguasaan</th>
@@ -1225,7 +1225,7 @@ export default function AdminPendaftaranPage() {
                       return (
                         <tr key={`pos2-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
                           <td style={{ textAlign: 'center' }}>{idx + 1}</td>
-                          <td>
+                          <td className={`${styles.tdName} ${styles.stickyNameCol}`}>
                             <strong>{c.name}</strong>
                             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
                           </td>
@@ -1393,7 +1393,7 @@ export default function AdminPendaftaranPage() {
                   <thead>
                     <tr>
                       <th style={{ width: '40px' }}>No</th>
-                      <th>Nama Kandidat</th>
+                      <th className={styles.stickyNameCol}>Nama Kandidat</th>
                       <th>Kelas</th>
                       <th>Aura Penyampaian</th>
                       <th>Analisis</th>
@@ -1411,7 +1411,7 @@ export default function AdminPendaftaranPage() {
                       return (
                         <tr key={`pos3-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
                           <td style={{ textAlign: 'center' }}>{idx + 1}</td>
-                          <td>
+                          <td className={`${styles.tdName} ${styles.stickyNameCol}`}>
                             <strong>{c.name}</strong>
                             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
                           </td>
@@ -1552,7 +1552,7 @@ export default function AdminPendaftaranPage() {
                   <thead>
                     <tr>
                       <th style={{ width: '40px', textAlign: 'center' }}>Rank</th>
-                      <th>Nama Kandidat</th>
+                      <th className={styles.stickyNameCol}>Nama Kandidat</th>
                       <th>Kelas</th>
                       <th>Rata-Rata POS 1</th>
                       <th>Rata-Rata POS 2</th>
@@ -1583,7 +1583,7 @@ export default function AdminPendaftaranPage() {
                                 {rankIdx + 1}
                               </span>
                             </td>
-                            <td>
+                            <td className={`${styles.tdName} ${styles.stickyNameCol}`}>
                               <strong>{c.name}</strong>
                               <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
                             </td>
@@ -1662,7 +1662,7 @@ export default function AdminPendaftaranPage() {
                   <thead>
                     <tr>
                       <th style={{ width: '50px', textAlign: 'center' }}>No</th>
-                      <th>Nama Kandidat</th>
+                      <th className={styles.stickyNameCol}>Nama Kandidat</th>
                       <th>Kelas</th>
                       <th>Hari Seleksi</th>
                       <th style={{ textAlign: 'center', width: '140px' }}>Aksi</th>
@@ -1679,7 +1679,7 @@ export default function AdminPendaftaranPage() {
                       filteredCandidates.map((c, idx) => (
                         <tr key={`jadwal-${c.id}`}>
                           <td style={{ textAlign: 'center' }}>{idx + 1}</td>
-                          <td>
+                          <td className={`${styles.tdName} ${styles.stickyNameCol}`}>
                             <strong>{c.name}</strong>
                             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn || '-'}</div>
                           </td>

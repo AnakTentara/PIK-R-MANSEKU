@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 import Modal from '@/components/common/Modal';
+import { useUIStore } from '@/stores/uiStore';
 import styles from './AdminLayout.module.css';
 import { Menu } from 'lucide-react';
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { sidebarCollapsed } = useUIStore();
 
   return (
     <div className={styles.layout}>
@@ -34,7 +36,7 @@ export default function AdminLayout() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <main className={styles.main}>
+      <main className={`${styles.main} ${sidebarCollapsed ? styles.mainExpanded : ''}`}>
         <Outlet />
       </main>
 

@@ -1857,172 +1857,17 @@ export async function exportPOSScoreExcel(req, res) {
       right: { style: 'thin', color: { argb: 'FFD9D9D9' } }
     };
 
-    if (pos === '1' || pos === 'all') {
-      const ws = wb.addWorksheet('POS 1 - Wawancara');
-      ws.views = [{ showGridLines: true }];
-
-      ws.addRow(['LEMBAR PENILAIAN POS 1: WAWANCARA & PERKENALAN']);
-      ws.getCell('A1').font = fontTitle;
-      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
-      ws.addRow([]);
-
-      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kepercayaan Diri (1-10)', 'Komunikasi (1-10)', 'Argumentasi (1-10)', 'Etika (1-10)', 'Motivasi (1-10)', 'Rata-Rata POS 1', 'Penyeleksi', 'Status', 'Catatan'];
-      ws.addRow(headers);
-
-      const headerRow = ws.getRow(4);
-      headerRow.height = 25;
-      headers.forEach((_, idx) => {
-        const cell = headerRow.getCell(idx + 1);
-        cell.fill = headerFill;
-        cell.font = fontHeader;
-        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        cell.border = thinBorder;
-      });
-
-      candidates.forEach((c, index) => {
-        const s = c.selectionScore || {};
-        const row = ws.addRow([
-          index + 1,
-          c.nisn,
-          toTitleCase(c.name),
-          c.className,
-          s.pos1Trust ?? '-',
-          s.pos1Comm ?? '-',
-          s.pos1Arg ?? '-',
-          s.pos1Ethics ?? '-',
-          s.pos1Motiv ?? '-',
-          s.pos1Avg ?? '-',
-          s.pos1Evaluator || '-',
-          s.pos1Completed ? 'SELESAI' : 'PROSES',
-          s.pos1Notes || '-'
-        ]);
-
-        const r = ws.getRow(5 + index);
-        for (let col = 1; col <= headers.length; col++) {
-          const cell = r.getCell(col);
-          cell.border = thinBorder;
-          cell.alignment = col in [1, 2, 4, 12] ? { horizontal: 'center' } : { horizontal: 'left' };
-        }
-      });
-
-      ws.columns.forEach(col => { col.width = 16; });
-      ws.getColumn(3).width = 30; // Nama
-    }
-
-    if (pos === '2' || pos === 'all') {
-      const ws = wb.addWorksheet('POS 2 - Minat Bakat');
-      ws.views = [{ showGridLines: true }];
-
-      ws.addRow(['LEMBAR PENILAIAN POS 2: TES MINAT BAKAT']);
-      ws.getCell('A1').font = fontTitle;
-      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
-      ws.addRow([]);
-
-      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kreativitas', 'Penguasaan', 'Presentasi', 'Orisinalitas', 'Potensi', 'Percaya Diri', 'Rata-Rata POS 2', 'Penyeleksi', 'Status', 'Catatan'];
-      ws.addRow(headers);
-
-      const headerRow = ws.getRow(4);
-      headerRow.height = 25;
-      headers.forEach((_, idx) => {
-        const cell = headerRow.getCell(idx + 1);
-        cell.fill = headerFill;
-        cell.font = fontHeader;
-        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        cell.border = thinBorder;
-      });
-
-      candidates.forEach((c, index) => {
-        const s = c.selectionScore || {};
-        ws.addRow([
-          index + 1,
-          c.nisn,
-          toTitleCase(c.name),
-          c.className,
-          s.pos2Creativity ?? '-',
-          s.pos2Mastery ?? '-',
-          s.pos2Pres ?? '-',
-          s.pos2Orig ?? '-',
-          s.pos2Potency ?? '-',
-          s.pos2Confidence ?? '-',
-          s.pos2Avg ?? '-',
-          s.pos2Evaluator || '-',
-          s.pos2Completed ? 'SELESAI' : 'PROSES',
-          s.pos2Notes || '-'
-        ]);
-
-        const r = ws.getRow(5 + index);
-        for (let col = 1; col <= headers.length; col++) {
-          const cell = r.getCell(col);
-          cell.border = thinBorder;
-          cell.alignment = col in [1, 2, 4, 13] ? { horizontal: 'center' } : { horizontal: 'left' };
-        }
-      });
-
-      ws.columns.forEach(col => { col.width = 16; });
-      ws.getColumn(3).width = 30;
-    }
-
-    if (pos === '3' || pos === 'all') {
-      const ws = wb.addWorksheet('POS 3 - Studi Kasus');
-      ws.views = [{ showGridLines: true }];
-
-      ws.addRow(['LEMBAR PENILAIAN POS 3: STUDI KASUS']);
-      ws.getCell('A1').font = fontTitle;
-      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
-      ws.addRow([]);
-
-      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Aura Penyampaian', 'Analisis', 'Public Speaking', 'Solusi', 'Rata-Rata POS 3', 'Penyeleksi', 'Status', 'Catatan'];
-      ws.addRow(headers);
-
-      const headerRow = ws.getRow(4);
-      headerRow.height = 25;
-      headers.forEach((_, idx) => {
-        const cell = headerRow.getCell(idx + 1);
-        cell.fill = headerFill;
-        cell.font = fontHeader;
-        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        cell.border = thinBorder;
-      });
-
-      candidates.forEach((c, index) => {
-        const s = c.selectionScore || {};
-        ws.addRow([
-          index + 1,
-          c.nisn,
-          toTitleCase(c.name),
-          c.className,
-          s.pos3Aura ?? '-',
-          s.pos3Analysis ?? '-',
-          s.pos3PublicSpk ?? '-',
-          s.pos3Solution ?? '-',
-          s.pos3Avg ?? '-',
-          s.pos3Evaluator || '-',
-          s.pos3Completed ? 'SELESAI' : 'PROSES',
-          s.pos3Notes || '-'
-        ]);
-
-        const r = ws.getRow(5 + index);
-        for (let col = 1; col <= headers.length; col++) {
-          const cell = r.getCell(col);
-          cell.border = thinBorder;
-          cell.alignment = col in [1, 2, 4, 11] ? { horizontal: 'center' } : { horizontal: 'left' };
-        }
-      });
-
-      ws.columns.forEach(col => { col.width = 16; });
-      ws.getColumn(3).width = 30;
-    }
-
+    // ── SHEET 1 FOR 'all': RAPOR TOTAL SELEKSI REKAP FIRST ──
     if (pos === 'all') {
       const ws = wb.addWorksheet('RAPOR TOTAL SELEKSI');
-      ws.views = [{ showGridLines: true }];
+      ws.views = [{ showGridLines: true, state: 'frozen', ySplit: 4 }];
 
       ws.addRow(['REKAPITULASI RAPOR SELEKSI PENDAFTAR PIK-R MANSEKU']);
       ws.getCell('A1').font = fontTitle;
       ws.addRow([`RAPOR PENILAIAN AKHIR 33.3% PER POS - TAHUN ${currentYear}`]);
       ws.addRow([]);
 
-      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Rata-Rata POS 1', 'Rata-Rata POS 2', 'Rata-Rata POS 3', 'NILAI AKHIR RAPOR', 'STATUS SELEKSI', 'STATUS HASIL'];
+      const headers = ['Rank', 'NISN', 'Nama Lengkap', 'Kelas', 'Rata-Rata POS 1', 'Rata-Rata POS 2', 'Rata-Rata POS 3', 'NILAI AKHIR RAPOR', 'STATUS SELEKSI', 'STATUS KELULUSAN'];
       ws.addRow(headers);
 
       const headerRow = ws.getRow(4);
@@ -2046,7 +1891,7 @@ export async function exportPOSScoreExcel(req, res) {
         const s = c.selectionScore || {};
         ws.addRow([
           index + 1,
-          c.nisn,
+          c.nisn || '-',
           toTitleCase(c.name),
           c.className,
           s.pos1Avg ?? '-',
@@ -2061,7 +1906,167 @@ export async function exportPOSScoreExcel(req, res) {
         for (let col = 1; col <= headers.length; col++) {
           const cell = r.getCell(col);
           cell.border = thinBorder;
-          cell.alignment = col in [1, 2, 4, 9, 10] ? { horizontal: 'center' } : { horizontal: 'left' };
+          cell.alignment = [1, 2, 4, 5, 6, 7, 8, 9, 10].includes(col) ? { horizontal: 'center' } : { horizontal: 'left' };
+        }
+      });
+
+      ws.columns.forEach(col => { col.width = 18; });
+      ws.getColumn(1).width = 8;
+      ws.getColumn(3).width = 32;
+    }
+
+    // ── POS 1 SHEET ──
+    if (pos === '1' || pos === 'all') {
+      const ws = wb.addWorksheet('POS 1 - Wawancara');
+      ws.views = [{ showGridLines: true, state: 'frozen', ySplit: 4 }];
+
+      ws.addRow(['LEMBAR PENILAIAN POS 1: WAWANCARA & PERKENALAN']);
+      ws.getCell('A1').font = fontTitle;
+      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.addRow([]);
+
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kepercayaan Diri (1-10)', 'Komunikasi (1-10)', 'Argumentasi (1-10)', 'Etika (1-10)', 'Motivasi (1-10)', 'Rata-Rata POS 1', 'Penyeleksi', 'Status', 'Catatan'];
+      ws.addRow(headers);
+
+      const headerRow = ws.getRow(4);
+      headerRow.height = 25;
+      headers.forEach((_, idx) => {
+        const cell = headerRow.getCell(idx + 1);
+        cell.fill = headerFill;
+        cell.font = fontHeader;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      candidates.forEach((c, index) => {
+        const s = c.selectionScore || {};
+        ws.addRow([
+          index + 1,
+          c.nisn || '-',
+          toTitleCase(c.name),
+          c.className,
+          s.pos1Trust ?? '-',
+          s.pos1Comm ?? '-',
+          s.pos1Arg ?? '-',
+          s.pos1Ethics ?? '-',
+          s.pos1Motiv ?? '-',
+          s.pos1Avg ?? '-',
+          s.pos1Evaluator || '-',
+          s.pos1Completed ? 'SELESAI' : 'PROSES',
+          s.pos1Notes || '-'
+        ]);
+
+        const r = ws.getRow(5 + index);
+        for (let col = 1; col <= headers.length; col++) {
+          const cell = r.getCell(col);
+          cell.border = thinBorder;
+          cell.alignment = [1, 2, 4, 5, 6, 7, 8, 9, 10, 12].includes(col) ? { horizontal: 'center' } : { horizontal: 'left' };
+        }
+      });
+
+      ws.columns.forEach(col => { col.width = 16; });
+      ws.getColumn(3).width = 30;
+    }
+
+    // ── POS 2 SHEET ──
+    if (pos === '2' || pos === 'all') {
+      const ws = wb.addWorksheet('POS 2 - Minat Bakat');
+      ws.views = [{ showGridLines: true, state: 'frozen', ySplit: 4 }];
+
+      ws.addRow(['LEMBAR PENILAIAN POS 2: TES MINAT BAKAT']);
+      ws.getCell('A1').font = fontTitle;
+      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.addRow([]);
+
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kreativitas', 'Penguasaan', 'Presentasi', 'Orisinalitas', 'Potensi', 'Percaya Diri', 'Rata-Rata POS 2', 'Penyeleksi', 'Status', 'Catatan'];
+      ws.addRow(headers);
+
+      const headerRow = ws.getRow(4);
+      headerRow.height = 25;
+      headers.forEach((_, idx) => {
+        const cell = headerRow.getCell(idx + 1);
+        cell.fill = headerFill;
+        cell.font = fontHeader;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      candidates.forEach((c, index) => {
+        const s = c.selectionScore || {};
+        ws.addRow([
+          index + 1,
+          c.nisn || '-',
+          toTitleCase(c.name),
+          c.className,
+          s.pos2Creativity ?? '-',
+          s.pos2Mastery ?? '-',
+          s.pos2Pres ?? '-',
+          s.pos2Orig ?? '-',
+          s.pos2Potency ?? '-',
+          s.pos2Confidence ?? '-',
+          s.pos2Avg ?? '-',
+          s.pos2Evaluator || '-',
+          s.pos2Completed ? 'SELESAI' : 'PROSES',
+          s.pos2Notes || '-'
+        ]);
+
+        const r = ws.getRow(5 + index);
+        for (let col = 1; col <= headers.length; col++) {
+          const cell = r.getCell(col);
+          cell.border = thinBorder;
+          cell.alignment = [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13].includes(col) ? { horizontal: 'center' } : { horizontal: 'left' };
+        }
+      });
+
+      ws.columns.forEach(col => { col.width = 16; });
+      ws.getColumn(3).width = 30;
+    }
+
+    // ── POS 3 SHEET ──
+    if (pos === '3' || pos === 'all') {
+      const ws = wb.addWorksheet('POS 3 - Studi Kasus');
+      ws.views = [{ showGridLines: true, state: 'frozen', ySplit: 4 }];
+
+      ws.addRow(['LEMBAR PENILAIAN POS 3: STUDI KASUS']);
+      ws.getCell('A1').font = fontTitle;
+      ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.addRow([]);
+
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Aura Penyampaian', 'Analisis', 'Public Speaking', 'Solusi', 'Rata-Rata POS 3', 'Penyeleksi', 'Status', 'Catatan'];
+      ws.addRow(headers);
+
+      const headerRow = ws.getRow(4);
+      headerRow.height = 25;
+      headers.forEach((_, idx) => {
+        const cell = headerRow.getCell(idx + 1);
+        cell.fill = headerFill;
+        cell.font = fontHeader;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      candidates.forEach((c, index) => {
+        const s = c.selectionScore || {};
+        ws.addRow([
+          index + 1,
+          c.nisn || '-',
+          toTitleCase(c.name),
+          c.className,
+          s.pos3Aura ?? '-',
+          s.pos3Analysis ?? '-',
+          s.pos3PublicSpk ?? '-',
+          s.pos3Solution ?? '-',
+          s.pos3Avg ?? '-',
+          s.pos3Evaluator || '-',
+          s.pos3Completed ? 'SELESAI' : 'PROSES',
+          s.pos3Notes || '-'
+        ]);
+
+        const r = ws.getRow(5 + index);
+        for (let col = 1; col <= headers.length; col++) {
+          const cell = r.getCell(col);
+          cell.border = thinBorder;
+          cell.alignment = [1, 2, 4, 5, 6, 7, 8, 9, 11].includes(col) ? { horizontal: 'center' } : { horizontal: 'left' };
         }
       });
 

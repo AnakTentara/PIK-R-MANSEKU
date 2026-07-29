@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
+import { useUIStore } from '@/stores/uiStore';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -11,12 +12,15 @@ import {
   MessageSquare, 
   X, 
   FolderOpen, 
-  Shield 
+  Shield,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
 export default function AdminSidebar({ isOpen = false, onClose }) {
   const { adminUser, logoutAdmin } = useAuthStore();
+  const { sidebarCollapsed, toggleSidebarCollapsed } = useUIStore();
   const navigate = useNavigate();
 
   const role = adminUser?.role || 'KABINET_UMUM';
@@ -49,8 +53,8 @@ export default function AdminSidebar({ isOpen = false, onClose }) {
   };
 
   return (
-    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
-      {/* Logo + Mobile Close Button */}
+    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''} ${sidebarCollapsed ? styles.sidebarCollapsed : ''}`}>
+      {/* Logo + Desktop Toggle + Mobile Close Button */}
       <div className={styles.logoArea}>
         <img
           src="/media/logos/logo_pik-r.png"
@@ -61,6 +65,17 @@ export default function AdminSidebar({ isOpen = false, onClose }) {
           <span className={styles.logoTitle}>PIK-R</span>
           <span className={styles.logoSub}>Admin Panel</span>
         </div>
+
+        {/* Desktop sidebar toggle button next to logo */}
+        <button
+          type="button"
+          className={styles.desktopToggleBtn}
+          onClick={toggleSidebarCollapsed}
+          title={sidebarCollapsed ? "Tampilkan Sidebar" : "Sembunyikan Sidebar"}
+          aria-label="Toggle Sidebar"
+        >
+          {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+        </button>
 
         {/* Close button — visible only on mobile */}
         <button
