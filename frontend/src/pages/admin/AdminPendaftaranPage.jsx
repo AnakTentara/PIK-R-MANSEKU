@@ -1646,7 +1646,7 @@ export default function AdminPendaftaranPage() {
                     </p>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className={styles.posActions}>
                   <button type="button" onClick={openRandomizeModal} className="btn btn-secondary btn-sm">
                     <Shuffle size={16} /> Atur Hari Seleksi Otomatis
                   </button>
@@ -1727,7 +1727,7 @@ export default function AdminPendaftaranPage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className={styles.posActions}>
               <button
                 type="button"
                 onClick={openMassWaModal}
