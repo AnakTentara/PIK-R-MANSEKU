@@ -24,6 +24,12 @@ import {
   closeSession,
   openSession,
   promoteCandidateToMember,
+  // Selection POS
+  getSelectionScores,
+  updateSelectionScore,
+  toggleSelectionLock,
+  getSelectionEvaluators,
+  exportPOSScoreExcel,
   // Members
   getMembers,
   createMember,
@@ -143,6 +149,13 @@ router.post('/candidates/generate-passwords', authAdmin, requireRole(['DEVELOPER
 router.post('/candidates/send-notifications', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), triggerNotifications);
 router.post('/candidates/randomize-selection', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), randomizeSelectionDays);
 router.post('/candidates/send-selection-notifications', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), uploadDocs.any(), sendSelectionNotifications);
+
+// Selection Evaluation POS & Scoring Routes
+router.get('/selection/evaluators', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getSelectionEvaluators);
+router.get('/selection/scores', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getSelectionScores);
+router.put('/selection/scores/:candidateId', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateSelectionScore);
+router.post('/selection/scores/:candidateId/toggle-lock', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), toggleSelectionLock);
+router.get('/selection/export-pos-excel', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), exportPOSScoreExcel);
 
 // Candidate CRUD by ID (DEVELOPER and KABINET_UMUM only)
 router.get('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getCandidateById);

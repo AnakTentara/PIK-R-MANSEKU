@@ -142,6 +142,42 @@ exports.Prisma.CandidateScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SelectionScoreScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  pos1Evaluator: 'pos1Evaluator',
+  pos1Trust: 'pos1Trust',
+  pos1Comm: 'pos1Comm',
+  pos1Arg: 'pos1Arg',
+  pos1Ethics: 'pos1Ethics',
+  pos1Motiv: 'pos1Motiv',
+  pos1Avg: 'pos1Avg',
+  pos1Completed: 'pos1Completed',
+  pos1Notes: 'pos1Notes',
+  pos2Evaluator: 'pos2Evaluator',
+  pos2Creativity: 'pos2Creativity',
+  pos2Mastery: 'pos2Mastery',
+  pos2Pres: 'pos2Pres',
+  pos2Orig: 'pos2Orig',
+  pos2Potency: 'pos2Potency',
+  pos2Confidence: 'pos2Confidence',
+  pos2Avg: 'pos2Avg',
+  pos2Completed: 'pos2Completed',
+  pos2Notes: 'pos2Notes',
+  pos3Evaluator: 'pos3Evaluator',
+  pos3Aura: 'pos3Aura',
+  pos3Analysis: 'pos3Analysis',
+  pos3PublicSpk: 'pos3PublicSpk',
+  pos3Solution: 'pos3Solution',
+  pos3Avg: 'pos3Avg',
+  pos3Completed: 'pos3Completed',
+  pos3Notes: 'pos3Notes',
+  finalScore: 'finalScore',
+  isCompleted: 'isCompleted',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AdminScalarFieldEnum = {
   id: 'id',
   username: 'username',
@@ -259,6 +295,7 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   Candidate: 'Candidate',
+  SelectionScore: 'SelectionScore',
   Admin: 'Admin',
   Post: 'Post',
   BlogPost: 'BlogPost',

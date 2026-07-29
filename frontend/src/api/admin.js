@@ -54,6 +54,22 @@ export const sendSelectionNotifications = (data) => {
   return api.post('/admin/candidates/send-selection-notifications', data, { timeout: 180000 });
 };
 
+// Selection POS & Evaluation
+export const getSelectionEvaluators = () =>
+  api.get('/admin/selection/evaluators');
+
+export const getSelectionScores = () =>
+  api.get('/admin/selection/scores');
+
+export const updateSelectionScore = (candidateId, data) =>
+  api.put(`/admin/selection/scores/${candidateId}`, data);
+
+export const toggleSelectionLock = (candidateId, data) =>
+  api.post(`/admin/selection/scores/${candidateId}/toggle-lock`, data);
+
+export const exportPOSScoreExcel = (pos) =>
+  api.get(`/admin/selection/export-pos-excel`, { params: { pos }, responseType: 'blob' });
+
 // Blog / Comments
 export const deleteComment = (id) =>
   api.delete(`/admin/comments/${id}`);

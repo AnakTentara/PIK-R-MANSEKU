@@ -12,7 +12,12 @@ import {
   exportSelectionExcel,
   exportJSON,
   randomizeSelectionDays,
-  sendSelectionNotifications
+  sendSelectionNotifications,
+  getSelectionEvaluators,
+  getSelectionScores,
+  updateSelectionScore,
+  toggleSelectionLock,
+  exportPOSScoreExcel
 } from '@/api/admin';
 import { useUIStore } from '@/stores/uiStore';
 import AdminHeader from '@/components/admin/AdminHeader';
@@ -20,7 +25,7 @@ import SkeletonTable from '@/components/skeletons/SkeletonTable';
 import {
   Edit, Trash2, Search, CheckCircle, XCircle, AlertCircle, ToggleLeft, ToggleRight,
   FileSpreadsheet, FileJson, ChevronLeft, ChevronRight, UserCheck, Calendar,
-  Send, Paperclip, Shuffle, User, Layers, CheckSquare, Square, X, Key, Eye, EyeOff, ShieldAlert
+  Send, Paperclip, Shuffle, User, Layers, CheckSquare, Square, X, Key, Eye, EyeOff, ShieldAlert, Lock, Unlock, Award, FileText, Download, Target, GraduationCap, Star, Check
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminPendaftaranPage.module.css';
@@ -166,6 +171,111 @@ export default function AdminPendaftaranPage() {
 
   // Sub-Tab State: 'data' | 'seleksi'
   const [activeSubTab, setActiveSubTab] = useState('data');
+
+  // ─── Main Mode & Selection POS State ─────────────────────────────────────
+  const [mainMode, setMainMode] = useState('pendaftaran'); // 'pendaftaran' | 'seleksi' | 'kelulusan'
+  const [seleksiSubTab, setSeleksiSubTab] = useState('pos1'); // 'jadwal' | 'pos1' | 'pos2' | 'pos3' | 'rekap'
+  const [evaluators, setEvaluators] = useState({ members: [], admins: [] });
+  const [scoresMap, setScoresMap] = useState({});
+  const [loadingScores, setLoadingScores] = useState(false);
+  const [savingScoreCandidateId, setSavingScoreCandidateId] = useState(null);
+  const [posEvaluator, setPosEvaluator] = useState({ pos1: '', pos2: '', pos3: '' });
+
+  const fetchSelectionData = async () => {
+    setLoadingScores(true);
+    try {
+      const [evalRes, scoresRes] = await Promise.all([
+        getSelectionEvaluators(),
+        getSelectionScores()
+      ]);
+      setEvaluators(evalRes.data || { members: [], admins: [] });
+      const map = {};
+      (scoresRes.data || []).forEach(item => {
+        map[item.candidateId] = item;
+      });
+      setScoresMap(map);
+    } catch (err) {
+      console.error('Error loading selection data:', err);
+    } finally {
+      setLoadingScores(false);
+    }
+  };
+
+  useEffect(() => {
+    if (mainMode === 'seleksi') {
+      fetchSelectionData();
+    }
+  }, [mainMode]);
+
+  const handleScoreInputChange = (candidateId, field, val) => {
+    const num = val === '' ? null : Math.min(10, Math.max(1, parseFloat(val) || 0));
+    setScoresMap(prev => {
+      const existing = prev[candidateId] || { candidateId };
+      const updated = { ...existing, [field]: num };
+
+      const parse = (v) => (v !== null && v !== undefined && v !== '' ? parseFloat(v) : null);
+
+      // POS 1 Avg
+      const p1 = [parse(updated.pos1Trust), parse(updated.pos1Comm), parse(updated.pos1Arg), parse(updated.pos1Ethics), parse(updated.pos1Motiv)].filter(v => v !== null && !isNaN(v));
+      updated.pos1Avg = p1.length > 0 ? Math.round((p1.reduce((a,b)=>a+b,0)/p1.length)*100)/100 : null;
+
+      // POS 2 Avg
+      const p2 = [parse(updated.pos2Creativity), parse(updated.pos2Mastery), parse(updated.pos2Pres), parse(updated.pos2Orig), parse(updated.pos2Potency), parse(updated.pos2Confidence)].filter(v => v !== null && !isNaN(v));
+      updated.pos2Avg = p2.length > 0 ? Math.round((p2.reduce((a,b)=>a+b,0)/p2.length)*100)/100 : null;
+
+      // POS 3 Avg
+      const p3 = [parse(updated.pos3Aura), parse(updated.pos3Analysis), parse(updated.pos3PublicSpk), parse(updated.pos3Solution)].filter(v => v !== null && !isNaN(v));
+      updated.pos3Avg = p3.length > 0 ? Math.round((p3.reduce((a,b)=>a+b,0)/p3.length)*100)/100 : null;
+
+      // Final Score (33.3% per POS)
+      const avgs = [updated.pos1Avg, updated.pos2Avg, updated.pos3Avg].filter(v => v !== null);
+      updated.finalScore = avgs.length > 0 ? Math.round((avgs.reduce((a,b)=>a+b,0)/avgs.length)*100)/100 : null;
+
+      return { ...prev, [candidateId]: updated };
+    });
+  };
+
+  const handleSaveCandidateScore = async (candidateId, posName) => {
+    setSavingScoreCandidateId(candidateId);
+    try {
+      const obj = scoresMap[candidateId] || {};
+      const payload = { ...obj };
+      if (posName && posEvaluator[posName]) {
+        payload[`${posName}Evaluator`] = posEvaluator[posName];
+      }
+      const res = await updateSelectionScore(candidateId, payload);
+      setScoresMap(prev => ({ ...prev, [candidateId]: res.data.score }));
+      toast.success('Nilai berhasil disimpan');
+    } catch {
+      toast.error('Gagal menyimpan nilai');
+    } finally {
+      setSavingScoreCandidateId(null);
+    }
+  };
+
+  const handleToggleLockState = async (candidateId, pos, targetCompleted) => {
+    try {
+      const obj = scoresMap[candidateId] || {};
+      await updateSelectionScore(candidateId, obj);
+      const res = await toggleSelectionLock(candidateId, { pos, isCompleted: targetCompleted });
+      toast.success(res.data.message || `Status penilaian di-${targetCompleted ? 'lock' : 'unlock'}`);
+      fetchSelectionData();
+    } catch {
+      toast.error('Gagal mengubah status penilaian');
+    }
+  };
+
+  const handleExportPOS = async (posType) => {
+    try {
+      const toastId = toast.loading(`Mengekspor Excel POS ${posType.toUpperCase()}...`);
+      const res = await exportPOSScoreExcel(posType);
+      const filename = `RAPOR_SELEKSI_POS_${posType.toUpperCase()}_PIK-R_${new Date().getFullYear()}.xlsx`;
+      downloadBlob(res.data, filename);
+      toast.success('File Excel Rapor berhasil diunduh!', { id: toastId });
+    } catch {
+      toast.error('Gagal mengunduh Excel');
+    }
+  };
 
   // Registration Session State
   const [isSessionOpen, setIsSessionOpen] = useState(true);
@@ -718,25 +828,738 @@ export default function AdminPendaftaranPage() {
           </div>
         </div>
 
-        {/* ── Sub-Tab Navigation Header ── */}
-        <div className={styles.subTabNav}>
-          <button
-            className={`${styles.subTabBtn} ${activeSubTab === 'data' ? styles.subTabActive : ''}`}
-            onClick={() => { setActiveSubTab('data'); setCurrentPage(1); }}
-          >
-            <Layers size={18} />
-            📋 Data Pendaftaran ({candidates.length})
-          </button>
-          <button
-            className={`${styles.subTabBtn} ${activeSubTab === 'seleksi' ? styles.subTabActive : ''}`}
-            onClick={() => { setActiveSubTab('seleksi'); setCurrentPage(1); }}
-          >
-            <Calendar size={18} />
-            📅 Jadwal & Tahap Seleksi ({candidates.filter(c => c.status === 'PENDING').length})
-          </button>
+        {/* ── Header Module Bar (Dropdown Selector) ── */}
+        <div className={styles.moduleHeader}>
+          <div className={styles.moduleTitleGroup}>
+            <div className={styles.moduleIconBadge}>
+              {mainMode === 'pendaftaran' && <FileText size={22} />}
+              {mainMode === 'seleksi' && <Target size={22} />}
+              {mainMode === 'kelulusan' && <GraduationCap size={22} />}
+            </div>
+            <div className={styles.moduleTitleText}>
+              <h2>
+                {mainMode === 'pendaftaran' && 'Modul Data Pendaftaran'}
+                {mainMode === 'seleksi' && 'Modul Penyeleksian & Evaluasi POS (1, 2, 3)'}
+                {mainMode === 'kelulusan' && 'Modul Penetapan & Pengumuman Kelulusan'}
+              </h2>
+              <p>
+                {mainMode === 'pendaftaran' && 'Kelola biodata, akun pendaftar, dan reset kata sandi.'}
+                {mainMode === 'seleksi' && 'Kelola jadwal seleksi, atur penyeleksi, dan isi Rapor POS 1, POS 2, POS 3.'}
+                {mainMode === 'kelulusan' && 'Tentukan status kelulusan pendaftar dan promosikan ke Anggota Resmi.'}
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.modeDropdownWrap}>
+            <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#475569' }}>Navigasi Modul:</span>
+            <select
+              value={mainMode}
+              onChange={(e) => {
+                setMainMode(e.target.value);
+                if (e.target.value === 'seleksi' && Object.keys(scoresMap).length === 0) {
+                  fetchSelectionData();
+                }
+              }}
+              className={styles.modeSelect}
+            >
+              <option value="pendaftaran">📋 Pendaftaran (Biodata)</option>
+              <option value="seleksi">🎯 Seleksi (Form Rapor POS 1, 2, 3)</option>
+              <option value="kelulusan">🎓 Kelulusan & Notifikasi</option>
+            </select>
+          </div>
         </div>
 
-        {/* Floating / Top Multiple Selected Action Bar */}
+        {mainMode === 'seleksi' && (
+        <div className={styles.raporCard} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* ── Sub-Tab POS Navigation Pills ── */}
+          <div className={styles.subTabContainer}>
+            <button
+              type="button"
+              onClick={() => setSeleksiSubTab('pos1')}
+              className={`${styles.subTabItem} ${seleksiSubTab === 'pos1' ? styles.subTabActive : ''}`}
+            >
+              <Award size={18} />
+              <span>POS 1: Wawancara & Perkenalan</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSeleksiSubTab('pos2')}
+              className={`${styles.subTabItem} ${seleksiSubTab === 'pos2' ? styles.subTabActive : ''}`}
+            >
+              <Star size={18} />
+              <span>POS 2: Tes Minat Bakat</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSeleksiSubTab('pos3')}
+              className={`${styles.subTabItem} ${seleksiSubTab === 'pos3' ? styles.subTabActive : ''}`}
+            >
+              <FileText size={18} />
+              <span>POS 3: Studi Kasus</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSeleksiSubTab('rekap')}
+              className={`${styles.subTabItem} ${seleksiSubTab === 'rekap' ? styles.subTabActive : ''}`}
+            >
+              <Award size={18} style={{ color: '#059669' }} />
+              <span>📊 Rekap Rapor & Ranking</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSeleksiSubTab('jadwal')}
+              className={`${styles.subTabItem} ${seleksiSubTab === 'jadwal' ? styles.subTabActive : ''}`}
+            >
+              <Calendar size={18} />
+              <span>📅 Jadwal Seleksi</span>
+            </button>
+          </div>
+
+          {/* ── POS 1 VIEW ── */}
+          {seleksiSubTab === 'pos1' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className={styles.posHeaderBar}>
+                <div className={styles.posTitle}>
+                  <span className={`${styles.posBadge} ${styles.pos1Badge}`}>POS 1</span>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Wawancara dan Perkenalan</h3>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                      Kriteria Nilai (1-10): Kepercayaan Diri, Komunikasi, Argumentasi, Etika, Motivasi
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <div className={styles.evaluatorSelectGroup}>
+                    <span>Penyeleksi:</span>
+                    <select
+                      value={posEvaluator.pos1}
+                      onChange={e => setPosEvaluator(prev => ({ ...prev, pos1: e.target.value }))}
+                      className={styles.evaluatorSelect}
+                    >
+                      <option value="">-- Pilih Penyeleksi --</option>
+                      {evaluators.members.map(m => (
+                        <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                      ))}
+                      {evaluators.admins.map(a => (
+                        <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleExportPOS('1')}
+                    className={styles.btnExportExcel}
+                  >
+                    <Download size={16} /> Export Excel POS 1
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '40px' }}>No</th>
+                      <th>Nama Kandidat</th>
+                      <th>Kelas</th>
+                      <th>Kepercayaan Diri</th>
+                      <th>Komunikasi</th>
+                      <th>Argumentasi</th>
+                      <th>Etika</th>
+                      <th>Motivasi</th>
+                      <th>Rata-Rata POS 1</th>
+                      <th style={{ textAlign: 'center' }}>Status / Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {candidates.map((c, idx) => {
+                      const s = scoresMap[c.id] || {};
+                      const isLocked = Boolean(s.pos1Completed);
+
+                      return (
+                        <tr key={`pos1-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
+                          <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                          <td>
+                            <strong>{c.name}</strong>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
+                          </td>
+                          <td>{c.className}</td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos1Trust ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos1Trust', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos1Comm ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos1Comm', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos1Arg ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos1Arg', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos1Ethics ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos1Ethics', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos1Motiv ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos1Motiv', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <span className={styles.avgBadge}>
+                              {s.pos1Avg !== null && s.pos1Avg !== undefined ? s.pos1Avg.toFixed(2) : '-'}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {isLocked ? (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLockState(c.id, 'pos1', false)}
+                                className={`${styles.btnLock} ${styles.btnLockUnlock}`}
+                                title="Klik untuk membuka kunci nilai dan mengedit kembali"
+                              >
+                                <Unlock size={14} /> Perbarui Nilai
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLockState(c.id, 'pos1', true)}
+                                className={`${styles.btnLock} ${styles.btnLockSubmit}`}
+                                title="Klik untuk mengunci nilai setelah selesai seleksi"
+                              >
+                                <Lock size={14} /> Selesai Seleksi
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── POS 2 VIEW ── */}
+          {seleksiSubTab === 'pos2' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className={styles.posHeaderBar}>
+                <div className={styles.posTitle}>
+                  <span className={`${styles.posBadge} ${styles.pos2Badge}`}>POS 2</span>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Tes Minat Bakat</h3>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                      Kriteria Nilai (1-10): Kreativitas, Penguasaan, Presentasi, Orisinalitas, Potensi, Percaya Diri
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <div className={styles.evaluatorSelectGroup}>
+                    <span>Penyeleksi:</span>
+                    <select
+                      value={posEvaluator.pos2}
+                      onChange={e => setPosEvaluator(prev => ({ ...prev, pos2: e.target.value }))}
+                      className={styles.evaluatorSelect}
+                    >
+                      <option value="">-- Pilih Penyeleksi --</option>
+                      {evaluators.members.map(m => (
+                        <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                      ))}
+                      {evaluators.admins.map(a => (
+                        <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleExportPOS('2')}
+                    className={styles.btnExportExcel}
+                  >
+                    <Download size={16} /> Export Excel POS 2
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '40px' }}>No</th>
+                      <th>Nama Kandidat</th>
+                      <th>Kelas</th>
+                      <th>Kreativitas</th>
+                      <th>Penguasaan</th>
+                      <th>Presentasi</th>
+                      <th>Orisinalitas</th>
+                      <th>Potensi</th>
+                      <th>Percaya Diri</th>
+                      <th>Rata-Rata POS 2</th>
+                      <th style={{ textAlign: 'center' }}>Status / Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {candidates.map((c, idx) => {
+                      const s = scoresMap[c.id] || {};
+                      const isLocked = Boolean(s.pos2Completed);
+
+                      return (
+                        <tr key={`pos2-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
+                          <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                          <td>
+                            <strong>{c.name}</strong>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
+                          </td>
+                          <td>{c.className}</td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos2Creativity ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos2Creativity', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos2Mastery ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos2Mastery', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos2Pres ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos2Pres', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos2Orig ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos2Orig', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos2Potency ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos2Potency', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos2Confidence ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos2Confidence', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <span className={styles.avgBadge}>
+                              {s.pos2Avg !== null && s.pos2Avg !== undefined ? s.pos2Avg.toFixed(2) : '-'}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {isLocked ? (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLockState(c.id, 'pos2', false)}
+                                className={`${styles.btnLock} ${styles.btnLockUnlock}`}
+                              >
+                                <Unlock size={14} /> Perbarui Nilai
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLockState(c.id, 'pos2', true)}
+                                className={`${styles.btnLock} ${styles.btnLockSubmit}`}
+                              >
+                                <Lock size={14} /> Selesai Seleksi
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── POS 3 VIEW ── */}
+          {seleksiSubTab === 'pos3' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className={styles.posHeaderBar}>
+                <div className={styles.posTitle}>
+                  <span className={`${styles.posBadge} ${styles.pos3Badge}`}>POS 3</span>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Studi Kasus</h3>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                      Kriteria Nilai (1-10): Aura Penyampaian, Analisis, Public Speaking, Solusi
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <div className={styles.evaluatorSelectGroup}>
+                    <span>Penyeleksi:</span>
+                    <select
+                      value={posEvaluator.pos3}
+                      onChange={e => setPosEvaluator(prev => ({ ...prev, pos3: e.target.value }))}
+                      className={styles.evaluatorSelect}
+                    >
+                      <option value="">-- Pilih Penyeleksi --</option>
+                      {evaluators.members.map(m => (
+                        <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                      ))}
+                      {evaluators.admins.map(a => (
+                        <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleExportPOS('3')}
+                    className={styles.btnExportExcel}
+                  >
+                    <Download size={16} /> Export Excel POS 3
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '40px' }}>No</th>
+                      <th>Nama Kandidat</th>
+                      <th>Kelas</th>
+                      <th>Aura Penyampaian</th>
+                      <th>Analisis</th>
+                      <th>Public Speaking</th>
+                      <th>Solusi</th>
+                      <th>Rata-Rata POS 3</th>
+                      <th style={{ textAlign: 'center' }}>Status / Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {candidates.map((c, idx) => {
+                      const s = scoresMap[c.id] || {};
+                      const isLocked = Boolean(s.pos3Completed);
+
+                      return (
+                        <tr key={`pos3-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
+                          <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                          <td>
+                            <strong>{c.name}</strong>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
+                          </td>
+                          <td>{c.className}</td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos3Aura ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos3Aura', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos3Analysis ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos3Analysis', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos3PublicSpk ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos3PublicSpk', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              disabled={isLocked}
+                              value={s.pos3Solution ?? ''}
+                              onChange={e => handleScoreInputChange(c.id, 'pos3Solution', e.target.value)}
+                              onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
+                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
+                            />
+                          </td>
+                          <td>
+                            <span className={styles.avgBadge}>
+                              {s.pos3Avg !== null && s.pos3Avg !== undefined ? s.pos3Avg.toFixed(2) : '-'}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {isLocked ? (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLockState(c.id, 'pos3', false)}
+                                className={`${styles.btnLock} ${styles.btnLockUnlock}`}
+                              >
+                                <Unlock size={14} /> Perbarui Nilai
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLockState(c.id, 'pos3', true)}
+                                className={`${styles.btnLock} ${styles.btnLockSubmit}`}
+                              >
+                                <Lock size={14} /> Selesai Seleksi
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── REKAP RAPOR & RANKING VIEW ── */}
+          {seleksiSubTab === 'rekap' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className={styles.posHeaderBar}>
+                <div className={styles.posTitle}>
+                  <span className={`${styles.posBadge} ${styles.posAllBadge}`}>REKAP RAPOR TOTAL</span>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Rekapitulasi Nilai Akhir & Ranking</h3>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                      Nilai Akhir Rapor dihitung dari rata-rata 33.3% tiap POS (POS 1 + POS 2 + POS 3) / 3
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleExportPOS('all')}
+                  className={styles.btnExportExcel}
+                  style={{ backgroundColor: '#1e40af' }}
+                >
+                  <Download size={16} /> Export All POS (Rapor Total)
+                </button>
+              </div>
+
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '40px', textAlign: 'center' }}>Rank</th>
+                      <th>Nama Kandidat</th>
+                      <th>Kelas</th>
+                      <th>Rata-Rata POS 1</th>
+                      <th>Rata-Rata POS 2</th>
+                      <th>Rata-Rata POS 3</th>
+                      <th>NILAI AKHIR RAPOR</th>
+                      <th style={{ textAlign: 'center' }}>Status Penilaian</th>
+                      <th style={{ textAlign: 'center' }}>Aksi Lock Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...candidates]
+                      .sort((a, b) => {
+                        const scoreA = scoresMap[a.id]?.finalScore ?? -1;
+                        const scoreB = scoresMap[b.id]?.finalScore ?? -1;
+                        return scoreB - scoreA;
+                      })
+                      .map((c, rankIdx) => {
+                        const s = scoresMap[c.id] || {};
+                        const isTotalLocked = Boolean(s.isCompleted);
+                        const isTop3 = rankIdx < 3 && (s.finalScore || 0) > 0;
+
+                        return (
+                          <tr key={`rekap-${c.id}`}>
+                            <td style={{ textAlign: 'center' }}>
+                              <span className={`${styles.rankBadge} ${isTop3 ? styles.rankTop3 : ''}`}>
+                                {rankIdx + 1}
+                              </span>
+                            </td>
+                            <td>
+                              <strong>{c.name}</strong>
+                              <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
+                            </td>
+                            <td>{c.className}</td>
+                            <td>{s.pos1Avg !== null && s.pos1Avg !== undefined ? s.pos1Avg.toFixed(2) : '-'}</td>
+                            <td>{s.pos2Avg !== null && s.pos2Avg !== undefined ? s.pos2Avg.toFixed(2) : '-'}</td>
+                            <td>{s.pos3Avg !== null && s.pos3Avg !== undefined ? s.pos3Avg.toFixed(2) : '-'}</td>
+                            <td>
+                              <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e40af' }}>
+                                {s.finalScore !== null && s.finalScore !== undefined ? s.finalScore.toFixed(2) : '-'}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {isTotalLocked ? (
+                                <span style={{ color: '#16a34a', fontWeight: 700, fontSize: '0.85rem' }}>
+                                  ✓ Lengkap & Terkunci
+                                </span>
+                              ) : (
+                                <span style={{ color: '#d97706', fontSize: '0.85rem' }}>Belum Dikunci</span>
+                              )}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {isTotalLocked ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLockState(c.id, 'all', false)}
+                                  className={`${styles.btnLock} ${styles.btnLockUnlock}`}
+                                >
+                                  <Unlock size={14} /> Perbarui Nilai
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLockState(c.id, 'all', true)}
+                                  className={`${styles.btnLock} ${styles.btnLockSubmit}`}
+                                >
+                                  <Lock size={14} /> Selesai Seleksi
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── JADWAL SELEKSI VIEW ── */}
+          {seleksiSubTab === 'jadwal' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className={styles.posHeaderBar}>
+                <div className={styles.posTitle}>
+                  <span className={`${styles.posBadge} ${styles.pos1Badge}`}>PENJADWALAN</span>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Pengaturan Hari & Notifikasi Seleksi</h3>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                      Atur alokasi tanggal seleksi massal dan kirim notifikasi WhatsApp
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button type="button" onClick={openRandomizeModal} className="btn btn-secondary btn-sm">
+                    <Shuffle size={16} /> Atur Hari Seleksi Otomatis
+                  </button>
+                  <button type="button" onClick={openMassWaModal} className="btn btn-primary btn-sm">
+                    <Send size={16} /> Kirim WA Seleksi Massal
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Floating / Top Multiple Selected Action Bar */}
         {selectedRowIds.length > 0 && (
           <div className={styles.batchActionBar}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '0.875rem' }}>

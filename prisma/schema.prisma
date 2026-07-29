@@ -36,12 +36,60 @@ model Candidate {
   selectionDay        String?  // e.g. "Rabu, 29 Juli 2026"
   selectionNotified   Boolean  @default(false)
 
+  selectionScore      SelectionScore?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@index([whatsappNumber])
   @@index([status])
   @@index([name])
+}
+
+model SelectionScore {
+  id              String    @id @default(uuid())
+  candidateId     String    @unique
+  candidate       Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  // POS 1: Wawancara dan Perkenalan
+  pos1Evaluator   String?
+  pos1Trust       Float?   // Kepercayaan Diri (1-10)
+  pos1Comm        Float?   // Komunikasi (1-10)
+  pos1Arg         Float?   // Argumentasi (1-10)
+  pos1Ethics      Float?   // Etika (1-10)
+  pos1Motiv       Float?   // Motivasi (1-10)
+  pos1Avg         Float?   // Rata-rata POS 1
+  pos1Completed   Boolean  @default(false)
+  pos1Notes       String?  @db.Text
+
+  // POS 2: Tes Minat Bakat
+  pos2Evaluator   String?
+  pos2Creativity  Float?   // Kreativitas (1-10)
+  pos2Mastery     Float?   // Penguasaan (1-10)
+  pos2Pres        Float?   // Presentasi (1-10)
+  pos2Orig        Float?   // Orisinalitas (1-10)
+  pos2Potency     Float?   // Potensi (1-10)
+  pos2Confidence  Float?   // Percaya Diri (1-10)
+  pos2Avg         Float?   // Rata-rata POS 2
+  pos2Completed   Boolean  @default(false)
+  pos2Notes       String?  @db.Text
+
+  // POS 3: Studi Kasus
+  pos3Evaluator   String?
+  pos3Aura        Float?   // Aura Penyampaian (1-10)
+  pos3Analysis    Float?   // Analisis (1-10)
+  pos3PublicSpk   Float?   // Public Speaking (1-10)
+  pos3Solution    Float?   // Solusi (1-10)
+  pos3Avg         Float?   // Rata-rata POS 3
+  pos3Completed   Boolean  @default(false)
+  pos3Notes       String?  @db.Text
+
+  // Total & Final Status
+  finalScore      Float?   // Rata-rata 33.3% per POS: (pos1Avg + pos2Avg + pos3Avg) / 3
+  isCompleted     Boolean  @default(false) // Overall lock status
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 enum Status {

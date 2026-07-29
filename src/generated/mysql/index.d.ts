@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Candidate = $Result.DefaultSelection<Prisma.$CandidatePayload>
 /**
+ * Model SelectionScore
+ * 
+ */
+export type SelectionScore = $Result.DefaultSelection<Prisma.$SelectionScorePayload>
+/**
  * Model Admin
  * 
  */
@@ -226,6 +231,16 @@ export class PrismaClient<
     * ```
     */
   get candidate(): Prisma.CandidateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.selectionScore`: Exposes CRUD operations for the **SelectionScore** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SelectionScores
+    * const selectionScores = await prisma.selectionScore.findMany()
+    * ```
+    */
+  get selectionScore(): Prisma.SelectionScoreDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.admin`: Exposes CRUD operations for the **Admin** model.
@@ -768,6 +783,7 @@ export namespace Prisma {
 
   export const ModelName: {
     Candidate: 'Candidate',
+    SelectionScore: 'SelectionScore',
     Admin: 'Admin',
     Post: 'Post',
     BlogPost: 'BlogPost',
@@ -796,7 +812,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "candidate" | "admin" | "post" | "blogPost" | "blogComment" | "blogLike" | "setting" | "member" | "orgMember" | "passwordResetOtp" | "alumniTestimonial"
+      modelProps: "candidate" | "selectionScore" | "admin" | "post" | "blogPost" | "blogComment" | "blogLike" | "setting" | "member" | "orgMember" | "passwordResetOtp" | "alumniTestimonial"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -863,6 +879,72 @@ export namespace Prisma {
           count: {
             args: Prisma.CandidateCountArgs<ExtArgs>
             result: $Utils.Optional<CandidateCountAggregateOutputType> | number
+          }
+        }
+      }
+      SelectionScore: {
+        payload: Prisma.$SelectionScorePayload<ExtArgs>
+        fields: Prisma.SelectionScoreFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SelectionScoreFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SelectionScoreFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload>
+          }
+          findFirst: {
+            args: Prisma.SelectionScoreFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SelectionScoreFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload>
+          }
+          findMany: {
+            args: Prisma.SelectionScoreFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload>[]
+          }
+          create: {
+            args: Prisma.SelectionScoreCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload>
+          }
+          createMany: {
+            args: Prisma.SelectionScoreCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SelectionScoreDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload>
+          }
+          update: {
+            args: Prisma.SelectionScoreUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload>
+          }
+          deleteMany: {
+            args: Prisma.SelectionScoreDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SelectionScoreUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SelectionScoreUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SelectionScorePayload>
+          }
+          aggregate: {
+            args: Prisma.SelectionScoreAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSelectionScore>
+          }
+          groupBy: {
+            args: Prisma.SelectionScoreGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SelectionScoreGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SelectionScoreCountArgs<ExtArgs>
+            result: $Utils.Optional<SelectionScoreCountAggregateOutputType> | number
           }
         }
       }
@@ -1623,6 +1705,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     candidate?: CandidateOmit
+    selectionScore?: SelectionScoreOmit
     admin?: AdminOmit
     post?: PostOmit
     blogPost?: BlogPostOmit
@@ -2164,6 +2247,7 @@ export namespace Prisma {
     selectionNotified?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    selectionScore?: boolean | Candidate$selectionScoreArgs<ExtArgs>
   }, ExtArgs["result"]["candidate"]>
 
 
@@ -2193,10 +2277,15 @@ export namespace Prisma {
   }
 
   export type CandidateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "asalSekolah" | "reason" | "status" | "photoPath" | "password" | "plainPassword" | "emailNotified" | "waNotified" | "lastStatus" | "selectionDate" | "selectionDay" | "selectionNotified" | "createdAt" | "updatedAt", ExtArgs["result"]["candidate"]>
+  export type CandidateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    selectionScore?: boolean | Candidate$selectionScoreArgs<ExtArgs>
+  }
 
   export type $CandidatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Candidate"
-    objects: {}
+    objects: {
+      selectionScore: Prisma.$SelectionScorePayload<ExtArgs> | null
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       nisn: string
@@ -2559,6 +2648,7 @@ export namespace Prisma {
    */
   export interface Prisma__CandidateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    selectionScore<T extends Candidate$selectionScoreArgs<ExtArgs> = {}>(args?: Subset<T, Candidate$selectionScoreArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2626,6 +2716,10 @@ export namespace Prisma {
      */
     omit?: CandidateOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
+    /**
      * Filter, which Candidate to fetch.
      */
     where: CandidateWhereUniqueInput
@@ -2644,6 +2738,10 @@ export namespace Prisma {
      */
     omit?: CandidateOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
+    /**
      * Filter, which Candidate to fetch.
      */
     where: CandidateWhereUniqueInput
@@ -2661,6 +2759,10 @@ export namespace Prisma {
      * Omit specific fields from the Candidate
      */
     omit?: CandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
     /**
      * Filter, which Candidate to fetch.
      */
@@ -2710,6 +2812,10 @@ export namespace Prisma {
      */
     omit?: CandidateOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
+    /**
      * Filter, which Candidate to fetch.
      */
     where?: CandidateWhereInput
@@ -2758,6 +2864,10 @@ export namespace Prisma {
      */
     omit?: CandidateOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
+    /**
      * Filter, which Candidates to fetch.
      */
     where?: CandidateWhereInput
@@ -2801,6 +2911,10 @@ export namespace Prisma {
      */
     omit?: CandidateOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
+    /**
      * The data needed to create a Candidate.
      */
     data: XOR<CandidateCreateInput, CandidateUncheckedCreateInput>
@@ -2829,6 +2943,10 @@ export namespace Prisma {
      * Omit specific fields from the Candidate
      */
     omit?: CandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
     /**
      * The data needed to update a Candidate.
      */
@@ -2870,6 +2988,10 @@ export namespace Prisma {
      */
     omit?: CandidateOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
+    /**
      * The filter to search for the Candidate to update in case it exists.
      */
     where: CandidateWhereUniqueInput
@@ -2896,6 +3018,10 @@ export namespace Prisma {
      */
     omit?: CandidateOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
+    /**
      * Filter which Candidate to delete.
      */
     where: CandidateWhereUniqueInput
@@ -2916,6 +3042,25 @@ export namespace Prisma {
   }
 
   /**
+   * Candidate.selectionScore
+   */
+  export type Candidate$selectionScoreArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    where?: SelectionScoreWhereInput
+  }
+
+  /**
    * Candidate without action
    */
   export type CandidateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2927,6 +3072,1353 @@ export namespace Prisma {
      * Omit specific fields from the Candidate
      */
     omit?: CandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SelectionScore
+   */
+
+  export type AggregateSelectionScore = {
+    _count: SelectionScoreCountAggregateOutputType | null
+    _avg: SelectionScoreAvgAggregateOutputType | null
+    _sum: SelectionScoreSumAggregateOutputType | null
+    _min: SelectionScoreMinAggregateOutputType | null
+    _max: SelectionScoreMaxAggregateOutputType | null
+  }
+
+  export type SelectionScoreAvgAggregateOutputType = {
+    pos1Trust: number | null
+    pos1Comm: number | null
+    pos1Arg: number | null
+    pos1Ethics: number | null
+    pos1Motiv: number | null
+    pos1Avg: number | null
+    pos2Creativity: number | null
+    pos2Mastery: number | null
+    pos2Pres: number | null
+    pos2Orig: number | null
+    pos2Potency: number | null
+    pos2Confidence: number | null
+    pos2Avg: number | null
+    pos3Aura: number | null
+    pos3Analysis: number | null
+    pos3PublicSpk: number | null
+    pos3Solution: number | null
+    pos3Avg: number | null
+    finalScore: number | null
+  }
+
+  export type SelectionScoreSumAggregateOutputType = {
+    pos1Trust: number | null
+    pos1Comm: number | null
+    pos1Arg: number | null
+    pos1Ethics: number | null
+    pos1Motiv: number | null
+    pos1Avg: number | null
+    pos2Creativity: number | null
+    pos2Mastery: number | null
+    pos2Pres: number | null
+    pos2Orig: number | null
+    pos2Potency: number | null
+    pos2Confidence: number | null
+    pos2Avg: number | null
+    pos3Aura: number | null
+    pos3Analysis: number | null
+    pos3PublicSpk: number | null
+    pos3Solution: number | null
+    pos3Avg: number | null
+    finalScore: number | null
+  }
+
+  export type SelectionScoreMinAggregateOutputType = {
+    id: string | null
+    candidateId: string | null
+    pos1Evaluator: string | null
+    pos1Trust: number | null
+    pos1Comm: number | null
+    pos1Arg: number | null
+    pos1Ethics: number | null
+    pos1Motiv: number | null
+    pos1Avg: number | null
+    pos1Completed: boolean | null
+    pos1Notes: string | null
+    pos2Evaluator: string | null
+    pos2Creativity: number | null
+    pos2Mastery: number | null
+    pos2Pres: number | null
+    pos2Orig: number | null
+    pos2Potency: number | null
+    pos2Confidence: number | null
+    pos2Avg: number | null
+    pos2Completed: boolean | null
+    pos2Notes: string | null
+    pos3Evaluator: string | null
+    pos3Aura: number | null
+    pos3Analysis: number | null
+    pos3PublicSpk: number | null
+    pos3Solution: number | null
+    pos3Avg: number | null
+    pos3Completed: boolean | null
+    pos3Notes: string | null
+    finalScore: number | null
+    isCompleted: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SelectionScoreMaxAggregateOutputType = {
+    id: string | null
+    candidateId: string | null
+    pos1Evaluator: string | null
+    pos1Trust: number | null
+    pos1Comm: number | null
+    pos1Arg: number | null
+    pos1Ethics: number | null
+    pos1Motiv: number | null
+    pos1Avg: number | null
+    pos1Completed: boolean | null
+    pos1Notes: string | null
+    pos2Evaluator: string | null
+    pos2Creativity: number | null
+    pos2Mastery: number | null
+    pos2Pres: number | null
+    pos2Orig: number | null
+    pos2Potency: number | null
+    pos2Confidence: number | null
+    pos2Avg: number | null
+    pos2Completed: boolean | null
+    pos2Notes: string | null
+    pos3Evaluator: string | null
+    pos3Aura: number | null
+    pos3Analysis: number | null
+    pos3PublicSpk: number | null
+    pos3Solution: number | null
+    pos3Avg: number | null
+    pos3Completed: boolean | null
+    pos3Notes: string | null
+    finalScore: number | null
+    isCompleted: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SelectionScoreCountAggregateOutputType = {
+    id: number
+    candidateId: number
+    pos1Evaluator: number
+    pos1Trust: number
+    pos1Comm: number
+    pos1Arg: number
+    pos1Ethics: number
+    pos1Motiv: number
+    pos1Avg: number
+    pos1Completed: number
+    pos1Notes: number
+    pos2Evaluator: number
+    pos2Creativity: number
+    pos2Mastery: number
+    pos2Pres: number
+    pos2Orig: number
+    pos2Potency: number
+    pos2Confidence: number
+    pos2Avg: number
+    pos2Completed: number
+    pos2Notes: number
+    pos3Evaluator: number
+    pos3Aura: number
+    pos3Analysis: number
+    pos3PublicSpk: number
+    pos3Solution: number
+    pos3Avg: number
+    pos3Completed: number
+    pos3Notes: number
+    finalScore: number
+    isCompleted: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SelectionScoreAvgAggregateInputType = {
+    pos1Trust?: true
+    pos1Comm?: true
+    pos1Arg?: true
+    pos1Ethics?: true
+    pos1Motiv?: true
+    pos1Avg?: true
+    pos2Creativity?: true
+    pos2Mastery?: true
+    pos2Pres?: true
+    pos2Orig?: true
+    pos2Potency?: true
+    pos2Confidence?: true
+    pos2Avg?: true
+    pos3Aura?: true
+    pos3Analysis?: true
+    pos3PublicSpk?: true
+    pos3Solution?: true
+    pos3Avg?: true
+    finalScore?: true
+  }
+
+  export type SelectionScoreSumAggregateInputType = {
+    pos1Trust?: true
+    pos1Comm?: true
+    pos1Arg?: true
+    pos1Ethics?: true
+    pos1Motiv?: true
+    pos1Avg?: true
+    pos2Creativity?: true
+    pos2Mastery?: true
+    pos2Pres?: true
+    pos2Orig?: true
+    pos2Potency?: true
+    pos2Confidence?: true
+    pos2Avg?: true
+    pos3Aura?: true
+    pos3Analysis?: true
+    pos3PublicSpk?: true
+    pos3Solution?: true
+    pos3Avg?: true
+    finalScore?: true
+  }
+
+  export type SelectionScoreMinAggregateInputType = {
+    id?: true
+    candidateId?: true
+    pos1Evaluator?: true
+    pos1Trust?: true
+    pos1Comm?: true
+    pos1Arg?: true
+    pos1Ethics?: true
+    pos1Motiv?: true
+    pos1Avg?: true
+    pos1Completed?: true
+    pos1Notes?: true
+    pos2Evaluator?: true
+    pos2Creativity?: true
+    pos2Mastery?: true
+    pos2Pres?: true
+    pos2Orig?: true
+    pos2Potency?: true
+    pos2Confidence?: true
+    pos2Avg?: true
+    pos2Completed?: true
+    pos2Notes?: true
+    pos3Evaluator?: true
+    pos3Aura?: true
+    pos3Analysis?: true
+    pos3PublicSpk?: true
+    pos3Solution?: true
+    pos3Avg?: true
+    pos3Completed?: true
+    pos3Notes?: true
+    finalScore?: true
+    isCompleted?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SelectionScoreMaxAggregateInputType = {
+    id?: true
+    candidateId?: true
+    pos1Evaluator?: true
+    pos1Trust?: true
+    pos1Comm?: true
+    pos1Arg?: true
+    pos1Ethics?: true
+    pos1Motiv?: true
+    pos1Avg?: true
+    pos1Completed?: true
+    pos1Notes?: true
+    pos2Evaluator?: true
+    pos2Creativity?: true
+    pos2Mastery?: true
+    pos2Pres?: true
+    pos2Orig?: true
+    pos2Potency?: true
+    pos2Confidence?: true
+    pos2Avg?: true
+    pos2Completed?: true
+    pos2Notes?: true
+    pos3Evaluator?: true
+    pos3Aura?: true
+    pos3Analysis?: true
+    pos3PublicSpk?: true
+    pos3Solution?: true
+    pos3Avg?: true
+    pos3Completed?: true
+    pos3Notes?: true
+    finalScore?: true
+    isCompleted?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SelectionScoreCountAggregateInputType = {
+    id?: true
+    candidateId?: true
+    pos1Evaluator?: true
+    pos1Trust?: true
+    pos1Comm?: true
+    pos1Arg?: true
+    pos1Ethics?: true
+    pos1Motiv?: true
+    pos1Avg?: true
+    pos1Completed?: true
+    pos1Notes?: true
+    pos2Evaluator?: true
+    pos2Creativity?: true
+    pos2Mastery?: true
+    pos2Pres?: true
+    pos2Orig?: true
+    pos2Potency?: true
+    pos2Confidence?: true
+    pos2Avg?: true
+    pos2Completed?: true
+    pos2Notes?: true
+    pos3Evaluator?: true
+    pos3Aura?: true
+    pos3Analysis?: true
+    pos3PublicSpk?: true
+    pos3Solution?: true
+    pos3Avg?: true
+    pos3Completed?: true
+    pos3Notes?: true
+    finalScore?: true
+    isCompleted?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SelectionScoreAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SelectionScore to aggregate.
+     */
+    where?: SelectionScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SelectionScores to fetch.
+     */
+    orderBy?: SelectionScoreOrderByWithRelationInput | SelectionScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SelectionScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SelectionScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SelectionScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SelectionScores
+    **/
+    _count?: true | SelectionScoreCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SelectionScoreAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SelectionScoreSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SelectionScoreMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SelectionScoreMaxAggregateInputType
+  }
+
+  export type GetSelectionScoreAggregateType<T extends SelectionScoreAggregateArgs> = {
+        [P in keyof T & keyof AggregateSelectionScore]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSelectionScore[P]>
+      : GetScalarType<T[P], AggregateSelectionScore[P]>
+  }
+
+
+
+
+  export type SelectionScoreGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SelectionScoreWhereInput
+    orderBy?: SelectionScoreOrderByWithAggregationInput | SelectionScoreOrderByWithAggregationInput[]
+    by: SelectionScoreScalarFieldEnum[] | SelectionScoreScalarFieldEnum
+    having?: SelectionScoreScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SelectionScoreCountAggregateInputType | true
+    _avg?: SelectionScoreAvgAggregateInputType
+    _sum?: SelectionScoreSumAggregateInputType
+    _min?: SelectionScoreMinAggregateInputType
+    _max?: SelectionScoreMaxAggregateInputType
+  }
+
+  export type SelectionScoreGroupByOutputType = {
+    id: string
+    candidateId: string
+    pos1Evaluator: string | null
+    pos1Trust: number | null
+    pos1Comm: number | null
+    pos1Arg: number | null
+    pos1Ethics: number | null
+    pos1Motiv: number | null
+    pos1Avg: number | null
+    pos1Completed: boolean
+    pos1Notes: string | null
+    pos2Evaluator: string | null
+    pos2Creativity: number | null
+    pos2Mastery: number | null
+    pos2Pres: number | null
+    pos2Orig: number | null
+    pos2Potency: number | null
+    pos2Confidence: number | null
+    pos2Avg: number | null
+    pos2Completed: boolean
+    pos2Notes: string | null
+    pos3Evaluator: string | null
+    pos3Aura: number | null
+    pos3Analysis: number | null
+    pos3PublicSpk: number | null
+    pos3Solution: number | null
+    pos3Avg: number | null
+    pos3Completed: boolean
+    pos3Notes: string | null
+    finalScore: number | null
+    isCompleted: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: SelectionScoreCountAggregateOutputType | null
+    _avg: SelectionScoreAvgAggregateOutputType | null
+    _sum: SelectionScoreSumAggregateOutputType | null
+    _min: SelectionScoreMinAggregateOutputType | null
+    _max: SelectionScoreMaxAggregateOutputType | null
+  }
+
+  type GetSelectionScoreGroupByPayload<T extends SelectionScoreGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SelectionScoreGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SelectionScoreGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SelectionScoreGroupByOutputType[P]>
+            : GetScalarType<T[P], SelectionScoreGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SelectionScoreSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    candidateId?: boolean
+    pos1Evaluator?: boolean
+    pos1Trust?: boolean
+    pos1Comm?: boolean
+    pos1Arg?: boolean
+    pos1Ethics?: boolean
+    pos1Motiv?: boolean
+    pos1Avg?: boolean
+    pos1Completed?: boolean
+    pos1Notes?: boolean
+    pos2Evaluator?: boolean
+    pos2Creativity?: boolean
+    pos2Mastery?: boolean
+    pos2Pres?: boolean
+    pos2Orig?: boolean
+    pos2Potency?: boolean
+    pos2Confidence?: boolean
+    pos2Avg?: boolean
+    pos2Completed?: boolean
+    pos2Notes?: boolean
+    pos3Evaluator?: boolean
+    pos3Aura?: boolean
+    pos3Analysis?: boolean
+    pos3PublicSpk?: boolean
+    pos3Solution?: boolean
+    pos3Avg?: boolean
+    pos3Completed?: boolean
+    pos3Notes?: boolean
+    finalScore?: boolean
+    isCompleted?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    candidate?: boolean | CandidateDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["selectionScore"]>
+
+
+
+  export type SelectionScoreSelectScalar = {
+    id?: boolean
+    candidateId?: boolean
+    pos1Evaluator?: boolean
+    pos1Trust?: boolean
+    pos1Comm?: boolean
+    pos1Arg?: boolean
+    pos1Ethics?: boolean
+    pos1Motiv?: boolean
+    pos1Avg?: boolean
+    pos1Completed?: boolean
+    pos1Notes?: boolean
+    pos2Evaluator?: boolean
+    pos2Creativity?: boolean
+    pos2Mastery?: boolean
+    pos2Pres?: boolean
+    pos2Orig?: boolean
+    pos2Potency?: boolean
+    pos2Confidence?: boolean
+    pos2Avg?: boolean
+    pos2Completed?: boolean
+    pos2Notes?: boolean
+    pos3Evaluator?: boolean
+    pos3Aura?: boolean
+    pos3Analysis?: boolean
+    pos3PublicSpk?: boolean
+    pos3Solution?: boolean
+    pos3Avg?: boolean
+    pos3Completed?: boolean
+    pos3Notes?: boolean
+    finalScore?: boolean
+    isCompleted?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SelectionScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "candidateId" | "pos1Evaluator" | "pos1Trust" | "pos1Comm" | "pos1Arg" | "pos1Ethics" | "pos1Motiv" | "pos1Avg" | "pos1Completed" | "pos1Notes" | "pos2Evaluator" | "pos2Creativity" | "pos2Mastery" | "pos2Pres" | "pos2Orig" | "pos2Potency" | "pos2Confidence" | "pos2Avg" | "pos2Completed" | "pos2Notes" | "pos3Evaluator" | "pos3Aura" | "pos3Analysis" | "pos3PublicSpk" | "pos3Solution" | "pos3Avg" | "pos3Completed" | "pos3Notes" | "finalScore" | "isCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["selectionScore"]>
+  export type SelectionScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    candidate?: boolean | CandidateDefaultArgs<ExtArgs>
+  }
+
+  export type $SelectionScorePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SelectionScore"
+    objects: {
+      candidate: Prisma.$CandidatePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      candidateId: string
+      pos1Evaluator: string | null
+      pos1Trust: number | null
+      pos1Comm: number | null
+      pos1Arg: number | null
+      pos1Ethics: number | null
+      pos1Motiv: number | null
+      pos1Avg: number | null
+      pos1Completed: boolean
+      pos1Notes: string | null
+      pos2Evaluator: string | null
+      pos2Creativity: number | null
+      pos2Mastery: number | null
+      pos2Pres: number | null
+      pos2Orig: number | null
+      pos2Potency: number | null
+      pos2Confidence: number | null
+      pos2Avg: number | null
+      pos2Completed: boolean
+      pos2Notes: string | null
+      pos3Evaluator: string | null
+      pos3Aura: number | null
+      pos3Analysis: number | null
+      pos3PublicSpk: number | null
+      pos3Solution: number | null
+      pos3Avg: number | null
+      pos3Completed: boolean
+      pos3Notes: string | null
+      finalScore: number | null
+      isCompleted: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["selectionScore"]>
+    composites: {}
+  }
+
+  type SelectionScoreGetPayload<S extends boolean | null | undefined | SelectionScoreDefaultArgs> = $Result.GetResult<Prisma.$SelectionScorePayload, S>
+
+  type SelectionScoreCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SelectionScoreFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SelectionScoreCountAggregateInputType | true
+    }
+
+  export interface SelectionScoreDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SelectionScore'], meta: { name: 'SelectionScore' } }
+    /**
+     * Find zero or one SelectionScore that matches the filter.
+     * @param {SelectionScoreFindUniqueArgs} args - Arguments to find a SelectionScore
+     * @example
+     * // Get one SelectionScore
+     * const selectionScore = await prisma.selectionScore.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SelectionScoreFindUniqueArgs>(args: SelectSubset<T, SelectionScoreFindUniqueArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SelectionScore that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SelectionScoreFindUniqueOrThrowArgs} args - Arguments to find a SelectionScore
+     * @example
+     * // Get one SelectionScore
+     * const selectionScore = await prisma.selectionScore.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SelectionScoreFindUniqueOrThrowArgs>(args: SelectSubset<T, SelectionScoreFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SelectionScore that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SelectionScoreFindFirstArgs} args - Arguments to find a SelectionScore
+     * @example
+     * // Get one SelectionScore
+     * const selectionScore = await prisma.selectionScore.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SelectionScoreFindFirstArgs>(args?: SelectSubset<T, SelectionScoreFindFirstArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SelectionScore that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SelectionScoreFindFirstOrThrowArgs} args - Arguments to find a SelectionScore
+     * @example
+     * // Get one SelectionScore
+     * const selectionScore = await prisma.selectionScore.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SelectionScoreFindFirstOrThrowArgs>(args?: SelectSubset<T, SelectionScoreFindFirstOrThrowArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SelectionScores that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SelectionScoreFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SelectionScores
+     * const selectionScores = await prisma.selectionScore.findMany()
+     * 
+     * // Get first 10 SelectionScores
+     * const selectionScores = await prisma.selectionScore.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const selectionScoreWithIdOnly = await prisma.selectionScore.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SelectionScoreFindManyArgs>(args?: SelectSubset<T, SelectionScoreFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SelectionScore.
+     * @param {SelectionScoreCreateArgs} args - Arguments to create a SelectionScore.
+     * @example
+     * // Create one SelectionScore
+     * const SelectionScore = await prisma.selectionScore.create({
+     *   data: {
+     *     // ... data to create a SelectionScore
+     *   }
+     * })
+     * 
+     */
+    create<T extends SelectionScoreCreateArgs>(args: SelectSubset<T, SelectionScoreCreateArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SelectionScores.
+     * @param {SelectionScoreCreateManyArgs} args - Arguments to create many SelectionScores.
+     * @example
+     * // Create many SelectionScores
+     * const selectionScore = await prisma.selectionScore.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SelectionScoreCreateManyArgs>(args?: SelectSubset<T, SelectionScoreCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SelectionScore.
+     * @param {SelectionScoreDeleteArgs} args - Arguments to delete one SelectionScore.
+     * @example
+     * // Delete one SelectionScore
+     * const SelectionScore = await prisma.selectionScore.delete({
+     *   where: {
+     *     // ... filter to delete one SelectionScore
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SelectionScoreDeleteArgs>(args: SelectSubset<T, SelectionScoreDeleteArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SelectionScore.
+     * @param {SelectionScoreUpdateArgs} args - Arguments to update one SelectionScore.
+     * @example
+     * // Update one SelectionScore
+     * const selectionScore = await prisma.selectionScore.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SelectionScoreUpdateArgs>(args: SelectSubset<T, SelectionScoreUpdateArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SelectionScores.
+     * @param {SelectionScoreDeleteManyArgs} args - Arguments to filter SelectionScores to delete.
+     * @example
+     * // Delete a few SelectionScores
+     * const { count } = await prisma.selectionScore.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SelectionScoreDeleteManyArgs>(args?: SelectSubset<T, SelectionScoreDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SelectionScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SelectionScoreUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SelectionScores
+     * const selectionScore = await prisma.selectionScore.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SelectionScoreUpdateManyArgs>(args: SelectSubset<T, SelectionScoreUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SelectionScore.
+     * @param {SelectionScoreUpsertArgs} args - Arguments to update or create a SelectionScore.
+     * @example
+     * // Update or create a SelectionScore
+     * const selectionScore = await prisma.selectionScore.upsert({
+     *   create: {
+     *     // ... data to create a SelectionScore
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SelectionScore we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SelectionScoreUpsertArgs>(args: SelectSubset<T, SelectionScoreUpsertArgs<ExtArgs>>): Prisma__SelectionScoreClient<$Result.GetResult<Prisma.$SelectionScorePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SelectionScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SelectionScoreCountArgs} args - Arguments to filter SelectionScores to count.
+     * @example
+     * // Count the number of SelectionScores
+     * const count = await prisma.selectionScore.count({
+     *   where: {
+     *     // ... the filter for the SelectionScores we want to count
+     *   }
+     * })
+    **/
+    count<T extends SelectionScoreCountArgs>(
+      args?: Subset<T, SelectionScoreCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SelectionScoreCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SelectionScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SelectionScoreAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SelectionScoreAggregateArgs>(args: Subset<T, SelectionScoreAggregateArgs>): Prisma.PrismaPromise<GetSelectionScoreAggregateType<T>>
+
+    /**
+     * Group by SelectionScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SelectionScoreGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SelectionScoreGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SelectionScoreGroupByArgs['orderBy'] }
+        : { orderBy?: SelectionScoreGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SelectionScoreGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSelectionScoreGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SelectionScore model
+   */
+  readonly fields: SelectionScoreFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SelectionScore.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SelectionScoreClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    candidate<T extends CandidateDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CandidateDefaultArgs<ExtArgs>>): Prisma__CandidateClient<$Result.GetResult<Prisma.$CandidatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SelectionScore model
+   */
+  interface SelectionScoreFieldRefs {
+    readonly id: FieldRef<"SelectionScore", 'String'>
+    readonly candidateId: FieldRef<"SelectionScore", 'String'>
+    readonly pos1Evaluator: FieldRef<"SelectionScore", 'String'>
+    readonly pos1Trust: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Comm: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Arg: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Ethics: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Motiv: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Avg: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Completed: FieldRef<"SelectionScore", 'Boolean'>
+    readonly pos1Notes: FieldRef<"SelectionScore", 'String'>
+    readonly pos2Evaluator: FieldRef<"SelectionScore", 'String'>
+    readonly pos2Creativity: FieldRef<"SelectionScore", 'Float'>
+    readonly pos2Mastery: FieldRef<"SelectionScore", 'Float'>
+    readonly pos2Pres: FieldRef<"SelectionScore", 'Float'>
+    readonly pos2Orig: FieldRef<"SelectionScore", 'Float'>
+    readonly pos2Potency: FieldRef<"SelectionScore", 'Float'>
+    readonly pos2Confidence: FieldRef<"SelectionScore", 'Float'>
+    readonly pos2Avg: FieldRef<"SelectionScore", 'Float'>
+    readonly pos2Completed: FieldRef<"SelectionScore", 'Boolean'>
+    readonly pos2Notes: FieldRef<"SelectionScore", 'String'>
+    readonly pos3Evaluator: FieldRef<"SelectionScore", 'String'>
+    readonly pos3Aura: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3Analysis: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3PublicSpk: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3Solution: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3Avg: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3Completed: FieldRef<"SelectionScore", 'Boolean'>
+    readonly pos3Notes: FieldRef<"SelectionScore", 'String'>
+    readonly finalScore: FieldRef<"SelectionScore", 'Float'>
+    readonly isCompleted: FieldRef<"SelectionScore", 'Boolean'>
+    readonly createdAt: FieldRef<"SelectionScore", 'DateTime'>
+    readonly updatedAt: FieldRef<"SelectionScore", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SelectionScore findUnique
+   */
+  export type SelectionScoreFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which SelectionScore to fetch.
+     */
+    where: SelectionScoreWhereUniqueInput
+  }
+
+  /**
+   * SelectionScore findUniqueOrThrow
+   */
+  export type SelectionScoreFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which SelectionScore to fetch.
+     */
+    where: SelectionScoreWhereUniqueInput
+  }
+
+  /**
+   * SelectionScore findFirst
+   */
+  export type SelectionScoreFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which SelectionScore to fetch.
+     */
+    where?: SelectionScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SelectionScores to fetch.
+     */
+    orderBy?: SelectionScoreOrderByWithRelationInput | SelectionScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SelectionScores.
+     */
+    cursor?: SelectionScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SelectionScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SelectionScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SelectionScores.
+     */
+    distinct?: SelectionScoreScalarFieldEnum | SelectionScoreScalarFieldEnum[]
+  }
+
+  /**
+   * SelectionScore findFirstOrThrow
+   */
+  export type SelectionScoreFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which SelectionScore to fetch.
+     */
+    where?: SelectionScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SelectionScores to fetch.
+     */
+    orderBy?: SelectionScoreOrderByWithRelationInput | SelectionScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SelectionScores.
+     */
+    cursor?: SelectionScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SelectionScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SelectionScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SelectionScores.
+     */
+    distinct?: SelectionScoreScalarFieldEnum | SelectionScoreScalarFieldEnum[]
+  }
+
+  /**
+   * SelectionScore findMany
+   */
+  export type SelectionScoreFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which SelectionScores to fetch.
+     */
+    where?: SelectionScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SelectionScores to fetch.
+     */
+    orderBy?: SelectionScoreOrderByWithRelationInput | SelectionScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SelectionScores.
+     */
+    cursor?: SelectionScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SelectionScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SelectionScores.
+     */
+    skip?: number
+    distinct?: SelectionScoreScalarFieldEnum | SelectionScoreScalarFieldEnum[]
+  }
+
+  /**
+   * SelectionScore create
+   */
+  export type SelectionScoreCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SelectionScore.
+     */
+    data: XOR<SelectionScoreCreateInput, SelectionScoreUncheckedCreateInput>
+  }
+
+  /**
+   * SelectionScore createMany
+   */
+  export type SelectionScoreCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SelectionScores.
+     */
+    data: SelectionScoreCreateManyInput | SelectionScoreCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SelectionScore update
+   */
+  export type SelectionScoreUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SelectionScore.
+     */
+    data: XOR<SelectionScoreUpdateInput, SelectionScoreUncheckedUpdateInput>
+    /**
+     * Choose, which SelectionScore to update.
+     */
+    where: SelectionScoreWhereUniqueInput
+  }
+
+  /**
+   * SelectionScore updateMany
+   */
+  export type SelectionScoreUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SelectionScores.
+     */
+    data: XOR<SelectionScoreUpdateManyMutationInput, SelectionScoreUncheckedUpdateManyInput>
+    /**
+     * Filter which SelectionScores to update
+     */
+    where?: SelectionScoreWhereInput
+    /**
+     * Limit how many SelectionScores to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SelectionScore upsert
+   */
+  export type SelectionScoreUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SelectionScore to update in case it exists.
+     */
+    where: SelectionScoreWhereUniqueInput
+    /**
+     * In case the SelectionScore found by the `where` argument doesn't exist, create a new SelectionScore with this data.
+     */
+    create: XOR<SelectionScoreCreateInput, SelectionScoreUncheckedCreateInput>
+    /**
+     * In case the SelectionScore was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SelectionScoreUpdateInput, SelectionScoreUncheckedUpdateInput>
+  }
+
+  /**
+   * SelectionScore delete
+   */
+  export type SelectionScoreDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
+    /**
+     * Filter which SelectionScore to delete.
+     */
+    where: SelectionScoreWhereUniqueInput
+  }
+
+  /**
+   * SelectionScore deleteMany
+   */
+  export type SelectionScoreDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SelectionScores to delete
+     */
+    where?: SelectionScoreWhereInput
+    /**
+     * Limit how many SelectionScores to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SelectionScore without action
+   */
+  export type SelectionScoreDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SelectionScore
+     */
+    select?: SelectionScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SelectionScore
+     */
+    omit?: SelectionScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SelectionScoreInclude<ExtArgs> | null
   }
 
 
@@ -13000,6 +14492,45 @@ export namespace Prisma {
   export type CandidateScalarFieldEnum = (typeof CandidateScalarFieldEnum)[keyof typeof CandidateScalarFieldEnum]
 
 
+  export const SelectionScoreScalarFieldEnum: {
+    id: 'id',
+    candidateId: 'candidateId',
+    pos1Evaluator: 'pos1Evaluator',
+    pos1Trust: 'pos1Trust',
+    pos1Comm: 'pos1Comm',
+    pos1Arg: 'pos1Arg',
+    pos1Ethics: 'pos1Ethics',
+    pos1Motiv: 'pos1Motiv',
+    pos1Avg: 'pos1Avg',
+    pos1Completed: 'pos1Completed',
+    pos1Notes: 'pos1Notes',
+    pos2Evaluator: 'pos2Evaluator',
+    pos2Creativity: 'pos2Creativity',
+    pos2Mastery: 'pos2Mastery',
+    pos2Pres: 'pos2Pres',
+    pos2Orig: 'pos2Orig',
+    pos2Potency: 'pos2Potency',
+    pos2Confidence: 'pos2Confidence',
+    pos2Avg: 'pos2Avg',
+    pos2Completed: 'pos2Completed',
+    pos2Notes: 'pos2Notes',
+    pos3Evaluator: 'pos3Evaluator',
+    pos3Aura: 'pos3Aura',
+    pos3Analysis: 'pos3Analysis',
+    pos3PublicSpk: 'pos3PublicSpk',
+    pos3Solution: 'pos3Solution',
+    pos3Avg: 'pos3Avg',
+    pos3Completed: 'pos3Completed',
+    pos3Notes: 'pos3Notes',
+    finalScore: 'finalScore',
+    isCompleted: 'isCompleted',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SelectionScoreScalarFieldEnum = (typeof SelectionScoreScalarFieldEnum)[keyof typeof SelectionScoreScalarFieldEnum]
+
+
   export const AdminScalarFieldEnum: {
     id: 'id',
     username: 'username',
@@ -13178,6 +14709,20 @@ export namespace Prisma {
   export type CandidateOrderByRelevanceFieldEnum = (typeof CandidateOrderByRelevanceFieldEnum)[keyof typeof CandidateOrderByRelevanceFieldEnum]
 
 
+  export const SelectionScoreOrderByRelevanceFieldEnum: {
+    id: 'id',
+    candidateId: 'candidateId',
+    pos1Evaluator: 'pos1Evaluator',
+    pos1Notes: 'pos1Notes',
+    pos2Evaluator: 'pos2Evaluator',
+    pos2Notes: 'pos2Notes',
+    pos3Evaluator: 'pos3Evaluator',
+    pos3Notes: 'pos3Notes'
+  };
+
+  export type SelectionScoreOrderByRelevanceFieldEnum = (typeof SelectionScoreOrderByRelevanceFieldEnum)[keyof typeof SelectionScoreOrderByRelevanceFieldEnum]
+
+
   export const AdminOrderByRelevanceFieldEnum: {
     id: 'id',
     username: 'username',
@@ -13330,6 +14875,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -13340,13 +14892,6 @@ export namespace Prisma {
    * Reference to a field of type 'MemberStatus'
    */
   export type EnumMemberStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MemberStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
   /**
    * Deep Input Types
@@ -13378,6 +14923,7 @@ export namespace Prisma {
     selectionNotified?: BoolFilter<"Candidate"> | boolean
     createdAt?: DateTimeFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeFilter<"Candidate"> | Date | string
+    selectionScore?: XOR<SelectionScoreNullableScalarRelationFilter, SelectionScoreWhereInput> | null
   }
 
   export type CandidateOrderByWithRelationInput = {
@@ -13402,6 +14948,7 @@ export namespace Prisma {
     selectionNotified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    selectionScore?: SelectionScoreOrderByWithRelationInput
     _relevance?: CandidateOrderByRelevanceInput
   }
 
@@ -13430,6 +14977,7 @@ export namespace Prisma {
     selectionNotified?: BoolFilter<"Candidate"> | boolean
     createdAt?: DateTimeFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeFilter<"Candidate"> | Date | string
+    selectionScore?: XOR<SelectionScoreNullableScalarRelationFilter, SelectionScoreWhereInput> | null
   }, "id" | "nisn">
 
   export type CandidateOrderByWithAggregationInput = {
@@ -13484,6 +15032,204 @@ export namespace Prisma {
     selectionNotified?: BoolWithAggregatesFilter<"Candidate"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Candidate"> | Date | string
+  }
+
+  export type SelectionScoreWhereInput = {
+    AND?: SelectionScoreWhereInput | SelectionScoreWhereInput[]
+    OR?: SelectionScoreWhereInput[]
+    NOT?: SelectionScoreWhereInput | SelectionScoreWhereInput[]
+    id?: StringFilter<"SelectionScore"> | string
+    candidateId?: StringFilter<"SelectionScore"> | string
+    pos1Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
+    pos1Trust?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Comm?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Arg?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Ethics?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Motiv?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Avg?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Completed?: BoolFilter<"SelectionScore"> | boolean
+    pos1Notes?: StringNullableFilter<"SelectionScore"> | string | null
+    pos2Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
+    pos2Creativity?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Mastery?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Pres?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Orig?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Potency?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Confidence?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Avg?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Completed?: BoolFilter<"SelectionScore"> | boolean
+    pos2Notes?: StringNullableFilter<"SelectionScore"> | string | null
+    pos3Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
+    pos3Aura?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Analysis?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3PublicSpk?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Solution?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Avg?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Completed?: BoolFilter<"SelectionScore"> | boolean
+    pos3Notes?: StringNullableFilter<"SelectionScore"> | string | null
+    finalScore?: FloatNullableFilter<"SelectionScore"> | number | null
+    isCompleted?: BoolFilter<"SelectionScore"> | boolean
+    createdAt?: DateTimeFilter<"SelectionScore"> | Date | string
+    updatedAt?: DateTimeFilter<"SelectionScore"> | Date | string
+    candidate?: XOR<CandidateScalarRelationFilter, CandidateWhereInput>
+  }
+
+  export type SelectionScoreOrderByWithRelationInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    pos1Evaluator?: SortOrderInput | SortOrder
+    pos1Trust?: SortOrderInput | SortOrder
+    pos1Comm?: SortOrderInput | SortOrder
+    pos1Arg?: SortOrderInput | SortOrder
+    pos1Ethics?: SortOrderInput | SortOrder
+    pos1Motiv?: SortOrderInput | SortOrder
+    pos1Avg?: SortOrderInput | SortOrder
+    pos1Completed?: SortOrder
+    pos1Notes?: SortOrderInput | SortOrder
+    pos2Evaluator?: SortOrderInput | SortOrder
+    pos2Creativity?: SortOrderInput | SortOrder
+    pos2Mastery?: SortOrderInput | SortOrder
+    pos2Pres?: SortOrderInput | SortOrder
+    pos2Orig?: SortOrderInput | SortOrder
+    pos2Potency?: SortOrderInput | SortOrder
+    pos2Confidence?: SortOrderInput | SortOrder
+    pos2Avg?: SortOrderInput | SortOrder
+    pos2Completed?: SortOrder
+    pos2Notes?: SortOrderInput | SortOrder
+    pos3Evaluator?: SortOrderInput | SortOrder
+    pos3Aura?: SortOrderInput | SortOrder
+    pos3Analysis?: SortOrderInput | SortOrder
+    pos3PublicSpk?: SortOrderInput | SortOrder
+    pos3Solution?: SortOrderInput | SortOrder
+    pos3Avg?: SortOrderInput | SortOrder
+    pos3Completed?: SortOrder
+    pos3Notes?: SortOrderInput | SortOrder
+    finalScore?: SortOrderInput | SortOrder
+    isCompleted?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    candidate?: CandidateOrderByWithRelationInput
+    _relevance?: SelectionScoreOrderByRelevanceInput
+  }
+
+  export type SelectionScoreWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    candidateId?: string
+    AND?: SelectionScoreWhereInput | SelectionScoreWhereInput[]
+    OR?: SelectionScoreWhereInput[]
+    NOT?: SelectionScoreWhereInput | SelectionScoreWhereInput[]
+    pos1Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
+    pos1Trust?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Comm?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Arg?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Ethics?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Motiv?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Avg?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Completed?: BoolFilter<"SelectionScore"> | boolean
+    pos1Notes?: StringNullableFilter<"SelectionScore"> | string | null
+    pos2Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
+    pos2Creativity?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Mastery?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Pres?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Orig?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Potency?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Confidence?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Avg?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos2Completed?: BoolFilter<"SelectionScore"> | boolean
+    pos2Notes?: StringNullableFilter<"SelectionScore"> | string | null
+    pos3Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
+    pos3Aura?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Analysis?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3PublicSpk?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Solution?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Avg?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Completed?: BoolFilter<"SelectionScore"> | boolean
+    pos3Notes?: StringNullableFilter<"SelectionScore"> | string | null
+    finalScore?: FloatNullableFilter<"SelectionScore"> | number | null
+    isCompleted?: BoolFilter<"SelectionScore"> | boolean
+    createdAt?: DateTimeFilter<"SelectionScore"> | Date | string
+    updatedAt?: DateTimeFilter<"SelectionScore"> | Date | string
+    candidate?: XOR<CandidateScalarRelationFilter, CandidateWhereInput>
+  }, "id" | "candidateId">
+
+  export type SelectionScoreOrderByWithAggregationInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    pos1Evaluator?: SortOrderInput | SortOrder
+    pos1Trust?: SortOrderInput | SortOrder
+    pos1Comm?: SortOrderInput | SortOrder
+    pos1Arg?: SortOrderInput | SortOrder
+    pos1Ethics?: SortOrderInput | SortOrder
+    pos1Motiv?: SortOrderInput | SortOrder
+    pos1Avg?: SortOrderInput | SortOrder
+    pos1Completed?: SortOrder
+    pos1Notes?: SortOrderInput | SortOrder
+    pos2Evaluator?: SortOrderInput | SortOrder
+    pos2Creativity?: SortOrderInput | SortOrder
+    pos2Mastery?: SortOrderInput | SortOrder
+    pos2Pres?: SortOrderInput | SortOrder
+    pos2Orig?: SortOrderInput | SortOrder
+    pos2Potency?: SortOrderInput | SortOrder
+    pos2Confidence?: SortOrderInput | SortOrder
+    pos2Avg?: SortOrderInput | SortOrder
+    pos2Completed?: SortOrder
+    pos2Notes?: SortOrderInput | SortOrder
+    pos3Evaluator?: SortOrderInput | SortOrder
+    pos3Aura?: SortOrderInput | SortOrder
+    pos3Analysis?: SortOrderInput | SortOrder
+    pos3PublicSpk?: SortOrderInput | SortOrder
+    pos3Solution?: SortOrderInput | SortOrder
+    pos3Avg?: SortOrderInput | SortOrder
+    pos3Completed?: SortOrder
+    pos3Notes?: SortOrderInput | SortOrder
+    finalScore?: SortOrderInput | SortOrder
+    isCompleted?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SelectionScoreCountOrderByAggregateInput
+    _avg?: SelectionScoreAvgOrderByAggregateInput
+    _max?: SelectionScoreMaxOrderByAggregateInput
+    _min?: SelectionScoreMinOrderByAggregateInput
+    _sum?: SelectionScoreSumOrderByAggregateInput
+  }
+
+  export type SelectionScoreScalarWhereWithAggregatesInput = {
+    AND?: SelectionScoreScalarWhereWithAggregatesInput | SelectionScoreScalarWhereWithAggregatesInput[]
+    OR?: SelectionScoreScalarWhereWithAggregatesInput[]
+    NOT?: SelectionScoreScalarWhereWithAggregatesInput | SelectionScoreScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SelectionScore"> | string
+    candidateId?: StringWithAggregatesFilter<"SelectionScore"> | string
+    pos1Evaluator?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
+    pos1Trust?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Comm?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Arg?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Ethics?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Motiv?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Avg?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Completed?: BoolWithAggregatesFilter<"SelectionScore"> | boolean
+    pos1Notes?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
+    pos2Evaluator?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
+    pos2Creativity?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos2Mastery?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos2Pres?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos2Orig?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos2Potency?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos2Confidence?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos2Avg?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos2Completed?: BoolWithAggregatesFilter<"SelectionScore"> | boolean
+    pos2Notes?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
+    pos3Evaluator?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
+    pos3Aura?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3Analysis?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3PublicSpk?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3Solution?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3Avg?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3Completed?: BoolWithAggregatesFilter<"SelectionScore"> | boolean
+    pos3Notes?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
+    finalScore?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    isCompleted?: BoolWithAggregatesFilter<"SelectionScore"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"SelectionScore"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SelectionScore"> | Date | string
   }
 
   export type AdminWhereInput = {
@@ -14265,6 +16011,7 @@ export namespace Prisma {
     selectionNotified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    selectionScore?: SelectionScoreCreateNestedOneWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateInput = {
@@ -14289,6 +16036,7 @@ export namespace Prisma {
     selectionNotified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    selectionScore?: SelectionScoreUncheckedCreateNestedOneWithoutCandidateInput
   }
 
   export type CandidateUpdateInput = {
@@ -14313,6 +16061,7 @@ export namespace Prisma {
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    selectionScore?: SelectionScoreUpdateOneWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateInput = {
@@ -14337,6 +16086,7 @@ export namespace Prisma {
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    selectionScore?: SelectionScoreUncheckedUpdateOneWithoutCandidateNestedInput
   }
 
   export type CandidateCreateManyInput = {
@@ -14407,6 +16157,257 @@ export namespace Prisma {
     selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SelectionScoreCreateInput = {
+    id?: string
+    pos1Evaluator?: string | null
+    pos1Trust?: number | null
+    pos1Comm?: number | null
+    pos1Arg?: number | null
+    pos1Ethics?: number | null
+    pos1Motiv?: number | null
+    pos1Avg?: number | null
+    pos1Completed?: boolean
+    pos1Notes?: string | null
+    pos2Evaluator?: string | null
+    pos2Creativity?: number | null
+    pos2Mastery?: number | null
+    pos2Pres?: number | null
+    pos2Orig?: number | null
+    pos2Potency?: number | null
+    pos2Confidence?: number | null
+    pos2Avg?: number | null
+    pos2Completed?: boolean
+    pos2Notes?: string | null
+    pos3Evaluator?: string | null
+    pos3Aura?: number | null
+    pos3Analysis?: number | null
+    pos3PublicSpk?: number | null
+    pos3Solution?: number | null
+    pos3Avg?: number | null
+    pos3Completed?: boolean
+    pos3Notes?: string | null
+    finalScore?: number | null
+    isCompleted?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    candidate: CandidateCreateNestedOneWithoutSelectionScoreInput
+  }
+
+  export type SelectionScoreUncheckedCreateInput = {
+    id?: string
+    candidateId: string
+    pos1Evaluator?: string | null
+    pos1Trust?: number | null
+    pos1Comm?: number | null
+    pos1Arg?: number | null
+    pos1Ethics?: number | null
+    pos1Motiv?: number | null
+    pos1Avg?: number | null
+    pos1Completed?: boolean
+    pos1Notes?: string | null
+    pos2Evaluator?: string | null
+    pos2Creativity?: number | null
+    pos2Mastery?: number | null
+    pos2Pres?: number | null
+    pos2Orig?: number | null
+    pos2Potency?: number | null
+    pos2Confidence?: number | null
+    pos2Avg?: number | null
+    pos2Completed?: boolean
+    pos2Notes?: string | null
+    pos3Evaluator?: string | null
+    pos3Aura?: number | null
+    pos3Analysis?: number | null
+    pos3PublicSpk?: number | null
+    pos3Solution?: number | null
+    pos3Avg?: number | null
+    pos3Completed?: boolean
+    pos3Notes?: string | null
+    finalScore?: number | null
+    isCompleted?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SelectionScoreUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Creativity?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Mastery?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Pres?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Orig?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Potency?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    finalScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    candidate?: CandidateUpdateOneRequiredWithoutSelectionScoreNestedInput
+  }
+
+  export type SelectionScoreUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    candidateId?: StringFieldUpdateOperationsInput | string
+    pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Creativity?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Mastery?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Pres?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Orig?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Potency?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    finalScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SelectionScoreCreateManyInput = {
+    id?: string
+    candidateId: string
+    pos1Evaluator?: string | null
+    pos1Trust?: number | null
+    pos1Comm?: number | null
+    pos1Arg?: number | null
+    pos1Ethics?: number | null
+    pos1Motiv?: number | null
+    pos1Avg?: number | null
+    pos1Completed?: boolean
+    pos1Notes?: string | null
+    pos2Evaluator?: string | null
+    pos2Creativity?: number | null
+    pos2Mastery?: number | null
+    pos2Pres?: number | null
+    pos2Orig?: number | null
+    pos2Potency?: number | null
+    pos2Confidence?: number | null
+    pos2Avg?: number | null
+    pos2Completed?: boolean
+    pos2Notes?: string | null
+    pos3Evaluator?: string | null
+    pos3Aura?: number | null
+    pos3Analysis?: number | null
+    pos3PublicSpk?: number | null
+    pos3Solution?: number | null
+    pos3Avg?: number | null
+    pos3Completed?: boolean
+    pos3Notes?: string | null
+    finalScore?: number | null
+    isCompleted?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SelectionScoreUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Creativity?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Mastery?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Pres?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Orig?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Potency?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    finalScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SelectionScoreUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    candidateId?: StringFieldUpdateOperationsInput | string
+    pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Creativity?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Mastery?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Pres?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Orig?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Potency?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    finalScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15293,6 +17294,11 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type SelectionScoreNullableScalarRelationFilter = {
+    is?: SelectionScoreWhereInput | null
+    isNot?: SelectionScoreWhereInput | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -15456,6 +17462,196 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type CandidateScalarRelationFilter = {
+    is?: CandidateWhereInput
+    isNot?: CandidateWhereInput
+  }
+
+  export type SelectionScoreOrderByRelevanceInput = {
+    fields: SelectionScoreOrderByRelevanceFieldEnum | SelectionScoreOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type SelectionScoreCountOrderByAggregateInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    pos1Evaluator?: SortOrder
+    pos1Trust?: SortOrder
+    pos1Comm?: SortOrder
+    pos1Arg?: SortOrder
+    pos1Ethics?: SortOrder
+    pos1Motiv?: SortOrder
+    pos1Avg?: SortOrder
+    pos1Completed?: SortOrder
+    pos1Notes?: SortOrder
+    pos2Evaluator?: SortOrder
+    pos2Creativity?: SortOrder
+    pos2Mastery?: SortOrder
+    pos2Pres?: SortOrder
+    pos2Orig?: SortOrder
+    pos2Potency?: SortOrder
+    pos2Confidence?: SortOrder
+    pos2Avg?: SortOrder
+    pos2Completed?: SortOrder
+    pos2Notes?: SortOrder
+    pos3Evaluator?: SortOrder
+    pos3Aura?: SortOrder
+    pos3Analysis?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Solution?: SortOrder
+    pos3Avg?: SortOrder
+    pos3Completed?: SortOrder
+    pos3Notes?: SortOrder
+    finalScore?: SortOrder
+    isCompleted?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SelectionScoreAvgOrderByAggregateInput = {
+    pos1Trust?: SortOrder
+    pos1Comm?: SortOrder
+    pos1Arg?: SortOrder
+    pos1Ethics?: SortOrder
+    pos1Motiv?: SortOrder
+    pos1Avg?: SortOrder
+    pos2Creativity?: SortOrder
+    pos2Mastery?: SortOrder
+    pos2Pres?: SortOrder
+    pos2Orig?: SortOrder
+    pos2Potency?: SortOrder
+    pos2Confidence?: SortOrder
+    pos2Avg?: SortOrder
+    pos3Aura?: SortOrder
+    pos3Analysis?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Solution?: SortOrder
+    pos3Avg?: SortOrder
+    finalScore?: SortOrder
+  }
+
+  export type SelectionScoreMaxOrderByAggregateInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    pos1Evaluator?: SortOrder
+    pos1Trust?: SortOrder
+    pos1Comm?: SortOrder
+    pos1Arg?: SortOrder
+    pos1Ethics?: SortOrder
+    pos1Motiv?: SortOrder
+    pos1Avg?: SortOrder
+    pos1Completed?: SortOrder
+    pos1Notes?: SortOrder
+    pos2Evaluator?: SortOrder
+    pos2Creativity?: SortOrder
+    pos2Mastery?: SortOrder
+    pos2Pres?: SortOrder
+    pos2Orig?: SortOrder
+    pos2Potency?: SortOrder
+    pos2Confidence?: SortOrder
+    pos2Avg?: SortOrder
+    pos2Completed?: SortOrder
+    pos2Notes?: SortOrder
+    pos3Evaluator?: SortOrder
+    pos3Aura?: SortOrder
+    pos3Analysis?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Solution?: SortOrder
+    pos3Avg?: SortOrder
+    pos3Completed?: SortOrder
+    pos3Notes?: SortOrder
+    finalScore?: SortOrder
+    isCompleted?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SelectionScoreMinOrderByAggregateInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    pos1Evaluator?: SortOrder
+    pos1Trust?: SortOrder
+    pos1Comm?: SortOrder
+    pos1Arg?: SortOrder
+    pos1Ethics?: SortOrder
+    pos1Motiv?: SortOrder
+    pos1Avg?: SortOrder
+    pos1Completed?: SortOrder
+    pos1Notes?: SortOrder
+    pos2Evaluator?: SortOrder
+    pos2Creativity?: SortOrder
+    pos2Mastery?: SortOrder
+    pos2Pres?: SortOrder
+    pos2Orig?: SortOrder
+    pos2Potency?: SortOrder
+    pos2Confidence?: SortOrder
+    pos2Avg?: SortOrder
+    pos2Completed?: SortOrder
+    pos2Notes?: SortOrder
+    pos3Evaluator?: SortOrder
+    pos3Aura?: SortOrder
+    pos3Analysis?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Solution?: SortOrder
+    pos3Avg?: SortOrder
+    pos3Completed?: SortOrder
+    pos3Notes?: SortOrder
+    finalScore?: SortOrder
+    isCompleted?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SelectionScoreSumOrderByAggregateInput = {
+    pos1Trust?: SortOrder
+    pos1Comm?: SortOrder
+    pos1Arg?: SortOrder
+    pos1Ethics?: SortOrder
+    pos1Motiv?: SortOrder
+    pos1Avg?: SortOrder
+    pos2Creativity?: SortOrder
+    pos2Mastery?: SortOrder
+    pos2Pres?: SortOrder
+    pos2Orig?: SortOrder
+    pos2Potency?: SortOrder
+    pos2Confidence?: SortOrder
+    pos2Avg?: SortOrder
+    pos3Aura?: SortOrder
+    pos3Analysis?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Solution?: SortOrder
+    pos3Avg?: SortOrder
+    finalScore?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type PostListRelationFilter = {
@@ -16032,6 +18228,18 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type SelectionScoreCreateNestedOneWithoutCandidateInput = {
+    create?: XOR<SelectionScoreCreateWithoutCandidateInput, SelectionScoreUncheckedCreateWithoutCandidateInput>
+    connectOrCreate?: SelectionScoreCreateOrConnectWithoutCandidateInput
+    connect?: SelectionScoreWhereUniqueInput
+  }
+
+  export type SelectionScoreUncheckedCreateNestedOneWithoutCandidateInput = {
+    create?: XOR<SelectionScoreCreateWithoutCandidateInput, SelectionScoreUncheckedCreateWithoutCandidateInput>
+    connectOrCreate?: SelectionScoreCreateOrConnectWithoutCandidateInput
+    connect?: SelectionScoreWhereUniqueInput
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -16054,6 +18262,48 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type SelectionScoreUpdateOneWithoutCandidateNestedInput = {
+    create?: XOR<SelectionScoreCreateWithoutCandidateInput, SelectionScoreUncheckedCreateWithoutCandidateInput>
+    connectOrCreate?: SelectionScoreCreateOrConnectWithoutCandidateInput
+    upsert?: SelectionScoreUpsertWithoutCandidateInput
+    disconnect?: SelectionScoreWhereInput | boolean
+    delete?: SelectionScoreWhereInput | boolean
+    connect?: SelectionScoreWhereUniqueInput
+    update?: XOR<XOR<SelectionScoreUpdateToOneWithWhereWithoutCandidateInput, SelectionScoreUpdateWithoutCandidateInput>, SelectionScoreUncheckedUpdateWithoutCandidateInput>
+  }
+
+  export type SelectionScoreUncheckedUpdateOneWithoutCandidateNestedInput = {
+    create?: XOR<SelectionScoreCreateWithoutCandidateInput, SelectionScoreUncheckedCreateWithoutCandidateInput>
+    connectOrCreate?: SelectionScoreCreateOrConnectWithoutCandidateInput
+    upsert?: SelectionScoreUpsertWithoutCandidateInput
+    disconnect?: SelectionScoreWhereInput | boolean
+    delete?: SelectionScoreWhereInput | boolean
+    connect?: SelectionScoreWhereUniqueInput
+    update?: XOR<XOR<SelectionScoreUpdateToOneWithWhereWithoutCandidateInput, SelectionScoreUpdateWithoutCandidateInput>, SelectionScoreUncheckedUpdateWithoutCandidateInput>
+  }
+
+  export type CandidateCreateNestedOneWithoutSelectionScoreInput = {
+    create?: XOR<CandidateCreateWithoutSelectionScoreInput, CandidateUncheckedCreateWithoutSelectionScoreInput>
+    connectOrCreate?: CandidateCreateOrConnectWithoutSelectionScoreInput
+    connect?: CandidateWhereUniqueInput
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type CandidateUpdateOneRequiredWithoutSelectionScoreNestedInput = {
+    create?: XOR<CandidateCreateWithoutSelectionScoreInput, CandidateUncheckedCreateWithoutSelectionScoreInput>
+    connectOrCreate?: CandidateCreateOrConnectWithoutSelectionScoreInput
+    upsert?: CandidateUpsertWithoutSelectionScoreInput
+    connect?: CandidateWhereUniqueInput
+    update?: XOR<XOR<CandidateUpdateToOneWithWhereWithoutSelectionScoreInput, CandidateUpdateWithoutSelectionScoreInput>, CandidateUncheckedUpdateWithoutSelectionScoreInput>
   }
 
   export type PostCreateNestedManyWithoutAuthorInput = {
@@ -16750,6 +19000,33 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -16810,15 +19087,272 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  export type SelectionScoreCreateWithoutCandidateInput = {
+    id?: string
+    pos1Evaluator?: string | null
+    pos1Trust?: number | null
+    pos1Comm?: number | null
+    pos1Arg?: number | null
+    pos1Ethics?: number | null
+    pos1Motiv?: number | null
+    pos1Avg?: number | null
+    pos1Completed?: boolean
+    pos1Notes?: string | null
+    pos2Evaluator?: string | null
+    pos2Creativity?: number | null
+    pos2Mastery?: number | null
+    pos2Pres?: number | null
+    pos2Orig?: number | null
+    pos2Potency?: number | null
+    pos2Confidence?: number | null
+    pos2Avg?: number | null
+    pos2Completed?: boolean
+    pos2Notes?: string | null
+    pos3Evaluator?: string | null
+    pos3Aura?: number | null
+    pos3Analysis?: number | null
+    pos3PublicSpk?: number | null
+    pos3Solution?: number | null
+    pos3Avg?: number | null
+    pos3Completed?: boolean
+    pos3Notes?: string | null
+    finalScore?: number | null
+    isCompleted?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SelectionScoreUncheckedCreateWithoutCandidateInput = {
+    id?: string
+    pos1Evaluator?: string | null
+    pos1Trust?: number | null
+    pos1Comm?: number | null
+    pos1Arg?: number | null
+    pos1Ethics?: number | null
+    pos1Motiv?: number | null
+    pos1Avg?: number | null
+    pos1Completed?: boolean
+    pos1Notes?: string | null
+    pos2Evaluator?: string | null
+    pos2Creativity?: number | null
+    pos2Mastery?: number | null
+    pos2Pres?: number | null
+    pos2Orig?: number | null
+    pos2Potency?: number | null
+    pos2Confidence?: number | null
+    pos2Avg?: number | null
+    pos2Completed?: boolean
+    pos2Notes?: string | null
+    pos3Evaluator?: string | null
+    pos3Aura?: number | null
+    pos3Analysis?: number | null
+    pos3PublicSpk?: number | null
+    pos3Solution?: number | null
+    pos3Avg?: number | null
+    pos3Completed?: boolean
+    pos3Notes?: string | null
+    finalScore?: number | null
+    isCompleted?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SelectionScoreCreateOrConnectWithoutCandidateInput = {
+    where: SelectionScoreWhereUniqueInput
+    create: XOR<SelectionScoreCreateWithoutCandidateInput, SelectionScoreUncheckedCreateWithoutCandidateInput>
+  }
+
+  export type SelectionScoreUpsertWithoutCandidateInput = {
+    update: XOR<SelectionScoreUpdateWithoutCandidateInput, SelectionScoreUncheckedUpdateWithoutCandidateInput>
+    create: XOR<SelectionScoreCreateWithoutCandidateInput, SelectionScoreUncheckedCreateWithoutCandidateInput>
+    where?: SelectionScoreWhereInput
+  }
+
+  export type SelectionScoreUpdateToOneWithWhereWithoutCandidateInput = {
+    where?: SelectionScoreWhereInput
+    data: XOR<SelectionScoreUpdateWithoutCandidateInput, SelectionScoreUncheckedUpdateWithoutCandidateInput>
+  }
+
+  export type SelectionScoreUpdateWithoutCandidateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Creativity?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Mastery?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Pres?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Orig?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Potency?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    finalScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SelectionScoreUncheckedUpdateWithoutCandidateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos2Creativity?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Mastery?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Pres?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Orig?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Potency?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos2Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
+    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Completed?: BoolFieldUpdateOperationsInput | boolean
+    pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
+    finalScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CandidateCreateWithoutSelectionScoreInput = {
+    id?: string
+    nisn: string
+    name: string
+    className: string
+    whatsappNumber: string
+    email: string
+    gender: string
+    asalSekolah?: string
+    reason: string
+    status?: $Enums.Status
+    photoPath?: string | null
+    password?: string | null
+    plainPassword?: string | null
+    emailNotified?: boolean
+    waNotified?: boolean
+    lastStatus?: $Enums.Status
+    selectionDate?: Date | string | null
+    selectionDay?: string | null
+    selectionNotified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CandidateUncheckedCreateWithoutSelectionScoreInput = {
+    id?: string
+    nisn: string
+    name: string
+    className: string
+    whatsappNumber: string
+    email: string
+    gender: string
+    asalSekolah?: string
+    reason: string
+    status?: $Enums.Status
+    photoPath?: string | null
+    password?: string | null
+    plainPassword?: string | null
+    emailNotified?: boolean
+    waNotified?: boolean
+    lastStatus?: $Enums.Status
+    selectionDate?: Date | string | null
+    selectionDay?: string | null
+    selectionNotified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CandidateCreateOrConnectWithoutSelectionScoreInput = {
+    where: CandidateWhereUniqueInput
+    create: XOR<CandidateCreateWithoutSelectionScoreInput, CandidateUncheckedCreateWithoutSelectionScoreInput>
+  }
+
+  export type CandidateUpsertWithoutSelectionScoreInput = {
+    update: XOR<CandidateUpdateWithoutSelectionScoreInput, CandidateUncheckedUpdateWithoutSelectionScoreInput>
+    create: XOR<CandidateCreateWithoutSelectionScoreInput, CandidateUncheckedCreateWithoutSelectionScoreInput>
+    where?: CandidateWhereInput
+  }
+
+  export type CandidateUpdateToOneWithWhereWithoutSelectionScoreInput = {
+    where?: CandidateWhereInput
+    data: XOR<CandidateUpdateWithoutSelectionScoreInput, CandidateUncheckedUpdateWithoutSelectionScoreInput>
+  }
+
+  export type CandidateUpdateWithoutSelectionScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    className?: StringFieldUpdateOperationsInput | string
+    whatsappNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    emailNotified?: BoolFieldUpdateOperationsInput | boolean
+    waNotified?: BoolFieldUpdateOperationsInput | boolean
+    lastStatus?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
+    selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CandidateUncheckedUpdateWithoutSelectionScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    className?: StringFieldUpdateOperationsInput | string
+    whatsappNumber?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    gender?: StringFieldUpdateOperationsInput | string
+    asalSekolah?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    photoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    plainPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    emailNotified?: BoolFieldUpdateOperationsInput | boolean
+    waNotified?: BoolFieldUpdateOperationsInput | boolean
+    lastStatus?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
+    selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PostCreateWithoutAuthorInput = {

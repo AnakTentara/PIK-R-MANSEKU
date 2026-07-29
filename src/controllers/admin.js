@@ -1618,4 +1618,469 @@ export async function exportSelectionExcel(req, res) {
   }
 }
 
+// --- SELECTION POS EVALUATION CONTROLLERS ---
+
+// 1. Get Evaluators List (Members & Admins)
+export async function getSelectionEvaluators(req, res) {
+  try {
+    const members = await prisma.member.findMany({
+      where: { status: 'ACTIVE' },
+      select: { id: true, name: true, className: true, role: true },
+      orderBy: { name: 'asc' }
+    });
+    const admins = await prisma.admin.findMany({
+      select: { id: true, username: true, role: true },
+      orderBy: { username: 'asc' }
+    });
+    return res.json({ members, admins });
+  } catch (error) {
+    console.error('Error fetching evaluators:', error);
+    return res.status(500).json({ message: 'Gagal memuat daftar penyeleksi' });
+  }
+}
+
+// 2. Get Selection Scores for all candidates
+export async function getSelectionScores(req, res) {
+  try {
+    const candidates = await prisma.candidate.findMany({
+      include: { selectionScore: true },
+      orderBy: [{ className: 'asc' }, { name: 'asc' }]
+    });
+
+    const data = candidates.map(c => {
+      const s = c.selectionScore || {};
+      return {
+        candidateId: c.id,
+        nisn: c.nisn,
+        name: c.name,
+        className: c.className,
+        selectionDay: c.selectionDay,
+        status: c.status,
+        
+        // POS 1
+        pos1Evaluator: s.pos1Evaluator || '',
+        pos1Trust: s.pos1Trust ?? null,
+        pos1Comm: s.pos1Comm ?? null,
+        pos1Arg: s.pos1Arg ?? null,
+        pos1Ethics: s.pos1Ethics ?? null,
+        pos1Motiv: s.pos1Motiv ?? null,
+        pos1Avg: s.pos1Avg ?? null,
+        pos1Completed: s.pos1Completed || false,
+        pos1Notes: s.pos1Notes || '',
+
+        // POS 2
+        pos2Evaluator: s.pos2Evaluator || '',
+        pos2Creativity: s.pos2Creativity ?? null,
+        pos2Mastery: s.pos2Mastery ?? null,
+        pos2Pres: s.pos2Pres ?? null,
+        pos2Orig: s.pos2Orig ?? null,
+        pos2Potency: s.pos2Potency ?? null,
+        pos2Confidence: s.pos2Confidence ?? null,
+        pos2Avg: s.pos2Avg ?? null,
+        pos2Completed: s.pos2Completed || false,
+        pos2Notes: s.pos2Notes || '',
+
+        // POS 3
+        pos3Evaluator: s.pos3Evaluator || '',
+        pos3Aura: s.pos3Aura ?? null,
+        pos3Analysis: s.pos3Analysis ?? null,
+        pos3PublicSpk: s.pos3PublicSpk ?? null,
+        pos3Solution: s.pos3Solution ?? null,
+        pos3Avg: s.pos3Avg ?? null,
+        pos3Completed: s.pos3Completed || false,
+        pos3Notes: s.pos3Notes || '',
+
+        // Final
+        finalScore: s.finalScore ?? null,
+        isCompleted: s.isCompleted || false
+      };
+    });
+
+    return res.json(data);
+  } catch (error) {
+    console.error('Error get selection scores:', error);
+    return res.status(500).json({ message: 'Gagal mengambil data nilai seleksi' });
+  }
+}
+
+// Helper to compute averages
+function calcAvg(arr) {
+  const valid = arr.filter(v => typeof v === 'number' && !isNaN(v));
+  if (valid.length === 0) return null;
+  const sum = valid.reduce((a, b) => a + b, 0);
+  return Math.round((sum / valid.length) * 100) / 100;
+}
+
+// 3. Update Selection Score for a Candidate
+export async function updateSelectionScore(req, res) {
+  const { candidateId } = req.params;
+  const body = req.body;
+
+  try {
+    const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
+    if (!candidate) {
+      return res.status(404).json({ message: 'Kandidat tidak ditemukan' });
+    }
+
+    const parseNum = (v) => (v !== undefined && v !== null && v !== '' ? parseFloat(v) : null);
+
+    // Existing score if any
+    const existing = await prisma.selectionScore.findUnique({ where: { candidateId } });
+
+    const p1Trust = parseNum(body.pos1Trust) ?? existing?.pos1Trust ?? null;
+    const p1Comm = parseNum(body.pos1Comm) ?? existing?.pos1Comm ?? null;
+    const p1Arg = parseNum(body.pos1Arg) ?? existing?.pos1Arg ?? null;
+    const p1Ethics = parseNum(body.pos1Ethics) ?? existing?.pos1Ethics ?? null;
+    const p1Motiv = parseNum(body.pos1Motiv) ?? existing?.pos1Motiv ?? null;
+    const pos1Avg = calcAvg([p1Trust, p1Comm, p1Arg, p1Ethics, p1Motiv]);
+
+    const p2Creat = parseNum(body.pos2Creativity) ?? existing?.pos2Creativity ?? null;
+    const p2Mast = parseNum(body.pos2Mastery) ?? existing?.pos2Mastery ?? null;
+    const p2Pres = parseNum(body.pos2Pres) ?? existing?.pos2Pres ?? null;
+    const p2Orig = parseNum(body.pos2Orig) ?? existing?.pos2Orig ?? null;
+    const p2Pot = parseNum(body.pos2Potency) ?? existing?.pos2Potency ?? null;
+    const p2Conf = parseNum(body.pos2Confidence) ?? existing?.pos2Confidence ?? null;
+    const pos2Avg = calcAvg([p2Creat, p2Mast, p2Pres, p2Orig, p2Pot, p2Conf]);
+
+    const p3Aura = parseNum(body.pos3Aura) ?? existing?.pos3Aura ?? null;
+    const p3Anal = parseNum(body.pos3Analysis) ?? existing?.pos3Analysis ?? null;
+    const p3Pub = parseNum(body.pos3PublicSpk) ?? existing?.pos3PublicSpk ?? null;
+    const p3Sol = parseNum(body.pos3Solution) ?? existing?.pos3Solution ?? null;
+    const pos3Avg = calcAvg([p3Aura, p3Anal, p3Pub, p3Sol]);
+
+    // Rata-rata 33.3% per POS
+    const validAvgs = [pos1Avg, pos2Avg, pos3Avg].filter(v => v !== null);
+    const finalScore = validAvgs.length > 0 ? Math.round((validAvgs.reduce((a, b) => a + b, 0) / validAvgs.length) * 100) / 100 : null;
+
+    const dataToSave = {
+      pos1Evaluator: body.pos1Evaluator ?? existing?.pos1Evaluator ?? null,
+      pos1Trust: p1Trust,
+      pos1Comm: p1Comm,
+      pos1Arg: p1Arg,
+      pos1Ethics: p1Ethics,
+      pos1Motiv: p1Motiv,
+      pos1Avg,
+      pos1Completed: body.pos1Completed !== undefined ? Boolean(body.pos1Completed) : (existing?.pos1Completed || false),
+      pos1Notes: body.pos1Notes ?? existing?.pos1Notes ?? null,
+
+      pos2Evaluator: body.pos2Evaluator ?? existing?.pos2Evaluator ?? null,
+      pos2Creativity: p2Creat,
+      pos2Mastery: p2Mast,
+      pos2Pres: p2Pres,
+      pos2Orig: p2Orig,
+      pos2Potency: p2Pot,
+      pos2Confidence: p2Conf,
+      pos2Avg,
+      pos2Completed: body.pos2Completed !== undefined ? Boolean(body.pos2Completed) : (existing?.pos2Completed || false),
+      pos2Notes: body.pos2Notes ?? existing?.pos2Notes ?? null,
+
+      pos3Evaluator: body.pos3Evaluator ?? existing?.pos3Evaluator ?? null,
+      pos3Aura: p3Aura,
+      pos3Analysis: p3Anal,
+      pos3PublicSpk: p3Pub,
+      pos3Solution: p3Sol,
+      pos3Avg,
+      pos3Completed: body.pos3Completed !== undefined ? Boolean(body.pos3Completed) : (existing?.pos3Completed || false),
+      pos3Notes: body.pos3Notes ?? existing?.pos3Notes ?? null,
+
+      finalScore,
+      isCompleted: body.isCompleted !== undefined ? Boolean(body.isCompleted) : (existing?.isCompleted || false)
+    };
+
+    const updatedScore = await prisma.selectionScore.upsert({
+      where: { candidateId },
+      create: { candidateId, ...dataToSave },
+      update: dataToSave
+    });
+
+    return res.json({ message: 'Nilai seleksi berhasil diperbarui', score: updatedScore });
+  } catch (error) {
+    console.error('Error update selection score:', error);
+    return res.status(500).json({ message: 'Gagal memperbarui nilai seleksi' });
+  }
+}
+
+// 4. Toggle Lock Status ("Selesai Seleksi" / "Perbarui Nilai")
+export async function toggleSelectionLock(req, res) {
+  const { candidateId } = req.params;
+  const { pos, isCompleted } = req.body; // pos can be 'pos1', 'pos2', 'pos3', or 'all'
+
+  try {
+    const lockVal = Boolean(isCompleted);
+
+    const updateData = {};
+    if (pos === 'pos1') updateData.pos1Completed = lockVal;
+    else if (pos === 'pos2') updateData.pos2Completed = lockVal;
+    else if (pos === 'pos3') updateData.pos3Completed = lockVal;
+    else {
+      updateData.isCompleted = lockVal;
+      updateData.pos1Completed = lockVal;
+      updateData.pos2Completed = lockVal;
+      updateData.pos3Completed = lockVal;
+    }
+
+    const updated = await prisma.selectionScore.upsert({
+      where: { candidateId },
+      create: { candidateId, ...updateData },
+      update: updateData
+    });
+
+    return res.json({ message: `Status penilaian berhasil di-${lockVal ? 'kunci' : 'buka'}`, score: updated });
+  } catch (error) {
+    console.error('Error toggle selection lock:', error);
+    return res.status(500).json({ message: 'Gagal mengubah status penyerahan nilai' });
+  }
+}
+
+// 5. Export POS Scores to Excel (POS 1, POS 2, POS 3, or All POS Rapor Total)
+export async function exportPOSScoreExcel(req, res) {
+  const { pos } = req.query; // '1', '2', '3', or 'all'
+  const currentYear = new Date().getFullYear();
+
+  try {
+    const candidates = await prisma.candidate.findMany({
+      include: { selectionScore: true },
+      orderBy: [{ className: 'asc' }, { name: 'asc' }]
+    });
+
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'PIK-R MANSEKU';
+
+    // Helper styles
+    const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F4E79' } };
+    const fontHeader = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+    const fontTitle = { name: 'Calibri', size: 16, bold: true, color: { argb: 'FF1F4E79' } };
+    const thinBorder = {
+      top: { style: 'thin', color: { argb: 'FFD9D9D9' } },
+      left: { style: 'thin', color: { argb: 'FFD9D9D9' } },
+      bottom: { style: 'thin', color: { argb: 'FFD9D9D9' } },
+      right: { style: 'thin', color: { argb: 'FFD9D9D9' } }
+    };
+
+    if (pos === '1' || pos === 'all') {
+      const ws = wb.addWorksheet('POS 1 - Wawancara');
+      ws.views = [{ showGridLines: true }];
+
+      ws.append(['LEMBAR PENILAIAN POS 1: WAWANCARA & PERKENALAN']);
+      ws.getCell('A1').font = fontTitle;
+      ws.append([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.append([]);
+
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kepercayaan Diri (1-10)', 'Komunikasi (1-10)', 'Argumentasi (1-10)', 'Etika (1-10)', 'Motivasi (1-10)', 'Rata-Rata POS 1', 'Penyeleksi', 'Status', 'Catatan'];
+      ws.append(headers);
+
+      const headerRow = ws.getRow(4);
+      headerRow.height = 25;
+      headers.forEach((_, idx) => {
+        const cell = headerRow.getCell(idx + 1);
+        cell.fill = headerFill;
+        cell.font = fontHeader;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      candidates.forEach((c, index) => {
+        const s = c.selectionScore || {};
+        const row = ws.append([
+          index + 1,
+          c.nisn,
+          toTitleCase(c.name),
+          c.className,
+          s.pos1Trust ?? '-',
+          s.pos1Comm ?? '-',
+          s.pos1Arg ?? '-',
+          s.pos1Ethics ?? '-',
+          s.pos1Motiv ?? '-',
+          s.pos1Avg ?? '-',
+          s.pos1Evaluator || '-',
+          s.pos1Completed ? 'SELESAI' : 'PROSES',
+          s.pos1Notes || '-'
+        ]);
+
+        const r = ws.getRow(5 + index);
+        for (let col = 1; col <= headers.length; col++) {
+          const cell = r.getCell(col);
+          cell.border = thinBorder;
+          cell.alignment = col in [1, 2, 4, 12] ? { horizontal: 'center' } : { horizontal: 'left' };
+        }
+      });
+
+      ws.columns.forEach(col => { col.width = 16; });
+      ws.getColumn(3).width = 30; // Nama
+    }
+
+    if (pos === '2' || pos === 'all') {
+      const ws = wb.addWorksheet('POS 2 - Minat Bakat');
+      ws.views = [{ showGridLines: true }];
+
+      ws.append(['LEMBAR PENILAIAN POS 2: TES MINAT BAKAT']);
+      ws.getCell('A1').font = fontTitle;
+      ws.append([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.append([]);
+
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kreativitas', 'Penguasaan', 'Presentasi', 'Orisinalitas', 'Potensi', 'Percaya Diri', 'Rata-Rata POS 2', 'Penyeleksi', 'Status', 'Catatan'];
+      ws.append(headers);
+
+      const headerRow = ws.getRow(4);
+      headerRow.height = 25;
+      headers.forEach((_, idx) => {
+        const cell = headerRow.getCell(idx + 1);
+        cell.fill = headerFill;
+        cell.font = fontHeader;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      candidates.forEach((c, index) => {
+        const s = c.selectionScore || {};
+        ws.append([
+          index + 1,
+          c.nisn,
+          toTitleCase(c.name),
+          c.className,
+          s.pos2Creativity ?? '-',
+          s.pos2Mastery ?? '-',
+          s.pos2Pres ?? '-',
+          s.pos2Orig ?? '-',
+          s.pos2Potency ?? '-',
+          s.pos2Confidence ?? '-',
+          s.pos2Avg ?? '-',
+          s.pos2Evaluator || '-',
+          s.pos2Completed ? 'SELESAI' : 'PROSES',
+          s.pos2Notes || '-'
+        ]);
+
+        const r = ws.getRow(5 + index);
+        for (let col = 1; col <= headers.length; col++) {
+          const cell = r.getCell(col);
+          cell.border = thinBorder;
+          cell.alignment = col in [1, 2, 4, 13] ? { horizontal: 'center' } : { horizontal: 'left' };
+        }
+      });
+
+      ws.columns.forEach(col => { col.width = 16; });
+      ws.getColumn(3).width = 30;
+    }
+
+    if (pos === '3' || pos === 'all') {
+      const ws = wb.addWorksheet('POS 3 - Studi Kasus');
+      ws.views = [{ showGridLines: true }];
+
+      ws.append(['LEMBAR PENILAIAN POS 3: STUDI KASUS']);
+      ws.getCell('A1').font = fontTitle;
+      ws.append([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
+      ws.append([]);
+
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Aura Penyampaian', 'Analisis', 'Public Speaking', 'Solusi', 'Rata-Rata POS 3', 'Penyeleksi', 'Status', 'Catatan'];
+      ws.append(headers);
+
+      const headerRow = ws.getRow(4);
+      headerRow.height = 25;
+      headers.forEach((_, idx) => {
+        const cell = headerRow.getCell(idx + 1);
+        cell.fill = headerFill;
+        cell.font = fontHeader;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      candidates.forEach((c, index) => {
+        const s = c.selectionScore || {};
+        ws.append([
+          index + 1,
+          c.nisn,
+          toTitleCase(c.name),
+          c.className,
+          s.pos3Aura ?? '-',
+          s.pos3Analysis ?? '-',
+          s.pos3PublicSpk ?? '-',
+          s.pos3Solution ?? '-',
+          s.pos3Avg ?? '-',
+          s.pos3Evaluator || '-',
+          s.pos3Completed ? 'SELESAI' : 'PROSES',
+          s.pos3Notes || '-'
+        ]);
+
+        const r = ws.getRow(5 + index);
+        for (let col = 1; col <= headers.length; col++) {
+          const cell = r.getCell(col);
+          cell.border = thinBorder;
+          cell.alignment = col in [1, 2, 4, 11] ? { horizontal: 'center' } : { horizontal: 'left' };
+        }
+      });
+
+      ws.columns.forEach(col => { col.width = 16; });
+      ws.getColumn(3).width = 30;
+    }
+
+    if (pos === 'all') {
+      const ws = wb.addWorksheet('RAPOR TOTAL SELEKSI');
+      ws.views = [{ showGridLines: true }];
+
+      ws.append(['REKAPITULASI RAPOR SELEKSI PENDAFTAR PIK-R MANSEKU']);
+      ws.getCell('A1').font = fontTitle;
+      ws.append([`RAPOR PENILAIAN AKHIR 33.3% PER POS - TAHUN ${currentYear}`]);
+      ws.append([]);
+
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Rata-Rata POS 1', 'Rata-Rata POS 2', 'Rata-Rata POS 3', 'NILAI AKHIR RAPOR', 'STATUS SELEKSI', 'STATUS HASIL'];
+      ws.append(headers);
+
+      const headerRow = ws.getRow(4);
+      headerRow.height = 25;
+      headers.forEach((_, idx) => {
+        const cell = headerRow.getCell(idx + 1);
+        cell.fill = headerFill;
+        cell.font = fontHeader;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      // Sort by final score descending for ranking display
+      const sortedCandidates = [...candidates].sort((a, b) => {
+        const scoreA = a.selectionScore?.finalScore ?? -1;
+        const scoreB = b.selectionScore?.finalScore ?? -1;
+        return scoreB - scoreA;
+      });
+
+      sortedCandidates.forEach((c, index) => {
+        const s = c.selectionScore || {};
+        ws.append([
+          index + 1,
+          c.nisn,
+          toTitleCase(c.name),
+          c.className,
+          s.pos1Avg ?? '-',
+          s.pos2Avg ?? '-',
+          s.pos3Avg ?? '-',
+          s.finalScore ?? '-',
+          s.isCompleted ? 'SELESAI' : 'BELUM LENGKAP',
+          c.status
+        ]);
+
+        const r = ws.getRow(5 + index);
+        for (let col = 1; col <= headers.length; col++) {
+          const cell = r.getCell(col);
+          cell.border = thinBorder;
+          cell.alignment = col in [1, 2, 4, 9, 10] ? { horizontal: 'center' } : { horizontal: 'left' };
+        }
+      });
+
+      ws.columns.forEach(col => { col.width = 18; });
+      ws.getColumn(3).width = 32;
+    }
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const posLabel = (pos || 'all').toUpperCase();
+    const filename = `RAPOR_SELEKSI_POS_${posLabel}_PIK-R_${currentYear}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    return res.send(buffer);
+  } catch (error) {
+    console.error('Error export POS score excel:', error);
+    return res.status(500).json({ message: 'Gagal mengekspor data nilai POS ke Excel' });
+  }
+}
+
+
 
