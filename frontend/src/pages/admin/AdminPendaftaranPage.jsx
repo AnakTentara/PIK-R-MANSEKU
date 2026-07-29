@@ -1527,12 +1527,14 @@ export default function AdminPendaftaranPage() {
                       .map((c, rankIdx) => {
                         const s = scoresMap[c.id] || {};
                         const isTotalLocked = Boolean(s.isCompleted);
-                        const isTop3 = rankIdx < 3 && (s.finalScore || 0) > 0;
+                        const rankBadgeStyle = (s.finalScore || 0) > 0
+                          ? (rankIdx === 0 ? styles.rankTop1 : rankIdx === 1 ? styles.rankTop2 : rankIdx === 2 ? styles.rankTop3 : '')
+                          : '';
 
                         return (
                           <tr key={`rekap-${c.id}`}>
                             <td style={{ textAlign: 'center' }}>
-                              <span className={`${styles.rankBadge} ${isTop3 ? styles.rankTop3 : ''}`}>
+                              <span className={`${styles.rankBadge} ${rankBadgeStyle}`}>
                                 {rankIdx + 1}
                               </span>
                             </td>
