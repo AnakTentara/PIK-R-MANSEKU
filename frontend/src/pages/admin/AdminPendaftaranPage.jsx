@@ -1610,6 +1610,58 @@ export default function AdminPendaftaranPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Table Daftar Hari Seleksi Peserta */}
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '50px', textAlign: 'center' }}>No</th>
+                      <th>Nama Kandidat</th>
+                      <th>Kelas</th>
+                      <th>Hari Seleksi</th>
+                      <th style={{ textAlign: 'center', width: '140px' }}>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {candidates.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                          Belum ada data pendaftar.
+                        </td>
+                      </tr>
+                    ) : (
+                      candidates.map((c, idx) => (
+                        <tr key={`jadwal-${c.id}`}>
+                          <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                          <td>
+                            <strong>{c.name}</strong>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn || '-'}</div>
+                          </td>
+                          <td>{c.className}</td>
+                          <td>
+                            {c.selectionDay ? (
+                              <span className={styles.badgeDay}>{c.selectionDay}</span>
+                            ) : (
+                              <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>Belum Diset</span>
+                            )}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={() => openEditModal(c, 'seleksi')}
+                              className="btn btn-secondary btn-sm"
+                              title="Ubah Hari Seleksi & Kirim WA"
+                            >
+                              <Calendar size={14} /> Ubah Hari
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
@@ -1844,7 +1896,6 @@ export default function AdminPendaftaranPage() {
                       <th>Asal Sekolah</th>
                       <th>No. WhatsApp</th>
                       <th>Status</th>
-                      <th>Hari Seleksi</th>
                       <th>Aksi</th>
                     </tr>
                   </thead>
@@ -1877,13 +1928,6 @@ export default function AdminPendaftaranPage() {
                             }`}>
                               {c.status}
                             </span>
-                          </td>
-                          <td>
-                            {c.selectionDay ? (
-                              <span className={styles.badgeDay}>{c.selectionDay}</span>
-                            ) : (
-                              <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>Belum Set</span>
-                            )}
                           </td>
                           <td>
                             <div className={styles.rowActions}>
