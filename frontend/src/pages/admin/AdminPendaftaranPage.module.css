@@ -1,4 +1,4 @@
-/* ─── ADMIN PENDAFTARAN & SELEKSI PREMIUM DESIGN SYSTEM ─── */
+/* ─── ADMIN PENDAFTARAN & SELEKSI PROFESSIONAL DESIGN ─── */
 .page {
   display: flex;
   flex-direction: column;
@@ -8,48 +8,50 @@
 }
 
 .body {
-  padding: 24px 32px;
+  padding: 20px 28px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  max-width: 1600px;
+  gap: 20px;
+  max-width: 1680px;
   margin: 0 auto;
   width: 100%;
 }
 
-/* ─── Hero KPI Stat Cards Grid ─── */
+/* ─── Hero KPI Stat Cards Grid (Horizontal Row) ─── */
 .heroStatsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-}
-
-.statCard {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
   display: flex;
   align-items: center;
   gap: 16px;
+  width: 100%;
+}
+
+.statCard {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  display: flex;
+  align-items: center;
+  gap: 14px;
   transition: all 0.2s ease;
+  min-width: 0;
 }
 
 .statCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
   border-color: #cbd5e1;
 }
 
 .statIconBadge {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
   flex-shrink: 0;
 }
 
@@ -62,74 +64,36 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .statValue {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.5px;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .statLabel {
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-/* ─── Banner Status Sesi ─── */
-.sessionBanner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  font-size: 0.88rem;
-  gap: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-}
-
-.openBanner {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border-color: #bbf7d0;
-  color: #14532d;
-}
-
-.closedBanner {
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  border-color: #fde68a;
-  color: #78350f;
-}
-
-.bannerLeft {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.bannerIconWrap {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
 }
 
 /* ─── Main Module Segmented Nav Tabs ─── */
 .mainNavContainer {
   display: flex;
   background: #f1f5f9;
-  padding: 6px;
-  border-radius: 14px;
+  padding: 5px;
+  border-radius: 12px;
   gap: 6px;
   border: 1px solid #e2e8f0;
+  width: 100%;
 }
 
 .mainNavTab {
@@ -137,32 +101,33 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 0.92rem;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #64748b;
   background: transparent;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .mainNavTab:hover {
   color: #0f172a;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .mainNavActive {
   background: #ffffff !important;
   color: #2563eb !important;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12), 0 2px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12), 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .mainNavBadge {
   padding: 2px 8px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 0.75rem;
   font-weight: 800;
   background: #e2e8f0;
@@ -174,31 +139,33 @@
   color: #2563eb;
 }
 
-/* ─── POS Sub-Tab Navigation Pills (Inside Seleksi Module) ─── */
+/* ─── POS Sub-Nav Pills (Horizontal) ─── */
 .posSubNavContainer {
   display: flex;
+  align-items: center;
   gap: 8px;
   background: #ffffff;
-  padding: 8px;
-  border-radius: 14px;
+  padding: 6px 10px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  width: 100%;
   overflow-x: auto;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 .posSubNavTab {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
-  font-size: 0.88rem;
+  padding: 9px 16px;
+  font-size: 0.86rem;
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent;
   color: #64748b;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
@@ -207,43 +174,19 @@
   color: #1e293b;
 }
 
-.pos1Active {
-  background: #eff6ff !important;
-  color: #1d4ed8 !important;
-  border-color: #bfdbfe !important;
-}
+.posJadwalActive { background: #f5f3ff !important; color: #4338ca !important; border-color: #c7d2fe !important; }
+.pos1Active { background: #eff6ff !important; color: #1d4ed8 !important; border-color: #bfdbfe !important; }
+.pos2Active { background: #fffbeb !important; color: #b45309 !important; border-color: #fde68a !important; }
+.pos3Active { background: #faf5ff !important; color: #7e22ce !important; border-color: #e9d5ff !important; }
+.posRekapActive { background: #f0fdf4 !important; color: #15803d !important; border-color: #bbf7d0 !important; }
 
-.pos2Active {
-  background: #fffbeb !important;
-  color: #b45309 !important;
-  border-color: #fde68a !important;
-}
-
-.pos3Active {
-  background: #faf5ff !important;
-  color: #7e22ce !important;
-  border-color: #e9d5ff !important;
-}
-
-.posRekapActive {
-  background: #f0fdf4 !important;
-  color: #15803d !important;
-  border-color: #bbf7d0 !important;
-}
-
-.posJadwalActive {
-  background: #f5f3ff !important;
-  color: #4338ca !important;
-  border-color: #c7d2fe !important;
-}
-
-/* ─── Rapor Spreadsheet Card & Header Bar ─── */
+/* ─── Card Container & Rapor Table ─── */
 .raporCard {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
-  padding: 24px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
 }
 
 .posHeaderBar {
@@ -251,25 +194,23 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-bottom: 20px;
+  padding-bottom: 16px;
   border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .posTitleGroup {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .posBadge {
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 5px 12px;
+  border-radius: 16px;
   font-weight: 800;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
 }
 
 .pos1Badge { background: #dbeafe; color: #1e40af; }
@@ -277,58 +218,33 @@
 .pos3Badge { background: #f3e8ff; color: #6b21a8; }
 .posAllBadge { background: #dcfce7; color: #15803d; }
 
-.evaluatorSelectGroup {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #f8fafc;
-  padding: 6px 14px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #475569;
-}
-
-.evaluatorSelect {
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #0f172a;
-  background: #ffffff;
-  outline: none;
-  cursor: pointer;
-}
-
-/* ─── Table Styling ─── */
+/* Table Styling */
 .tableWrap {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow-x: auto;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
 }
 
 .table th {
   background: #f8fafc;
   color: #475569;
   font-weight: 700;
-  padding: 12px 14px;
+  padding: 10px 12px;
   text-align: left;
   border-bottom: 2px solid #e2e8f0;
   white-space: nowrap;
 }
 
 .table td {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid #f1f5f9;
   vertical-align: middle;
 }
@@ -337,25 +253,25 @@
   background-color: #f8fafc;
 }
 
-/* ─── Score Input Styling (Spreadsheet Cell Feeling) ─── */
+/* Cell Input & Per-Row Evaluator Split Column */
 .scoreInput {
-  width: 58px;
-  padding: 8px 6px;
+  width: 54px;
+  padding: 6px;
   text-align: center;
   font-weight: 800;
-  font-size: 0.95rem;
-  border-radius: 8px;
+  font-size: 0.9rem;
+  border-radius: 6px;
   border: 1.5px solid #cbd5e1;
   background: #ffffff;
   color: #0f172a;
-  transition: all 0.15s ease;
   outline: none;
+  transition: all 0.15s ease;
 }
 
 .scoreInput:focus {
   border-color: #2563eb;
   background: #eff6ff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .scoreInputDisabled {
@@ -365,131 +281,123 @@
   cursor: not-allowed;
 }
 
+.evaluatorRowSplit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 280px;
+}
+
+.evaluatorSelectBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 4px 8px;
+  flex: 1;
+}
+
+.evaluatorSelectBox select {
+  border: none;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+}
+
 .avgBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 12px;
-  border-radius: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-weight: 800;
-  font-size: 0.92rem;
-  min-width: 54px;
+  font-size: 0.88rem;
+  min-width: 50px;
 }
 
 .avgHigh { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
 .avgMed { background: #fef3c7; color: #b45309; border: 1px solid #fde047; }
 .avgLow { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
 
-/* ─── Buttons Lock & Export ─── */
 .btnLock {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.btnLockSubmit { background: #16a34a; color: white; }
+.btnLockSubmit:hover { background: #15803d; }
+.btnLockUnlock { background: #ea580c; color: white; }
+.btnLockUnlock:hover { background: #c2410c; }
+
+.btnExportExcel {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
   border-radius: 8px;
+  background: #059669;
+  color: white;
   font-weight: 700;
-  font-size: 0.82rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 0.84rem;
   border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
-.btnLockSubmit {
-  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-  color: white;
-  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
-}
+.btnExportExcel:hover { background: #047857; }
 
-.btnLockSubmit:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
-}
-
-.btnLockUnlock {
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-  color: white;
-  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);
-}
-
-.btnLockUnlock:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
-}
-
-.btnExportExcel {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: white;
-  font-weight: 700;
-  font-size: 0.88rem;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
-  transition: all 0.2s ease;
-}
-
-.btnExportExcel:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
-}
-
-/* ─── Ranking Badges ─── */
+/* Ranking Badges */
 .rankBadge {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #f1f5f9;
   color: #475569;
   font-weight: 800;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 1px solid #cbd5e1;
 }
 
-.rankTop1 {
-  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
-  color: white !important;
-  border: none !important;
-  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
-}
+.rankTop1 { background: #f59e0b !important; color: white !important; border: none !important; }
+.rankTop2 { background: #64748b !important; color: white !important; border: none !important; }
+.rankTop3 { background: #b45309 !important; color: white !important; border: none !important; }
 
-.rankTop2 {
-  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%) !important;
-  color: white !important;
-  border: none !important;
-}
-
-.rankTop3 {
-  background: linear-gradient(135deg, #b45309 0%, #78350f 100%) !important;
-  color: white !important;
-  border: none !important;
-}
-
-/* Toolbar & Controls */
+/* Toolbar & Filters (Single Horizontal Row) */
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
   background: #ffffff;
-  padding: 16px;
-  border-radius: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
+  width: 100%;
 }
 
 .toolbarLeft {
   display: flex;
-  gap: 12px;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .searchWrap {
@@ -498,34 +406,33 @@
 
 .searchIcon {
   position: absolute;
-  left: 12px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
 }
 
 .searchInput {
-  padding: 9px 12px 9px 38px;
+  padding: 8px 12px 8px 34px;
   border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 0.88rem;
-  width: 260px;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  width: 240px;
   outline: none;
   background: #f8fafc;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .searchInput:focus {
   border-color: #2563eb;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .filterSelect {
-  padding: 9px 14px;
+  padding: 8px 12px;
   border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 0.88rem;
+  border-radius: 8px;
+  font-size: 0.86rem;
   font-weight: 600;
   color: #334155;
   background: #f8fafc;
@@ -535,6 +442,6 @@
 
 .toolbarRight {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }

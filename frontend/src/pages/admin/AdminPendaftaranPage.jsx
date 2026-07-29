@@ -177,11 +177,11 @@ export default function AdminPendaftaranPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sub-Tab State: 'data' | 'seleksi'
-  const [activeSubTab, setActiveSubTab] = useState('data');
+  // activeSubTab superseded by mainMode
 
   // ─── Main Mode & Selection POS State ─────────────────────────────────────
   const [mainMode, setMainMode] = useState('pendaftaran'); // 'pendaftaran' | 'seleksi' | 'kelulusan'
-  const [seleksiSubTab, setSeleksiSubTab] = useState('pos1'); // 'jadwal' | 'pos1' | 'pos2' | 'pos3' | 'rekap'
+  const [seleksiSubTab, setSeleksiSubTab] = useState('jadwal'); // 'jadwal' | 'pos1' | 'pos2' | 'pos3' | 'rekap'
   const [evaluators, setEvaluators] = useState({ members: [], admins: [] });
   const [scoresMap, setScoresMap] = useState({});
   const [loadingScores, setLoadingScores] = useState(false);
@@ -413,14 +413,14 @@ export default function AdminPendaftaranPage() {
       const matchesStatus = statusFilter ? c.status === statusFilter : true;
       const matchesKelas = filterKelas ? c.className === filterKelas : true;
 
-      if (activeSubTab === 'seleksi') {
+      if (mainMode === 'seleksi') {
         return matchesSearch && matchesKelas && (c.status === 'PENDING');
       }
 
       return matchesSearch && matchesStatus && matchesKelas;
     });
 
-    if (activeSubTab === 'seleksi') {
+    if (mainMode === 'seleksi') {
       return [...list].sort((a, b) => {
         const hasDayA = Boolean(a.selectionDay || a.selectionDate);
         const hasDayB = Boolean(b.selectionDay || b.selectionDate);
@@ -446,7 +446,7 @@ export default function AdminPendaftaranPage() {
     }
 
     return list;
-  }, [candidates, search, statusFilter, filterKelas, activeSubTab]);
+  }, [candidates, search, statusFilter, filterKelas, mainMode]);
 
   const totalPages = Math.max(1, Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE));
   const paginatedCandidates = useMemo(() => {
@@ -920,15 +920,23 @@ export default function AdminPendaftaranPage() {
 
         {mainMode === 'seleksi' && (
         <div className={styles.raporCard} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* ── POS Sub-Tab Navigation Pills ── */}
+          {/* ── POS Sub-Tab Navigation Pills (Jadwal at #1, clean icons) ── */}
           <div className={styles.posSubNavContainer}>
+            <button
+              type="button"
+              onClick={() => setSeleksiSubTab('jadwal')}
+              className={`${styles.posSubNavTab} ${seleksiSubTab === 'jadwal' ? styles.posJadwalActive : ''}`}
+            >
+              <Calendar size={18} />
+              <span>1. Jadwal & Notifikasi Seleksi</span>
+            </button>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('pos1')}
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos1' ? styles.pos1Active : ''}`}
             >
               <Award size={18} />
-              <span>POS 1: Wawancara & Perkenalan</span>
+              <span>2. POS 1: Wawancara & Perkenalan</span>
             </button>
             <button
               type="button"
@@ -936,7 +944,7 @@ export default function AdminPendaftaranPage() {
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos2' ? styles.pos2Active : ''}`}
             >
               <Star size={18} />
-              <span>POS 2: Tes Minat Bakat</span>
+              <span>3. POS 2: Tes Minat Bakat</span>
             </button>
             <button
               type="button"
@@ -944,23 +952,15 @@ export default function AdminPendaftaranPage() {
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos3' ? styles.pos3Active : ''}`}
             >
               <FileText size={18} />
-              <span>POS 3: Studi Kasus</span>
+              <span>4. POS 3: Studi Kasus</span>
             </button>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('rekap')}
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'rekap' ? styles.posRekapActive : ''}`}
             >
-              <Award size={18} />
-              <span>📊 Rekap Rapor Total & Ranking</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSeleksiSubTab('jadwal')}
-              className={`${styles.posSubNavTab} ${seleksiSubTab === 'jadwal' ? styles.posJadwalActive : ''}`}
-            >
-              <Calendar size={18} />
-              <span>📅 Jadwal & Notifikasi</span>
+              <Target size={18} />
+              <span>5. Rekap Rapor Total & Ranking</span>
             </button>
           </div>
 
@@ -978,24 +978,7 @@ export default function AdminPendaftaranPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <div className={styles.evaluatorSelectGroup}>
-                    <span>Penyeleksi:</span>
-                    <select
-                      value={posEvaluator.pos1}
-                      onChange={e => setPosEvaluator(prev => ({ ...prev, pos1: e.target.value }))}
-                      className={styles.evaluatorSelect}
-                    >
-                      <option value="">-- Pilih Penyeleksi --</option>
-                      {evaluators.members.map(m => (
-                        <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
-                      ))}
-                      {evaluators.admins.map(a => (
-                        <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
-                      ))}
-                    </select>
-                  </div>
-
+                <div>
                   <button
                     type="button"
                     onClick={() => handleExportPOS('1')}
@@ -1019,7 +1002,7 @@ export default function AdminPendaftaranPage() {
                       <th>Etika</th>
                       <th>Motivasi</th>
                       <th>Rata-Rata POS 1</th>
-                      <th style={{ textAlign: 'center' }}>Status / Aksi</th>
+                      <th style={{ textAlign: 'center' }}>Penyeleksi & Status Penilaian</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1105,26 +1088,48 @@ export default function AdminPendaftaranPage() {
                               {s.pos1Avg !== null && s.pos1Avg !== undefined ? s.pos1Avg.toFixed(2) : '-'}
                             </span>
                           </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {isLocked ? (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleLockState(c.id, 'pos1', false)}
-                                className={`${styles.btnLock} ${styles.btnLockUnlock}`}
-                                title="Klik untuk membuka kunci nilai dan mengedit kembali"
-                              >
-                                <Unlock size={14} /> Perbarui Nilai
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleLockState(c.id, 'pos1', true)}
-                                className={`${styles.btnLock} ${styles.btnLockSubmit}`}
-                                title="Klik untuk mengunci nilai setelah selesai seleksi"
-                              >
-                                <Lock size={14} /> Selesai Seleksi
-                              </button>
-                            )}
+                          <td>
+                            <div className={styles.evaluatorRowSplit}>
+                              <div className={styles.evaluatorSelectBox}>
+                                <User size={14} color="#64748b" />
+                                <select
+                                  value={s.pos1Evaluator || ''}
+                                  disabled={isLocked}
+                                  onChange={e => {
+                                    handleScoreInputChange(c.id, 'pos1Evaluator', e.target.value);
+                                    handleSaveCandidateScore(c.id, 'pos1');
+                                  }}
+                                >
+                                  <option value="">-- Penyeleksi --</option>
+                                  {evaluators.members.map(m => (
+                                    <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                                  ))}
+                                  {evaluators.admins.map(a => (
+                                    <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              {isLocked ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLockState(c.id, 'pos1', false)}
+                                  className={`${styles.btnLock} ${styles.btnLockUnlock}`}
+                                  title="Klik untuk membuka kunci nilai dan mengedit kembali"
+                                >
+                                  <Unlock size={14} /> Perbarui Nilai
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLockState(c.id, 'pos1', true)}
+                                  className={`${styles.btnLock} ${styles.btnLockSubmit}`}
+                                  title="Klik untuk mengunci nilai setelah selesai seleksi"
+                                >
+                                  <Lock size={14} /> Selesai Seleksi
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1149,24 +1154,7 @@ export default function AdminPendaftaranPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <div className={styles.evaluatorSelectGroup}>
-                    <span>Penyeleksi:</span>
-                    <select
-                      value={posEvaluator.pos2}
-                      onChange={e => setPosEvaluator(prev => ({ ...prev, pos2: e.target.value }))}
-                      className={styles.evaluatorSelect}
-                    >
-                      <option value="">-- Pilih Penyeleksi --</option>
-                      {evaluators.members.map(m => (
-                        <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
-                      ))}
-                      {evaluators.admins.map(a => (
-                        <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
-                      ))}
-                    </select>
-                  </div>
-
+                <div>
                   <button
                     type="button"
                     onClick={() => handleExportPOS('2')}
@@ -1191,7 +1179,7 @@ export default function AdminPendaftaranPage() {
                       <th>Potensi</th>
                       <th>Percaya Diri</th>
                       <th>Rata-Rata POS 2</th>
-                      <th style={{ textAlign: 'center' }}>Status / Aksi</th>
+                      <th style={{ textAlign: 'center' }}>Penyeleksi & Status Penilaian</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1290,24 +1278,46 @@ export default function AdminPendaftaranPage() {
                               {s.pos2Avg !== null && s.pos2Avg !== undefined ? s.pos2Avg.toFixed(2) : '-'}
                             </span>
                           </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {isLocked ? (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleLockState(c.id, 'pos2', false)}
-                                className={`${styles.btnLock} ${styles.btnLockUnlock}`}
-                              >
-                                <Unlock size={14} /> Perbarui Nilai
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleLockState(c.id, 'pos2', true)}
-                                className={`${styles.btnLock} ${styles.btnLockSubmit}`}
-                              >
-                                <Lock size={14} /> Selesai Seleksi
-                              </button>
-                            )}
+                          <td>
+                            <div className={styles.evaluatorRowSplit}>
+                              <div className={styles.evaluatorSelectBox}>
+                                <User size={14} color="#64748b" />
+                                <select
+                                  value={s.pos2Evaluator || ''}
+                                  disabled={isLocked}
+                                  onChange={e => {
+                                    handleScoreInputChange(c.id, 'pos2Evaluator', e.target.value);
+                                    handleSaveCandidateScore(c.id, 'pos2');
+                                  }}
+                                >
+                                  <option value="">-- Penyeleksi --</option>
+                                  {evaluators.members.map(m => (
+                                    <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                                  ))}
+                                  {evaluators.admins.map(a => (
+                                    <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              {isLocked ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLockState(c.id, 'pos2', false)}
+                                  className={`${styles.btnLock} ${styles.btnLockUnlock}`}
+                                >
+                                  <Unlock size={14} /> Perbarui Nilai
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLockState(c.id, 'pos2', true)}
+                                  className={`${styles.btnLock} ${styles.btnLockSubmit}`}
+                                >
+                                  <Lock size={14} /> Selesai Seleksi
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1332,24 +1342,7 @@ export default function AdminPendaftaranPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <div className={styles.evaluatorSelectGroup}>
-                    <span>Penyeleksi:</span>
-                    <select
-                      value={posEvaluator.pos3}
-                      onChange={e => setPosEvaluator(prev => ({ ...prev, pos3: e.target.value }))}
-                      className={styles.evaluatorSelect}
-                    >
-                      <option value="">-- Pilih Penyeleksi --</option>
-                      {evaluators.members.map(m => (
-                        <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
-                      ))}
-                      {evaluators.admins.map(a => (
-                        <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
-                      ))}
-                    </select>
-                  </div>
-
+                <div>
                   <button
                     type="button"
                     onClick={() => handleExportPOS('3')}
@@ -1372,7 +1365,7 @@ export default function AdminPendaftaranPage() {
                       <th>Public Speaking</th>
                       <th>Solusi</th>
                       <th>Rata-Rata POS 3</th>
-                      <th style={{ textAlign: 'center' }}>Status / Aksi</th>
+                      <th style={{ textAlign: 'center' }}>Penyeleksi & Status Penilaian</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1445,24 +1438,46 @@ export default function AdminPendaftaranPage() {
                               {s.pos3Avg !== null && s.pos3Avg !== undefined ? s.pos3Avg.toFixed(2) : '-'}
                             </span>
                           </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {isLocked ? (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleLockState(c.id, 'pos3', false)}
-                                className={`${styles.btnLock} ${styles.btnLockUnlock}`}
-                              >
-                                <Unlock size={14} /> Perbarui Nilai
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleLockState(c.id, 'pos3', true)}
-                                className={`${styles.btnLock} ${styles.btnLockSubmit}`}
-                              >
-                                <Lock size={14} /> Selesai Seleksi
-                              </button>
-                            )}
+                          <td>
+                            <div className={styles.evaluatorRowSplit}>
+                              <div className={styles.evaluatorSelectBox}>
+                                <User size={14} color="#64748b" />
+                                <select
+                                  value={s.pos3Evaluator || ''}
+                                  disabled={isLocked}
+                                  onChange={e => {
+                                    handleScoreInputChange(c.id, 'pos3Evaluator', e.target.value);
+                                    handleSaveCandidateScore(c.id, 'pos3');
+                                  }}
+                                >
+                                  <option value="">-- Penyeleksi --</option>
+                                  {evaluators.members.map(m => (
+                                    <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                                  ))}
+                                  {evaluators.admins.map(a => (
+                                    <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              {isLocked ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLockState(c.id, 'pos3', false)}
+                                  className={`${styles.btnLock} ${styles.btnLockUnlock}`}
+                                >
+                                  <Unlock size={14} /> Perbarui Nilai
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLockState(c.id, 'pos3', true)}
+                                  className={`${styles.btnLock} ${styles.btnLockSubmit}`}
+                                >
+                                  <Lock size={14} /> Selesai Seleksi
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1763,7 +1778,7 @@ export default function AdminPendaftaranPage() {
         )}
 
         {/* ── SUB-TAB 1: DATA PENDAFTARAN ── */}
-        {activeSubTab === 'data' && (
+        {mainMode === 'pendaftaran' && (
           <>
             <div className={styles.toolbar}>
               <div className={styles.toolbarLeft}>
@@ -1903,128 +1918,6 @@ export default function AdminPendaftaranPage() {
                                 <Trash2 size={14} />
                               </button>
                             </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ── SUB-TAB 2: JADWAL & TAHAP SELEKSI ── */}
-        {activeSubTab === 'seleksi' && (
-          <>
-            {/* Selection Toolbar */}
-            <div className={styles.toolbar}>
-              <div className={styles.toolbarLeft}>
-                <div className={styles.searchWrap}>
-                  <Search size={16} className={styles.searchIcon} />
-                  <input
-                    type="text"
-                    placeholder="Cari nama atau NISN..."
-                    value={search}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                    className={styles.searchInput}
-                  />
-                </div>
-
-                <select
-                  value={filterKelas}
-                  onChange={(e) => handleKelasChange(e.target.value)}
-                  className={styles.filterSelect}
-                >
-                  <option value="">Semua Kelas</option>
-                  {kelasOptions.map((k) => (
-                    <option key={k} value={k}>{k}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.toolbarRight}>
-                <button onClick={openRandomizeModal} className="btn btn-secondary btn-sm">
-                  <Shuffle size={16} /> 🎲 Atur Hari Seleksi Massal
-                </button>
-
-                <button onClick={openMassWaModal} className="btn btn-primary btn-sm">
-                  <Send size={16} /> 📢 Kirim WA Seleksi + PDF
-                </button>
-
-                <button onClick={handleExportSelectionExcel} className="btn btn-secondary btn-sm">
-                  <FileSpreadsheet size={16} /> Export Excel Jadwal
-                </button>
-              </div>
-            </div>
-
-            {loading ? (
-              <SkeletonTable rows={5} columns={8} />
-            ) : paginatedCandidates.length === 0 ? (
-              <div className={styles.empty}>
-                <p>Tidak ada peserta seleksi yang cocok dengan filter.</p>
-              </div>
-            ) : (
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={{ width: '36px', textAlign: 'center' }}>
-                        <input
-                          type="checkbox"
-                          checked={isAllPageSelected}
-                          onChange={(e) => handleToggleSelectAllPage(e.target.checked)}
-                          style={{ cursor: 'pointer' }}
-                        />
-                      </th>
-                      <th>No</th>
-                      <th>NISN</th>
-                      <th>Nama Lengkap</th>
-                      <th>Kelas</th>
-                      <th>Jadwal Seleksi</th>
-                      <th>Status WA Notif</th>
-                      <th>Aksi Penjadwalan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedCandidates.map((c, i) => {
-                      const isSelected = selectedRowIds.includes(c.id);
-                      return (
-                        <tr key={c.id} className={isSelected ? styles.rowSelected : (i % 2 === 1 ? styles.rowAlt : '')}>
-                          <td style={{ textAlign: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => handleToggleSelectRow(c.id)}
-                              style={{ cursor: 'pointer' }}
-                            />
-                          </td>
-                          <td className={styles.tdNum}>{(currentPage - 1) * ITEMS_PER_PAGE + i + 1}</td>
-                          <td className={styles.tdMono}>{c.nisn}</td>
-                          <td className={styles.tdName}>{c.name}</td>
-                          <td>{c.className}</td>
-                          <td>
-                            {c.selectionDay ? (
-                              <span className={styles.badgeDay}><Calendar size={13} /> {c.selectionDay}</span>
-                            ) : (
-                              <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>Belum Ditentukan</span>
-                            )}
-                          </td>
-                          <td>
-                            {c.selectionNotified ? (
-                              <span className={styles.badgeNotified}><CheckCircle size={13} /> Terkirim</span>
-                            ) : (
-                              <span className={styles.badgeUnnotified}><AlertCircle size={13} /> Belum Dikirim</span>
-                            )}
-                          </td>
-                          <td>
-                            <button
-                              onClick={() => openEditModal(c, 'seleksi')}
-                              className="btn btn-secondary btn-sm"
-                              title="Edit Hari Seleksi Cepat"
-                            >
-                              <Calendar size={14} /> Edit Hari Seleksi
-                            </button>
                           </td>
                         </tr>
                       );
