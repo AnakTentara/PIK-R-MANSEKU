@@ -1,4 +1,4 @@
-/* ─── ADMIN PENDAFTARAN & SELEKSI PROFESSIONAL DESIGN ─── */
+/* ─── ADMIN PENDAFTARAN & SELEKSI COMPACT RESPONSIVE DESIGN ─── */
 .page {
   display: flex;
   flex-direction: column;
@@ -8,47 +8,47 @@
 }
 
 .body {
-  padding: 20px 28px;
+  padding: 12px 18px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 1680px;
+  gap: 12px;
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
-/* ─── Hero KPI Stat Cards Grid (Horizontal Row) ─── */
+/* ─── Hero KPI Stat Cards Grid (3 Cards Compact) ─── */
 .heroStatsGrid {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 }
 
 .statCard {
   flex: 1;
   background: #ffffff;
-  border-radius: 14px;
-  padding: 16px 20px;
+  border-radius: 10px;
+  padding: 10px 14px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.02);
   display: flex;
   align-items: center;
-  gap: 14px;
-  transition: all 0.2s ease;
+  gap: 10px;
+  transition: all 0.15s ease;
   min-width: 0;
 }
 
 .statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
   border-color: #cbd5e1;
 }
 
 .statIconBadge {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,35 +63,64 @@
 .statMeta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
 .statValue {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #0f172a;
-  letter-spacing: -0.5px;
-  line-height: 1.2;
+  line-height: 1.1;
   white-space: nowrap;
 }
 
 .statLabel {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   white-space: nowrap;
 }
 
-/* ─── Main Module Segmented Nav Tabs ─── */
+/* ─── Session Banner ─── */
+.sessionBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.8125rem;
+  gap: 12px;
+}
+
+.openBanner {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #14532d;
+}
+
+.closedBanner {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #78350f;
+}
+
+.bannerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ─── Main Module Segmented Nav Tabs (Compact) ─── */
 .mainNavContainer {
   display: flex;
   background: #f1f5f9;
-  padding: 5px;
-  border-radius: 12px;
-  gap: 6px;
+  padding: 4px;
+  border-radius: 10px;
+  gap: 4px;
   border: 1px solid #e2e8f0;
   width: 100%;
 }
@@ -101,34 +130,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 0.88rem;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: #64748b;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .mainNavTab:hover {
   color: #0f172a;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .mainNavActive {
   background: #ffffff !important;
   color: #2563eb !important;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12), 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.1);
 }
 
 .mainNavBadge {
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.75rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 0.72rem;
   font-weight: 800;
   background: #e2e8f0;
   color: #475569;
@@ -139,16 +168,15 @@
   color: #2563eb;
 }
 
-/* ─── POS Sub-Nav Pills (Horizontal) ─── */
+/* ─── POS Sub-Nav Pills (Compact Horizontal) ─── */
 .posSubNavContainer {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: #ffffff;
-  padding: 6px 10px;
-  border-radius: 12px;
+  padding: 4px 8px;
+  border-radius: 10px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
   width: 100%;
   overflow-x: auto;
 }
@@ -156,16 +184,16 @@
 .posSubNavTab {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  font-size: 0.86rem;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 0.78rem;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: #64748b;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
   white-space: nowrap;
 }
 
@@ -183,34 +211,34 @@
 /* ─── Card Container & Rapor Table ─── */
 .raporCard {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 10px;
   border: 1px solid #e2e8f0;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  padding: 14px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.02);
 }
 
 .posHeaderBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 16px;
+  gap: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .posTitleGroup {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .posBadge {
-  padding: 5px 12px;
-  border-radius: 16px;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-weight: 800;
-  font-size: 0.78rem;
-  letter-spacing: 0.5px;
+  font-size: 0.72rem;
+  letter-spacing: 0.4px;
 }
 
 .pos1Badge { background: #dbeafe; color: #1e40af; }
@@ -218,60 +246,60 @@
 .pos3Badge { background: #f3e8ff; color: #6b21a8; }
 .posAllBadge { background: #dcfce7; color: #15803d; }
 
-/* Table Styling */
+/* Table Styling (Compact Fit) */
 .tableWrap {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow-x: auto;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.86rem;
+  font-size: 0.8rem;
 }
 
 .table th {
   background: #f8fafc;
   color: #475569;
   font-weight: 700;
-  padding: 10px 12px;
+  padding: 8px 10px;
   text-align: left;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 1.5px solid #e2e8f0;
   white-space: nowrap;
+  font-size: 0.78rem;
 }
 
 .table td {
-  padding: 10px 12px;
+  padding: 7px 10px;
   border-bottom: 1px solid #f1f5f9;
   vertical-align: middle;
+  font-size: 0.8rem;
 }
 
 .table tr:hover {
   background-color: #f8fafc;
 }
 
-/* Cell Input & Per-Row Evaluator Split Column */
+/* Score Input (Compact Cell) */
 .scoreInput {
-  width: 54px;
-  padding: 6px;
+  width: 44px;
+  padding: 4px 2px;
   text-align: center;
   font-weight: 800;
-  font-size: 0.9rem;
-  border-radius: 6px;
-  border: 1.5px solid #cbd5e1;
+  font-size: 0.85rem;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
   background: #ffffff;
   color: #0f172a;
   outline: none;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
 .scoreInput:focus {
   border-color: #2563eb;
   background: #eff6ff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .scoreInputDisabled {
@@ -284,25 +312,25 @@
 .evaluatorRowSplit {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 280px;
+  gap: 6px;
+  min-width: 230px;
 }
 
 .evaluatorSelectBox {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  padding: 4px 8px;
+  border-radius: 5px;
+  padding: 3px 6px;
   flex: 1;
 }
 
 .evaluatorSelectBox select {
   border: none;
   background: transparent;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #1e293b;
   outline: none;
@@ -314,11 +342,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 3px 8px;
+  border-radius: 5px;
   font-weight: 800;
-  font-size: 0.88rem;
-  min-width: 50px;
+  font-size: 0.82rem;
+  min-width: 44px;
 }
 
 .avgHigh { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
@@ -328,13 +356,12 @@
 .btnLock {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 6px;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 5px;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.15s ease;
   border: none;
   white-space: nowrap;
 }
@@ -347,16 +374,15 @@
 .btnExportExcel {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 8px;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
   background: #059669;
   color: white;
   font-weight: 700;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   border: none;
   cursor: pointer;
-  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
@@ -364,13 +390,13 @@
 
 /* Ranking Badges */
 .rankBadge {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: #f1f5f9;
   color: #475569;
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -381,15 +407,15 @@
 .rankTop2 { background: #64748b !important; color: white !important; border: none !important; }
 .rankTop3 { background: #b45309 !important; color: white !important; border: none !important; }
 
-/* Toolbar & Filters (Single Horizontal Row) */
+/* Toolbar & Controls */
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   background: #ffffff;
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
   border: 1px solid #e2e8f0;
   width: 100%;
 }
@@ -397,7 +423,7 @@
 .toolbarLeft {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .searchWrap {
@@ -406,21 +432,20 @@
 
 .searchIcon {
   position: absolute;
-  left: 10px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
 }
 
 .searchInput {
-  padding: 8px 12px 8px 34px;
+  padding: 6px 10px 6px 28px;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.86rem;
-  width: 240px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  width: 200px;
   outline: none;
   background: #f8fafc;
-  transition: all 0.15s ease;
 }
 
 .searchInput:focus {
@@ -429,10 +454,10 @@
 }
 
 .filterSelect {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.86rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #334155;
   background: #f8fafc;
@@ -443,5 +468,31 @@
 .toolbarRight {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+}
+
+/* Modal Styling Compact */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 16px;
+}
+
+.modalContent {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
 }

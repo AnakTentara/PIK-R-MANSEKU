@@ -826,8 +826,10 @@ export default function AdminPendaftaranPage() {
             <AlertCircle size={20} />
           </div>
           <div className={styles.bannerText}>
-            <strong>Status Sesi Pendaftaran: {isSessionOpen ? 'TERBUKA' : 'DITUTUP'}</strong>
-            <span>
+            <strong style={{ display: 'block', marginBottom: '2px' }}>
+              Status Sesi Pendaftaran: {isSessionOpen ? 'TERBUKA' : 'DITUTUP'}
+            </strong>
+            <span style={{ fontSize: '0.8rem', color: isSessionOpen ? '#166534' : '#92400e' }}>
               {isSessionOpen
                 ? 'Calon anggota dapat mendaftar secara online melalui halaman /daftar.'
                 : 'Pendaftaran ditutup. Sesi ini siap diarsipkan atau mempromosikan peserta LULUS ke Anggota Tetap.'}
@@ -835,11 +837,11 @@ export default function AdminPendaftaranPage() {
           </div>
         </div>
 
-        {/* ── Hero KPI Stat Cards Grid ── */}
+        {/* ── Hero KPI Stat Cards Grid (3 Cards Compact) ── */}
         <div className={styles.heroStatsGrid}>
           <div className={styles.statCard}>
             <div className={`${styles.statIconBadge} ${styles.iconBlue}`}>
-              <UserCheck size={26} />
+              <UserCheck size={20} />
             </div>
             <div className={styles.statMeta}>
               <span className={styles.statValue}>{candidates.length}</span>
@@ -849,7 +851,7 @@ export default function AdminPendaftaranPage() {
 
           <div className={styles.statCard}>
             <div className={`${styles.statIconBadge} ${isSessionOpen ? styles.iconGreen : styles.iconAmber}`}>
-              {isSessionOpen ? <CheckCircle size={26} /> : <AlertCircle size={26} />}
+              {isSessionOpen ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
             </div>
             <div className={styles.statMeta}>
               <span className={styles.statValue}>{isSessionOpen ? 'TERBUKA' : 'DITUTUP'}</span>
@@ -859,19 +861,7 @@ export default function AdminPendaftaranPage() {
 
           <div className={styles.statCard}>
             <div className={`${styles.statIconBadge} ${styles.iconPurple}`}>
-              <Target size={26} />
-            </div>
-            <div className={styles.statMeta}>
-              <span className={styles.statValue}>
-                {Object.keys(scoresMap).length > 0 ? Object.keys(scoresMap).length : candidates.length}
-              </span>
-              <span className={styles.statLabel}>Peserta Dievaluasi</span>
-            </div>
-          </div>
-
-          <div className={styles.statCard}>
-            <div className={`${styles.statIconBadge} ${styles.iconAmber}`}>
-              <Star size={26} />
+              <Star size={20} />
             </div>
             <div className={styles.statMeta}>
               <span className={styles.statValue}>
@@ -882,15 +872,15 @@ export default function AdminPendaftaranPage() {
           </div>
         </div>
 
-        {/* ── Main Module Segmented Navigation Tabs ── */}
+        {/* ── Main Module Segmented Navigation Tabs (Compact & Clean) ── */}
         <div className={styles.mainNavContainer}>
           <button
             type="button"
             className={`${styles.mainNavTab} ${mainMode === 'pendaftaran' ? styles.mainNavActive : ''}`}
             onClick={() => setMainMode('pendaftaran')}
           >
-            <FileText size={18} />
-            <span>📋 Data Pendaftaran</span>
+            <FileText size={16} />
+            <span>Pendaftaran</span>
             <span className={styles.mainNavBadge}>{candidates.length}</span>
           </button>
 
@@ -902,8 +892,8 @@ export default function AdminPendaftaranPage() {
               if (Object.keys(scoresMap).length === 0) fetchSelectionData();
             }}
           >
-            <Target size={18} />
-            <span>🎯 Penyeleksian POS (1, 2, 3)</span>
+            <Target size={16} />
+            <span>Seleksi</span>
             <span className={styles.mainNavBadge}>Rapor Seleksi</span>
           </button>
 
@@ -912,55 +902,55 @@ export default function AdminPendaftaranPage() {
             className={`${styles.mainNavTab} ${mainMode === 'kelulusan' ? styles.mainNavActive : ''}`}
             onClick={() => setMainMode('kelulusan')}
           >
-            <GraduationCap size={18} />
-            <span>🎓 Kelulusan & Promosi</span>
+            <GraduationCap size={16} />
+            <span>Kelulusan</span>
             <span className={styles.mainNavBadge}>{candidates.filter(c => c.status === 'LULUS').length} Lulus</span>
           </button>
         </div>
 
         {mainMode === 'seleksi' && (
         <div className={styles.raporCard} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* ── POS Sub-Tab Navigation Pills (Jadwal at #1, clean icons) ── */}
+          {/* ── POS Sub-Tab Navigation Pills (No numbers, clean icons) ── */}
           <div className={styles.posSubNavContainer}>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('jadwal')}
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'jadwal' ? styles.posJadwalActive : ''}`}
             >
-              <Calendar size={18} />
-              <span>1. Jadwal & Notifikasi Seleksi</span>
+              <Calendar size={15} />
+              <span>Jadwal & Notifikasi</span>
             </button>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('pos1')}
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos1' ? styles.pos1Active : ''}`}
             >
-              <Award size={18} />
-              <span>2. POS 1: Wawancara & Perkenalan</span>
+              <Award size={15} />
+              <span>POS 1: Wawancara & Perkenalan</span>
             </button>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('pos2')}
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos2' ? styles.pos2Active : ''}`}
             >
-              <Star size={18} />
-              <span>3. POS 2: Tes Minat Bakat</span>
+              <Star size={15} />
+              <span>POS 2: Tes Minat Bakat</span>
             </button>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('pos3')}
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos3' ? styles.pos3Active : ''}`}
             >
-              <FileText size={18} />
-              <span>4. POS 3: Studi Kasus</span>
+              <FileText size={15} />
+              <span>POS 3: Studi Kasus</span>
             </button>
             <button
               type="button"
               onClick={() => setSeleksiSubTab('rekap')}
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'rekap' ? styles.posRekapActive : ''}`}
             >
-              <Target size={18} />
-              <span>5. Rekap Rapor Total & Ranking</span>
+              <Target size={15} />
+              <span>Rekap Rapor & Ranking</span>
             </button>
           </div>
 
