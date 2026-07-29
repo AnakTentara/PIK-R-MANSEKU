@@ -31,7 +31,7 @@ import toast from 'react-hot-toast';
 import styles from './AdminPendaftaranPage.module.css';
 import { downloadBlob } from '@/utils/truncate';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 100;
 const DAYS_OF_WEEK = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const DAY_FULL_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -412,10 +412,6 @@ export default function AdminPendaftaranPage() {
 
       const matchesStatus = statusFilter ? c.status === statusFilter : true;
       const matchesKelas = filterKelas ? c.className === filterKelas : true;
-
-      if (mainMode === 'seleksi') {
-        return matchesSearch && matchesKelas && (c.status === 'PENDING');
-      }
 
       return matchesSearch && matchesStatus && matchesKelas;
     });
@@ -954,6 +950,55 @@ export default function AdminPendaftaranPage() {
             </button>
           </div>
 
+          {/* ── Toolbar Search & Filter untuk Seleksi ── */}
+          <div className={styles.toolbar}>
+            <div className={styles.toolbarLeft}>
+              <div className={styles.searchWrap}>
+                <Search size={15} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  placeholder="Cari nama atau NISN..."
+                  value={search}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
+
+              <select
+                value={filterKelas}
+                onChange={(e) => handleKelasChange(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="">Semua Kelas</option>
+                {kelasOptions.map((k) => (
+                  <option key={k} value={k}>{k}</option>
+                ))}
+              </select>
+
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="btn btn-secondary btn-sm"
+                  style={{ padding: '3px 8px', fontSize: '0.74rem' }}
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            <div className={styles.toolbarRight}>
+              <button
+                type="button"
+                onClick={() => handleExportPOS('all')}
+                className="btn btn-secondary btn-sm"
+                title="Unduh XLSX Rapor Total (Semua POS)"
+              >
+                <Download size={14} /> Export ALL POS (Rapor Total)
+              </button>
+            </div>
+          </div>
+
           {/* ── POS 1 VIEW ── */}
           {seleksiSubTab === 'pos1' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -996,7 +1041,7 @@ export default function AdminPendaftaranPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {candidates.map((c, idx) => {
+                    {filteredCandidates.map((c, idx) => {
                       const s = scoresMap[c.id] || {};
                       const isLocked = Boolean(s.pos1Completed);
 
@@ -1173,7 +1218,7 @@ export default function AdminPendaftaranPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {candidates.map((c, idx) => {
+                    {filteredCandidates.map((c, idx) => {
                       const s = scoresMap[c.id] || {};
                       const isLocked = Boolean(s.pos2Completed);
 
@@ -1359,7 +1404,7 @@ export default function AdminPendaftaranPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {candidates.map((c, idx) => {
+                    {filteredCandidates.map((c, idx) => {
                       const s = scoresMap[c.id] || {};
                       const isLocked = Boolean(s.pos3Completed);
 
@@ -1518,7 +1563,7 @@ export default function AdminPendaftaranPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[...candidates]
+                    {[...filteredCandidates]
                       .sort((a, b) => {
                         const scoreA = scoresMap[a.id]?.finalScore ?? -1;
                         const scoreB = scoresMap[b.id]?.finalScore ?? -1;
@@ -1624,14 +1669,14 @@ export default function AdminPendaftaranPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {candidates.length === 0 ? (
+                    {filteredCandidates.length === 0 ? (
                       <tr>
                         <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
-                          Belum ada data pendaftar.
+                          Tidak ada data pendaftar yang cocok.
                         </td>
                       </tr>
                     ) : (
-                      candidates.map((c, idx) => (
+                      filteredCandidates.map((c, idx) => (
                         <tr key={`jadwal-${c.id}`}>
                           <td style={{ textAlign: 'center' }}>{idx + 1}</td>
                           <td>
@@ -1693,6 +1738,55 @@ export default function AdminPendaftaranPage() {
             </div>
           </div>
 
+          {/* ── Toolbar Search & Filter untuk Kelulusan ── */}
+          <div className={styles.toolbar}>
+            <div className={styles.toolbarLeft}>
+              <div className={styles.searchWrap}>
+                <Search size={15} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  placeholder="Cari nama atau NISN..."
+                  value={search}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
+
+              <select
+                value={filterKelas}
+                onChange={(e) => handleKelasChange(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="">Semua Kelas</option>
+                {kelasOptions.map((k) => (
+                  <option key={k} value={k}>{k}</option>
+                ))}
+              </select>
+
+              <select
+                value={statusFilter}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="">Semua Status</option>
+                <option value="PENDING">PENDING</option>
+                <option value="LULUS">LULUS</option>
+                <option value="TIDAK_LULUS">TIDAK LULUS</option>
+              </select>
+            </div>
+
+            <div className={styles.toolbarRight}>
+              <button
+                type="button"
+                onClick={() => handleExportPOS('all')}
+                className="btn btn-secondary btn-sm"
+                title="Unduh XLSX Rapor Total"
+              >
+                <Download size={14} /> Export Excel
+              </button>
+            </div>
+          </div>
+
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
@@ -1707,7 +1801,7 @@ export default function AdminPendaftaranPage() {
                 </tr>
               </thead>
               <tbody>
-                {candidates.map((c, idx) => {
+                {filteredCandidates.map((c, idx) => {
                   const scoreObj = scoresMap[c.id] || {};
                   const finalScore = scoreObj.finalScore;
 
