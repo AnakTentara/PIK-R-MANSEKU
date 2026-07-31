@@ -25,6 +25,7 @@ import {
   // Session
   closeSession,
   openSession,
+  finishAndMigrateSession,
   promoteCandidateToMember,
   // Selection POS
   getSelectionScores,
@@ -185,6 +186,7 @@ router.delete('/files', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), d
 // Session Lifecycle (DEVELOPER and KABINET_UMUM only)
 router.post('/session/close', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), closeSession);
 router.post('/session/open', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), openSession);
+router.post('/session/finish', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), finishAndMigrateSession);
 
 // Member CRUD (MEDINFO can read, but only DEVELOPER and KABINET_UMUM can create/edit/delete)
 router.get('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), getMembers);

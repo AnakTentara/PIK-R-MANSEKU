@@ -8,6 +8,7 @@ import {
   getSettings,
   closeSession,
   openSession,
+  finishAndMigrateSession,
   exportExcel,
   exportSelectionExcel,
   exportJSON,
@@ -462,7 +463,7 @@ export default function AdminPendaftaranPage() {
       : 'Membuka kembali sesi pendaftaran akan mengizinkan pendaftar baru untuk mengisi formulir pendaftaran.';
 
     openConfirm({
-      title: `${isSessionOpen ? 'Tutup' : 'Buka'} Sesi Pendaftaran`,
+      title: `${isSessionOpen ? 'Tutup' : 'Buka'} Form Pendaftaran`,
       message: `${actionText} Apakah Anda yakin?`,
       danger: isSessionOpen,
       onConfirm: async () => {
@@ -470,18 +471,43 @@ export default function AdminPendaftaranPage() {
         try {
           if (isSessionOpen) {
             const res = await closeSession();
-            toast.success(res.data.message || 'Sesi pendaftaran ditutup.');
+            toast.success(res.data.message || 'Form pendaftaran publik ditutup.');
           } else {
             await openSession();
-            toast.success('Sesi pendaftaran baru dibuka.');
+            toast.success('Form pendaftaran publik dibuka kembali.');
           }
           await fetchSessionAndCandidates();
         } catch (err) {
-          toast.error(err.response?.data?.message || 'Gagal memperbarui sesi.');
+          toast.error(err.response?.data?.message || 'Gagal memperbarui status pendaftaran.');
         } finally {
           setSavingSession(false);
         }
       },
+    });
+  };
+
+  // Finish & Finalize Season (Migrate LULUS to Members & clear candidate list)
+  const handleFinishSession = async () => {
+    const lulusCount = candidates.filter(c => c.status === 'LULUS').length;
+    openConfirm({
+      title: 'Selesaikan Masa Pendaftaran & Seleksi',
+      message: `Tindakan ini akan mengakhiri seluruh masa pendaftaran & seleksi tahun ini.\n\n` +
+               `• ${lulusCount} peserta berstatus LULUS akan dipindahkan ke database Anggota Tetap.\n` +
+               `• Seluruh data pendaftar akan dibersihkan untuk persiapan sesi baru tahun depan.\n\n` +
+               `Apakah Anda yakin ingin menyelesaikan masa pendaftaran ini?`,
+      danger: true,
+      onConfirm: async () => {
+        setSavingSession(true);
+        try {
+          const res = await finishAndMigrateSession();
+          toast.success(res.data.message || 'Masa pendaftaran berhasil diselesaikan!');
+          await fetchSessionAndCandidates();
+        } catch (err) {
+          toast.error(err.response?.data?.message || 'Gagal menyelesaikan masa pendaftaran.');
+        } finally {
+          setSavingSession(false);
+        }
+      }
     });
   };
 
@@ -900,14 +926,24 @@ export default function AdminPendaftaranPage() {
         title="Manajemen Pendaftaran & Penyeleksian"
         subtitle={`${candidates.length} total calon peserta terdaftar`}
       >
-        <div className={styles.headerActions}>
+        <div className={styles.headerActions} style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={handleToggleSession}
             disabled={savingSession}
-            className={`btn ${isSessionOpen ? 'btn-danger' : 'btn-primary'} btn-sm`}
+            className={`btn ${isSessionOpen ? 'btn-secondary' : 'btn-primary'} btn-sm`}
+            style={{ fontSize: '0.78rem' }}
           >
             {isSessionOpen ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
-            {isSessionOpen ? 'Tutup Sesi Pendaftaran' : 'Buka Sesi Pendaftaran'}
+            {isSessionOpen ? 'Tutup Form Pendaftaran' : 'Buka Form Pendaftaran'}
+          </button>
+          <button
+            onClick={handleFinishSession}
+            disabled={savingSession}
+            className="btn btn-danger btn-sm"
+            style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+            title="Akhiri seluruh masa pendaftaran & seleksi, pindahkan peserta LULUS ke Member"
+          >
+            <CheckCircle size={15} /> Selesaikan Masa Pendaftaran
           </button>
         </div>
       </AdminHeader>
@@ -1837,13 +1873,22 @@ export default function AdminPendaftaranPage() {
               </div>
             </div>
 
-            <div className={styles.posActions}>
+            <div className={styles.posActions} style={{ display: 'flex', gap: '8px' }}>
               <button
                 type="button"
                 onClick={openMassWaModal}
                 className="btn btn-primary btn-sm"
               >
                 <Send size={16} /> Kirim Pengumuman WA
+              </button>
+              <button
+                type="button"
+                onClick={handleFinishSession}
+                disabled={savingSession}
+                className="btn btn-danger btn-sm"
+                style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+              >
+                <CheckCircle size={16} /> Selesaikan Masa Pendaftaran & Migrasi
               </button>
             </div>
           </div>

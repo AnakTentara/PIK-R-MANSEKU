@@ -94,6 +94,9 @@ export const closeSession = () =>
 export const openSession = () =>
   api.post('/admin/session/open');
 
+export const finishAndMigrateSession = () =>
+  api.post('/admin/session/finish');
+
 // Members (permanent registry)
 export const getMembers = (params) =>
   api.get('/admin/members', { params });

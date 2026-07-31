@@ -700,6 +700,80 @@ export async function openSession(req, res) {
   }
 }
 
+// 14b. Finish & Finalize Registration Season → Migrate LULUS to Members & clear candidates
+export async function finishAndMigrateSession(req, res) {
+  const currentYear = new Date().getFullYear();
+  try {
+    // 1. Fetch all LULUS candidates
+    const lulusList = await prisma.candidate.findMany({
+      where: { status: 'LULUS' }
+    });
+
+    // 2. Migrate to Member table menggunakan $transaction
+    if (lulusList.length > 0) {
+      await prisma.$transaction(
+        lulusList.map(c => {
+          const plainPassword = (!c.plainPassword || c.plainPassword === 'pikr2024')
+            ? Math.floor(100000 + Math.random() * 900000).toString()
+            : c.plainPassword;
+          const password = c.password || '';
+          const formattedName = toTitleCase(c.name);
+          return prisma.member.upsert({
+            where: { nisn: c.nisn },
+            update: {
+              name: formattedName, className: c.className,
+              whatsappNumber: c.whatsappNumber, email: c.email,
+              gender: c.gender, asalSekolah: c.asalSekolah,
+              password, plainPassword, status: 'ACTIVE',
+            },
+            create: {
+              nisn: c.nisn, name: formattedName, className: c.className,
+              whatsappNumber: c.whatsappNumber, email: c.email,
+              gender: c.gender, asalSekolah: c.asalSekolah,
+              password, plainPassword, status: 'ACTIVE',
+              joinYear: currentYear, role: 'member',
+            },
+          });
+        })
+      );
+    }
+
+    // 3. Clear all Candidates for clean slate
+    await prisma.candidate.deleteMany({});
+
+    // 4. Mark session as closed
+    await prisma.setting.upsert({
+      where: { key: 'REGISTRATION_SESSION' },
+      update: { value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString(), migratedCount: lulusList.length }) },
+      create: { key: 'REGISTRATION_SESSION', value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString(), migratedCount: lulusList.length }) }
+    });
+
+    // 5. Auto-alumni for active members
+    await prisma.member.updateMany({
+      where: {
+        status: 'ACTIVE',
+        NOT: { role: 'PEMBINA' },
+        OR: [
+          { className: { startsWith: 'XII' }, joinYear: { lte: currentYear - 1 } },
+          { className: { startsWith: '12' },  joinYear: { lte: currentYear - 1 } },
+          { className: { startsWith: 'XI' },  joinYear: { lte: currentYear - 2 } },
+          { className: { startsWith: '11' },  joinYear: { lte: currentYear - 2 } },
+          { joinYear: { lte: currentYear - 3 } },
+        ]
+      },
+      data: { status: 'ALUMNI' }
+    });
+
+    return res.json({
+      message: `Masa pendaftaran dan seleksi berhasil diselesaikan! ${lulusList.length} peserta LULUS telah dipindahkan ke data Anggota Tetap.`,
+      migratedCount: lulusList.length
+    });
+  } catch (error) {
+    console.error('Error finishing session:', error);
+    return res.status(500).json({ message: 'Gagal menyelesaikan masa pendaftaran' });
+  }
+}
+
 // ─────────────────────────────────────────────────
 // MEMBER CRUD
 // ─────────────────────────────────────────────────
