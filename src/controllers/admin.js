@@ -222,18 +222,6 @@ export async function batchUpdateAttendance(req, res) {
   }
 }
 
-    const updated = await prisma.candidate.update({
-      where: { id },
-      data: updateData
-    });
-
-    return res.json({ message: 'Data pendaftar berhasil diperbarui', candidate: updated });
-  } catch (error) {
-    console.error('Error update candidate:', error);
-    return res.status(500).json({ message: 'Gagal memperbarui data pendaftar' });
-  }
-}
-
 // 6. Delete Candidate
 export async function deleteCandidate(req, res) {
   const { id } = req.params;
