@@ -284,7 +284,7 @@ export default function AdminPendaftaranPage() {
   }, [mainMode]);
 
   const handleScoreInputChange = (candidateId, field, val) => {
-    const num = val === '' ? null : Math.min(10, Math.max(1, parseFloat(val) || 0));
+    const num = val === '' ? null : Math.min(10, Math.max(0, parseFloat(val) || 0));
     setScoresMap(prev => {
       const existing = prev[candidateId] || { candidateId };
       const updated = { ...existing, [field]: num };
@@ -458,8 +458,8 @@ export default function AdminPendaftaranPage() {
   // Toggle Registration Session
   const handleToggleSession = async () => {
     const actionText = isSessionOpen 
-      ? 'Menutup sesi akan memindahkan seluruh peserta LULUS ke data Anggota Tetap (nama diformat menjadi Title Case), lalu memicu pembersihan pendaftaran.' 
-      : 'Membuka sesi pendaftaran baru akan membersihkan data pendaftaran lama.';
+      ? 'Menutup sesi pendaftaran akan menghentikan pendaftaran baru dari publik. Seluruh data pendaftar yang ada (pending, lulus, tidak lulus) tetap tersimpan untuk proses seleksi.' 
+      : 'Membuka kembali sesi pendaftaran akan mengizinkan pendaftar baru untuk mengisi formulir pendaftaran.';
 
     openConfirm({
       title: `${isSessionOpen ? 'Tutup' : 'Buka'} Sesi Pendaftaran`,
@@ -1353,7 +1353,7 @@ export default function AdminPendaftaranPage() {
                             <div key={key} className={styles.scoreField}>
                               <label className={styles.scoreFieldLabel}>{label}</label>
                               <input
-                                type="number" min="1" max="10" step="0.5"
+                                type="number" min="0" max="10" step="0.5"
                                 disabled={isLocked}
                                 value={val}
                                 onChange={e => handleScoreInputChange(c.id, key, e.target.value)}
@@ -1463,7 +1463,7 @@ export default function AdminPendaftaranPage() {
                             <div key={key} className={styles.scoreField}>
                               <label className={styles.scoreFieldLabel}>{label}</label>
                               <input
-                                type="number" min="1" max="10" step="0.5"
+                                type="number" min="0" max="10" step="0.5"
                                 disabled={isLocked}
                                 value={val}
                                 onChange={e => handleScoreInputChange(c.id, key, e.target.value)}
@@ -1574,7 +1574,7 @@ export default function AdminPendaftaranPage() {
                             <div key={key} className={styles.scoreField}>
                               <label className={styles.scoreFieldLabel}>{label}</label>
                               <input
-                                type="number" min="1" max="10" step="0.5"
+                                type="number" min="0" max="10" step="0.5"
                                 disabled={isLocked}
                                 value={val}
                                 onChange={e => handleScoreInputChange(c.id, key, e.target.value)}

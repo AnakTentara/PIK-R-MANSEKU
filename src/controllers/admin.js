@@ -666,73 +666,17 @@ export async function promoteCandidateToMember(req, res) {
   }
 }
 
-// 13. Close Registration Session → migrate LULUS → Member, clear Candidates
+// 13. Close Registration Session → Only block new public registrations, keep candidate data intact
 export async function closeSession(req, res) {
-  const currentYear = new Date().getFullYear();
   try {
-    // 1. Fetch all LULUS candidates
-    const lulusList = await prisma.candidate.findMany({
-      where: { status: 'LULUS' }
-    });
-
-    // 2. Migrate to Member table menggunakan $transaction (atomik — gagal satu = semua rollback)
-    await prisma.$transaction(
-      lulusList.map(c => {
-        const plainPassword = (!c.plainPassword || c.plainPassword === 'pikr2024')
-          ? Math.floor(100000 + Math.random() * 900000).toString()
-          : c.plainPassword;
-        // Note: password sudah pasti ter-hash dari proses sebelumnya
-        const password = c.password || '';
-        const formattedName = toTitleCase(c.name);
-        return prisma.member.upsert({
-          where: { nisn: c.nisn },
-          update: {
-            name: formattedName, className: c.className,
-            whatsappNumber: c.whatsappNumber, email: c.email,
-            gender: c.gender, asalSekolah: c.asalSekolah,
-            password, plainPassword, status: 'ACTIVE',
-          },
-          create: {
-            nisn: c.nisn, name: formattedName, className: c.className,
-            whatsappNumber: c.whatsappNumber, email: c.email,
-            gender: c.gender, asalSekolah: c.asalSekolah,
-            password, plainPassword, status: 'ACTIVE',
-            joinYear: currentYear, role: 'member',
-          },
-        });
-      })
-    );
-
-    // 3. Clear all Candidates (clean slate for next session)
-    await prisma.candidate.deleteMany({});
-
-    // 4. Mark session as closed
     await prisma.setting.upsert({
       where: { key: 'REGISTRATION_SESSION' },
-      update: { value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString(), migratedCount: lulusList.length }) },
-      create: { key: 'REGISTRATION_SESSION', value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString(), migratedCount: lulusList.length }) }
-    });
-
-    // 5. Auto-alumni menggunakan updateMany (1 query, tidak N+1)
-    const currentYear2 = new Date().getFullYear();
-    await prisma.member.updateMany({
-      where: {
-        status: 'ACTIVE',
-        NOT: { role: 'PEMBINA' },
-        OR: [
-          { className: { startsWith: 'XII' }, joinYear: { lte: currentYear2 - 1 } },
-          { className: { startsWith: '12' },  joinYear: { lte: currentYear2 - 1 } },
-          { className: { startsWith: 'XI' },  joinYear: { lte: currentYear2 - 2 } },
-          { className: { startsWith: '11' },  joinYear: { lte: currentYear2 - 2 } },
-          { joinYear: { lte: currentYear2 - 3 } },
-        ]
-      },
-      data: { status: 'ALUMNI' }
+      update: { value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString() }) },
+      create: { key: 'REGISTRATION_SESSION', value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString() }) }
     });
 
     return res.json({
-      message: `Sesi berhasil ditutup. ${lulusList.length} calon anggota dipindahkan ke Member, ${lulusList.length - (await prisma.member.count({ where: { status: 'ACTIVE' } }))} anggota dijadikan alumni.`,
-      migratedCount: lulusList.length
+      message: 'Sesi pendaftaran berhasil ditutup. Form pendaftaran publik ditutup, namun seluruh data peserta (pending, lulus, tidak lulus) tetap tersimpan.'
     });
   } catch (error) {
     console.error('Error closing session:', error);
