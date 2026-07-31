@@ -14,6 +14,7 @@ import {
   randomizeSelectionDays,
   sendSelectionNotifications,
   batchUpdateAttendance,
+  exportAttendanceExcel,
   getSelectionEvaluators,
   getSelectionScores,
   updateSelectionScore,
@@ -206,11 +207,10 @@ export default function AdminPendaftaranPage() {
       await updateCandidate(candidate.id, { attendanceStatus: targetAttendance });
       setCandidates(prev => prev.map(item => item.id === candidate.id ? {
         ...item,
-        attendanceStatus: targetAttendance,
-        status: targetAttendance === 'TIDAK_HADIR' ? 'TIDAK_LULUS' : (targetAttendance === 'HADIR' && item.status === 'TIDAK_LULUS' ? 'PENDING' : (targetAttendance === 'BELUM_KONFIRMASI' && item.status === 'TIDAK_LULUS' ? 'PENDING' : item.status))
+        attendanceStatus: targetAttendance
       } : item));
       if (targetAttendance === 'TIDAK_HADIR') {
-        toast.error(`${candidate.name} ditandai TIDAK HADIR (Otomatis TIDAK LULUS)`);
+        toast.error(`${candidate.name} ditandai TIDAK HADIR`);
       } else if (targetAttendance === 'HADIR') {
         toast.success(`${candidate.name} ditandai HADIR seleksi`);
       } else {
@@ -230,13 +230,30 @@ export default function AdminPendaftaranPage() {
       await batchUpdateAttendance({ candidateIds: targetCandidateIds, attendanceStatus: targetAttendance });
       setCandidates(prev => prev.map(item => targetCandidateIds.includes(item.id) ? {
         ...item,
-        attendanceStatus: targetAttendance,
-        status: targetAttendance === 'TIDAK_HADIR' ? 'TIDAK_LULUS' : (targetAttendance === 'HADIR' && item.status === 'TIDAK_LULUS' ? 'PENDING' : item.status)
+        attendanceStatus: targetAttendance
       } : item));
-      const label = targetAttendance === 'HADIR' ? 'HADIR' : (targetAttendance === 'TIDAK_HADIR' ? 'TIDAK HADIR (Otomatis Tidak Lulus)' : 'BELUM PRESENSI');
+      const label = targetAttendance === 'HADIR' ? 'HADIR' : (targetAttendance === 'TIDAK_HADIR' ? 'TIDAK HADIR' : 'BELUM PRESENSI');
       toast.success(`Berhasil menandai ${targetCandidateIds.length} peserta ${label}.`);
     } catch {
       toast.error('Gagal memperbarui presensi massal');
+    }
+  };
+
+  const handleExportAttendance = async () => {
+    try {
+      const res = await exportAttendanceExcel();
+      const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PRESENSI_SELEKSI_${new Date().getFullYear()}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success('Rekapan Presensi berhasil dieksport!');
+    } catch {
+      toast.error('Gagal mengekspor presensi ke Excel');
     }
   };
 
@@ -1096,7 +1113,7 @@ export default function AdminPendaftaranPage() {
                   <div>
                     <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Presensi Kehadiran Seleksi</h3>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
-                      Tandai peserta yang hadir pada hari seleksi. Peserta yang <strong>TIDAK HADIR</strong> otomatis dinyatakan <strong>TIDAK LULUS</strong>.
+                      Tandai peserta yang hadir atau tidak hadir pada hari seleksi.
                     </p>
                   </div>
                 </div>
@@ -1124,6 +1141,14 @@ export default function AdminPendaftaranPage() {
                   >
                     <XCircle size={14} /> Tandai Semua Terfilter TIDAK HADIR
                   </button>
+                  <button
+                    type="button"
+                    onClick={handleExportAttendance}
+                    className={styles.btnExportExcel}
+                    style={{ fontSize: '0.78rem', backgroundColor: '#1e40af' }}
+                  >
+                    <Download size={14} /> Export Presensi (.xlsx)
+                  </button>
                 </div>
               </div>
 
@@ -1142,7 +1167,7 @@ export default function AdminPendaftaranPage() {
                   </strong>
                 </div>
                 <div className={styles.heroStatCard} style={{ background: '#fef2f2', borderColor: '#fca5a5' }}>
-                  <span className={styles.heroStatLabel} style={{ color: '#991b1b' }}>Tidak Hadir (Gagal)</span>
+                  <span className={styles.heroStatLabel} style={{ color: '#991b1b' }}>Tidak Hadir</span>
                   <strong className={styles.heroStatVal} style={{ color: '#b91c1c' }}>
                     {candidates.filter(c => c.attendanceStatus === 'TIDAK_HADIR').length}
                   </strong>

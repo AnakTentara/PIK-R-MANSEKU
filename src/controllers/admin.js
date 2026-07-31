@@ -152,13 +152,7 @@ export async function updateCandidate(req, res) {
     
     if (attendanceStatus !== undefined) {
       updateData.attendanceStatus = attendanceStatus;
-      if (attendanceStatus === 'TIDAK_HADIR') {
-        updateData.status = 'TIDAK_LULUS';
-      } else if (attendanceStatus === 'HADIR' && candidate.status === 'TIDAK_LULUS') {
-        updateData.status = 'PENDING';
-      } else if (attendanceStatus === 'BELUM_KONFIRMASI' && candidate.status === 'TIDAK_LULUS') {
-        updateData.status = 'PENDING';
-      }
+      // Status kelulusan tidak diubah otomatis berdasarkan presensi
     }
 
     if (req.file) {
@@ -200,18 +194,14 @@ export async function batchUpdateAttendance(req, res) {
 
   try {
     const updateData = { attendanceStatus };
-    if (attendanceStatus === 'TIDAK_HADIR') {
-      updateData.status = 'TIDAK_LULUS';
-    } else if (attendanceStatus === 'HADIR') {
-      updateData.status = 'PENDING';
-    }
+    // Status kelulusan tidak diubah otomatis berdasarkan presensi
 
     await prisma.candidate.updateMany({
       where: { id: { in: candidateIds } },
       data: updateData
     });
 
-    const statusLabel = attendanceStatus === 'HADIR' ? 'HADIR' : (attendanceStatus === 'TIDAK_HADIR' ? 'TIDAK HADIR (Otomatis Tidak Lulus)' : 'BELUM PRESENSI');
+    const statusLabel = attendanceStatus === 'HADIR' ? 'HADIR' : (attendanceStatus === 'TIDAK_HADIR' ? 'TIDAK HADIR' : 'BELUM KONFIRMASI');
     return res.json({
       message: `${candidateIds.length} peserta berhasil ditandai ${statusLabel}.`,
       count: candidateIds.length
@@ -219,6 +209,111 @@ export async function batchUpdateAttendance(req, res) {
   } catch (error) {
     console.error('Error batch updating attendance:', error);
     return res.status(500).json({ message: 'Gagal memperbarui presensi peserta' });
+  }
+}
+
+// 5c. Export Attendance to Excel
+export async function exportAttendanceExcel(req, res) {
+  const currentYear = new Date().getFullYear();
+  try {
+    const candidates = await prisma.candidate.findMany({
+      orderBy: [{ selectionDay: 'asc' }, { name: 'asc' }]
+    });
+
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'PIK-R MANSEKU';
+
+    const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F4E79' } };
+    const fontHeader = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+    const fontTitle = { name: 'Calibri', size: 16, bold: true, color: { argb: 'FF1F4E79' } };
+    const thinBorder = {
+      top: { style: 'thin', color: { argb: 'FFD9D9D9' } },
+      left: { style: 'thin', color: { argb: 'FFD9D9D9' } },
+      bottom: { style: 'thin', color: { argb: 'FFD9D9D9' } },
+      right: { style: 'thin', color: { argb: 'FFD9D9D9' } }
+    };
+
+    const ws = wb.addWorksheet('Presensi Kehadiran');
+    ws.views = [{ showGridLines: true, state: 'frozen', ySplit: 4 }];
+
+    ws.addRow(['REKAPITULASI PRESENSI KEHADIRAN SELEKSI PIK-R MANSEKU']);
+    ws.getCell('A1').font = fontTitle;
+    ws.addRow([`TAHUN SELEKSI ${currentYear}`]);
+    ws.addRow([]);
+
+    const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Asal Sekolah', 'Hari Seleksi', 'Status Presensi', 'Tanda Tangan'];
+    ws.addRow(headers);
+
+    const headerRow = ws.getRow(4);
+    headerRow.height = 25;
+    headers.forEach((_, idx) => {
+      const cell = headerRow.getCell(idx + 1);
+      cell.fill = headerFill;
+      cell.font = fontHeader;
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cell.border = thinBorder;
+    });
+
+    candidates.forEach((c, index) => {
+      const att = c.attendanceStatus || 'BELUM_KONFIRMASI';
+      const attLabel = att === 'HADIR' ? 'HADIR' : (att === 'TIDAK_HADIR' ? 'TIDAK HADIR' : 'BELUM PRESENSI');
+      const row = ws.addRow([
+        index + 1,
+        c.nisn || '-',
+        toTitleCase(c.name),
+        c.className,
+        c.asalSekolah || '-',
+        c.selectionDay || 'Belum Dijadwalkan',
+        attLabel,
+        '' // kolom tanda tangan kosong
+      ]);
+
+      const r = ws.getRow(5 + index);
+      for (let col = 1; col <= headers.length; col++) {
+        const cell = r.getCell(col);
+        cell.border = thinBorder;
+        cell.alignment = { horizontal: col === 3 || col === 5 ? 'left' : 'center', vertical: 'middle' };
+      }
+
+      // Color coding per status presensi
+      const statusCell = r.getCell(7);
+      if (att === 'HADIR') {
+        statusCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } };
+        statusCell.font = { bold: true, color: { argb: 'FF065F46' } };
+      } else if (att === 'TIDAK_HADIR') {
+        statusCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
+        statusCell.font = { bold: true, color: { argb: 'FF991B1B' } };
+      } else {
+        statusCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } };
+        statusCell.font = { bold: true, color: { argb: 'FF92400E' } };
+      }
+
+      row.height = 22;
+    });
+
+    // Summary rows at bottom
+    const totalRows = candidates.length;
+    const hadir = candidates.filter(c => c.attendanceStatus === 'HADIR').length;
+    const tidakHadir = candidates.filter(c => c.attendanceStatus === 'TIDAK_HADIR').length;
+    const belum = candidates.filter(c => !c.attendanceStatus || c.attendanceStatus === 'BELUM_KONFIRMASI').length;
+
+    ws.addRow([]);
+    ws.addRow(['', '', 'TOTAL PENDAFTAR', '', '', '', totalRows]);
+    ws.addRow(['', '', 'HADIR', '', '', '', hadir]);
+    ws.addRow(['', '', 'TIDAK HADIR', '', '', '', tidakHadir]);
+    ws.addRow(['', '', 'BELUM PRESENSI', '', '', '', belum]);
+
+    ws.columns.forEach((col, idx) => {
+      col.width = [8, 18, 32, 14, 20, 24, 18, 22][idx] || 16;
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=PRESENSI_SELEKSI_${currentYear}.xlsx`);
+    await wb.xlsx.write(res);
+    return res.end();
+  } catch (error) {
+    console.error('Error export attendance excel:', error);
+    return res.status(500).json({ message: 'Gagal mengekspor presensi ke Excel' });
   }
 }
 

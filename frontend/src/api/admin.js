@@ -57,6 +57,9 @@ export const sendSelectionNotifications = (data) => {
 export const batchUpdateAttendance = (data) =>
   api.post('/admin/candidates/batch-attendance', data);
 
+export const exportAttendanceExcel = () =>
+  api.get('/admin/candidates/export-attendance-excel', { responseType: 'blob' });
+
 // Selection POS & Evaluation
 export const getSelectionEvaluators = () =>
   api.get('/admin/selection/evaluators');
