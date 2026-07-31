@@ -61,7 +61,12 @@ npx prisma generate --schema=prisma/schema.prisma
 if [ $? -ne 0 ]; then
   echo -e "${YELLOW}Warning: Gagal men-generate client MySQL.${NC}"
 fi
-echo -e "${GREEN}Prisma Client untuk SQLite & MySQL berhasil di-generate.${NC}"
+echo -e "${YELLOW}Menyelaraskan tabel database MySQL (db push)...${NC}"
+npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
+if [ $? -ne 0 ]; then
+  echo -e "${YELLOW}Warning: Gagal melakukan db push pada MySQL.${NC}"
+fi
+echo -e "${GREEN}Prisma Client & Tabel Database untuk SQLite & MySQL berhasil diselaraskan.${NC}"
 
 echo ""
 echo -e "${BLUE}=== [5/5] Menjalankan Backend & Frontend Secara Bersamaan ===${NC}"

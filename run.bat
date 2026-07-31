@@ -43,10 +43,11 @@ echo ==========================================
 echo [4/5] Men-generate Prisma Client
 echo ==========================================
 call npx prisma generate
+call npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
 if %errorlevel% neq 0 (
-  echo Warning: Gagal men-generate Prisma Client.
+  echo Warning: Gagal men-generate atau menyelaraskan Prisma Client/DB.
 ) else (
-  echo Prisma Client berhasil di-generate.
+  echo Prisma Client & Database berhasil diselaraskan.
 )
 echo.
 
