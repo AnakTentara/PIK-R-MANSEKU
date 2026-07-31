@@ -1275,7 +1275,7 @@ export default function AdminPendaftaranPage() {
                           )}
                           {isAbsent && (
                             <span className={styles.lockedBadge} style={{ background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }}>
-                              <XCircle size={11} style={{ marginRight: '3px' }} /> TIDAK HADIR — OTOMATIS TIDAK LULUS
+                              <XCircle size={11} style={{ marginRight: '3px' }} /> TIDAK HADIR (Absen)
                             </span>
                           )}
                           {!isAttended && !isAbsent && (
@@ -2008,6 +2008,22 @@ export default function AdminPendaftaranPage() {
                             style={{ fontSize: '0.75rem', padding: '4px 8px' }}
                           >
                             Set Lulus
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await updateCandidate(c.id, { status: 'PENDING' });
+                                toast.success(`Status ${c.name} diubah ke PENDING`);
+                                fetchSessionAndCandidates();
+                              } catch {
+                                toast.error('Gagal merubah status');
+                              }
+                            }}
+                            className="btn btn-warning btn-xs"
+                            style={{ fontSize: '0.75rem', padding: '4px 8px', backgroundColor: '#d97706', borderColor: '#d97706', color: '#ffffff' }}
+                          >
+                            Set Pending
                           </button>
                           <button
                             type="button"
