@@ -43,12 +43,14 @@ echo ==========================================
 echo [4/5] Men-generate Prisma Client
 echo ==========================================
 call npx prisma generate
-call npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
-if %errorlevel% neq 0 (
-  echo Warning: Gagal men-generate atau menyelaraskan Prisma Client/DB.
+if exist .env (
+  call npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
+) else if defined DATABASE_URL (
+  call npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
 ) else (
-  echo Prisma Client & Database berhasil diselaraskan.
+  echo Info: File .env / DATABASE_URL tidak terdeteksi. Melewati db push MySQL.
 )
+echo Prisma Client & Database siap.
 echo.
 
 echo ==========================================
