@@ -1292,7 +1292,7 @@ export default function AdminPendaftaranPage() {
               </div>
 
               <div className={styles.scoreCardList}>
-                {filteredCandidates.map((c, idx) => {
+                {filteredCandidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR').map((c, idx) => {
                   const s = scoresMap[c.id] || {};
                   const isLocked = Boolean(s.pos1Completed);
                   const p1Fields = [
@@ -1376,6 +1376,12 @@ export default function AdminPendaftaranPage() {
                     </div>
                   );
                 })}
+
+                {filteredCandidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR').length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '30px', color: '#94a3b8', background: '#f8fafc', borderRadius: '8px', border: '1px border-dashed #cbd5e1' }}>
+                    Belum ada peserta hadir yang dapat dinilai pada POS 1.
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1399,7 +1405,7 @@ export default function AdminPendaftaranPage() {
               </div>
 
               <div className={styles.scoreCardList}>
-                {filteredCandidates.map((c, idx) => {
+                {filteredCandidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR').map((c, idx) => {
                   const s = scoresMap[c.id] || {};
                   const isLocked = Boolean(s.pos2Completed);
                   const p2Fields = [
@@ -1480,6 +1486,12 @@ export default function AdminPendaftaranPage() {
                     </div>
                   );
                 })}
+
+                {filteredCandidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR').length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '30px', color: '#94a3b8', background: '#f8fafc', borderRadius: '8px', border: '1px border-dashed #cbd5e1' }}>
+                    Belum ada peserta hadir yang dapat dinilai pada POS 2.
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1503,7 +1515,7 @@ export default function AdminPendaftaranPage() {
               </div>
 
               <div className={styles.scoreCardList}>
-                {filteredCandidates.map((c, idx) => {
+                {filteredCandidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR').map((c, idx) => {
                   const s = scoresMap[c.id] || {};
                   const isLocked = Boolean(s.pos3Completed);
                   const p3Fields = [
@@ -1585,6 +1597,12 @@ export default function AdminPendaftaranPage() {
                     </div>
                   );
                 })}
+
+                {filteredCandidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR').length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '30px', color: '#94a3b8', background: '#f8fafc', borderRadius: '8px' }}>
+                    Belum ada peserta hadir yang dapat dinilai pada POS 3.
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1630,6 +1648,7 @@ export default function AdminPendaftaranPage() {
                   </thead>
                   <tbody>
                     {[...filteredCandidates]
+                      .filter(c => c.attendanceStatus !== 'TIDAK_HADIR')
                       .sort((a, b) => {
                         const scoreA = scoresMap[a.id]?.finalScore ?? -1;
                         const scoreB = scoresMap[b.id]?.finalScore ?? -1;

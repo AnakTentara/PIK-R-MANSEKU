@@ -1960,12 +1960,14 @@ export async function exportPOSScoreExcel(req, res) {
         cell.border = thinBorder;
       });
 
-      // Sort by final score descending for ranking display
-      const sortedCandidates = [...candidates].sort((a, b) => {
-        const scoreA = a.selectionScore?.finalScore ?? -1;
-        const scoreB = b.selectionScore?.finalScore ?? -1;
-        return scoreB - scoreA;
-      });
+      // Sort by final score descending for ranking display, exclude absent candidates
+      const sortedCandidates = [...candidates]
+        .filter(c => c.attendanceStatus !== 'TIDAK_HADIR')
+        .sort((a, b) => {
+          const scoreA = a.selectionScore?.finalScore ?? -1;
+          const scoreB = b.selectionScore?.finalScore ?? -1;
+          return scoreB - scoreA;
+        });
 
       sortedCandidates.forEach((c, index) => {
         const s = c.selectionScore || {};
@@ -2018,7 +2020,8 @@ export async function exportPOSScoreExcel(req, res) {
         cell.border = thinBorder;
       });
 
-      candidates.forEach((c, index) => {
+      const attendingCandidates = candidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR');
+      attendingCandidates.forEach((c, index) => {
         const s = c.selectionScore || {};
         ws.addRow([
           index + 1,
@@ -2075,7 +2078,8 @@ export async function exportPOSScoreExcel(req, res) {
         cell.border = thinBorder;
       });
 
-      candidates.forEach((c, index) => {
+      const attendingCandidates2 = candidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR');
+      attendingCandidates2.forEach((c, index) => {
         const s = c.selectionScore || {};
         ws.addRow([
           index + 1,
@@ -2129,7 +2133,8 @@ export async function exportPOSScoreExcel(req, res) {
         cell.border = thinBorder;
       });
 
-      candidates.forEach((c, index) => {
+      const attendingCandidates3 = candidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR');
+      attendingCandidates3.forEach((c, index) => {
         const s = c.selectionScore || {};
         ws.addRow([
           index + 1,
