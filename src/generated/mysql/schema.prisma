@@ -52,15 +52,19 @@ model SelectionScore {
   candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
   // POS 1: Wawancara dan Perkenalan
-  pos1Evaluator String?
-  pos1Trust     Float? // Kepercayaan Diri (1-10)
-  pos1Comm      Float? // Komunikasi (1-10)
-  pos1Arg       Float? // Argumentasi (1-10)
-  pos1Ethics    Float? // Etika (1-10)
-  pos1Motiv     Float? // Motivasi (1-10)
-  pos1Avg       Float? // Rata-rata POS 1
-  pos1Completed Boolean @default(false)
-  pos1Notes     String? @db.Text
+  pos1Evaluator    String?
+  pos1Comm         Float? // Komunikasi (1-10)
+  pos1Trust        Float? // Percaya Diri (1-10)
+  pos1Motiv        Float? // Motivasi (1-10)
+  pos1Komitmen     Float? // Komitmen (1-10)
+  pos1KerjaSama    Float? // Kerja Sama (1-10)
+  pos1Kepemimpinan Float? // Kepemimpinan (1-10)
+  pos1Pengetahuan  Float? // Pengetahuan (1-10)
+  pos1Etika        Float? // Etika (1-10)
+  pos1Bonus        Float? // Bonus (1-10)
+  pos1Avg          Float? // Rata-rata POS 1
+  pos1Completed    Boolean @default(false)
+  pos1Notes        String? @db.Text
 
   // POS 2: Tes Minat Bakat
   pos2Evaluator  String?
@@ -75,14 +79,17 @@ model SelectionScore {
   pos2Notes      String? @db.Text
 
   // POS 3: Studi Kasus
-  pos3Evaluator String?
-  pos3Aura      Float? // Aura Penyampaian (1-10)
-  pos3Analysis  Float? // Analisis (1-10)
-  pos3PublicSpk Float? // Public Speaking (1-10)
-  pos3Solution  Float? // Solusi (1-10)
-  pos3Avg       Float? // Rata-rata POS 3
-  pos3Completed Boolean @default(false)
-  pos3Notes     String? @db.Text
+  pos3Evaluator   String?
+  pos3Pemahaman   Float? // Pemahaman (1-10)
+  pos3Analysis    Float? // Analisis (1-10)
+  pos3Solution    Float? // Solusi (1-10)
+  pos3Empati      Float? // Empati (1-10)
+  pos3PublicSpk   Float? // Public Speaking (1-10)
+  pos3Logika      Float? // Logika (1-10)
+  pos3Pengetahuan Float? // Pengetahuan (1-10)
+  pos3Avg         Float? // Rata-rata POS 3
+  pos3Completed   Boolean @default(false)
+  pos3Notes       String? @db.Text
 
   // Total & Final Status
   finalScore  Float? // Rata-rata 33.3% per POS: (pos1Avg + pos2Avg + pos3Avg) / 3

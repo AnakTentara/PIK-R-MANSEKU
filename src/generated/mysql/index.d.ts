@@ -3092,11 +3092,15 @@ export namespace Prisma {
   }
 
   export type SelectionScoreAvgAggregateOutputType = {
-    pos1Trust: number | null
     pos1Comm: number | null
-    pos1Arg: number | null
-    pos1Ethics: number | null
+    pos1Trust: number | null
     pos1Motiv: number | null
+    pos1Komitmen: number | null
+    pos1KerjaSama: number | null
+    pos1Kepemimpinan: number | null
+    pos1Pengetahuan: number | null
+    pos1Etika: number | null
+    pos1Bonus: number | null
     pos1Avg: number | null
     pos2Creativity: number | null
     pos2Mastery: number | null
@@ -3105,20 +3109,27 @@ export namespace Prisma {
     pos2Potency: number | null
     pos2Confidence: number | null
     pos2Avg: number | null
-    pos3Aura: number | null
+    pos3Pemahaman: number | null
     pos3Analysis: number | null
-    pos3PublicSpk: number | null
     pos3Solution: number | null
+    pos3Empati: number | null
+    pos3PublicSpk: number | null
+    pos3Logika: number | null
+    pos3Pengetahuan: number | null
     pos3Avg: number | null
     finalScore: number | null
   }
 
   export type SelectionScoreSumAggregateOutputType = {
-    pos1Trust: number | null
     pos1Comm: number | null
-    pos1Arg: number | null
-    pos1Ethics: number | null
+    pos1Trust: number | null
     pos1Motiv: number | null
+    pos1Komitmen: number | null
+    pos1KerjaSama: number | null
+    pos1Kepemimpinan: number | null
+    pos1Pengetahuan: number | null
+    pos1Etika: number | null
+    pos1Bonus: number | null
     pos1Avg: number | null
     pos2Creativity: number | null
     pos2Mastery: number | null
@@ -3127,10 +3138,13 @@ export namespace Prisma {
     pos2Potency: number | null
     pos2Confidence: number | null
     pos2Avg: number | null
-    pos3Aura: number | null
+    pos3Pemahaman: number | null
     pos3Analysis: number | null
-    pos3PublicSpk: number | null
     pos3Solution: number | null
+    pos3Empati: number | null
+    pos3PublicSpk: number | null
+    pos3Logika: number | null
+    pos3Pengetahuan: number | null
     pos3Avg: number | null
     finalScore: number | null
   }
@@ -3139,11 +3153,15 @@ export namespace Prisma {
     id: string | null
     candidateId: string | null
     pos1Evaluator: string | null
-    pos1Trust: number | null
     pos1Comm: number | null
-    pos1Arg: number | null
-    pos1Ethics: number | null
+    pos1Trust: number | null
     pos1Motiv: number | null
+    pos1Komitmen: number | null
+    pos1KerjaSama: number | null
+    pos1Kepemimpinan: number | null
+    pos1Pengetahuan: number | null
+    pos1Etika: number | null
+    pos1Bonus: number | null
     pos1Avg: number | null
     pos1Completed: boolean | null
     pos1Notes: string | null
@@ -3158,10 +3176,13 @@ export namespace Prisma {
     pos2Completed: boolean | null
     pos2Notes: string | null
     pos3Evaluator: string | null
-    pos3Aura: number | null
+    pos3Pemahaman: number | null
     pos3Analysis: number | null
-    pos3PublicSpk: number | null
     pos3Solution: number | null
+    pos3Empati: number | null
+    pos3PublicSpk: number | null
+    pos3Logika: number | null
+    pos3Pengetahuan: number | null
     pos3Avg: number | null
     pos3Completed: boolean | null
     pos3Notes: string | null
@@ -3175,11 +3196,15 @@ export namespace Prisma {
     id: string | null
     candidateId: string | null
     pos1Evaluator: string | null
-    pos1Trust: number | null
     pos1Comm: number | null
-    pos1Arg: number | null
-    pos1Ethics: number | null
+    pos1Trust: number | null
     pos1Motiv: number | null
+    pos1Komitmen: number | null
+    pos1KerjaSama: number | null
+    pos1Kepemimpinan: number | null
+    pos1Pengetahuan: number | null
+    pos1Etika: number | null
+    pos1Bonus: number | null
     pos1Avg: number | null
     pos1Completed: boolean | null
     pos1Notes: string | null
@@ -3194,10 +3219,13 @@ export namespace Prisma {
     pos2Completed: boolean | null
     pos2Notes: string | null
     pos3Evaluator: string | null
-    pos3Aura: number | null
+    pos3Pemahaman: number | null
     pos3Analysis: number | null
-    pos3PublicSpk: number | null
     pos3Solution: number | null
+    pos3Empati: number | null
+    pos3PublicSpk: number | null
+    pos3Logika: number | null
+    pos3Pengetahuan: number | null
     pos3Avg: number | null
     pos3Completed: boolean | null
     pos3Notes: string | null
@@ -3211,11 +3239,15 @@ export namespace Prisma {
     id: number
     candidateId: number
     pos1Evaluator: number
-    pos1Trust: number
     pos1Comm: number
-    pos1Arg: number
-    pos1Ethics: number
+    pos1Trust: number
     pos1Motiv: number
+    pos1Komitmen: number
+    pos1KerjaSama: number
+    pos1Kepemimpinan: number
+    pos1Pengetahuan: number
+    pos1Etika: number
+    pos1Bonus: number
     pos1Avg: number
     pos1Completed: number
     pos1Notes: number
@@ -3230,10 +3262,13 @@ export namespace Prisma {
     pos2Completed: number
     pos2Notes: number
     pos3Evaluator: number
-    pos3Aura: number
+    pos3Pemahaman: number
     pos3Analysis: number
-    pos3PublicSpk: number
     pos3Solution: number
+    pos3Empati: number
+    pos3PublicSpk: number
+    pos3Logika: number
+    pos3Pengetahuan: number
     pos3Avg: number
     pos3Completed: number
     pos3Notes: number
@@ -3246,11 +3281,15 @@ export namespace Prisma {
 
 
   export type SelectionScoreAvgAggregateInputType = {
-    pos1Trust?: true
     pos1Comm?: true
-    pos1Arg?: true
-    pos1Ethics?: true
+    pos1Trust?: true
     pos1Motiv?: true
+    pos1Komitmen?: true
+    pos1KerjaSama?: true
+    pos1Kepemimpinan?: true
+    pos1Pengetahuan?: true
+    pos1Etika?: true
+    pos1Bonus?: true
     pos1Avg?: true
     pos2Creativity?: true
     pos2Mastery?: true
@@ -3259,20 +3298,27 @@ export namespace Prisma {
     pos2Potency?: true
     pos2Confidence?: true
     pos2Avg?: true
-    pos3Aura?: true
+    pos3Pemahaman?: true
     pos3Analysis?: true
-    pos3PublicSpk?: true
     pos3Solution?: true
+    pos3Empati?: true
+    pos3PublicSpk?: true
+    pos3Logika?: true
+    pos3Pengetahuan?: true
     pos3Avg?: true
     finalScore?: true
   }
 
   export type SelectionScoreSumAggregateInputType = {
-    pos1Trust?: true
     pos1Comm?: true
-    pos1Arg?: true
-    pos1Ethics?: true
+    pos1Trust?: true
     pos1Motiv?: true
+    pos1Komitmen?: true
+    pos1KerjaSama?: true
+    pos1Kepemimpinan?: true
+    pos1Pengetahuan?: true
+    pos1Etika?: true
+    pos1Bonus?: true
     pos1Avg?: true
     pos2Creativity?: true
     pos2Mastery?: true
@@ -3281,10 +3327,13 @@ export namespace Prisma {
     pos2Potency?: true
     pos2Confidence?: true
     pos2Avg?: true
-    pos3Aura?: true
+    pos3Pemahaman?: true
     pos3Analysis?: true
-    pos3PublicSpk?: true
     pos3Solution?: true
+    pos3Empati?: true
+    pos3PublicSpk?: true
+    pos3Logika?: true
+    pos3Pengetahuan?: true
     pos3Avg?: true
     finalScore?: true
   }
@@ -3293,11 +3342,15 @@ export namespace Prisma {
     id?: true
     candidateId?: true
     pos1Evaluator?: true
-    pos1Trust?: true
     pos1Comm?: true
-    pos1Arg?: true
-    pos1Ethics?: true
+    pos1Trust?: true
     pos1Motiv?: true
+    pos1Komitmen?: true
+    pos1KerjaSama?: true
+    pos1Kepemimpinan?: true
+    pos1Pengetahuan?: true
+    pos1Etika?: true
+    pos1Bonus?: true
     pos1Avg?: true
     pos1Completed?: true
     pos1Notes?: true
@@ -3312,10 +3365,13 @@ export namespace Prisma {
     pos2Completed?: true
     pos2Notes?: true
     pos3Evaluator?: true
-    pos3Aura?: true
+    pos3Pemahaman?: true
     pos3Analysis?: true
-    pos3PublicSpk?: true
     pos3Solution?: true
+    pos3Empati?: true
+    pos3PublicSpk?: true
+    pos3Logika?: true
+    pos3Pengetahuan?: true
     pos3Avg?: true
     pos3Completed?: true
     pos3Notes?: true
@@ -3329,11 +3385,15 @@ export namespace Prisma {
     id?: true
     candidateId?: true
     pos1Evaluator?: true
-    pos1Trust?: true
     pos1Comm?: true
-    pos1Arg?: true
-    pos1Ethics?: true
+    pos1Trust?: true
     pos1Motiv?: true
+    pos1Komitmen?: true
+    pos1KerjaSama?: true
+    pos1Kepemimpinan?: true
+    pos1Pengetahuan?: true
+    pos1Etika?: true
+    pos1Bonus?: true
     pos1Avg?: true
     pos1Completed?: true
     pos1Notes?: true
@@ -3348,10 +3408,13 @@ export namespace Prisma {
     pos2Completed?: true
     pos2Notes?: true
     pos3Evaluator?: true
-    pos3Aura?: true
+    pos3Pemahaman?: true
     pos3Analysis?: true
-    pos3PublicSpk?: true
     pos3Solution?: true
+    pos3Empati?: true
+    pos3PublicSpk?: true
+    pos3Logika?: true
+    pos3Pengetahuan?: true
     pos3Avg?: true
     pos3Completed?: true
     pos3Notes?: true
@@ -3365,11 +3428,15 @@ export namespace Prisma {
     id?: true
     candidateId?: true
     pos1Evaluator?: true
-    pos1Trust?: true
     pos1Comm?: true
-    pos1Arg?: true
-    pos1Ethics?: true
+    pos1Trust?: true
     pos1Motiv?: true
+    pos1Komitmen?: true
+    pos1KerjaSama?: true
+    pos1Kepemimpinan?: true
+    pos1Pengetahuan?: true
+    pos1Etika?: true
+    pos1Bonus?: true
     pos1Avg?: true
     pos1Completed?: true
     pos1Notes?: true
@@ -3384,10 +3451,13 @@ export namespace Prisma {
     pos2Completed?: true
     pos2Notes?: true
     pos3Evaluator?: true
-    pos3Aura?: true
+    pos3Pemahaman?: true
     pos3Analysis?: true
-    pos3PublicSpk?: true
     pos3Solution?: true
+    pos3Empati?: true
+    pos3PublicSpk?: true
+    pos3Logika?: true
+    pos3Pengetahuan?: true
     pos3Avg?: true
     pos3Completed?: true
     pos3Notes?: true
@@ -3488,11 +3558,15 @@ export namespace Prisma {
     id: string
     candidateId: string
     pos1Evaluator: string | null
-    pos1Trust: number | null
     pos1Comm: number | null
-    pos1Arg: number | null
-    pos1Ethics: number | null
+    pos1Trust: number | null
     pos1Motiv: number | null
+    pos1Komitmen: number | null
+    pos1KerjaSama: number | null
+    pos1Kepemimpinan: number | null
+    pos1Pengetahuan: number | null
+    pos1Etika: number | null
+    pos1Bonus: number | null
     pos1Avg: number | null
     pos1Completed: boolean
     pos1Notes: string | null
@@ -3507,10 +3581,13 @@ export namespace Prisma {
     pos2Completed: boolean
     pos2Notes: string | null
     pos3Evaluator: string | null
-    pos3Aura: number | null
+    pos3Pemahaman: number | null
     pos3Analysis: number | null
-    pos3PublicSpk: number | null
     pos3Solution: number | null
+    pos3Empati: number | null
+    pos3PublicSpk: number | null
+    pos3Logika: number | null
+    pos3Pengetahuan: number | null
     pos3Avg: number | null
     pos3Completed: boolean
     pos3Notes: string | null
@@ -3543,11 +3620,15 @@ export namespace Prisma {
     id?: boolean
     candidateId?: boolean
     pos1Evaluator?: boolean
-    pos1Trust?: boolean
     pos1Comm?: boolean
-    pos1Arg?: boolean
-    pos1Ethics?: boolean
+    pos1Trust?: boolean
     pos1Motiv?: boolean
+    pos1Komitmen?: boolean
+    pos1KerjaSama?: boolean
+    pos1Kepemimpinan?: boolean
+    pos1Pengetahuan?: boolean
+    pos1Etika?: boolean
+    pos1Bonus?: boolean
     pos1Avg?: boolean
     pos1Completed?: boolean
     pos1Notes?: boolean
@@ -3562,10 +3643,13 @@ export namespace Prisma {
     pos2Completed?: boolean
     pos2Notes?: boolean
     pos3Evaluator?: boolean
-    pos3Aura?: boolean
+    pos3Pemahaman?: boolean
     pos3Analysis?: boolean
-    pos3PublicSpk?: boolean
     pos3Solution?: boolean
+    pos3Empati?: boolean
+    pos3PublicSpk?: boolean
+    pos3Logika?: boolean
+    pos3Pengetahuan?: boolean
     pos3Avg?: boolean
     pos3Completed?: boolean
     pos3Notes?: boolean
@@ -3582,11 +3666,15 @@ export namespace Prisma {
     id?: boolean
     candidateId?: boolean
     pos1Evaluator?: boolean
-    pos1Trust?: boolean
     pos1Comm?: boolean
-    pos1Arg?: boolean
-    pos1Ethics?: boolean
+    pos1Trust?: boolean
     pos1Motiv?: boolean
+    pos1Komitmen?: boolean
+    pos1KerjaSama?: boolean
+    pos1Kepemimpinan?: boolean
+    pos1Pengetahuan?: boolean
+    pos1Etika?: boolean
+    pos1Bonus?: boolean
     pos1Avg?: boolean
     pos1Completed?: boolean
     pos1Notes?: boolean
@@ -3601,10 +3689,13 @@ export namespace Prisma {
     pos2Completed?: boolean
     pos2Notes?: boolean
     pos3Evaluator?: boolean
-    pos3Aura?: boolean
+    pos3Pemahaman?: boolean
     pos3Analysis?: boolean
-    pos3PublicSpk?: boolean
     pos3Solution?: boolean
+    pos3Empati?: boolean
+    pos3PublicSpk?: boolean
+    pos3Logika?: boolean
+    pos3Pengetahuan?: boolean
     pos3Avg?: boolean
     pos3Completed?: boolean
     pos3Notes?: boolean
@@ -3614,7 +3705,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SelectionScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "candidateId" | "pos1Evaluator" | "pos1Trust" | "pos1Comm" | "pos1Arg" | "pos1Ethics" | "pos1Motiv" | "pos1Avg" | "pos1Completed" | "pos1Notes" | "pos2Evaluator" | "pos2Creativity" | "pos2Mastery" | "pos2Pres" | "pos2Orig" | "pos2Potency" | "pos2Confidence" | "pos2Avg" | "pos2Completed" | "pos2Notes" | "pos3Evaluator" | "pos3Aura" | "pos3Analysis" | "pos3PublicSpk" | "pos3Solution" | "pos3Avg" | "pos3Completed" | "pos3Notes" | "finalScore" | "isCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["selectionScore"]>
+  export type SelectionScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "candidateId" | "pos1Evaluator" | "pos1Comm" | "pos1Trust" | "pos1Motiv" | "pos1Komitmen" | "pos1KerjaSama" | "pos1Kepemimpinan" | "pos1Pengetahuan" | "pos1Etika" | "pos1Bonus" | "pos1Avg" | "pos1Completed" | "pos1Notes" | "pos2Evaluator" | "pos2Creativity" | "pos2Mastery" | "pos2Pres" | "pos2Orig" | "pos2Potency" | "pos2Confidence" | "pos2Avg" | "pos2Completed" | "pos2Notes" | "pos3Evaluator" | "pos3Pemahaman" | "pos3Analysis" | "pos3Solution" | "pos3Empati" | "pos3PublicSpk" | "pos3Logika" | "pos3Pengetahuan" | "pos3Avg" | "pos3Completed" | "pos3Notes" | "finalScore" | "isCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["selectionScore"]>
   export type SelectionScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     candidate?: boolean | CandidateDefaultArgs<ExtArgs>
   }
@@ -3628,11 +3719,15 @@ export namespace Prisma {
       id: string
       candidateId: string
       pos1Evaluator: string | null
-      pos1Trust: number | null
       pos1Comm: number | null
-      pos1Arg: number | null
-      pos1Ethics: number | null
+      pos1Trust: number | null
       pos1Motiv: number | null
+      pos1Komitmen: number | null
+      pos1KerjaSama: number | null
+      pos1Kepemimpinan: number | null
+      pos1Pengetahuan: number | null
+      pos1Etika: number | null
+      pos1Bonus: number | null
       pos1Avg: number | null
       pos1Completed: boolean
       pos1Notes: string | null
@@ -3647,10 +3742,13 @@ export namespace Prisma {
       pos2Completed: boolean
       pos2Notes: string | null
       pos3Evaluator: string | null
-      pos3Aura: number | null
+      pos3Pemahaman: number | null
       pos3Analysis: number | null
-      pos3PublicSpk: number | null
       pos3Solution: number | null
+      pos3Empati: number | null
+      pos3PublicSpk: number | null
+      pos3Logika: number | null
+      pos3Pengetahuan: number | null
       pos3Avg: number | null
       pos3Completed: boolean
       pos3Notes: string | null
@@ -4031,11 +4129,15 @@ export namespace Prisma {
     readonly id: FieldRef<"SelectionScore", 'String'>
     readonly candidateId: FieldRef<"SelectionScore", 'String'>
     readonly pos1Evaluator: FieldRef<"SelectionScore", 'String'>
-    readonly pos1Trust: FieldRef<"SelectionScore", 'Float'>
     readonly pos1Comm: FieldRef<"SelectionScore", 'Float'>
-    readonly pos1Arg: FieldRef<"SelectionScore", 'Float'>
-    readonly pos1Ethics: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Trust: FieldRef<"SelectionScore", 'Float'>
     readonly pos1Motiv: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Komitmen: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1KerjaSama: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Kepemimpinan: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Pengetahuan: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Etika: FieldRef<"SelectionScore", 'Float'>
+    readonly pos1Bonus: FieldRef<"SelectionScore", 'Float'>
     readonly pos1Avg: FieldRef<"SelectionScore", 'Float'>
     readonly pos1Completed: FieldRef<"SelectionScore", 'Boolean'>
     readonly pos1Notes: FieldRef<"SelectionScore", 'String'>
@@ -4050,10 +4152,13 @@ export namespace Prisma {
     readonly pos2Completed: FieldRef<"SelectionScore", 'Boolean'>
     readonly pos2Notes: FieldRef<"SelectionScore", 'String'>
     readonly pos3Evaluator: FieldRef<"SelectionScore", 'String'>
-    readonly pos3Aura: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3Pemahaman: FieldRef<"SelectionScore", 'Float'>
     readonly pos3Analysis: FieldRef<"SelectionScore", 'Float'>
-    readonly pos3PublicSpk: FieldRef<"SelectionScore", 'Float'>
     readonly pos3Solution: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3Empati: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3PublicSpk: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3Logika: FieldRef<"SelectionScore", 'Float'>
+    readonly pos3Pengetahuan: FieldRef<"SelectionScore", 'Float'>
     readonly pos3Avg: FieldRef<"SelectionScore", 'Float'>
     readonly pos3Completed: FieldRef<"SelectionScore", 'Boolean'>
     readonly pos3Notes: FieldRef<"SelectionScore", 'String'>
@@ -14496,11 +14601,15 @@ export namespace Prisma {
     id: 'id',
     candidateId: 'candidateId',
     pos1Evaluator: 'pos1Evaluator',
-    pos1Trust: 'pos1Trust',
     pos1Comm: 'pos1Comm',
-    pos1Arg: 'pos1Arg',
-    pos1Ethics: 'pos1Ethics',
+    pos1Trust: 'pos1Trust',
     pos1Motiv: 'pos1Motiv',
+    pos1Komitmen: 'pos1Komitmen',
+    pos1KerjaSama: 'pos1KerjaSama',
+    pos1Kepemimpinan: 'pos1Kepemimpinan',
+    pos1Pengetahuan: 'pos1Pengetahuan',
+    pos1Etika: 'pos1Etika',
+    pos1Bonus: 'pos1Bonus',
     pos1Avg: 'pos1Avg',
     pos1Completed: 'pos1Completed',
     pos1Notes: 'pos1Notes',
@@ -14515,10 +14624,13 @@ export namespace Prisma {
     pos2Completed: 'pos2Completed',
     pos2Notes: 'pos2Notes',
     pos3Evaluator: 'pos3Evaluator',
-    pos3Aura: 'pos3Aura',
+    pos3Pemahaman: 'pos3Pemahaman',
     pos3Analysis: 'pos3Analysis',
-    pos3PublicSpk: 'pos3PublicSpk',
     pos3Solution: 'pos3Solution',
+    pos3Empati: 'pos3Empati',
+    pos3PublicSpk: 'pos3PublicSpk',
+    pos3Logika: 'pos3Logika',
+    pos3Pengetahuan: 'pos3Pengetahuan',
     pos3Avg: 'pos3Avg',
     pos3Completed: 'pos3Completed',
     pos3Notes: 'pos3Notes',
@@ -15041,11 +15153,15 @@ export namespace Prisma {
     id?: StringFilter<"SelectionScore"> | string
     candidateId?: StringFilter<"SelectionScore"> | string
     pos1Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
-    pos1Trust?: FloatNullableFilter<"SelectionScore"> | number | null
     pos1Comm?: FloatNullableFilter<"SelectionScore"> | number | null
-    pos1Arg?: FloatNullableFilter<"SelectionScore"> | number | null
-    pos1Ethics?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Trust?: FloatNullableFilter<"SelectionScore"> | number | null
     pos1Motiv?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Komitmen?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1KerjaSama?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Kepemimpinan?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Pengetahuan?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Etika?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Bonus?: FloatNullableFilter<"SelectionScore"> | number | null
     pos1Avg?: FloatNullableFilter<"SelectionScore"> | number | null
     pos1Completed?: BoolFilter<"SelectionScore"> | boolean
     pos1Notes?: StringNullableFilter<"SelectionScore"> | string | null
@@ -15060,10 +15176,13 @@ export namespace Prisma {
     pos2Completed?: BoolFilter<"SelectionScore"> | boolean
     pos2Notes?: StringNullableFilter<"SelectionScore"> | string | null
     pos3Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
-    pos3Aura?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Pemahaman?: FloatNullableFilter<"SelectionScore"> | number | null
     pos3Analysis?: FloatNullableFilter<"SelectionScore"> | number | null
-    pos3PublicSpk?: FloatNullableFilter<"SelectionScore"> | number | null
     pos3Solution?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Empati?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3PublicSpk?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Logika?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Pengetahuan?: FloatNullableFilter<"SelectionScore"> | number | null
     pos3Avg?: FloatNullableFilter<"SelectionScore"> | number | null
     pos3Completed?: BoolFilter<"SelectionScore"> | boolean
     pos3Notes?: StringNullableFilter<"SelectionScore"> | string | null
@@ -15078,11 +15197,15 @@ export namespace Prisma {
     id?: SortOrder
     candidateId?: SortOrder
     pos1Evaluator?: SortOrderInput | SortOrder
-    pos1Trust?: SortOrderInput | SortOrder
     pos1Comm?: SortOrderInput | SortOrder
-    pos1Arg?: SortOrderInput | SortOrder
-    pos1Ethics?: SortOrderInput | SortOrder
+    pos1Trust?: SortOrderInput | SortOrder
     pos1Motiv?: SortOrderInput | SortOrder
+    pos1Komitmen?: SortOrderInput | SortOrder
+    pos1KerjaSama?: SortOrderInput | SortOrder
+    pos1Kepemimpinan?: SortOrderInput | SortOrder
+    pos1Pengetahuan?: SortOrderInput | SortOrder
+    pos1Etika?: SortOrderInput | SortOrder
+    pos1Bonus?: SortOrderInput | SortOrder
     pos1Avg?: SortOrderInput | SortOrder
     pos1Completed?: SortOrder
     pos1Notes?: SortOrderInput | SortOrder
@@ -15097,10 +15220,13 @@ export namespace Prisma {
     pos2Completed?: SortOrder
     pos2Notes?: SortOrderInput | SortOrder
     pos3Evaluator?: SortOrderInput | SortOrder
-    pos3Aura?: SortOrderInput | SortOrder
+    pos3Pemahaman?: SortOrderInput | SortOrder
     pos3Analysis?: SortOrderInput | SortOrder
-    pos3PublicSpk?: SortOrderInput | SortOrder
     pos3Solution?: SortOrderInput | SortOrder
+    pos3Empati?: SortOrderInput | SortOrder
+    pos3PublicSpk?: SortOrderInput | SortOrder
+    pos3Logika?: SortOrderInput | SortOrder
+    pos3Pengetahuan?: SortOrderInput | SortOrder
     pos3Avg?: SortOrderInput | SortOrder
     pos3Completed?: SortOrder
     pos3Notes?: SortOrderInput | SortOrder
@@ -15119,11 +15245,15 @@ export namespace Prisma {
     OR?: SelectionScoreWhereInput[]
     NOT?: SelectionScoreWhereInput | SelectionScoreWhereInput[]
     pos1Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
-    pos1Trust?: FloatNullableFilter<"SelectionScore"> | number | null
     pos1Comm?: FloatNullableFilter<"SelectionScore"> | number | null
-    pos1Arg?: FloatNullableFilter<"SelectionScore"> | number | null
-    pos1Ethics?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Trust?: FloatNullableFilter<"SelectionScore"> | number | null
     pos1Motiv?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Komitmen?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1KerjaSama?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Kepemimpinan?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Pengetahuan?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Etika?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos1Bonus?: FloatNullableFilter<"SelectionScore"> | number | null
     pos1Avg?: FloatNullableFilter<"SelectionScore"> | number | null
     pos1Completed?: BoolFilter<"SelectionScore"> | boolean
     pos1Notes?: StringNullableFilter<"SelectionScore"> | string | null
@@ -15138,10 +15268,13 @@ export namespace Prisma {
     pos2Completed?: BoolFilter<"SelectionScore"> | boolean
     pos2Notes?: StringNullableFilter<"SelectionScore"> | string | null
     pos3Evaluator?: StringNullableFilter<"SelectionScore"> | string | null
-    pos3Aura?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Pemahaman?: FloatNullableFilter<"SelectionScore"> | number | null
     pos3Analysis?: FloatNullableFilter<"SelectionScore"> | number | null
-    pos3PublicSpk?: FloatNullableFilter<"SelectionScore"> | number | null
     pos3Solution?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Empati?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3PublicSpk?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Logika?: FloatNullableFilter<"SelectionScore"> | number | null
+    pos3Pengetahuan?: FloatNullableFilter<"SelectionScore"> | number | null
     pos3Avg?: FloatNullableFilter<"SelectionScore"> | number | null
     pos3Completed?: BoolFilter<"SelectionScore"> | boolean
     pos3Notes?: StringNullableFilter<"SelectionScore"> | string | null
@@ -15156,11 +15289,15 @@ export namespace Prisma {
     id?: SortOrder
     candidateId?: SortOrder
     pos1Evaluator?: SortOrderInput | SortOrder
-    pos1Trust?: SortOrderInput | SortOrder
     pos1Comm?: SortOrderInput | SortOrder
-    pos1Arg?: SortOrderInput | SortOrder
-    pos1Ethics?: SortOrderInput | SortOrder
+    pos1Trust?: SortOrderInput | SortOrder
     pos1Motiv?: SortOrderInput | SortOrder
+    pos1Komitmen?: SortOrderInput | SortOrder
+    pos1KerjaSama?: SortOrderInput | SortOrder
+    pos1Kepemimpinan?: SortOrderInput | SortOrder
+    pos1Pengetahuan?: SortOrderInput | SortOrder
+    pos1Etika?: SortOrderInput | SortOrder
+    pos1Bonus?: SortOrderInput | SortOrder
     pos1Avg?: SortOrderInput | SortOrder
     pos1Completed?: SortOrder
     pos1Notes?: SortOrderInput | SortOrder
@@ -15175,10 +15312,13 @@ export namespace Prisma {
     pos2Completed?: SortOrder
     pos2Notes?: SortOrderInput | SortOrder
     pos3Evaluator?: SortOrderInput | SortOrder
-    pos3Aura?: SortOrderInput | SortOrder
+    pos3Pemahaman?: SortOrderInput | SortOrder
     pos3Analysis?: SortOrderInput | SortOrder
-    pos3PublicSpk?: SortOrderInput | SortOrder
     pos3Solution?: SortOrderInput | SortOrder
+    pos3Empati?: SortOrderInput | SortOrder
+    pos3PublicSpk?: SortOrderInput | SortOrder
+    pos3Logika?: SortOrderInput | SortOrder
+    pos3Pengetahuan?: SortOrderInput | SortOrder
     pos3Avg?: SortOrderInput | SortOrder
     pos3Completed?: SortOrder
     pos3Notes?: SortOrderInput | SortOrder
@@ -15200,11 +15340,15 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"SelectionScore"> | string
     candidateId?: StringWithAggregatesFilter<"SelectionScore"> | string
     pos1Evaluator?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
-    pos1Trust?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
     pos1Comm?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
-    pos1Arg?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
-    pos1Ethics?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Trust?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
     pos1Motiv?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Komitmen?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1KerjaSama?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Kepemimpinan?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Pengetahuan?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Etika?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos1Bonus?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
     pos1Avg?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
     pos1Completed?: BoolWithAggregatesFilter<"SelectionScore"> | boolean
     pos1Notes?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
@@ -15219,10 +15363,13 @@ export namespace Prisma {
     pos2Completed?: BoolWithAggregatesFilter<"SelectionScore"> | boolean
     pos2Notes?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
     pos3Evaluator?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
-    pos3Aura?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3Pemahaman?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
     pos3Analysis?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
-    pos3PublicSpk?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
     pos3Solution?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3Empati?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3PublicSpk?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3Logika?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
+    pos3Pengetahuan?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
     pos3Avg?: FloatNullableWithAggregatesFilter<"SelectionScore"> | number | null
     pos3Completed?: BoolWithAggregatesFilter<"SelectionScore"> | boolean
     pos3Notes?: StringNullableWithAggregatesFilter<"SelectionScore"> | string | null
@@ -16164,11 +16311,15 @@ export namespace Prisma {
   export type SelectionScoreCreateInput = {
     id?: string
     pos1Evaluator?: string | null
-    pos1Trust?: number | null
     pos1Comm?: number | null
-    pos1Arg?: number | null
-    pos1Ethics?: number | null
+    pos1Trust?: number | null
     pos1Motiv?: number | null
+    pos1Komitmen?: number | null
+    pos1KerjaSama?: number | null
+    pos1Kepemimpinan?: number | null
+    pos1Pengetahuan?: number | null
+    pos1Etika?: number | null
+    pos1Bonus?: number | null
     pos1Avg?: number | null
     pos1Completed?: boolean
     pos1Notes?: string | null
@@ -16183,10 +16334,13 @@ export namespace Prisma {
     pos2Completed?: boolean
     pos2Notes?: string | null
     pos3Evaluator?: string | null
-    pos3Aura?: number | null
+    pos3Pemahaman?: number | null
     pos3Analysis?: number | null
-    pos3PublicSpk?: number | null
     pos3Solution?: number | null
+    pos3Empati?: number | null
+    pos3PublicSpk?: number | null
+    pos3Logika?: number | null
+    pos3Pengetahuan?: number | null
     pos3Avg?: number | null
     pos3Completed?: boolean
     pos3Notes?: string | null
@@ -16201,11 +16355,15 @@ export namespace Prisma {
     id?: string
     candidateId: string
     pos1Evaluator?: string | null
-    pos1Trust?: number | null
     pos1Comm?: number | null
-    pos1Arg?: number | null
-    pos1Ethics?: number | null
+    pos1Trust?: number | null
     pos1Motiv?: number | null
+    pos1Komitmen?: number | null
+    pos1KerjaSama?: number | null
+    pos1Kepemimpinan?: number | null
+    pos1Pengetahuan?: number | null
+    pos1Etika?: number | null
+    pos1Bonus?: number | null
     pos1Avg?: number | null
     pos1Completed?: boolean
     pos1Notes?: string | null
@@ -16220,10 +16378,13 @@ export namespace Prisma {
     pos2Completed?: boolean
     pos2Notes?: string | null
     pos3Evaluator?: string | null
-    pos3Aura?: number | null
+    pos3Pemahaman?: number | null
     pos3Analysis?: number | null
-    pos3PublicSpk?: number | null
     pos3Solution?: number | null
+    pos3Empati?: number | null
+    pos3PublicSpk?: number | null
+    pos3Logika?: number | null
+    pos3Pengetahuan?: number | null
     pos3Avg?: number | null
     pos3Completed?: boolean
     pos3Notes?: string | null
@@ -16236,11 +16397,15 @@ export namespace Prisma {
   export type SelectionScoreUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Komitmen?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1KerjaSama?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Kepemimpinan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Etika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Bonus?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Completed?: BoolFieldUpdateOperationsInput | boolean
     pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16255,10 +16420,13 @@ export namespace Prisma {
     pos2Completed?: BoolFieldUpdateOperationsInput | boolean
     pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
     pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pemahaman?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Empati?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Logika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Completed?: BoolFieldUpdateOperationsInput | boolean
     pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16273,11 +16441,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     candidateId?: StringFieldUpdateOperationsInput | string
     pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Komitmen?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1KerjaSama?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Kepemimpinan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Etika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Bonus?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Completed?: BoolFieldUpdateOperationsInput | boolean
     pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16292,10 +16464,13 @@ export namespace Prisma {
     pos2Completed?: BoolFieldUpdateOperationsInput | boolean
     pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
     pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pemahaman?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Empati?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Logika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Completed?: BoolFieldUpdateOperationsInput | boolean
     pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16309,11 +16484,15 @@ export namespace Prisma {
     id?: string
     candidateId: string
     pos1Evaluator?: string | null
-    pos1Trust?: number | null
     pos1Comm?: number | null
-    pos1Arg?: number | null
-    pos1Ethics?: number | null
+    pos1Trust?: number | null
     pos1Motiv?: number | null
+    pos1Komitmen?: number | null
+    pos1KerjaSama?: number | null
+    pos1Kepemimpinan?: number | null
+    pos1Pengetahuan?: number | null
+    pos1Etika?: number | null
+    pos1Bonus?: number | null
     pos1Avg?: number | null
     pos1Completed?: boolean
     pos1Notes?: string | null
@@ -16328,10 +16507,13 @@ export namespace Prisma {
     pos2Completed?: boolean
     pos2Notes?: string | null
     pos3Evaluator?: string | null
-    pos3Aura?: number | null
+    pos3Pemahaman?: number | null
     pos3Analysis?: number | null
-    pos3PublicSpk?: number | null
     pos3Solution?: number | null
+    pos3Empati?: number | null
+    pos3PublicSpk?: number | null
+    pos3Logika?: number | null
+    pos3Pengetahuan?: number | null
     pos3Avg?: number | null
     pos3Completed?: boolean
     pos3Notes?: string | null
@@ -16344,11 +16526,15 @@ export namespace Prisma {
   export type SelectionScoreUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Komitmen?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1KerjaSama?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Kepemimpinan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Etika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Bonus?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Completed?: BoolFieldUpdateOperationsInput | boolean
     pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16363,10 +16549,13 @@ export namespace Prisma {
     pos2Completed?: BoolFieldUpdateOperationsInput | boolean
     pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
     pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pemahaman?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Empati?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Logika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Completed?: BoolFieldUpdateOperationsInput | boolean
     pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16380,11 +16569,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     candidateId?: StringFieldUpdateOperationsInput | string
     pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Komitmen?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1KerjaSama?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Kepemimpinan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Etika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Bonus?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Completed?: BoolFieldUpdateOperationsInput | boolean
     pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16399,10 +16592,13 @@ export namespace Prisma {
     pos2Completed?: BoolFieldUpdateOperationsInput | boolean
     pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
     pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pemahaman?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Empati?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Logika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Completed?: BoolFieldUpdateOperationsInput | boolean
     pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17490,11 +17686,15 @@ export namespace Prisma {
     id?: SortOrder
     candidateId?: SortOrder
     pos1Evaluator?: SortOrder
-    pos1Trust?: SortOrder
     pos1Comm?: SortOrder
-    pos1Arg?: SortOrder
-    pos1Ethics?: SortOrder
+    pos1Trust?: SortOrder
     pos1Motiv?: SortOrder
+    pos1Komitmen?: SortOrder
+    pos1KerjaSama?: SortOrder
+    pos1Kepemimpinan?: SortOrder
+    pos1Pengetahuan?: SortOrder
+    pos1Etika?: SortOrder
+    pos1Bonus?: SortOrder
     pos1Avg?: SortOrder
     pos1Completed?: SortOrder
     pos1Notes?: SortOrder
@@ -17509,10 +17709,13 @@ export namespace Prisma {
     pos2Completed?: SortOrder
     pos2Notes?: SortOrder
     pos3Evaluator?: SortOrder
-    pos3Aura?: SortOrder
+    pos3Pemahaman?: SortOrder
     pos3Analysis?: SortOrder
-    pos3PublicSpk?: SortOrder
     pos3Solution?: SortOrder
+    pos3Empati?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Logika?: SortOrder
+    pos3Pengetahuan?: SortOrder
     pos3Avg?: SortOrder
     pos3Completed?: SortOrder
     pos3Notes?: SortOrder
@@ -17523,11 +17726,15 @@ export namespace Prisma {
   }
 
   export type SelectionScoreAvgOrderByAggregateInput = {
-    pos1Trust?: SortOrder
     pos1Comm?: SortOrder
-    pos1Arg?: SortOrder
-    pos1Ethics?: SortOrder
+    pos1Trust?: SortOrder
     pos1Motiv?: SortOrder
+    pos1Komitmen?: SortOrder
+    pos1KerjaSama?: SortOrder
+    pos1Kepemimpinan?: SortOrder
+    pos1Pengetahuan?: SortOrder
+    pos1Etika?: SortOrder
+    pos1Bonus?: SortOrder
     pos1Avg?: SortOrder
     pos2Creativity?: SortOrder
     pos2Mastery?: SortOrder
@@ -17536,10 +17743,13 @@ export namespace Prisma {
     pos2Potency?: SortOrder
     pos2Confidence?: SortOrder
     pos2Avg?: SortOrder
-    pos3Aura?: SortOrder
+    pos3Pemahaman?: SortOrder
     pos3Analysis?: SortOrder
-    pos3PublicSpk?: SortOrder
     pos3Solution?: SortOrder
+    pos3Empati?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Logika?: SortOrder
+    pos3Pengetahuan?: SortOrder
     pos3Avg?: SortOrder
     finalScore?: SortOrder
   }
@@ -17548,11 +17758,15 @@ export namespace Prisma {
     id?: SortOrder
     candidateId?: SortOrder
     pos1Evaluator?: SortOrder
-    pos1Trust?: SortOrder
     pos1Comm?: SortOrder
-    pos1Arg?: SortOrder
-    pos1Ethics?: SortOrder
+    pos1Trust?: SortOrder
     pos1Motiv?: SortOrder
+    pos1Komitmen?: SortOrder
+    pos1KerjaSama?: SortOrder
+    pos1Kepemimpinan?: SortOrder
+    pos1Pengetahuan?: SortOrder
+    pos1Etika?: SortOrder
+    pos1Bonus?: SortOrder
     pos1Avg?: SortOrder
     pos1Completed?: SortOrder
     pos1Notes?: SortOrder
@@ -17567,10 +17781,13 @@ export namespace Prisma {
     pos2Completed?: SortOrder
     pos2Notes?: SortOrder
     pos3Evaluator?: SortOrder
-    pos3Aura?: SortOrder
+    pos3Pemahaman?: SortOrder
     pos3Analysis?: SortOrder
-    pos3PublicSpk?: SortOrder
     pos3Solution?: SortOrder
+    pos3Empati?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Logika?: SortOrder
+    pos3Pengetahuan?: SortOrder
     pos3Avg?: SortOrder
     pos3Completed?: SortOrder
     pos3Notes?: SortOrder
@@ -17584,11 +17801,15 @@ export namespace Prisma {
     id?: SortOrder
     candidateId?: SortOrder
     pos1Evaluator?: SortOrder
-    pos1Trust?: SortOrder
     pos1Comm?: SortOrder
-    pos1Arg?: SortOrder
-    pos1Ethics?: SortOrder
+    pos1Trust?: SortOrder
     pos1Motiv?: SortOrder
+    pos1Komitmen?: SortOrder
+    pos1KerjaSama?: SortOrder
+    pos1Kepemimpinan?: SortOrder
+    pos1Pengetahuan?: SortOrder
+    pos1Etika?: SortOrder
+    pos1Bonus?: SortOrder
     pos1Avg?: SortOrder
     pos1Completed?: SortOrder
     pos1Notes?: SortOrder
@@ -17603,10 +17824,13 @@ export namespace Prisma {
     pos2Completed?: SortOrder
     pos2Notes?: SortOrder
     pos3Evaluator?: SortOrder
-    pos3Aura?: SortOrder
+    pos3Pemahaman?: SortOrder
     pos3Analysis?: SortOrder
-    pos3PublicSpk?: SortOrder
     pos3Solution?: SortOrder
+    pos3Empati?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Logika?: SortOrder
+    pos3Pengetahuan?: SortOrder
     pos3Avg?: SortOrder
     pos3Completed?: SortOrder
     pos3Notes?: SortOrder
@@ -17617,11 +17841,15 @@ export namespace Prisma {
   }
 
   export type SelectionScoreSumOrderByAggregateInput = {
-    pos1Trust?: SortOrder
     pos1Comm?: SortOrder
-    pos1Arg?: SortOrder
-    pos1Ethics?: SortOrder
+    pos1Trust?: SortOrder
     pos1Motiv?: SortOrder
+    pos1Komitmen?: SortOrder
+    pos1KerjaSama?: SortOrder
+    pos1Kepemimpinan?: SortOrder
+    pos1Pengetahuan?: SortOrder
+    pos1Etika?: SortOrder
+    pos1Bonus?: SortOrder
     pos1Avg?: SortOrder
     pos2Creativity?: SortOrder
     pos2Mastery?: SortOrder
@@ -17630,10 +17858,13 @@ export namespace Prisma {
     pos2Potency?: SortOrder
     pos2Confidence?: SortOrder
     pos2Avg?: SortOrder
-    pos3Aura?: SortOrder
+    pos3Pemahaman?: SortOrder
     pos3Analysis?: SortOrder
-    pos3PublicSpk?: SortOrder
     pos3Solution?: SortOrder
+    pos3Empati?: SortOrder
+    pos3PublicSpk?: SortOrder
+    pos3Logika?: SortOrder
+    pos3Pengetahuan?: SortOrder
     pos3Avg?: SortOrder
     finalScore?: SortOrder
   }
@@ -19090,11 +19321,15 @@ export namespace Prisma {
   export type SelectionScoreCreateWithoutCandidateInput = {
     id?: string
     pos1Evaluator?: string | null
-    pos1Trust?: number | null
     pos1Comm?: number | null
-    pos1Arg?: number | null
-    pos1Ethics?: number | null
+    pos1Trust?: number | null
     pos1Motiv?: number | null
+    pos1Komitmen?: number | null
+    pos1KerjaSama?: number | null
+    pos1Kepemimpinan?: number | null
+    pos1Pengetahuan?: number | null
+    pos1Etika?: number | null
+    pos1Bonus?: number | null
     pos1Avg?: number | null
     pos1Completed?: boolean
     pos1Notes?: string | null
@@ -19109,10 +19344,13 @@ export namespace Prisma {
     pos2Completed?: boolean
     pos2Notes?: string | null
     pos3Evaluator?: string | null
-    pos3Aura?: number | null
+    pos3Pemahaman?: number | null
     pos3Analysis?: number | null
-    pos3PublicSpk?: number | null
     pos3Solution?: number | null
+    pos3Empati?: number | null
+    pos3PublicSpk?: number | null
+    pos3Logika?: number | null
+    pos3Pengetahuan?: number | null
     pos3Avg?: number | null
     pos3Completed?: boolean
     pos3Notes?: string | null
@@ -19125,11 +19363,15 @@ export namespace Prisma {
   export type SelectionScoreUncheckedCreateWithoutCandidateInput = {
     id?: string
     pos1Evaluator?: string | null
-    pos1Trust?: number | null
     pos1Comm?: number | null
-    pos1Arg?: number | null
-    pos1Ethics?: number | null
+    pos1Trust?: number | null
     pos1Motiv?: number | null
+    pos1Komitmen?: number | null
+    pos1KerjaSama?: number | null
+    pos1Kepemimpinan?: number | null
+    pos1Pengetahuan?: number | null
+    pos1Etika?: number | null
+    pos1Bonus?: number | null
     pos1Avg?: number | null
     pos1Completed?: boolean
     pos1Notes?: string | null
@@ -19144,10 +19386,13 @@ export namespace Prisma {
     pos2Completed?: boolean
     pos2Notes?: string | null
     pos3Evaluator?: string | null
-    pos3Aura?: number | null
+    pos3Pemahaman?: number | null
     pos3Analysis?: number | null
-    pos3PublicSpk?: number | null
     pos3Solution?: number | null
+    pos3Empati?: number | null
+    pos3PublicSpk?: number | null
+    pos3Logika?: number | null
+    pos3Pengetahuan?: number | null
     pos3Avg?: number | null
     pos3Completed?: boolean
     pos3Notes?: string | null
@@ -19176,11 +19421,15 @@ export namespace Prisma {
   export type SelectionScoreUpdateWithoutCandidateInput = {
     id?: StringFieldUpdateOperationsInput | string
     pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Komitmen?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1KerjaSama?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Kepemimpinan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Etika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Bonus?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Completed?: BoolFieldUpdateOperationsInput | boolean
     pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19195,10 +19444,13 @@ export namespace Prisma {
     pos2Completed?: BoolFieldUpdateOperationsInput | boolean
     pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
     pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pemahaman?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Empati?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Logika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Completed?: BoolFieldUpdateOperationsInput | boolean
     pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19211,11 +19463,15 @@ export namespace Prisma {
   export type SelectionScoreUncheckedUpdateWithoutCandidateInput = {
     id?: StringFieldUpdateOperationsInput | string
     pos1Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Comm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Arg?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos1Ethics?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Trust?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Motiv?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Komitmen?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1KerjaSama?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Kepemimpinan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Etika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos1Bonus?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos1Completed?: BoolFieldUpdateOperationsInput | boolean
     pos1Notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19230,10 +19486,13 @@ export namespace Prisma {
     pos2Completed?: BoolFieldUpdateOperationsInput | boolean
     pos2Notes?: NullableStringFieldUpdateOperationsInput | string | null
     pos3Evaluator?: NullableStringFieldUpdateOperationsInput | string | null
-    pos3Aura?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pemahaman?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Analysis?: NullableFloatFieldUpdateOperationsInput | number | null
-    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Solution?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Empati?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3PublicSpk?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Logika?: NullableFloatFieldUpdateOperationsInput | number | null
+    pos3Pengetahuan?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Avg?: NullableFloatFieldUpdateOperationsInput | number | null
     pos3Completed?: BoolFieldUpdateOperationsInput | boolean
     pos3Notes?: NullableStringFieldUpdateOperationsInput | string | null

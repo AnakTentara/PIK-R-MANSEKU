@@ -1659,11 +1659,15 @@ export async function getSelectionScores(req, res) {
         
         // POS 1
         pos1Evaluator: s.pos1Evaluator || '',
-        pos1Trust: s.pos1Trust ?? null,
         pos1Comm: s.pos1Comm ?? null,
-        pos1Arg: s.pos1Arg ?? null,
-        pos1Ethics: s.pos1Ethics ?? null,
+        pos1Trust: s.pos1Trust ?? null,
         pos1Motiv: s.pos1Motiv ?? null,
+        pos1Komitmen: s.pos1Komitmen ?? null,
+        pos1KerjaSama: s.pos1KerjaSama ?? null,
+        pos1Kepemimpinan: s.pos1Kepemimpinan ?? null,
+        pos1Pengetahuan: s.pos1Pengetahuan ?? null,
+        pos1Etika: s.pos1Etika ?? null,
+        pos1Bonus: s.pos1Bonus ?? null,
         pos1Avg: s.pos1Avg ?? null,
         pos1Completed: s.pos1Completed || false,
         pos1Notes: s.pos1Notes || '',
@@ -1682,10 +1686,13 @@ export async function getSelectionScores(req, res) {
 
         // POS 3
         pos3Evaluator: s.pos3Evaluator || '',
-        pos3Aura: s.pos3Aura ?? null,
+        pos3Pemahaman: s.pos3Pemahaman ?? null,
         pos3Analysis: s.pos3Analysis ?? null,
-        pos3PublicSpk: s.pos3PublicSpk ?? null,
         pos3Solution: s.pos3Solution ?? null,
+        pos3Empati: s.pos3Empati ?? null,
+        pos3PublicSpk: s.pos3PublicSpk ?? null,
+        pos3Logika: s.pos3Logika ?? null,
+        pos3Pengetahuan: s.pos3Pengetahuan ?? null,
         pos3Avg: s.pos3Avg ?? null,
         pos3Completed: s.pos3Completed || false,
         pos3Notes: s.pos3Notes || '',
@@ -1727,12 +1734,16 @@ export async function updateSelectionScore(req, res) {
     // Existing score if any
     const existing = await prisma.selectionScore.findUnique({ where: { candidateId } });
 
-    const p1Trust = parseNum(body.pos1Trust) ?? existing?.pos1Trust ?? null;
     const p1Comm = parseNum(body.pos1Comm) ?? existing?.pos1Comm ?? null;
-    const p1Arg = parseNum(body.pos1Arg) ?? existing?.pos1Arg ?? null;
-    const p1Ethics = parseNum(body.pos1Ethics) ?? existing?.pos1Ethics ?? null;
+    const p1Trust = parseNum(body.pos1Trust) ?? existing?.pos1Trust ?? null;
     const p1Motiv = parseNum(body.pos1Motiv) ?? existing?.pos1Motiv ?? null;
-    const pos1Avg = calcAvg([p1Trust, p1Comm, p1Arg, p1Ethics, p1Motiv]);
+    const p1Komitmen = parseNum(body.pos1Komitmen) ?? existing?.pos1Komitmen ?? null;
+    const p1KerjaSama = parseNum(body.pos1KerjaSama) ?? existing?.pos1KerjaSama ?? null;
+    const p1Kepemimpinan = parseNum(body.pos1Kepemimpinan) ?? existing?.pos1Kepemimpinan ?? null;
+    const p1Pengetahuan = parseNum(body.pos1Pengetahuan) ?? existing?.pos1Pengetahuan ?? null;
+    const p1Etika = parseNum(body.pos1Etika) ?? existing?.pos1Etika ?? null;
+    const p1Bonus = parseNum(body.pos1Bonus) ?? existing?.pos1Bonus ?? null;
+    const pos1Avg = calcAvg([p1Comm, p1Trust, p1Motiv, p1Komitmen, p1KerjaSama, p1Kepemimpinan, p1Pengetahuan, p1Etika, p1Bonus]);
 
     const p2Creat = parseNum(body.pos2Creativity) ?? existing?.pos2Creativity ?? null;
     const p2Mast = parseNum(body.pos2Mastery) ?? existing?.pos2Mastery ?? null;
@@ -1742,11 +1753,14 @@ export async function updateSelectionScore(req, res) {
     const p2Conf = parseNum(body.pos2Confidence) ?? existing?.pos2Confidence ?? null;
     const pos2Avg = calcAvg([p2Creat, p2Mast, p2Pres, p2Orig, p2Pot, p2Conf]);
 
-    const p3Aura = parseNum(body.pos3Aura) ?? existing?.pos3Aura ?? null;
+    const p3Pemahaman = parseNum(body.pos3Pemahaman) ?? existing?.pos3Pemahaman ?? null;
     const p3Anal = parseNum(body.pos3Analysis) ?? existing?.pos3Analysis ?? null;
-    const p3Pub = parseNum(body.pos3PublicSpk) ?? existing?.pos3PublicSpk ?? null;
     const p3Sol = parseNum(body.pos3Solution) ?? existing?.pos3Solution ?? null;
-    const pos3Avg = calcAvg([p3Aura, p3Anal, p3Pub, p3Sol]);
+    const p3Empati = parseNum(body.pos3Empati) ?? existing?.pos3Empati ?? null;
+    const p3Pub = parseNum(body.pos3PublicSpk) ?? existing?.pos3PublicSpk ?? null;
+    const p3Logika = parseNum(body.pos3Logika) ?? existing?.pos3Logika ?? null;
+    const p3Pengetahuan = parseNum(body.pos3Pengetahuan) ?? existing?.pos3Pengetahuan ?? null;
+    const pos3Avg = calcAvg([p3Pemahaman, p3Anal, p3Sol, p3Empati, p3Pub, p3Logika, p3Pengetahuan]);
 
     // Rata-rata 33.3% per POS
     const validAvgs = [pos1Avg, pos2Avg, pos3Avg].filter(v => v !== null);
@@ -1754,11 +1768,15 @@ export async function updateSelectionScore(req, res) {
 
     const dataToSave = {
       pos1Evaluator: body.pos1Evaluator ?? existing?.pos1Evaluator ?? null,
-      pos1Trust: p1Trust,
       pos1Comm: p1Comm,
-      pos1Arg: p1Arg,
-      pos1Ethics: p1Ethics,
+      pos1Trust: p1Trust,
       pos1Motiv: p1Motiv,
+      pos1Komitmen: p1Komitmen,
+      pos1KerjaSama: p1KerjaSama,
+      pos1Kepemimpinan: p1Kepemimpinan,
+      pos1Pengetahuan: p1Pengetahuan,
+      pos1Etika: p1Etika,
+      pos1Bonus: p1Bonus,
       pos1Avg,
       pos1Completed: body.pos1Completed !== undefined ? Boolean(body.pos1Completed) : (existing?.pos1Completed || false),
       pos1Notes: body.pos1Notes ?? existing?.pos1Notes ?? null,
@@ -1775,10 +1793,13 @@ export async function updateSelectionScore(req, res) {
       pos2Notes: body.pos2Notes ?? existing?.pos2Notes ?? null,
 
       pos3Evaluator: body.pos3Evaluator ?? existing?.pos3Evaluator ?? null,
-      pos3Aura: p3Aura,
+      pos3Pemahaman: p3Pemahaman,
       pos3Analysis: p3Anal,
-      pos3PublicSpk: p3Pub,
       pos3Solution: p3Sol,
+      pos3Empati: p3Empati,
+      pos3PublicSpk: p3Pub,
+      pos3Logika: p3Logika,
+      pos3Pengetahuan: p3Pengetahuan,
       pos3Avg,
       pos3Completed: body.pos3Completed !== undefined ? Boolean(body.pos3Completed) : (existing?.pos3Completed || false),
       pos3Notes: body.pos3Notes ?? existing?.pos3Notes ?? null,
@@ -1925,7 +1946,7 @@ export async function exportPOSScoreExcel(req, res) {
       ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
       ws.addRow([]);
 
-      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Kepercayaan Diri (1-10)', 'Komunikasi (1-10)', 'Argumentasi (1-10)', 'Etika (1-10)', 'Motivasi (1-10)', 'Rata-Rata POS 1', 'Penyeleksi', 'Status', 'Catatan'];
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Komunikasi', 'Percaya Diri', 'Motivasi', 'Komitmen', 'Kerja Sama', 'Kepemimpinan', 'Pengetahuan', 'Etika', 'Bonus', 'Rata-Rata POS 1', 'Penyeleksi', 'Status', 'Catatan'];
       ws.addRow(headers);
 
       const headerRow = ws.getRow(4);
@@ -1945,11 +1966,15 @@ export async function exportPOSScoreExcel(req, res) {
           c.nisn || '-',
           toTitleCase(c.name),
           c.className,
-          s.pos1Trust ?? '-',
           s.pos1Comm ?? '-',
-          s.pos1Arg ?? '-',
-          s.pos1Ethics ?? '-',
+          s.pos1Trust ?? '-',
           s.pos1Motiv ?? '-',
+          s.pos1Komitmen ?? '-',
+          s.pos1KerjaSama ?? '-',
+          s.pos1Kepemimpinan ?? '-',
+          s.pos1Pengetahuan ?? '-',
+          s.pos1Etika ?? '-',
+          s.pos1Bonus ?? '-',
           s.pos1Avg ?? '-',
           s.pos1Evaluator || '-',
           s.pos1Completed ? 'SELESAI' : 'PROSES',
@@ -1960,7 +1985,7 @@ export async function exportPOSScoreExcel(req, res) {
         for (let col = 1; col <= headers.length; col++) {
           const cell = r.getCell(col);
           cell.border = thinBorder;
-          cell.alignment = [1, 2, 4, 5, 6, 7, 8, 9, 10, 12].includes(col) ? { horizontal: 'center' } : { horizontal: 'left' };
+          cell.alignment = [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16].includes(col) ? { horizontal: 'center' } : { horizontal: 'left' };
         }
       });
 
@@ -2032,7 +2057,7 @@ export async function exportPOSScoreExcel(req, res) {
       ws.addRow([`PIK-R MANSEKU - TAHUN ${currentYear}`]);
       ws.addRow([]);
 
-      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Aura Penyampaian', 'Analisis', 'Public Speaking', 'Solusi', 'Rata-Rata POS 3', 'Penyeleksi', 'Status', 'Catatan'];
+      const headers = ['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Pemahaman', 'Analisis', 'Solusi', 'Empati', 'Public Speaking', 'Logika', 'Pengetahuan', 'Rata-Rata POS 3', 'Penyeleksi', 'Status', 'Catatan'];
       ws.addRow(headers);
 
       const headerRow = ws.getRow(4);
@@ -2052,10 +2077,13 @@ export async function exportPOSScoreExcel(req, res) {
           c.nisn || '-',
           toTitleCase(c.name),
           c.className,
-          s.pos3Aura ?? '-',
+          s.pos3Pemahaman ?? '-',
           s.pos3Analysis ?? '-',
-          s.pos3PublicSpk ?? '-',
           s.pos3Solution ?? '-',
+          s.pos3Empati ?? '-',
+          s.pos3PublicSpk ?? '-',
+          s.pos3Logika ?? '-',
+          s.pos3Pengetahuan ?? '-',
           s.pos3Avg ?? '-',
           s.pos3Evaluator || '-',
           s.pos3Completed ? 'SELESAI' : 'PROSES',
@@ -2066,7 +2094,7 @@ export async function exportPOSScoreExcel(req, res) {
         for (let col = 1; col <= headers.length; col++) {
           const cell = r.getCell(col);
           cell.border = thinBorder;
-          cell.alignment = [1, 2, 4, 5, 6, 7, 8, 9, 11].includes(col) ? { horizontal: 'center' } : { horizontal: 'left' };
+          cell.alignment = [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14].includes(col) ? { horizontal: 'center' } : { horizontal: 'left' };
         }
       });
 

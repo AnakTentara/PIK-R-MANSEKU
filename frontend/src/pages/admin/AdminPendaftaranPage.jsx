@@ -222,16 +222,16 @@ export default function AdminPendaftaranPage() {
 
       const parse = (v) => (v !== null && v !== undefined && v !== '' ? parseFloat(v) : null);
 
-      // POS 1 Avg
-      const p1 = [parse(updated.pos1Trust), parse(updated.pos1Comm), parse(updated.pos1Arg), parse(updated.pos1Ethics), parse(updated.pos1Motiv)].filter(v => v !== null && !isNaN(v));
+      // POS 1 Avg (9 kriteria)
+      const p1 = [parse(updated.pos1Comm), parse(updated.pos1Trust), parse(updated.pos1Motiv), parse(updated.pos1Komitmen), parse(updated.pos1KerjaSama), parse(updated.pos1Kepemimpinan), parse(updated.pos1Pengetahuan), parse(updated.pos1Etika), parse(updated.pos1Bonus)].filter(v => v !== null && !isNaN(v));
       updated.pos1Avg = p1.length > 0 ? Math.round((p1.reduce((a,b)=>a+b,0)/p1.length)*100)/100 : null;
 
       // POS 2 Avg
       const p2 = [parse(updated.pos2Creativity), parse(updated.pos2Mastery), parse(updated.pos2Pres), parse(updated.pos2Orig), parse(updated.pos2Potency), parse(updated.pos2Confidence)].filter(v => v !== null && !isNaN(v));
       updated.pos2Avg = p2.length > 0 ? Math.round((p2.reduce((a,b)=>a+b,0)/p2.length)*100)/100 : null;
 
-      // POS 3 Avg
-      const p3 = [parse(updated.pos3Aura), parse(updated.pos3Analysis), parse(updated.pos3PublicSpk), parse(updated.pos3Solution)].filter(v => v !== null && !isNaN(v));
+      // POS 3 Avg (7 kriteria)
+      const p3 = [parse(updated.pos3Pemahaman), parse(updated.pos3Analysis), parse(updated.pos3Solution), parse(updated.pos3Empati), parse(updated.pos3PublicSpk), parse(updated.pos3Logika), parse(updated.pos3Pengetahuan)].filter(v => v !== null && !isNaN(v));
       updated.pos3Avg = p3.length > 0 ? Math.round((p3.reduce((a,b)=>a+b,0)/p3.length)*100)/100 : null;
 
       // Final Score (33.3% per POS)
@@ -247,16 +247,31 @@ export default function AdminPendaftaranPage() {
     try {
       const obj = scoresMap[candidateId] || {};
       const payload = { ...obj };
-      if (posName && posEvaluator[posName]) {
-        payload[`${posName}Evaluator`] = posEvaluator[posName];
-      }
       const res = await updateSelectionScore(candidateId, payload);
       setScoresMap(prev => ({ ...prev, [candidateId]: res.data.score }));
-      toast.success('Nilai berhasil disimpan');
     } catch {
-      toast.error('Gagal menyimpan nilai');
+      // silent on blur saves
     } finally {
       setSavingScoreCandidateId(null);
+    }
+  };
+
+  // Fix race condition: evaluator dipilih langsung simpan dengan nilai fresh
+  const handleEvaluatorChange = async (candidateId, posName, evaluatorValue) => {
+    setScoresMap(prev => ({
+      ...prev,
+      [candidateId]: {
+        ...(prev[candidateId] || { candidateId }),
+        [`${posName}Evaluator`]: evaluatorValue
+      }
+    }));
+    try {
+      const obj = scoresMap[candidateId] || {};
+      const payload = { ...obj, [`${posName}Evaluator`]: evaluatorValue };
+      await updateSelectionScore(candidateId, payload);
+      toast.success('Penyeleksi berhasil disimpan');
+    } catch {
+      toast.error('Gagal menyimpan penyeleksi');
     }
   };
 
@@ -1008,169 +1023,100 @@ export default function AdminPendaftaranPage() {
                   <div>
                     <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Wawancara dan Perkenalan</h3>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
-                      Kriteria Nilai (1-10): Kepercayaan Diri, Komunikasi, Argumentasi, Etika, Motivasi
+                      9 Kriteria (1–10): Komunikasi · Percaya Diri · Motivasi · Komitmen · Kerja Sama · Kepemimpinan · Pengetahuan · Etika · Bonus
                     </p>
                   </div>
                 </div>
-
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => handleExportPOS('1')}
-                    className={styles.btnExportExcel}
-                  >
-                    <Download size={16} /> Export Excel POS 1
-                  </button>
-                </div>
+                <button type="button" onClick={() => handleExportPOS('1')} className={styles.btnExportExcel}>
+                  <Download size={16} /> Export Excel POS 1
+                </button>
               </div>
 
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={{ width: '40px' }}>No</th>
-                      <th className={styles.stickyNameCol}>Nama Kandidat</th>
-                      <th>Kelas</th>
-                      <th>Kepercayaan Diri</th>
-                      <th>Komunikasi</th>
-                      <th>Argumentasi</th>
-                      <th>Etika</th>
-                      <th>Motivasi</th>
-                      <th>Rata-Rata POS 1</th>
-                      <th style={{ textAlign: 'center' }}>Penyeleksi & Status Penilaian</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCandidates.map((c, idx) => {
-                      const s = scoresMap[c.id] || {};
-                      const isLocked = Boolean(s.pos1Completed);
-
-                      return (
-                        <tr key={`pos1-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
-                          <td style={{ textAlign: 'center' }}>{idx + 1}</td>
-                          <td className={`${styles.tdName} ${styles.stickyNameCol}`}>
-                            <strong>{c.name}</strong>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
-                          </td>
-                          <td>{c.className}</td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos1Trust ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos1Trust', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos1Comm ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos1Comm', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos1Arg ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos1Arg', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos1Ethics ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos1Ethics', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos1Motiv ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos1Motiv', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <span className={`${styles.avgBadge} ${getAvgBadgeClass(s.pos1Avg)}`}>
-                              {s.pos1Avg !== null && s.pos1Avg !== undefined ? s.pos1Avg.toFixed(2) : '-'}
-                            </span>
-                          </td>
-                          <td>
-                            <div className={styles.evaluatorRowSplit}>
-                              <div className={styles.evaluatorSelectBox}>
-                                <User size={14} color="#64748b" />
-                                <select
-                                  value={s.pos1Evaluator || ''}
-                                  disabled={isLocked}
-                                  onChange={e => {
-                                    handleScoreInputChange(c.id, 'pos1Evaluator', e.target.value);
-                                    handleSaveCandidateScore(c.id, 'pos1');
-                                  }}
-                                >
-                                  <option value="">-- Penyeleksi --</option>
-                                  {evaluators.members.map(m => (
-                                    <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
-                                  ))}
-                                  {evaluators.admins.map(a => (
-                                    <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              {isLocked ? (
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleLockState(c.id, 'pos1', false)}
-                                  className={`${styles.btnLock} ${styles.btnLockUnlock}`}
-                                  title="Klik untuk membuka kunci nilai dan mengedit kembali"
-                                >
-                                  <Unlock size={14} /> Perbarui Nilai
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleLockState(c.id, 'pos1', true)}
-                                  className={`${styles.btnLock} ${styles.btnLockSubmit}`}
-                                  title="Klik untuk mengunci nilai setelah selesai seleksi"
-                                >
-                                  <Lock size={14} /> Selesai Seleksi
-                                </button>
-                              )}
+              <div className={styles.scoreCardList}>
+                {filteredCandidates.map((c, idx) => {
+                  const s = scoresMap[c.id] || {};
+                  const isLocked = Boolean(s.pos1Completed);
+                  const p1Fields = [
+                    { key: 'pos1Comm', label: 'Komunikasi' },
+                    { key: 'pos1Trust', label: 'Percaya Diri' },
+                    { key: 'pos1Motiv', label: 'Motivasi' },
+                    { key: 'pos1Komitmen', label: 'Komitmen' },
+                    { key: 'pos1KerjaSama', label: 'Kerja Sama' },
+                    { key: 'pos1Kepemimpinan', label: 'Kepemimpinan' },
+                    { key: 'pos1Pengetahuan', label: 'Pengetahuan' },
+                    { key: 'pos1Etika', label: 'Etika' },
+                    { key: 'pos1Bonus', label: '✨ Bonus' },
+                  ];
+                  return (
+                    <div key={`pos1-${c.id}`} className={`${styles.scoreCard} ${isLocked ? styles.scoreCardLocked : ''}`}>
+                      <div className={styles.scoreCardHeader}>
+                        <span className={styles.scoreCardNum}>{idx + 1}</span>
+                        <div className={styles.scoreCardInfo}>
+                          <strong className={styles.scoreCardName}>{c.name}</strong>
+                          <span className={styles.scoreCardMeta}>{c.className} · NISN: {c.nisn}</span>
+                        </div>
+                        <div className={styles.scoreCardBadges}>
+                          {c.selectionDay && <span className={styles.badgeDay}>{c.selectionDay}</span>}
+                          {isLocked && <span className={styles.lockedBadge}><Lock size={11} /> Terkunci</span>}
+                        </div>
+                      </div>
+                      <div className={styles.scoreGrid}>
+                        {p1Fields.map(({ key, label }) => {
+                          const val = s[key] ?? '';
+                          const numVal = parseFloat(val);
+                          const colorClass = val !== '' && !isNaN(numVal) ? (numVal >= 7.5 ? styles.inputHigh : numVal >= 6 ? styles.inputMed : styles.inputLow) : '';
+                          return (
+                            <div key={key} className={styles.scoreField}>
+                              <label className={styles.scoreFieldLabel}>{label}</label>
+                              <input
+                                type="number" min="1" max="10" step="0.5"
+                                disabled={isLocked}
+                                value={val}
+                                onChange={e => handleScoreInputChange(c.id, key, e.target.value)}
+                                onBlur={() => handleSaveCandidateScore(c.id, 'pos1')}
+                                className={`${styles.scoreBigInput} ${colorClass} ${isLocked ? styles.scoreBigInputDisabled : ''}`}
+                                placeholder="–"
+                              />
                             </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          );
+                        })}
+                      </div>
+                      <div className={styles.scoreCardFooter}>
+                        <div className={styles.evaluatorWrap}>
+                          <User size={14} color="#64748b" />
+                          <select
+                            value={s.pos1Evaluator || ''}
+                            disabled={isLocked}
+                            onChange={e => handleEvaluatorChange(c.id, 'pos1', e.target.value)}
+                            className={styles.evaluatorFullSelect}
+                          >
+                            <option value="">-- Pilih Penyeleksi --</option>
+                            {evaluators.members.map(m => (
+                              <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                            ))}
+                            {evaluators.admins.map(a => (
+                              <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className={styles.scoreCardActions}>
+                          <span className={`${styles.avgBadgeLarge} ${getAvgBadgeClass(s.pos1Avg)}`}>
+                            Rata-rata: <strong>{s.pos1Avg !== null && s.pos1Avg !== undefined ? s.pos1Avg.toFixed(2) : '—'}</strong>
+                          </span>
+                          {isLocked ? (
+                            <button type="button" onClick={() => handleToggleLockState(c.id, 'pos1', false)} className={`${styles.btnLock} ${styles.btnLockUnlock}`}>
+                              <Unlock size={14} /> Perbarui
+                            </button>
+                          ) : (
+                            <button type="button" onClick={() => handleToggleLockState(c.id, 'pos1', true)} className={`${styles.btnLock} ${styles.btnLockSubmit}`}>
+                              <Lock size={14} /> Selesai
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1184,181 +1130,97 @@ export default function AdminPendaftaranPage() {
                   <div>
                     <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Tes Minat Bakat</h3>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
-                      Kriteria Nilai (1-10): Kreativitas, Penguasaan, Presentasi, Orisinalitas, Potensi, Percaya Diri
+                      6 Kriteria (1–10): Kreativitas · Penguasaan · Presentasi · Orisinalitas · Potensi · Percaya Diri
                     </p>
                   </div>
                 </div>
-
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => handleExportPOS('2')}
-                    className={styles.btnExportExcel}
-                  >
-                    <Download size={16} /> Export Excel POS 2
-                  </button>
-                </div>
+                <button type="button" onClick={() => handleExportPOS('2')} className={styles.btnExportExcel}>
+                  <Download size={16} /> Export Excel POS 2
+                </button>
               </div>
 
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={{ width: '40px' }}>No</th>
-                      <th className={styles.stickyNameCol}>Nama Kandidat</th>
-                      <th>Kelas</th>
-                      <th>Kreativitas</th>
-                      <th>Penguasaan</th>
-                      <th>Presentasi</th>
-                      <th>Orisinalitas</th>
-                      <th>Potensi</th>
-                      <th>Percaya Diri</th>
-                      <th>Rata-Rata POS 2</th>
-                      <th style={{ textAlign: 'center' }}>Penyeleksi & Status Penilaian</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCandidates.map((c, idx) => {
-                      const s = scoresMap[c.id] || {};
-                      const isLocked = Boolean(s.pos2Completed);
-
-                      return (
-                        <tr key={`pos2-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
-                          <td style={{ textAlign: 'center' }}>{idx + 1}</td>
-                          <td className={`${styles.tdName} ${styles.stickyNameCol}`}>
-                            <strong>{c.name}</strong>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
-                          </td>
-                          <td>{c.className}</td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos2Creativity ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos2Creativity', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos2Mastery ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos2Mastery', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos2Pres ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos2Pres', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos2Orig ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos2Orig', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos2Potency ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos2Potency', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos2Confidence ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos2Confidence', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <span className={`${styles.avgBadge} ${getAvgBadgeClass(s.pos2Avg)}`}>
-                              {s.pos2Avg !== null && s.pos2Avg !== undefined ? s.pos2Avg.toFixed(2) : '-'}
-                            </span>
-                          </td>
-                          <td>
-                            <div className={styles.evaluatorRowSplit}>
-                              <div className={styles.evaluatorSelectBox}>
-                                <User size={14} color="#64748b" />
-                                <select
-                                  value={s.pos2Evaluator || ''}
-                                  disabled={isLocked}
-                                  onChange={e => {
-                                    handleScoreInputChange(c.id, 'pos2Evaluator', e.target.value);
-                                    handleSaveCandidateScore(c.id, 'pos2');
-                                  }}
-                                >
-                                  <option value="">-- Penyeleksi --</option>
-                                  {evaluators.members.map(m => (
-                                    <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
-                                  ))}
-                                  {evaluators.admins.map(a => (
-                                    <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              {isLocked ? (
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleLockState(c.id, 'pos2', false)}
-                                  className={`${styles.btnLock} ${styles.btnLockUnlock}`}
-                                >
-                                  <Unlock size={14} /> Perbarui Nilai
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleLockState(c.id, 'pos2', true)}
-                                  className={`${styles.btnLock} ${styles.btnLockSubmit}`}
-                                >
-                                  <Lock size={14} /> Selesai Seleksi
-                                </button>
-                              )}
+              <div className={styles.scoreCardList}>
+                {filteredCandidates.map((c, idx) => {
+                  const s = scoresMap[c.id] || {};
+                  const isLocked = Boolean(s.pos2Completed);
+                  const p2Fields = [
+                    { key: 'pos2Creativity', label: 'Kreativitas' },
+                    { key: 'pos2Mastery', label: 'Penguasaan' },
+                    { key: 'pos2Pres', label: 'Presentasi' },
+                    { key: 'pos2Orig', label: 'Orisinalitas' },
+                    { key: 'pos2Potency', label: 'Potensi' },
+                    { key: 'pos2Confidence', label: 'Percaya Diri' },
+                  ];
+                  return (
+                    <div key={`pos2-${c.id}`} className={`${styles.scoreCard} ${isLocked ? styles.scoreCardLocked : ''}`}>
+                      <div className={styles.scoreCardHeader}>
+                        <span className={styles.scoreCardNum}>{idx + 1}</span>
+                        <div className={styles.scoreCardInfo}>
+                          <strong className={styles.scoreCardName}>{c.name}</strong>
+                          <span className={styles.scoreCardMeta}>{c.className} · NISN: {c.nisn}</span>
+                        </div>
+                        <div className={styles.scoreCardBadges}>
+                          {c.selectionDay && <span className={styles.badgeDay}>{c.selectionDay}</span>}
+                          {isLocked && <span className={styles.lockedBadge}><Lock size={11} /> Terkunci</span>}
+                        </div>
+                      </div>
+                      <div className={styles.scoreGrid}>
+                        {p2Fields.map(({ key, label }) => {
+                          const val = s[key] ?? '';
+                          const numVal = parseFloat(val);
+                          const colorClass = val !== '' && !isNaN(numVal) ? (numVal >= 7.5 ? styles.inputHigh : numVal >= 6 ? styles.inputMed : styles.inputLow) : '';
+                          return (
+                            <div key={key} className={styles.scoreField}>
+                              <label className={styles.scoreFieldLabel}>{label}</label>
+                              <input
+                                type="number" min="1" max="10" step="0.5"
+                                disabled={isLocked}
+                                value={val}
+                                onChange={e => handleScoreInputChange(c.id, key, e.target.value)}
+                                onBlur={() => handleSaveCandidateScore(c.id, 'pos2')}
+                                className={`${styles.scoreBigInput} ${colorClass} ${isLocked ? styles.scoreBigInputDisabled : ''}`}
+                                placeholder="–"
+                              />
                             </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          );
+                        })}
+                      </div>
+                      <div className={styles.scoreCardFooter}>
+                        <div className={styles.evaluatorWrap}>
+                          <User size={14} color="#64748b" />
+                          <select
+                            value={s.pos2Evaluator || ''}
+                            disabled={isLocked}
+                            onChange={e => handleEvaluatorChange(c.id, 'pos2', e.target.value)}
+                            className={styles.evaluatorFullSelect}
+                          >
+                            <option value="">-- Pilih Penyeleksi --</option>
+                            {evaluators.members.map(m => (
+                              <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                            ))}
+                            {evaluators.admins.map(a => (
+                              <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className={styles.scoreCardActions}>
+                          <span className={`${styles.avgBadgeLarge} ${getAvgBadgeClass(s.pos2Avg)}`}>
+                            Rata-rata: <strong>{s.pos2Avg !== null && s.pos2Avg !== undefined ? s.pos2Avg.toFixed(2) : '—'}</strong>
+                          </span>
+                          {isLocked ? (
+                            <button type="button" onClick={() => handleToggleLockState(c.id, 'pos2', false)} className={`${styles.btnLock} ${styles.btnLockUnlock}`}>
+                              <Unlock size={14} /> Perbarui
+                            </button>
+                          ) : (
+                            <button type="button" onClick={() => handleToggleLockState(c.id, 'pos2', true)} className={`${styles.btnLock} ${styles.btnLockSubmit}`}>
+                              <Lock size={14} /> Selesai
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1372,153 +1234,98 @@ export default function AdminPendaftaranPage() {
                   <div>
                     <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Studi Kasus</h3>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
-                      Kriteria Nilai (1-10): Aura Penyampaian, Analisis, Public Speaking, Solusi
+                      7 Kriteria (1–10): Pemahaman · Analisis · Solusi · Empati · Public Speaking · Logika · Pengetahuan
                     </p>
                   </div>
                 </div>
-
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => handleExportPOS('3')}
-                    className={styles.btnExportExcel}
-                  >
-                    <Download size={16} /> Export Excel POS 3
-                  </button>
-                </div>
+                <button type="button" onClick={() => handleExportPOS('3')} className={styles.btnExportExcel}>
+                  <Download size={16} /> Export Excel POS 3
+                </button>
               </div>
 
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={{ width: '40px' }}>No</th>
-                      <th className={styles.stickyNameCol}>Nama Kandidat</th>
-                      <th>Kelas</th>
-                      <th>Aura Penyampaian</th>
-                      <th>Analisis</th>
-                      <th>Public Speaking</th>
-                      <th>Solusi</th>
-                      <th>Rata-Rata POS 3</th>
-                      <th style={{ textAlign: 'center' }}>Penyeleksi & Status Penilaian</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCandidates.map((c, idx) => {
-                      const s = scoresMap[c.id] || {};
-                      const isLocked = Boolean(s.pos3Completed);
-
-                      return (
-                        <tr key={`pos3-${c.id}`} style={{ backgroundColor: isLocked ? '#f8fafc' : 'inherit' }}>
-                          <td style={{ textAlign: 'center' }}>{idx + 1}</td>
-                          <td className={`${styles.tdName} ${styles.stickyNameCol}`}>
-                            <strong>{c.name}</strong>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NISN: {c.nisn}</div>
-                          </td>
-                          <td>{c.className}</td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos3Aura ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos3Aura', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos3Analysis ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos3Analysis', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos3PublicSpk ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos3PublicSpk', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.5"
-                              disabled={isLocked}
-                              value={s.pos3Solution ?? ''}
-                              onChange={e => handleScoreInputChange(c.id, 'pos3Solution', e.target.value)}
-                              onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
-                              className={`${styles.scoreInput} ${isLocked ? styles.scoreInputDisabled : ''}`}
-                            />
-                          </td>
-                          <td>
-                            <span className={`${styles.avgBadge} ${getAvgBadgeClass(s.pos3Avg)}`}>
-                              {s.pos3Avg !== null && s.pos3Avg !== undefined ? s.pos3Avg.toFixed(2) : '-'}
-                            </span>
-                          </td>
-                          <td>
-                            <div className={styles.evaluatorRowSplit}>
-                              <div className={styles.evaluatorSelectBox}>
-                                <User size={14} color="#64748b" />
-                                <select
-                                  value={s.pos3Evaluator || ''}
-                                  disabled={isLocked}
-                                  onChange={e => {
-                                    handleScoreInputChange(c.id, 'pos3Evaluator', e.target.value);
-                                    handleSaveCandidateScore(c.id, 'pos3');
-                                  }}
-                                >
-                                  <option value="">-- Penyeleksi --</option>
-                                  {evaluators.members.map(m => (
-                                    <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
-                                  ))}
-                                  {evaluators.admins.map(a => (
-                                    <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              {isLocked ? (
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleLockState(c.id, 'pos3', false)}
-                                  className={`${styles.btnLock} ${styles.btnLockUnlock}`}
-                                >
-                                  <Unlock size={14} /> Perbarui Nilai
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleToggleLockState(c.id, 'pos3', true)}
-                                  className={`${styles.btnLock} ${styles.btnLockSubmit}`}
-                                >
-                                  <Lock size={14} /> Selesai Seleksi
-                                </button>
-                              )}
+              <div className={styles.scoreCardList}>
+                {filteredCandidates.map((c, idx) => {
+                  const s = scoresMap[c.id] || {};
+                  const isLocked = Boolean(s.pos3Completed);
+                  const p3Fields = [
+                    { key: 'pos3Pemahaman', label: 'Pemahaman' },
+                    { key: 'pos3Analysis', label: 'Analisis' },
+                    { key: 'pos3Solution', label: 'Solusi' },
+                    { key: 'pos3Empati', label: 'Empati' },
+                    { key: 'pos3PublicSpk', label: 'Public Speaking' },
+                    { key: 'pos3Logika', label: 'Logika' },
+                    { key: 'pos3Pengetahuan', label: 'Pengetahuan' },
+                  ];
+                  return (
+                    <div key={`pos3-${c.id}`} className={`${styles.scoreCard} ${isLocked ? styles.scoreCardLocked : ''}`}>
+                      <div className={styles.scoreCardHeader}>
+                        <span className={styles.scoreCardNum}>{idx + 1}</span>
+                        <div className={styles.scoreCardInfo}>
+                          <strong className={styles.scoreCardName}>{c.name}</strong>
+                          <span className={styles.scoreCardMeta}>{c.className} · NISN: {c.nisn}</span>
+                        </div>
+                        <div className={styles.scoreCardBadges}>
+                          {c.selectionDay && <span className={styles.badgeDay}>{c.selectionDay}</span>}
+                          {isLocked && <span className={styles.lockedBadge}><Lock size={11} /> Terkunci</span>}
+                        </div>
+                      </div>
+                      <div className={styles.scoreGrid}>
+                        {p3Fields.map(({ key, label }) => {
+                          const val = s[key] ?? '';
+                          const numVal = parseFloat(val);
+                          const colorClass = val !== '' && !isNaN(numVal) ? (numVal >= 7.5 ? styles.inputHigh : numVal >= 6 ? styles.inputMed : styles.inputLow) : '';
+                          return (
+                            <div key={key} className={styles.scoreField}>
+                              <label className={styles.scoreFieldLabel}>{label}</label>
+                              <input
+                                type="number" min="1" max="10" step="0.5"
+                                disabled={isLocked}
+                                value={val}
+                                onChange={e => handleScoreInputChange(c.id, key, e.target.value)}
+                                onBlur={() => handleSaveCandidateScore(c.id, 'pos3')}
+                                className={`${styles.scoreBigInput} ${colorClass} ${isLocked ? styles.scoreBigInputDisabled : ''}`}
+                                placeholder="–"
+                              />
                             </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          );
+                        })}
+                      </div>
+                      <div className={styles.scoreCardFooter}>
+                        <div className={styles.evaluatorWrap}>
+                          <User size={14} color="#64748b" />
+                          <select
+                            value={s.pos3Evaluator || ''}
+                            disabled={isLocked}
+                            onChange={e => handleEvaluatorChange(c.id, 'pos3', e.target.value)}
+                            className={styles.evaluatorFullSelect}
+                          >
+                            <option value="">-- Pilih Penyeleksi --</option>
+                            {evaluators.members.map(m => (
+                              <option key={`mem-${m.id}`} value={m.name}>Anggota: {m.name} ({m.className})</option>
+                            ))}
+                            {evaluators.admins.map(a => (
+                              <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className={styles.scoreCardActions}>
+                          <span className={`${styles.avgBadgeLarge} ${getAvgBadgeClass(s.pos3Avg)}`}>
+                            Rata-rata: <strong>{s.pos3Avg !== null && s.pos3Avg !== undefined ? s.pos3Avg.toFixed(2) : '—'}</strong>
+                          </span>
+                          {isLocked ? (
+                            <button type="button" onClick={() => handleToggleLockState(c.id, 'pos3', false)} className={`${styles.btnLock} ${styles.btnLockUnlock}`}>
+                              <Unlock size={14} /> Perbarui
+                            </button>
+                          ) : (
+                            <button type="button" onClick={() => handleToggleLockState(c.id, 'pos3', true)} className={`${styles.btnLock} ${styles.btnLockSubmit}`}>
+                              <Lock size={14} /> Selesai
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
