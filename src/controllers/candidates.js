@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/db.js';
 import { isMemberExpired } from '../utils/memberUtils.js';
+import { toTitleCase } from '../utils/nameUtils.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
@@ -12,6 +13,8 @@ export async function registerCandidate(req, res) {
   if (!nisn || !name || !className || !whatsappNumber || !email || !gender || !asalSekolah) {
     return res.status(400).json({ message: 'Semua field wajib diisi' });
   }
+
+  const cleanName = toTitleCase(name);
 
   try {
     // Check if registration session is open
@@ -29,7 +32,7 @@ export async function registerCandidate(req, res) {
     const candidate = await prisma.candidate.create({
       data: {
         nisn,
-        name,
+        name: cleanName,
         className,
         whatsappNumber,
         email,

@@ -54,6 +54,9 @@ export const sendSelectionNotifications = (data) => {
   return api.post('/admin/candidates/send-selection-notifications', data, { timeout: 180000 });
 };
 
+export const batchUpdateAttendance = (data) =>
+  api.post('/admin/candidates/batch-attendance', data);
+
 // Selection POS & Evaluation
 export const getSelectionEvaluators = () =>
   api.get('/admin/selection/evaluators');

@@ -35,6 +35,7 @@ model Candidate {
   selectionDate       DateTime?
   selectionDay        String?  // e.g. "Rabu, 29 Juli 2026"
   selectionNotified   Boolean  @default(false)
+  attendanceStatus    String?  @default("BELUM_KONFIRMASI") // HADIR, TIDAK_HADIR, BELUM_KONFIRMASI
 
   selectionScore      SelectionScore?
 

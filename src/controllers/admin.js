@@ -119,7 +119,7 @@ export async function createCandidate(req, res) {
 // 5. Update Candidate
 export async function updateCandidate(req, res) {
   const { id } = req.params;
-  const { nisn, name, className, whatsappNumber, email, gender, reason, status, plainPassword, asalSekolah, selectionDay, selectionDate, selectionNotified } = req.body;
+  const { nisn, name, className, whatsappNumber, email, gender, reason, status, plainPassword, asalSekolah, selectionDay, selectionDate, selectionNotified, attendanceStatus } = req.body;
 
   try {
     const candidate = await prisma.candidate.findUnique({ where: { id } });
@@ -149,6 +149,17 @@ export async function updateCandidate(req, res) {
     if (selectionDay !== undefined) updateData.selectionDay = selectionDay;
     if (selectionDate !== undefined) updateData.selectionDate = selectionDate ? new Date(selectionDate) : null;
     if (selectionNotified !== undefined) updateData.selectionNotified = Boolean(selectionNotified);
+    
+    if (attendanceStatus !== undefined) {
+      updateData.attendanceStatus = attendanceStatus;
+      if (attendanceStatus === 'TIDAK_HADIR') {
+        updateData.status = 'TIDAK_LULUS';
+      } else if (attendanceStatus === 'HADIR' && candidate.status === 'TIDAK_LULUS') {
+        updateData.status = 'PENDING';
+      } else if (attendanceStatus === 'BELUM_KONFIRMASI' && candidate.status === 'TIDAK_LULUS') {
+        updateData.status = 'PENDING';
+      }
+    }
 
     if (req.file) {
       updateData.photoPath = `/uploads/photos/${req.file.filename}`;
@@ -162,6 +173,54 @@ export async function updateCandidate(req, res) {
         updateData.password = null;
       }
     }
+
+    const updated = await prisma.candidate.update({
+      where: { id },
+      data: updateData
+    });
+
+    return res.json({ message: 'Pendaftar berhasil diperbarui', candidate: updated });
+  } catch (error) {
+    console.error('Error updating candidate:', error);
+    return res.status(500).json({ message: 'Gagal memperbarui pendaftar' });
+  }
+}
+
+// 5b. Batch Update Candidate Attendance Status
+export async function batchUpdateAttendance(req, res) {
+  const { candidateIds, attendanceStatus } = req.body;
+
+  if (!Array.isArray(candidateIds) || candidateIds.length === 0) {
+    return res.status(400).json({ message: 'Daftar ID kandidat tidak boleh kosong' });
+  }
+
+  if (!['HADIR', 'TIDAK_HADIR', 'BELUM_KONFIRMASI'].includes(attendanceStatus)) {
+    return res.status(400).json({ message: 'Status kehadiran tidak valid' });
+  }
+
+  try {
+    const updateData = { attendanceStatus };
+    if (attendanceStatus === 'TIDAK_HADIR') {
+      updateData.status = 'TIDAK_LULUS';
+    } else if (attendanceStatus === 'HADIR') {
+      updateData.status = 'PENDING';
+    }
+
+    await prisma.candidate.updateMany({
+      where: { id: { in: candidateIds } },
+      data: updateData
+    });
+
+    const statusLabel = attendanceStatus === 'HADIR' ? 'HADIR' : (attendanceStatus === 'TIDAK_HADIR' ? 'TIDAK HADIR (Otomatis Tidak Lulus)' : 'BELUM PRESENSI');
+    return res.json({
+      message: `${candidateIds.length} peserta berhasil ditandai ${statusLabel}.`,
+      count: candidateIds.length
+    });
+  } catch (error) {
+    console.error('Error batch updating attendance:', error);
+    return res.status(500).json({ message: 'Gagal memperbarui presensi peserta' });
+  }
+}
 
     const updated = await prisma.candidate.update({
       where: { id },

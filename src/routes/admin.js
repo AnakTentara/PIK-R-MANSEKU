@@ -16,6 +16,7 @@ import {
   triggerNotifications,
   randomizeSelectionDays,
   sendSelectionNotifications,
+  batchUpdateAttendance,
   exportSelectionExcel,
   getSettings,
   saveSettings,
@@ -149,6 +150,7 @@ router.post('/candidates/generate-passwords', authAdmin, requireRole(['DEVELOPER
 router.post('/candidates/send-notifications', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), triggerNotifications);
 router.post('/candidates/randomize-selection', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), randomizeSelectionDays);
 router.post('/candidates/send-selection-notifications', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), uploadDocs.any(), sendSelectionNotifications);
+router.post('/candidates/batch-attendance', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), batchUpdateAttendance);
 
 // Selection Evaluation POS & Scoring Routes
 router.get('/selection/evaluators', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getSelectionEvaluators);

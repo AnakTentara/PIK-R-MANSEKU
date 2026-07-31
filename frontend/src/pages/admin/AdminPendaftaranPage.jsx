@@ -13,6 +13,7 @@ import {
   exportJSON,
   randomizeSelectionDays,
   sendSelectionNotifications,
+  batchUpdateAttendance,
   getSelectionEvaluators,
   getSelectionScores,
   updateSelectionScore,
@@ -181,12 +182,63 @@ export default function AdminPendaftaranPage() {
 
   // ─── Main Mode & Selection POS State ─────────────────────────────────────
   const [mainMode, setMainMode] = useState('pendaftaran'); // 'pendaftaran' | 'seleksi' | 'kelulusan'
-  const [seleksiSubTab, setSeleksiSubTab] = useState('jadwal'); // 'jadwal' | 'pos1' | 'pos2' | 'pos3' | 'rekap'
+  const [seleksiSubTab, setSeleksiSubTab] = useState('jadwal'); // 'jadwal' | 'kehadiran' | 'pos1' | 'pos2' | 'pos3' | 'rekap'
+  const [filterHariSeleksi, setFilterHariSeleksi] = useState('');
+  const [filterStatusPresensi, setFilterStatusPresensi] = useState('');
   const [evaluators, setEvaluators] = useState({ members: [], admins: [] });
   const [scoresMap, setScoresMap] = useState({});
   const [loadingScores, setLoadingScores] = useState(false);
   const [savingScoreCandidateId, setSavingScoreCandidateId] = useState(null);
   const [posEvaluator, setPosEvaluator] = useState({ pos1: '', pos2: '', pos3: '' });
+
+  const uniqueSelectionDays = useMemo(() => {
+    const set = new Set();
+    candidates.forEach(c => {
+      if (c.selectionDay && c.selectionDay.trim()) {
+        set.add(c.selectionDay.trim());
+      }
+    });
+    return Array.from(set).sort();
+  }, [candidates]);
+
+  const handleSingleAttendance = async (candidate, targetAttendance) => {
+    try {
+      await updateCandidate(candidate.id, { attendanceStatus: targetAttendance });
+      setCandidates(prev => prev.map(item => item.id === candidate.id ? {
+        ...item,
+        attendanceStatus: targetAttendance,
+        status: targetAttendance === 'TIDAK_HADIR' ? 'TIDAK_LULUS' : (targetAttendance === 'HADIR' && item.status === 'TIDAK_LULUS' ? 'PENDING' : (targetAttendance === 'BELUM_KONFIRMASI' && item.status === 'TIDAK_LULUS' ? 'PENDING' : item.status))
+      } : item));
+      if (targetAttendance === 'TIDAK_HADIR') {
+        toast.error(`${candidate.name} ditandai TIDAK HADIR (Otomatis TIDAK LULUS)`);
+      } else if (targetAttendance === 'HADIR') {
+        toast.success(`${candidate.name} ditandai HADIR seleksi`);
+      } else {
+        toast.success(`Presensi ${candidate.name} di-reset`);
+      }
+    } catch {
+      toast.error('Gagal memperbarui presensi peserta');
+    }
+  };
+
+  const handleBatchAttendance = async (targetAttendance, targetCandidateIds) => {
+    if (!targetCandidateIds || targetCandidateIds.length === 0) {
+      toast.error('Tidak ada peserta yang terpilih');
+      return;
+    }
+    try {
+      await batchUpdateAttendance({ candidateIds: targetCandidateIds, attendanceStatus: targetAttendance });
+      setCandidates(prev => prev.map(item => targetCandidateIds.includes(item.id) ? {
+        ...item,
+        attendanceStatus: targetAttendance,
+        status: targetAttendance === 'TIDAK_HADIR' ? 'TIDAK_LULUS' : (targetAttendance === 'HADIR' && item.status === 'TIDAK_LULUS' ? 'PENDING' : item.status)
+      } : item));
+      const label = targetAttendance === 'HADIR' ? 'HADIR' : (targetAttendance === 'TIDAK_HADIR' ? 'TIDAK HADIR (Otomatis Tidak Lulus)' : 'BELUM PRESENSI');
+      toast.success(`Berhasil menandai ${targetCandidateIds.length} peserta ${label}.`);
+    } catch {
+      toast.error('Gagal memperbarui presensi massal');
+    }
+  };
 
   const fetchSelectionData = async () => {
     setLoadingScores(true);
@@ -458,6 +510,19 @@ export default function AdminPendaftaranPage() {
 
     return list;
   }, [candidates, search, statusFilter, filterKelas, mainMode]);
+
+  const filteredKehadiranCandidates = useMemo(() => {
+    return filteredCandidates.filter(c => {
+      if (filterHariSeleksi && (c.selectionDay || '').trim() !== filterHariSeleksi.trim()) {
+        return false;
+      }
+      if (filterStatusPresensi) {
+        const att = c.attendanceStatus || 'BELUM_KONFIRMASI';
+        if (att !== filterStatusPresensi) return false;
+      }
+      return true;
+    });
+  }, [filteredCandidates, filterHariSeleksi, filterStatusPresensi]);
 
   const totalPages = Math.max(1, Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE));
   const paginatedCandidates = useMemo(() => {
@@ -933,6 +998,14 @@ export default function AdminPendaftaranPage() {
             </button>
             <button
               type="button"
+              onClick={() => setSeleksiSubTab('kehadiran')}
+              className={`${styles.posSubNavTab} ${seleksiSubTab === 'kehadiran' ? styles.posJadwalActive : ''}`}
+            >
+              <UserCheck size={15} />
+              <span>Presensi Kehadiran</span>
+            </button>
+            <button
+              type="button"
               onClick={() => setSeleksiSubTab('pos1')}
               className={`${styles.posSubNavTab} ${seleksiSubTab === 'pos1' ? styles.pos1Active : ''}`}
             >
@@ -1013,6 +1086,192 @@ export default function AdminPendaftaranPage() {
               </button>
             </div>
           </div>
+
+          {/* ── PRESENSI KEHADIRAN VIEW ── */}
+          {seleksiSubTab === 'kehadiran' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className={styles.posHeaderBar}>
+                <div className={styles.posTitle}>
+                  <span className={styles.posBadge} style={{ background: '#0284c7', color: '#ffffff' }}>PRESENSI</span>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Presensi Kehadiran Seleksi</h3>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                      Tandai peserta yang hadir pada hari seleksi. Peserta yang <strong>TIDAK HADIR</strong> otomatis dinyatakan <strong>TIDAK LULUS</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const targetIds = filteredKehadiranCandidates.filter(c => c.attendanceStatus !== 'HADIR').map(c => c.id);
+                      handleBatchAttendance('HADIR', targetIds);
+                    }}
+                    className="btn btn-success btn-sm"
+                    style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                  >
+                    <CheckCircle size={14} /> Tandai Semua Terfilter HADIR
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const targetIds = filteredKehadiranCandidates.filter(c => c.attendanceStatus !== 'TIDAK_HADIR').map(c => c.id);
+                      handleBatchAttendance('TIDAK_HADIR', targetIds);
+                    }}
+                    className="btn btn-danger btn-sm"
+                    style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                  >
+                    <XCircle size={14} /> Tandai Semua Terfilter TIDAK HADIR
+                  </button>
+                </div>
+              </div>
+
+              {/* Summary Stats */}
+              <div className={styles.heroStatsGrid} style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+                <div className={styles.heroStatCard} style={{ background: '#f8fafc', borderColor: '#cbd5e1' }}>
+                  <span className={styles.heroStatLabel}>Total Terjadwal</span>
+                  <strong className={styles.heroStatVal} style={{ color: '#0f172a' }}>
+                    {candidates.filter(c => c.selectionDay).length}
+                  </strong>
+                </div>
+                <div className={styles.heroStatCard} style={{ background: '#f0fdf4', borderColor: '#86efac' }}>
+                  <span className={styles.heroStatLabel} style={{ color: '#166534' }}>Hadir Seleksi</span>
+                  <strong className={styles.heroStatVal} style={{ color: '#15803d' }}>
+                    {candidates.filter(c => c.attendanceStatus === 'HADIR').length}
+                  </strong>
+                </div>
+                <div className={styles.heroStatCard} style={{ background: '#fef2f2', borderColor: '#fca5a5' }}>
+                  <span className={styles.heroStatLabel} style={{ color: '#991b1b' }}>Tidak Hadir (Gagal)</span>
+                  <strong className={styles.heroStatVal} style={{ color: '#b91c1c' }}>
+                    {candidates.filter(c => c.attendanceStatus === 'TIDAK_HADIR').length}
+                  </strong>
+                </div>
+                <div className={styles.heroStatCard} style={{ background: '#fffbeb', borderColor: '#fde68a' }}>
+                  <span className={styles.heroStatLabel} style={{ color: '#92400e' }}>Belum Presensi</span>
+                  <strong className={styles.heroStatVal} style={{ color: '#b45309' }}>
+                    {candidates.filter(c => !c.attendanceStatus || c.attendanceStatus === 'BELUM_KONFIRMASI').length}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Filter Toolbar Extra */}
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>Filter Presensi:</span>
+                <select
+                  value={filterHariSeleksi}
+                  onChange={e => setFilterHariSeleksi(e.target.value)}
+                  className={styles.filterSelect}
+                  style={{ height: '34px', fontSize: '0.78rem' }}
+                >
+                  <option value="">Semua Hari Seleksi</option>
+                  {uniqueSelectionDays.map(day => (
+                    <option key={day} value={day}>{day}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={filterStatusPresensi}
+                  onChange={e => setFilterStatusPresensi(e.target.value)}
+                  className={styles.filterSelect}
+                  style={{ height: '34px', fontSize: '0.78rem' }}
+                >
+                  <option value="">Semua Status Presensi</option>
+                  <option value="HADIR">Hadir</option>
+                  <option value="TIDAK_HADIR">Tidak Hadir (Absen)</option>
+                  <option value="BELUM_KONFIRMASI">Belum Presensi</option>
+                </select>
+              </div>
+
+              {/* Candidate Presensi Card List */}
+              <div className={styles.scoreCardList}>
+                {filteredKehadiranCandidates.map((c, idx) => {
+                  const att = c.attendanceStatus || 'BELUM_KONFIRMASI';
+                  const isAbsent = att === 'TIDAK_HADIR';
+                  const isAttended = att === 'HADIR';
+
+                  return (
+                    <div key={`presensi-${c.id}`} className={`${styles.scoreCard} ${isAbsent ? styles.scoreCardLocked : ''}`}>
+                      <div className={styles.scoreCardHeader}>
+                        <span className={styles.scoreCardNum} style={{ background: isAttended ? '#16a34a' : (isAbsent ? '#dc2626' : '#64748b') }}>
+                          {idx + 1}
+                        </span>
+                        <div className={styles.scoreCardInfo}>
+                          <strong className={styles.scoreCardName}>{c.name}</strong>
+                          <span className={styles.scoreCardMeta}>{c.className} · NISN: {c.nisn}</span>
+                        </div>
+                        <div className={styles.scoreCardBadges}>
+                          {c.selectionDay ? (
+                            <span className={styles.badgeDay}>{c.selectionDay}</span>
+                          ) : (
+                            <span className={styles.badgeUnnotified}>Jadwal Belum Diatur</span>
+                          )}
+
+                          {isAttended && (
+                            <span className={styles.badgeNotified} style={{ background: '#dcfce7', color: '#15803d' }}>
+                              <CheckCircle size={11} style={{ marginRight: '3px' }} /> HADIR SELEKSI
+                            </span>
+                          )}
+                          {isAbsent && (
+                            <span className={styles.lockedBadge} style={{ background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }}>
+                              <XCircle size={11} style={{ marginRight: '3px' }} /> TIDAK HADIR — OTOMATIS TIDAK LULUS
+                            </span>
+                          )}
+                          {!isAttended && !isAbsent && (
+                            <span className={styles.badgeUnnotified}>BELUM PRESENSI</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.scoreCardFooter} style={{ padding: '12px 16px' }}>
+                        <div style={{ fontSize: '0.8rem', color: '#475569' }}>
+                          Status Kelulusan: <strong style={{ color: c.status === 'LULUS' ? '#16a34a' : (c.status === 'TIDAK_LULUS' ? '#dc2626' : '#d97706') }}>{c.status}</strong>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleSingleAttendance(c, 'HADIR')}
+                            className={`btn btn-sm ${isAttended ? 'btn-success' : 'btn-secondary'}`}
+                            style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: isAttended ? 700 : 500 }}
+                          >
+                            <CheckCircle size={14} /> HADIR
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleSingleAttendance(c, 'TIDAK_HADIR')}
+                            className={`btn btn-sm ${isAbsent ? 'btn-danger' : 'btn-secondary'}`}
+                            style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: isAbsent ? 700 : 500 }}
+                          >
+                            <XCircle size={14} /> TIDAK HADIR (Absen)
+                          </button>
+
+                          {(isAttended || isAbsent) && (
+                            <button
+                              type="button"
+                              onClick={() => handleSingleAttendance(c, 'BELUM_KONFIRMASI')}
+                              className="btn btn-secondary btn-sm"
+                              style={{ fontSize: '0.74rem' }}
+                              title="Reset status presensi ke Belum Konfirmasi"
+                            >
+                              Reset
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {filteredKehadiranCandidates.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '30px', color: '#94a3b8', background: '#f8fafc', borderRadius: '8px', border: '1px border-dashed #cbd5e1' }}>
+                    Tidak ada peserta yang cocok dengan filter presensi.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ── POS 1 VIEW ── */}
           {seleksiSubTab === 'pos1' && (
