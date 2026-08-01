@@ -290,9 +290,10 @@ export async function initWhatsApp() {
 
       try {
         const extra = text.trim().substring(6).trim();
+        const isWhitelistedMsg = text.toUpperCase().includes('KIRIMKAN PESAN INI UNTUK MENGECEK SANDI');
 
-        // Security Guard: Prevent retrieving password for arbitrary names
-        if (extra && !/^\d+$/.test(extra) && extra.toLowerCase() !== 'ganti') {
+        // Security Guard: Prevent retrieving password for arbitrary names (Unless whitelisted official web button text)
+        if (extra && !/^\d+$/.test(extra) && extra.toLowerCase() !== 'ganti' && !isWhitelistedMsg) {
           await replyToMessage(
             fromJid,
             `🛑 *AKSES DITOLAK — KEAMANAN PRIVASI*\n\nPerintah */sandi* tidak dapat digunakan untuk melihat kata sandi orang lain demi menjaga keamanan akun.\n\n🔒 *Silakan ketik */sandi* tanpa tambahan nama* untuk melihat kata sandi akun Anda sendiri secara aman.`,
