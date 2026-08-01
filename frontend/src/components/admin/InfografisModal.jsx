@@ -149,7 +149,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     ctx.fillStyle = lineGrad;
     ctx.fillRect(width / 2 - 160, 128, 320, 3);
 
-    // ── 3. CANDIDATE CARDS PROPORTIONAL AUTO-FILL LAYOUT ──
+    // ── 3. CANDIDATE CARDS ULTRA-COMPACT LAYOUT ──
     const count = selectedCandidates.length;
     const isMultiColumn = count > 5;
     const itemsPerCol = isMultiColumn ? Math.ceil(count / 2) : count;
@@ -158,28 +158,28 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     const footerTop = height - (showOptionalText ? 85 : 45);
     const availableCardHeight = footerTop - topHeaderBottom - 30; // ~830px
 
-    // Dynamic Card Height & Gap to FILL the poster space tightly without massive gaps!
-    let cardGap = isMultiColumn ? 14 : 16;
+    // Tight 10px Gap for Ultra-Compact Modern Look
+    let cardGap = isMultiColumn ? 8 : 10;
     let cardHeight = Math.floor((availableCardHeight - (itemsPerCol - 1) * cardGap) / itemsPerCol);
 
     if (!isMultiColumn) {
-      cardHeight = Math.min(150, Math.max(85, cardHeight));
+      cardHeight = Math.min(154, Math.max(90, cardHeight));
     } else {
-      cardHeight = Math.min(115, Math.max(65, cardHeight));
+      cardHeight = Math.min(115, Math.max(68, cardHeight));
     }
 
     const totalCardsHeight = itemsPerCol * cardHeight + (itemsPerCol - 1) * cardGap;
     const cardAreaY = topHeaderBottom + 15 + Math.floor((availableCardHeight - totalCardsHeight) / 2);
 
-    // Wide Cards: Margin 44px on left/right for 1-col (fills 992px of 1080px!)
-    const startX = isMultiColumn ? 40 : 44;
-    const colWidth = isMultiColumn ? (width - startX * 2 - 24) / 2 : width - startX * 2;
+    // Wide Cards (Margin 40px)
+    const startX = isMultiColumn ? 38 : 40;
+    const colWidth = isMultiColumn ? (width - startX * 2 - 20) / 2 : width - startX * 2;
 
     selectedCandidates.forEach((c, i) => {
       const colIdx = isMultiColumn ? Math.floor(i / itemsPerCol) : 0;
       const rowIdx = isMultiColumn ? (i % itemsPerCol) : i;
 
-      const cardX = isMultiColumn ? (startX + colIdx * (colWidth + 24)) : startX;
+      const cardX = isMultiColumn ? (startX + colIdx * (colWidth + 20)) : startX;
       const cardY = cardAreaY + rowIdx * (cardHeight + cardGap);
       const rank = c.actualRank;
 
@@ -217,8 +217,8 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
       ctx.shadowBlur = 0;
       ctx.shadowOffsetY = 0;
 
-      // ── RANK BADGE: EXACT SQUARE 3D ORANGE BOX (1:1 Ratio) ──
-      const badgeSize = Math.min(60, Math.max(44, Math.floor(cardHeight * 0.52)));
+      // ── RANK BADGE: LARGER PROPORTIONAL SQUARE 3D ORANGE BOX (1:1 Ratio) ──
+      const badgeSize = Math.min(74, Math.max(48, Math.floor(cardHeight * 0.58)));
       const badgeX = cardX + 16;
       const badgeY = cardY + (cardHeight - badgeSize) / 2;
 
@@ -255,18 +255,18 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
       ctx.shadowBlur = 0;
       ctx.shadowOffsetY = 0;
 
-      // Square Rank Badge Text (Crisp #1, #2, #3, etc.)
+      // Square Rank Badge Text (Large & Bold #1, #2, #3, etc.)
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `bold ${Math.min(26, badgeSize * 0.48)}px "Arial", sans-serif`;
+      ctx.font = `bold ${Math.min(32, badgeSize * 0.48)}px "Arial", sans-serif`;
       ctx.fillText(`#${rank}`, badgeX + badgeSize / 2, badgeY + badgeSize / 2);
 
       // Candidate Avatar Photo / Initial Circle
       let contentLeft = badgeX + badgeSize + 18;
 
       if (showPhoto) {
-        const photoRadius = Math.min(26, Math.max(16, Math.floor(cardHeight * 0.22)));
+        const photoRadius = Math.min(28, Math.max(16, Math.floor(cardHeight * 0.22)));
         const photoX = contentLeft + photoRadius;
         const photoY = cardY + cardHeight / 2;
 
@@ -287,23 +287,23 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         contentLeft = photoX + photoRadius + 18;
       }
 
-      // Candidate Name & Class (Balanced & Scaled for cardHeight)
+      // Candidate Name & Class (Prominent & Large Typography)
       ctx.textAlign = 'left';
 
       const showSubMeta = showClass || showNisn;
 
       if (showName) {
         ctx.fillStyle = textColorMain;
-        let nameFontSize = 24;
-        if (cardHeight < 90) nameFontSize = 18;
-        else if (cardHeight < 120) nameFontSize = 21;
+        let nameFontSize = 32;
+        if (cardHeight < 90) nameFontSize = 20;
+        else if (cardHeight < 120) nameFontSize = 26;
 
         ctx.font = `bold ${nameFontSize}px "Arial", sans-serif`;
         const displayName = toTitleCase(c.name || 'Nama Candidate');
 
         // Truncate name if too long to prevent overlapping right side badges
         let truncatedName = displayName;
-        const maxNameWidth = colWidth - (contentLeft - cardX) - (showFinalScore ? 90 : 20);
+        const maxNameWidth = colWidth - (contentLeft - cardX) - (showFinalScore ? 110 : 20);
         if (ctx.measureText(truncatedName).width > maxNameWidth) {
           while (truncatedName.length > 3 && ctx.measureText(truncatedName + '...').width > maxNameWidth) {
             truncatedName = truncatedName.slice(0, -1);
@@ -313,7 +313,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
 
         if (showSubMeta) {
           ctx.textBaseline = 'alphabetic';
-          const nameOffsetY = cardHeight >= 110 ? 10 : 4;
+          const nameOffsetY = cardHeight >= 110 ? 12 : 5;
           ctx.fillText(truncatedName, contentLeft, cardY + cardHeight / 2 - nameOffsetY);
         } else {
           ctx.textBaseline = 'middle';
@@ -324,17 +324,17 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
       if (showSubMeta) {
         ctx.fillStyle = textColorSub;
         ctx.textBaseline = 'alphabetic';
-        const metaFontSize = cardHeight >= 110 ? 14 : 12;
+        const metaFontSize = cardHeight >= 110 ? 16 : 13;
         ctx.font = `500 ${metaFontSize}px "Arial", sans-serif`;
         const metaParts = [];
         if (showClass && c.className) metaParts.push(`Kelas: ${c.className}`);
         if (showNisn && c.nisn) metaParts.push(`NISN: ${c.nisn}`);
 
-        const metaOffsetY = cardHeight >= 110 ? 20 : 15;
+        const metaOffsetY = cardHeight >= 110 ? 22 : 16;
         ctx.fillText(metaParts.join('  ·  '), contentLeft, cardY + cardHeight / 2 + metaOffsetY);
       }
 
-      // Right Side Badges: NILAI AKHIR (EXACT SQUARE 3D ORANGE BOX 1:1)
+      // Right Side Badges: LARGER NILAI AKHIR (EXACT SQUARE 3D ORANGE BOX 1:1)
       let rightX = cardX + colWidth - 16;
 
       if (showFinalScore) {
@@ -342,7 +342,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
           ? c.scoreObj.finalScore.toFixed(2)
           : '-';
 
-        const finalBadgeSize = Math.min(60, Math.max(44, Math.floor(cardHeight * 0.52)));
+        const finalBadgeSize = Math.min(74, Math.max(48, Math.floor(cardHeight * 0.58)));
         const finalBadgeX = rightX - finalBadgeSize;
         const finalBadgeY = cardY + (cardHeight - finalBadgeSize) / 2;
 
@@ -367,7 +367,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = `bold ${Math.min(24, finalBadgeSize * 0.44)}px "Arial", sans-serif`;
+        ctx.font = `bold ${Math.min(30, finalBadgeSize * 0.44)}px "Arial", sans-serif`;
         ctx.fillText(finalScoreVal, finalBadgeX + finalBadgeSize / 2, finalBadgeY + finalBadgeSize / 2);
 
         rightX = finalBadgeX - 14;
@@ -380,9 +380,9 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         const statusBg = isLulus ? '#dcfce7' : '#fef3c7';
         const statusColor = isLulus ? '#15803d' : '#b45309';
 
-        ctx.font = `bold ${Math.min(13, cardHeight * 0.18)}px "Arial", sans-serif`;
-        const stWidth = ctx.measureText(statusLabel).width + 16;
-        const stHeight = Math.min(28, Math.floor(cardHeight * 0.35));
+        ctx.font = `bold ${Math.min(14, cardHeight * 0.18)}px "Arial", sans-serif`;
+        const stWidth = ctx.measureText(statusLabel).width + 18;
+        const stHeight = Math.min(30, Math.floor(cardHeight * 0.35));
         const stX = rightX - stWidth;
         const stY = cardY + (cardHeight - stHeight) / 2;
 
@@ -627,7 +627,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
           <div className={styles.previewPanel}>
             <div style={{ color: '#94a3b8', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Sparkles size={14} color="#f97316" />
-              <span>Live Preview Poster Infografis ({aspectRatio === '1:1' ? '1080 x 1080 px' : '1440 x 1080 px'}) — Fits 100% Tight & Proportional</span>
+              <span>Live Preview Poster Infografis ({aspectRatio === '1:1' ? '1080 x 1080 px' : '1440 x 1080 px'}) — Ultra-Compact & Bold Typography</span>
             </div>
 
             <div className={styles.canvasContainer}>
