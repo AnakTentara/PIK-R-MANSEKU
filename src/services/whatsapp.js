@@ -95,9 +95,6 @@ export async function findUserFromWA(msg, extraText = '') {
   return null;
 }
 
-  return null;
-}
-
 export async function initWhatsApp() {
   const authFolder = path.join(process.cwd(), '.baileys_auth');
   const { state, saveCreds } = await useMultiFileAuthState(authFolder);
