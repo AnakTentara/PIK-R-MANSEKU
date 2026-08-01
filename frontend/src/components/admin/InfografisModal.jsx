@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Award, Download, X, Settings2, Image as ImageIcon, Sparkles, CheckSquare, RefreshCw } from 'lucide-react';
+import { Award, Download, X, Settings2, Image as ImageIcon, Sparkles, CheckSquare } from 'lucide-react';
 import styles from './InfografisModal.module.css';
 
 export default function InfografisModal({ isOpen, onClose, candidates = [], scoresMap = {} }) {
@@ -16,9 +16,9 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
   const [showNisn, setShowNisn] = useState(true);
   const [showClass, setShowClass] = useState(true);
   const [showPhoto, setShowPhoto] = useState(true);
-  const [showPos1, setShowPos1] = useState(true);
-  const [showPos2, setShowPos2] = useState(true);
-  const [showPos3, setShowPos3] = useState(true);
+  const [showPos1, setShowPos1] = useState(false);
+  const [showPos2, setShowPos2] = useState(false);
+  const [showPos3, setShowPos3] = useState(false);
   const [showFinalScore, setShowFinalScore] = useState(true);
   const [showStatus, setShowStatus] = useState(true);
   const [showOptionalText, setShowOptionalText] = useState(true);
@@ -66,8 +66,12 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     canvas.width = width;
     canvas.height = height;
 
+    const isDark = themeMode === 'orange_dark';
+    const textColorMain = isDark ? '#ffffff' : '#0f172a';
+    const textColorSub = isDark ? '#94a3b8' : '#475569';
+
     // ── 1. BACKGROUND GRADIENT & PATTERN ──
-    if (themeMode === 'orange_dark') {
+    if (isDark) {
       const grad = ctx.createLinearGradient(0, 0, width, height);
       grad.addColorStop(0, '#1c1917');
       grad.addColorStop(0.5, '#0f172a');
@@ -113,13 +117,8 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     ctx.fillRect(0, 0, width, 12);
 
     // ── 2. HEADER BANNER ──
-    const isDark = themeMode === 'orange_dark';
-    const textColorMain = isDark ? '#ffffff' : '#0f172a';
-    const textColorSub = isDark ? '#cbd5e1' : '#475569';
-
-    // Top Pill Badge
     const pillText = '🏆 INFOGRAFIS REKAP RANKING SELEKSI 🏆';
-    ctx.font = 'bold 16px "Calibri", sans-serif';
+    ctx.font = 'bold 16px "Arial", sans-serif';
     const pillWidth = ctx.measureText(pillText).width + 36;
     const pillX = (width - pillWidth) / 2;
     const pillY = 32;
@@ -130,8 +129,9 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     roundRect(ctx, pillX, pillY, pillWidth, 32, 16, true, true);
 
     ctx.fillStyle = '#ea580c';
-    ctx.font = 'bold 15px "Calibri", sans-serif';
+    ctx.font = 'bold 15px "Arial", sans-serif';
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
     ctx.fillText(pillText, width / 2, pillY + 21);
 
     // Main Title
@@ -152,77 +152,126 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     ctx.fillStyle = lineGrad;
     ctx.fillRect(width / 2 - 150, 138, 300, 3);
 
-    // ── 3. CANDIDATE CARDS LIST ──
+    // ── 3. CANDIDATE CARDS AUTO-LAYOUTING (1-COL vs 2-COL GRID) ──
     const count = selectedCandidates.length;
+    const isMultiColumn = count > 5;
+    const numCols = isMultiColumn ? 2 : 1;
+    const itemsPerCol = isMultiColumn ? Math.ceil(count / 2) : count;
+
     const cardAreaY = 155;
-    const footerAreaHeight = showOptionalText ? 100 : 40;
+    const footerAreaHeight = showOptionalText ? 95 : 45;
     const availableHeight = height - cardAreaY - footerAreaHeight;
 
-    const cardGap = count > 6 ? 8 : (count > 4 ? 12 : 16);
-    const cardHeight = Math.min(130, Math.max(68, Math.floor((availableHeight - (count - 1) * cardGap) / Math.max(1, count))));
-    const cardWidth = width - 100;
-    const startX = 50;
+    const cardGap = isMultiColumn ? 12 : Math.min(20, Math.max(10, Math.floor(availableHeight / (count * 2))));
+    const cardHeight = Math.min(135, Math.max(62, Math.floor((availableHeight - (itemsPerCol - 1) * cardGap) / itemsPerCol)));
+
+    const colWidth = isMultiColumn ? (width - 100 - 24) / 2 : width - 140;
+    const startX = isMultiColumn ? 50 : 70;
 
     selectedCandidates.forEach((c, i) => {
-      const cardY = cardAreaY + i * (cardHeight + cardGap);
+      const colIdx = isMultiColumn ? Math.floor(i / itemsPerCol) : 0;
+      const rowIdx = isMultiColumn ? (i % itemsPerCol) : i;
+
+      const cardX = isMultiColumn ? (startX + colIdx * (colWidth + 24)) : startX;
+      const cardY = cardAreaY + rowIdx * (cardHeight + cardGap);
       const rank = c.actualRank;
 
-      // Card Background Glassmorphism
       const isTop1 = rank === 1;
       const isTop2 = rank === 2;
       const isTop3 = rank === 3;
 
-      let cardBg = isDark ? 'rgba(30, 41, 59, 0.85)' : 'rgba(255, 255, 255, 0.92)';
-      let borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0';
+      let cardBg = isDark ? 'rgba(30, 41, 59, 0.88)' : 'rgba(255, 255, 255, 0.95)';
+      let borderColor = isDark ? 'rgba(255, 255, 255, 0.12)' : '#e2e8f0';
 
       if (isTop1) {
-        cardBg = isDark ? 'rgba(245, 158, 11, 0.15)' : '#fffbeb';
+        cardBg = isDark ? 'rgba(245, 158, 11, 0.18)' : '#fffbeb';
         borderColor = '#f59e0b';
       } else if (isTop2) {
-        cardBg = isDark ? 'rgba(148, 163, 184, 0.12)' : '#f8fafc';
+        cardBg = isDark ? 'rgba(148, 163, 184, 0.14)' : '#f8fafc';
         borderColor = '#94a3b8';
       } else if (isTop3) {
-        cardBg = isDark ? 'rgba(180, 83, 9, 0.15)' : '#fff7ed';
-        borderColor = '#d97706';
+        cardBg = isDark ? 'rgba(217, 119, 6, 0.18)' : '#fff7ed';
+        borderColor = '#ea580c';
       }
+
+      // Draw Card Outer Drop Shadow for 3D feel
+      ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(15, 23, 42, 0.08)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 4;
 
       ctx.fillStyle = cardBg;
       ctx.strokeStyle = borderColor;
       ctx.lineWidth = isTop1 || isTop2 || isTop3 ? 2 : 1;
-      roundRect(ctx, startX, cardY, cardWidth, cardHeight, 10, true, true);
+      roundRect(ctx, cardX, cardY, colWidth, cardHeight, 10, true, true);
 
-      // Rank Medal Circle / Badge
-      const medalX = startX + 35;
-      const medalY = cardY + cardHeight / 2;
-      const medalRadius = Math.min(24, cardHeight * 0.32);
+      // Reset shadow for inner elements
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
 
-      let medalBg = '#64748b';
-      let medalTextColor = '#ffffff';
-      let medalLabel = `#${rank}`;
+      // ── RANK BADGE: 3D ORANGE BOX WITH ROUNDED CORNERS ──
+      const badgeWidth = Math.min(65, Math.max(48, colWidth * 0.16));
+      const badgeHeight = Math.min(42, Math.max(30, cardHeight * 0.62));
+      const badgeX = cardX + 12;
+      const badgeY = cardY + (cardHeight - badgeHeight) / 2;
 
-      if (isTop1) { medalBg = '#f59e0b'; medalLabel = '🥇 1'; }
-      else if (isTop2) { medalBg = '#94a3b8'; medalLabel = '🥈 2'; }
-      else if (isTop3) { medalBg = '#d97706'; medalLabel = '🥉 3'; }
+      // 3D Drop Shadow for Badge
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.28)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 3;
 
-      ctx.beginPath();
-      ctx.arc(medalX, medalY, medalRadius, 0, Math.PI * 2);
-      ctx.fillStyle = medalBg;
-      ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      let badgeGrad;
+      if (isTop1) {
+        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+        badgeGrad.addColorStop(0, '#f59e0b');
+        badgeGrad.addColorStop(1, '#d97706');
+      } else if (isTop2) {
+        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+        badgeGrad.addColorStop(0, '#94a3b8');
+        badgeGrad.addColorStop(1, '#64748b');
+      } else if (isTop3) {
+        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+        badgeGrad.addColorStop(0, '#ea580c');
+        badgeGrad.addColorStop(1, '#c2410c');
+      } else {
+        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+        badgeGrad.addColorStop(0, '#f97316');
+        badgeGrad.addColorStop(1, '#ea580c');
+      }
 
-      ctx.fillStyle = medalTextColor;
-      ctx.font = `bold ${medalRadius * 0.9}px "Arial", sans-serif`;
+      ctx.fillStyle = badgeGrad;
+      roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, 8, true, false);
+
+      // Reset Shadow
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Badge Text inside 3D Box
+      ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(medalLabel, medalX, medalY + 1);
 
-      // Candidate Avatar / Initial
-      let contentLeft = medalX + medalRadius + 20;
+      const isNarrowBadge = badgeWidth < 58;
+
+      if (isNarrowBadge) {
+        ctx.font = `bold ${Math.min(18, badgeHeight * 0.55)}px "Arial", sans-serif`;
+        ctx.fillText(`#${rank}`, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+      } else {
+        ctx.font = `bold ${Math.min(10, badgeHeight * 0.3)}px "Arial", sans-serif`;
+        ctx.fillText('RANK', badgeX + badgeWidth / 2, badgeY + badgeHeight * 0.32);
+
+        ctx.font = `bold ${Math.min(18, badgeHeight * 0.52)}px "Arial", sans-serif`;
+        ctx.fillText(`${rank}`, badgeX + badgeWidth / 2, badgeY + badgeHeight * 0.72);
+      }
+
+      // Candidate Avatar Photo / Initial Circle
+      let contentLeft = badgeX + badgeWidth + 14;
 
       if (showPhoto) {
-        const photoRadius = Math.min(24, cardHeight * 0.32);
+        const photoRadius = Math.min(24, Math.max(16, cardHeight * 0.3));
         const photoX = contentLeft + photoRadius;
         const photoY = cardY + cardHeight / 2;
 
@@ -240,65 +289,78 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         ctx.textBaseline = 'middle';
         ctx.fillText(c.name ? c.name[0].toUpperCase() : 'P', photoX, photoY + 1);
 
-        contentLeft = photoX + photoRadius + 18;
+        contentLeft = photoX + photoRadius + 14;
       }
 
-      // Candidate Name, Class, NISN
+      // Candidate Name & Class
       ctx.textAlign = 'left';
       ctx.textBaseline = 'alphabetic';
 
-      const textYTop = cardY + Math.max(18, cardHeight * 0.38);
+      const nameFontSize = !isMultiColumn
+        ? Math.min(26, Math.max(18, cardHeight * 0.3))
+        : Math.min(20, Math.max(15, cardHeight * 0.28));
+
+      const textYTop = cardY + Math.max(18, cardHeight * 0.42);
 
       if (showName) {
         ctx.fillStyle = textColorMain;
-        ctx.font = `bold ${Math.min(20, Math.max(15, cardHeight * 0.28))}px "Arial", sans-serif`;
+        ctx.font = `bold ${nameFontSize}px "Arial", sans-serif`;
         const displayName = toTitleCase(c.name || 'Nama Candidate');
-        ctx.fillText(displayName, contentLeft, textYTop);
+
+        // Truncate name if too long to prevent overlapping right side badges
+        let truncatedName = displayName;
+        const maxNameWidth = colWidth - (contentLeft - cardX) - (showFinalScore ? 115 : 20);
+        if (ctx.measureText(truncatedName).width > maxNameWidth) {
+          while (truncatedName.length > 3 && ctx.measureText(truncatedName + '...').width > maxNameWidth) {
+            truncatedName = truncatedName.slice(0, -1);
+          }
+          truncatedName += '...';
+        }
+        ctx.fillText(truncatedName, contentLeft, textYTop);
       }
 
       if (showClass || showNisn) {
         ctx.fillStyle = textColorSub;
-        ctx.font = `500 ${Math.min(14, Math.max(11, cardHeight * 0.2))}px "Arial", sans-serif`;
+        ctx.font = `500 ${Math.min(14, Math.max(11, cardHeight * 0.22))}px "Arial", sans-serif`;
         const metaParts = [];
         if (showClass && c.className) metaParts.push(`Kelas: ${c.className}`);
         if (showNisn && c.nisn) metaParts.push(`NISN: ${c.nisn}`);
         ctx.fillText(metaParts.join('  ·  '), contentLeft, textYTop + Math.max(16, cardHeight * 0.24));
       }
 
-      // Right Side Badges (Scores & Final Score & Status)
-      let rightX = startX + cardWidth - 20;
+      // Right Side Badges: Final Score & Status
+      let rightX = cardX + colWidth - 14;
 
-      // Final Score Badge
       if (showFinalScore) {
         const finalScoreVal = c.scoreObj.finalScore !== null && c.scoreObj.finalScore !== undefined
           ? c.scoreObj.finalScore.toFixed(2)
           : '-';
 
-        const finalBadgeWidth = Math.max(90, cardHeight * 1.1);
-        const finalBadgeHeight = Math.min(48, cardHeight * 0.65);
+        const finalBadgeWidth = Math.max(82, Math.min(100, colWidth * 0.22));
+        const finalBadgeHeight = Math.min(46, Math.max(32, cardHeight * 0.65));
         const finalBadgeX = rightX - finalBadgeWidth;
         const finalBadgeY = cardY + (cardHeight - finalBadgeHeight) / 2;
 
-        const badgeGrad = ctx.createLinearGradient(finalBadgeX, 0, finalBadgeX + finalBadgeWidth, 0);
-        badgeGrad.addColorStop(0, '#ea580c');
-        badgeGrad.addColorStop(1, '#f97316');
+        const badgeGradFinal = ctx.createLinearGradient(finalBadgeX, 0, finalBadgeX + finalBadgeWidth, 0);
+        badgeGradFinal.addColorStop(0, '#ea580c');
+        badgeGradFinal.addColorStop(1, '#f97316');
 
-        ctx.fillStyle = badgeGrad;
+        ctx.fillStyle = badgeGradFinal;
         roundRect(ctx, finalBadgeX, finalBadgeY, finalBadgeWidth, finalBadgeHeight, 8, true, false);
 
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
-        ctx.font = `bold ${finalBadgeHeight * 0.46}px "Arial", sans-serif`;
+        ctx.textBaseline = 'alphabetic';
+        ctx.font = `bold ${finalBadgeHeight * 0.44}px "Arial", sans-serif`;
         ctx.fillText(finalScoreVal, finalBadgeX + finalBadgeWidth / 2, finalBadgeY + finalBadgeHeight * 0.62);
 
         ctx.font = `bold ${finalBadgeHeight * 0.22}px "Arial", sans-serif`;
         ctx.fillText('NILAI AKHIR', finalBadgeX + finalBadgeWidth / 2, finalBadgeY + finalBadgeHeight * 0.88);
 
-        rightX = finalBadgeX - 16;
+        rightX = finalBadgeX - 12;
       }
 
-      // Status Badge (LULUS / PENDING)
-      if (showStatus) {
+      if (showStatus && !isMultiColumn) {
         const statusVal = c.status || 'PENDING';
         const isLulus = statusVal === 'LULUS';
         const statusLabel = isLulus ? '✓ LULUS' : '⏳ PENDING';
@@ -316,41 +378,14 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
 
         ctx.fillStyle = statusColor;
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
         ctx.fillText(statusLabel, stX + stWidth / 2, stY + stHeight * 0.68);
-
-        rightX = stX - 14;
-      }
-
-      // POS 1, POS 2, POS 3 Scores Pills
-      if (showPos1 || showPos2 || showPos3) {
-        const pos1 = c.scoreObj.pos1Avg !== undefined && c.scoreObj.pos1Avg !== null ? c.scoreObj.pos1Avg.toFixed(1) : '-';
-        const pos2 = c.scoreObj.pos2Avg !== undefined && c.scoreObj.pos2Avg !== null ? c.scoreObj.pos2Avg.toFixed(1) : '-';
-        const pos3 = c.scoreObj.pos3Avg !== undefined && c.scoreObj.pos3Avg !== null ? c.scoreObj.pos3Avg.toFixed(1) : '-';
-
-        const posPills = [];
-        if (showPos1) posPills.push(`P1: ${pos1}`);
-        if (showPos2) posPills.push(`P2: ${pos2}`);
-        if (showPos3) posPills.push(`P3: ${pos3}`);
-
-        ctx.font = `600 ${Math.min(12, cardHeight * 0.18)}px "Arial", sans-serif`;
-        const posText = posPills.join(' | ');
-        const posWidth = ctx.measureText(posText).width + 16;
-        const posHeight = Math.min(26, cardHeight * 0.36);
-        const posX = rightX - posWidth;
-        const posY = cardY + (cardHeight - posHeight) / 2;
-
-        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9';
-        roundRect(ctx, posX, posY, posWidth, posHeight, 6, true, false);
-
-        ctx.fillStyle = textColorSub;
-        ctx.textAlign = 'center';
-        ctx.fillText(posText, posX + posWidth / 2, posY + posHeight * 0.68);
       }
     });
 
     // ── 4. FOOTER OPTIONAL TEXT & WATERMARK ──
     if (showOptionalText && optionalText.trim()) {
-      const footerY = height - 85;
+      const footerY = height - 80;
 
       // Divider line
       ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(234, 88, 12, 0.2)';
@@ -363,6 +398,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
       ctx.fillStyle = '#ea580c';
       ctx.font = 'bold 14px "Arial", sans-serif';
       ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
       ctx.fillText(optionalText.trim(), width / 2, footerY + 28);
 
       ctx.fillStyle = textColorSub;
@@ -372,6 +408,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
       ctx.fillStyle = textColorSub;
       ctx.font = '12px "Arial", sans-serif';
       ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
       ctx.fillText(`Official PIK-R MANSEKU Announcement  ·  ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, width / 2, height - 20);
     }
 
@@ -547,18 +584,6 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
                   <span>Foto Profil Avatar</span>
                 </label>
                 <label className={styles.checkboxLabel}>
-                  <input type="checkbox" checked={showPos1} onChange={(e) => setShowPos1(e.target.checked)} />
-                  <span>Nilai POS 1</span>
-                </label>
-                <label className={styles.checkboxLabel}>
-                  <input type="checkbox" checked={showPos2} onChange={(e) => setShowPos2(e.target.checked)} />
-                  <span>Nilai POS 2</span>
-                </label>
-                <label className={styles.checkboxLabel}>
-                  <input type="checkbox" checked={showPos3} onChange={(e) => setShowPos3(e.target.checked)} />
-                  <span>Nilai POS 3</span>
-                </label>
-                <label className={styles.checkboxLabel}>
                   <input type="checkbox" checked={showFinalScore} onChange={(e) => setShowFinalScore(e.target.checked)} />
                   <span>Nilai Rapor Total</span>
                 </label>
@@ -592,7 +617,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
           <div className={styles.previewPanel}>
             <div style={{ color: '#94a3b8', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Sparkles size={14} color="#f97316" />
-              <span>Live Preview Poster Infografis ({aspectRatio === '1:1' ? '1080 x 1080 px' : '1440 x 1080 px'})</span>
+              <span>Live Preview Poster Infografis ({aspectRatio === '1:1' ? '1080 x 1080 px' : '1440 x 1080 px'}) — Fits 100% In Frame</span>
             </div>
 
             <div className={styles.canvasContainer}>
@@ -604,7 +629,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         {/* Modal Footer */}
         <div className={styles.modalFooter}>
           <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-            Menampilkan <strong>{selectedCandidates.length}</strong> peserta teratas.
+            Menampilkan <strong>{selectedCandidates.length}</strong> peserta teratas dalam tata letak otomatis ({selectedCandidates.length > 5 ? '2 Kolom Kanan-Kiri' : '1 Kolom Terpusat'}).
           </span>
 
           <button type="button" onClick={handleDownload} className={styles.downloadBtn}>
