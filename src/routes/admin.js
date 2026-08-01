@@ -38,6 +38,7 @@ import {
   createMember,
   updateMember,
   deleteMember,
+  bulkSetAlumni,
   // Org
   getOrgMembers,
   createOrgMember,
@@ -203,6 +204,7 @@ router.post('/session/finish', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMU
 // Member CRUD (MEDINFO can read, but only DEVELOPER and KABINET_UMUM can create/edit/delete)
 router.get('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), getMembers);
 router.post('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), createMember);
+router.post('/members/bulk-alumni', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), bulkSetAlumni);
 router.put('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), updateMember);
 router.delete('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteMember);
 

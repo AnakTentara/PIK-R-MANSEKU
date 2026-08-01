@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/db.js';
-import { isMemberExpired } from '../utils/memberUtils.js';
+
 import { toTitleCase } from '../utils/nameUtils.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
@@ -147,20 +147,11 @@ export async function loginCandidate(req, res) {
       return res.status(401).json({ message: 'NISN atau password salah' });
     }
 
-    // 3. For Members, check expiration (Auto-alumni check)
-    if (isMember && user.role !== 'PEMBINA') {
-      const joinYear = user.joinYear || new Date(user.createdAt).getFullYear();
-      if (user.status === 'ALUMNI' || isMemberExpired(joinYear, user.className)) {
-        if (user.status !== 'ALUMNI') {
-          await prisma.member.update({
-            where: { id: user.id },
-            data: { status: 'ALUMNI' }
-          });
-        }
-        return res.status(403).json({ 
-          message: 'Akun Anda telah dinonaktifkan karena masa aktif keanggotaan Anda telah habis (Sudah menjadi Alumni).' 
-        });
-      }
+    // 3. For Members, check if already alumni (admin-managed status only)
+    if (isMember && user.status === 'ALUMNI') {
+      return res.status(403).json({ 
+        message: 'Akun Anda telah dinonaktifkan karena Anda sudah berstatus Alumni.' 
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

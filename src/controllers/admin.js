@@ -8,7 +8,7 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import prisma, { initDatabase, getDbProvider } from '../config/db.js';
 import { sendBulkNotifications } from '../services/notification.js';
-import { isMemberExpired } from '../utils/memberUtils.js';
+
 import { toTitleCase } from '../utils/nameUtils.js';
 import { sendWhatsApp, sendWhatsAppWithAttachments } from '../services/whatsapp.js';
 
@@ -749,21 +749,7 @@ export async function finishAndMigrateSession(req, res) {
       create: { key: 'REGISTRATION_SESSION', value: JSON.stringify({ status: 'closed', closedAt: new Date().toISOString(), migratedCount: lulusList.length }) }
     });
 
-    // 5. Auto-alumni for active members
-    await prisma.member.updateMany({
-      where: {
-        status: 'ACTIVE',
-        NOT: { role: 'PEMBINA' },
-        OR: [
-          { className: { startsWith: 'XII' }, joinYear: { lte: currentYear - 1 } },
-          { className: { startsWith: '12' },  joinYear: { lte: currentYear - 1 } },
-          { className: { startsWith: 'XI' },  joinYear: { lte: currentYear - 2 } },
-          { className: { startsWith: '11' },  joinYear: { lte: currentYear - 2 } },
-          { joinYear: { lte: currentYear - 3 } },
-        ]
-      },
-      data: { status: 'ALUMNI' }
-    });
+
 
     return res.json({
       message: `Masa pendaftaran dan seleksi berhasil diselesaikan! ${lulusList.length} peserta LULUS telah dipindahkan ke data Anggota Tetap.`,
@@ -779,26 +765,9 @@ export async function finishAndMigrateSession(req, res) {
 // MEMBER CRUD
 // ─────────────────────────────────────────────────
 
-// 15. Get All Members (with auto-alumni check via updateMany — efisien 1 query)
+// 15. Get All Members (no auto-alumni — status managed by admin)
 export async function getMembers(req, res) {
   try {
-    const currentYear = new Date().getFullYear();
-
-    // Auto-update alumni: gunakan updateMany agar tidak N+1 query per anggota
-    await prisma.member.updateMany({
-      where: {
-        status: 'ACTIVE',
-        NOT: { role: 'PEMBINA' },
-        OR: [
-          { className: { startsWith: 'XII' }, joinYear: { lte: currentYear - 1 } },
-          { className: { startsWith: '12' },  joinYear: { lte: currentYear - 1 } },
-          { className: { startsWith: 'XI' },  joinYear: { lte: currentYear - 2 } },
-          { className: { startsWith: '11' },  joinYear: { lte: currentYear - 2 } },
-          { joinYear: { lte: currentYear - 3 } }, // default: Kelas X / 3 tahun
-        ]
-      },
-      data: { status: 'ALUMNI' }
-    });
 
     const { status } = req.query;
     const members = await prisma.member.findMany({
@@ -2323,7 +2292,32 @@ export async function triggerGitPullReload(req, res) {
     res.status(500).json({ success: false, message: 'Gagal melakukan git pull reload.' });
   }
 }
+// 19. Bulk Set Alumni — Admin manually graduates a batch of members by joinYear
+export async function bulkSetAlumni(req, res) {
+  try {
+    const { joinYear } = req.body;
 
+    if (!joinYear) {
+      return res.status(400).json({ message: 'Tahun angkatan (joinYear) wajib diisi.' });
+    }
 
+    const result = await prisma.member.updateMany({
+      where: {
+        status: 'ACTIVE',
+        joinYear: parseInt(joinYear),
+        NOT: { role: 'PEMBINA' }
+      },
+      data: { status: 'ALUMNI' }
+    });
 
+    return res.json({
+      success: true,
+      message: `${result.count} anggota angkatan ${joinYear} berhasil diubah menjadi Alumni.`,
+      count: result.count
+    });
+  } catch (error) {
+    console.error('Error bulk set alumni:', error);
+    return res.status(500).json({ message: 'Gagal mengubah status anggota menjadi alumni.' });
+  }
+}
 

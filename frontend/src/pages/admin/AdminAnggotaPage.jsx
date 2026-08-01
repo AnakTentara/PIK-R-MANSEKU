@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
-import { getMembers, createMember, updateMember, deleteMember } from '@/api/admin';
+import { getMembers, createMember, updateMember, deleteMember, bulkSetAlumni } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import SkeletonTable from '@/components/skeletons/SkeletonTable';
 import { useUIStore } from '@/stores/uiStore';
-import { Edit, Trash2, Search, AlertTriangle, Key, Eye, EyeOff, ChevronLeft, ChevronRight, Plus, Copy, CheckCircle, Upload, User } from 'lucide-react';
+import { Edit, Trash2, Search, AlertTriangle, Key, Eye, EyeOff, ChevronLeft, ChevronRight, Plus, Copy, CheckCircle, Upload, User, GraduationCap } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/stores/authStore';
 import { getUploadUrl } from '@/api/axios';
@@ -279,6 +279,37 @@ export default function AdminAnggotaPage() {
   const activeCount = members.filter(m => m.status === 'ACTIVE').length;
   const alumniCount = members.filter(m => m.status === 'ALUMNI').length;
 
+  // Bulk Alumni Modal State
+  const [alumniModalOpen, setAlumniModalOpen] = useState(false);
+  const [selectedAngkatan, setSelectedAngkatan] = useState('');
+  const [bulkAlumniLoading, setBulkAlumniLoading] = useState(false);
+
+  const activeAngkatanOptions = useMemo(() => {
+    const activeMembers = members.filter(m => m.status === 'ACTIVE' && m.role !== 'PEMBINA');
+    return [...new Set(activeMembers.map(m => m.joinYear).filter(Boolean))].sort((a, b) => a - b);
+  }, [members]);
+
+  const selectedAngkatanCount = useMemo(() => {
+    if (!selectedAngkatan) return 0;
+    return members.filter(m => m.status === 'ACTIVE' && m.joinYear === parseInt(selectedAngkatan) && m.role !== 'PEMBINA').length;
+  }, [members, selectedAngkatan]);
+
+  const handleBulkAlumni = async () => {
+    if (!selectedAngkatan) return toast.error('Pilih angkatan terlebih dahulu.');
+    setBulkAlumniLoading(true);
+    try {
+      const res = await bulkSetAlumni(parseInt(selectedAngkatan));
+      toast.success(res.data.message);
+      setAlumniModalOpen(false);
+      setSelectedAngkatan('');
+      fetchMembers();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal mengubah status alumni.');
+    } finally {
+      setBulkAlumniLoading(false);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <AdminHeader
@@ -286,9 +317,14 @@ export default function AdminAnggotaPage() {
         subtitle={`${activeCount} Anggota Aktif | ${alumniCount} Alumni`}
       >
         {!isMedinfo && (
-          <button className="btn btn-primary" onClick={handleOpenAddModal}>
-            <Plus size={16} /> Tambah Anggota
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className="btn btn-primary" onClick={handleOpenAddModal}>
+              <Plus size={16} /> Tambah Anggota
+            </button>
+            <button className={styles.btnAlumni} onClick={() => setAlumniModalOpen(true)}>
+              <GraduationCap size={16} /> Wisudakan Angkatan
+            </button>
+          </div>
         )}
       </AdminHeader>
 
@@ -297,7 +333,7 @@ export default function AdminAnggotaPage() {
         <div className={styles.infoBanner}>
           <AlertTriangle size={18} />
           <span>
-            Anggota PIK-R memiliki masa aktif maksimal 3 tahun, setelah itu status otomatis berubah menjadi <strong>ALUMNI</strong>.
+            Status anggota dikelola secara manual oleh admin. Gunakan tombol <strong>"Wisudakan Angkatan"</strong> untuk mengubah status satu angkatan menjadi Alumni.
           </span>
         </div>
 
@@ -796,6 +832,52 @@ export default function AdminAnggotaPage() {
             >
               Selesai & Tutup
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Wisudakan Angkatan Modal */}
+      {alumniModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setAlumniModalOpen(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px' }}>
+            <h2 className={styles.modalTitle}>
+              <GraduationCap size={22} /> Wisudakan Angkatan
+            </h2>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: '16px', lineHeight: 1.5 }}>
+              Semua anggota aktif pada angkatan yang dipilih akan diubah statusnya menjadi <strong>ALUMNI</strong>. Pembina tidak terpengaruh.
+            </p>
+
+            <label className={styles.formLabel}>Pilih Angkatan</label>
+            <select
+              className={styles.formInput}
+              value={selectedAngkatan}
+              onChange={(e) => setSelectedAngkatan(e.target.value)}
+              style={{ marginBottom: '12px' }}
+            >
+              <option value="">-- Pilih Angkatan --</option>
+              {activeAngkatanOptions.map((yr) => (
+                <option key={yr} value={yr}>Angkatan {yr}</option>
+              ))}
+            </select>
+
+            {selectedAngkatan && (
+              <div className={styles.alumniPreview}>
+                <AlertTriangle size={16} />
+                <span><strong>{selectedAngkatanCount}</strong> anggota aktif angkatan {selectedAngkatan} akan menjadi Alumni.</span>
+              </div>
+            )}
+
+            <div className={styles.modalActions}>
+              <button type="button" className="btn btn-ghost" onClick={() => setAlumniModalOpen(false)}>Batal</button>
+              <button
+                type="button"
+                className={styles.btnAlumniConfirm}
+                onClick={handleBulkAlumni}
+                disabled={!selectedAngkatan || bulkAlumniLoading || selectedAngkatanCount === 0}
+              >
+                {bulkAlumniLoading ? 'Memproses...' : `Wisudakan ${selectedAngkatanCount} Anggota`}
+              </button>
+            </div>
           </div>
         </div>
       )}

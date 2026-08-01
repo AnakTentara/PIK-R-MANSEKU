@@ -110,6 +110,9 @@ export const updateMember = (id, data, config = {}) =>
 export const deleteMember = (id) =>
   api.delete(`/admin/members/${id}`);
 
+export const bulkSetAlumni = (joinYear) =>
+  api.post('/admin/members/bulk-alumni', { joinYear });
+
 // Org Members
 export const getOrgMembers = () =>
   api.get('/admin/org');
