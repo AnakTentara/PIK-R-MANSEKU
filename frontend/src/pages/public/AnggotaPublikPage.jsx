@@ -2,12 +2,70 @@ import { useState, useEffect } from 'react';
 import { getPublicOrg, getPublicMembers } from '@/api/public';
 import SEO from '@/components/common/SEO';
 import { getUploadUrl } from '@/api/axios';
+import { ChevronDown } from 'lucide-react';
 import styles from './AnggotaPublikPage.module.css';
+
+// Utility helper to format names: Title Case, space after dot (e.g. M. Vanholen, Haikal Mabrur)
+const formatName = (name) => {
+  if (!name) return '';
+  // Insert space after dot if followed by a letter (e.g. M.VANHOLEN -> M. VANHOLEN)
+  let formatted = String(name).replace(/\.([a-zA-Z])/g, '. $1');
+  // Separate camelCase if any (e.g. DedeAnugrah -> Dede Anugrah)
+  formatted = formatted.replace(/([a-z])([A-Z])/g, '$1 $2');
+  
+  return formatted
+    .toLowerCase()
+    .split(' ')
+    .map(word => {
+      if (!word) return '';
+      return word
+        .split('-')
+        .map(part => (part ? part.charAt(0).toUpperCase() + part.slice(1) : ''))
+        .join('-');
+    })
+    .join(' ');
+};
+
+// Normalize name string for case-insensitive and punctuation-agnostic comparison
+const normalizeName = (str) => {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+};
+
+// Robust check whether a member is already part of the organizational tree structure
+const isMemberInOrgTree = (member, orgList) => {
+  const normMemName = normalizeName(member.name);
+  if (!normMemName) return false;
+
+  return orgList.some(o => {
+    // Check ID link first if present
+    if (o.memberId && member.id && o.memberId === member.id) return true;
+    if (o.member?.id && member.id && o.member.id === member.id) return true;
+
+    // Check normalized name matching
+    const normOrgName = normalizeName(o.name || o.member?.name);
+    if (!normOrgName) return false;
+
+    return normOrgName === normMemName || 
+           normOrgName.includes(normMemName) || 
+           normMemName.includes(normOrgName);
+  });
+};
 
 export default function AnggotaPublikPage() {
   const [orgData, setOrgData] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedDivisions, setExpandedDivisions] = useState({});
+
+  const toggleDivision = (divId) => {
+    setExpandedDivisions(prev => ({
+      ...prev,
+      [divId]: !prev[divId]
+    }));
+  };
 
   const getDivisionStaff = (leaderJabatan) => {
     if (!leaderJabatan) return [];
@@ -50,9 +108,20 @@ export default function AnggotaPublikPage() {
     m.jabatan !== 'Bendahara Umum'
   );
 
+  // Sort division list ascending by number of staff members (least to most)
+  const sortedKetuaDivisiList = [...ketuaDivisiList].sort((a, b) => {
+    const countA = getDivisionStaff(a.jabatan).length;
+    const countB = getDivisionStaff(b.jabatan).length;
+    if (countA !== countB) {
+      return countA - countB;
+    }
+    return a.name.localeCompare(b.name);
+  });
+
   const getMemberJabatan = (memberName) => {
-    const found = orgData.find(o => o.name === memberName);
-    return found ? found.jabatan : 'Anggota Biasa';
+    const normName = normalizeName(memberName);
+    const found = orgData.find(o => normalizeName(o.name) === normName);
+    return found ? found.jabatan : 'Anggota Aktif';
   };
 
   return (
@@ -92,7 +161,7 @@ export default function AnggotaPublikPage() {
                         <div className={styles.initials}>{pembina.name[0]}</div>
                       )}
                     </div>
-                    <h5>{pembina.name}</h5>
+                    <h5>{formatName(pembina.name)}</h5>
                     <p>{pembina.jabatan}</p>
                   </div>
                 </div>
@@ -113,7 +182,7 @@ export default function AnggotaPublikPage() {
                           <div className={styles.initials}>{ketua.name[0]}</div>
                         )}
                       </div>
-                      <h5>{ketua.name}</h5>
+                      <h5>{formatName(ketua.name)}</h5>
                       <p>{ketua.jabatan}</p>
                     </div>
                   )}
@@ -127,7 +196,7 @@ export default function AnggotaPublikPage() {
                           <div className={styles.initials}>{wakil.name[0]}</div>
                         )}
                       </div>
-                      <h5>{wakil.name}</h5>
+                      <h5>{formatName(wakil.name)}</h5>
                       <p>{wakil.jabatan}</p>
                     </div>
                   )}
@@ -149,7 +218,7 @@ export default function AnggotaPublikPage() {
                           <div className={styles.initialsSmall}>{sekretaris.name[0]}</div>
                         )}
                       </div>
-                      <h6>{sekretaris.name}</h6>
+                      <h6>{formatName(sekretaris.name)}</h6>
                       <p>{sekretaris.jabatan}</p>
                     </div>
                   )}
@@ -163,62 +232,94 @@ export default function AnggotaPublikPage() {
                           <div className={styles.initialsSmall}>{bendahara.name[0]}</div>
                         )}
                       </div>
-                      <h6>{bendahara.name}</h6>
+                      <h6>{formatName(bendahara.name)}</h6>
                       <p>{bendahara.jabatan}</p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Line Connector to Ketua Divisi */}
-              {ketuaDivisiList.length > 0 && <div className={styles.connectorLine} />}
+              {/* Line Connector to Ketua Divisi Tree Bus */}
+              {sortedKetuaDivisiList.length > 0 && <div className={styles.connectorLine} />}
 
               {/* Level 4: Ketua Divisi & Level 5: Anggota Divisi */}
-              {ketuaDivisiList.length > 0 && (
-                <div className={styles.kabinetGrid}>
-                  {ketuaDivisiList.map(k => {
-                    const staff = getDivisionStaff(k.jabatan);
-                    const hasStaff = staff.length > 0;
+              {sortedKetuaDivisiList.length > 0 && (
+                <div className={styles.treeBusContainer}>
+                  <div className={styles.treeBusLine} />
+                  <div className={styles.kabinetGrid}>
+                    {sortedKetuaDivisiList.map(k => {
+                      const staff = getDivisionStaff(k.jabatan);
+                      const hasStaff = staff.length > 0;
+                      const isExpanded = !!expandedDivisions[k.id];
 
-                    return (
-                      <div key={k.id} className={styles.kabinetContainer}>
-                        <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
-                          <div className={styles.nodeAvatarSmall}>
-                            {(k.effectivePhoto || k.photoPath) ? (
-                              <img src={getUploadUrl(k.effectivePhoto || k.photoPath)} alt={k.name} />
+                      return (
+                        <div key={k.id} className={styles.kabinetContainer}>
+                          {/* Card Ketua Divisi with Integrated Orange Toggle Button */}
+                          <div className={styles.divisionCardWrapper}>
+                            <div className={`${styles.treeNode} ${styles.nodeKabinetCard}`}>
+                              <div className={styles.nodeAvatarSmall}>
+                                {(k.effectivePhoto || k.photoPath) ? (
+                                  <img src={getUploadUrl(k.effectivePhoto || k.photoPath)} alt={k.name} />
+                                ) : (
+                                  <div className={styles.initialsSmall}>{k.name[0]}</div>
+                                )}
+                              </div>
+                              <h6>{formatName(k.name)}</h6>
+                              <p>{k.jabatan}</p>
+                            </div>
+
+                            {/* Toggle Open/Close Button: Width matches card, Height ~50% of card height (2:1 ratio), Vibrant contrast orange */}
+                            {hasStaff ? (
+                              <button
+                                type="button"
+                                onClick={() => toggleDivision(k.id)}
+                                className={`${styles.toggleStaffBtn} ${isExpanded ? styles.toggleStaffBtnActive : ''}`}
+                                aria-expanded={isExpanded}
+                                title={isExpanded ? 'Sembunyikan anggota' : 'Tampilkan anggota'}
+                              >
+                                <span>{isExpanded ? 'Sembunyikan' : `Lihat (${staff.length}) Anggota`}</span>
+                                <ChevronDown 
+                                  size={16} 
+                                  className={`${styles.toggleIcon} ${isExpanded ? styles.toggleIconRotated : ''}`} 
+                                />
+                              </button>
                             ) : (
-                              <div className={styles.initialsSmall}>{k.name[0]}</div>
+                              <div className={styles.noStaffBadge}>
+                                <span>Tidak ada anggota</span>
+                              </div>
                             )}
                           </div>
-                          <h6>{k.name}</h6>
-                          <p>{k.jabatan}</p>
-                        </div>
 
-                        {/* Level 5: Staf/Anggota Divisi */}
-                        {hasStaff && (
-                          <div className={styles.staffDropdown}>
-                            <div className={styles.staffList}>
-                              {staff.map(s => (
-                                <div key={s.id} className={styles.staffNode}>
-                                  <div className={styles.staffAvatar}>
-                                    {(s.effectivePhoto || s.photoPath) ? (
-                                      <img src={getUploadUrl(s.effectivePhoto || s.photoPath)} alt={s.name} />
-                                    ) : (
-                                      <div className={styles.staffInitials}>{s.name[0]}</div>
-                                    )}
-                                  </div>
-                                  <div className={styles.staffInfo}>
-                                    <strong>{s.name}</strong>
-                                    <span>{s.jabatan}</span>
+                          {/* Level 5: Staf/Anggota Divisi (Collapsible with smooth grid height transition) */}
+                          {hasStaff && (
+                            <div className={`${styles.staffCollapsible} ${isExpanded ? styles.staffCollapsibleExpanded : ''}`}>
+                              <div className={styles.staffCollapsibleInner}>
+                                <div className={styles.staffDropdown}>
+                                  <div className={styles.staffList}>
+                                    {staff.map(s => (
+                                      <div key={s.id} className={styles.staffNode}>
+                                        <div className={styles.staffAvatar}>
+                                          {(s.effectivePhoto || s.photoPath) ? (
+                                            <img src={getUploadUrl(s.effectivePhoto || s.photoPath)} alt={s.name} />
+                                          ) : (
+                                            <div className={styles.staffInitials}>{s.name[0]}</div>
+                                          )}
+                                        </div>
+                                        <div className={styles.staffInfo}>
+                                          <strong>{formatName(s.name)}</strong>
+                                          <span>{s.jabatan}</span>
+                                        </div>
+                                      </div>
+                                    ))}
                                   </div>
                                 </div>
-                              ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -226,7 +327,7 @@ export default function AnggotaPublikPage() {
         </div>
       </section>
 
-      {/* 3. Daftar Anggota Aktif */}
+      {/* 3. Daftar Anggota Aktif (Hanya anggota biasa yang tidak ada di struktur organisasi) */}
       <section className={`section ${styles.membersSection}`}>
         <div className="container">
           <h2 className={styles.sectionTitle}>Daftar Anggota Aktif</h2>
@@ -238,10 +339,11 @@ export default function AnggotaPublikPage() {
               ))}
             </div>
           ) : (() => {
-            const ordinaryMembers = members.filter(m => !orgData.some(o => o.name === m.name && o.isCurrent));
+            // Filter out members who are already present anywhere in the organizational tree above
+            const ordinaryMembers = members.filter(m => !isMemberInOrgTree(m, orgData));
             
             if (ordinaryMembers.length === 0) {
-              return <p className={styles.emptyText}>Belum ada anggota aktif biasa terdaftar.</p>;
+              return <p className={styles.emptyText}>Semua anggota aktif telah terdaftar dalam struktur organisasi di atas.</p>;
             }
 
             return (
@@ -260,7 +362,7 @@ export default function AnggotaPublikPage() {
                         )}
                       </div>
                       <div className={styles.memberInfo}>
-                        <h4>{m.name}</h4>
+                        <h4>{formatName(m.name)}</h4>
                         <p>Kelas {m.className} • <span className={styles.memberJabatan}>{jabatan}</span></p>
                         <span className={styles.joinYear}>Angkatan {m.joinYear}</span>
                       </div>
@@ -275,3 +377,5 @@ export default function AnggotaPublikPage() {
     </div>
   );
 }
+
+
