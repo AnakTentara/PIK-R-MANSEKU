@@ -16,9 +16,6 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
   const [showNisn, setShowNisn] = useState(true);
   const [showClass, setShowClass] = useState(true);
   const [showPhoto, setShowPhoto] = useState(true);
-  const [showPos1, setShowPos1] = useState(false);
-  const [showPos2, setShowPos2] = useState(false);
-  const [showPos3, setShowPos3] = useState(false);
   const [showFinalScore, setShowFinalScore] = useState(true);
   const [showStatus, setShowStatus] = useState(true);
   const [showOptionalText, setShowOptionalText] = useState(true);
@@ -118,31 +115,31 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
 
     // ── 2. HEADER BANNER ──
     const pillText = '🏆 INFOGRAFIS REKAP RANKING SELEKSI 🏆';
-    ctx.font = 'bold 16px "Arial", sans-serif';
+    ctx.font = 'bold 15px "Arial", sans-serif';
     const pillWidth = ctx.measureText(pillText).width + 36;
     const pillX = (width - pillWidth) / 2;
-    const pillY = 32;
+    const pillY = 28;
 
     ctx.fillStyle = isDark ? 'rgba(234, 88, 12, 0.3)' : 'rgba(234, 88, 12, 0.15)';
     ctx.strokeStyle = '#ea580c';
     ctx.lineWidth = 1.5;
-    roundRect(ctx, pillX, pillY, pillWidth, 32, 16, true, true);
+    roundRect(ctx, pillX, pillY, pillWidth, 30, 15, true, true);
 
     ctx.fillStyle = '#ea580c';
-    ctx.font = 'bold 15px "Arial", sans-serif';
+    ctx.font = 'bold 14px "Arial", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText(pillText, width / 2, pillY + 21);
+    ctx.fillText(pillText, width / 2, pillY + 20);
 
     // Main Title
     ctx.fillStyle = textColorMain;
-    ctx.font = 'bold 34px "Arial", sans-serif';
+    ctx.font = 'bold 32px "Arial", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('TOP RANKING SELEKSI CALON ANGGOTA', width / 2, 98);
+    ctx.fillText('TOP RANKING SELEKSI CALON ANGGOTA', width / 2, 92);
 
     ctx.fillStyle = '#ea580c';
-    ctx.font = 'bold 20px "Arial", sans-serif';
-    ctx.fillText('PIK-R MANSEKU — MAN 1 MUARA ENIM TAHUN 2026', width / 2, 128);
+    ctx.font = 'bold 18px "Arial", sans-serif';
+    ctx.fillText('PIK-R MANSEKU — MAN 1 MUARA ENIM TAHUN 2026', width / 2, 118);
 
     // Header Decorative Underline
     const lineGrad = ctx.createLinearGradient(width / 2 - 150, 0, width / 2 + 150, 0);
@@ -150,29 +147,28 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     lineGrad.addColorStop(0.5, '#ea580c');
     lineGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
     ctx.fillStyle = lineGrad;
-    ctx.fillRect(width / 2 - 150, 138, 300, 3);
+    ctx.fillRect(width / 2 - 150, 126, 300, 3);
 
-    // ── 3. CANDIDATE CARDS AUTO-LAYOUTING (1-COL vs 2-COL GRID) ──
+    // ── 3. CANDIDATE CARDS COMPACT AUTO-LAYOUTING (1-COL vs 2-COL GRID) ──
     const count = selectedCandidates.length;
     const isMultiColumn = count > 5;
-    const numCols = isMultiColumn ? 2 : 1;
     const itemsPerCol = isMultiColumn ? Math.ceil(count / 2) : count;
 
-    const cardAreaY = 155;
-    const footerAreaHeight = showOptionalText ? 95 : 45;
-    const availableHeight = height - cardAreaY - footerAreaHeight;
+    const cardAreaY = 142;
+    const footerAreaHeight = showOptionalText ? 90 : 45;
+    const availableHeight = height - cardAreaY - footerAreaHeight - 15;
 
-    const cardGap = isMultiColumn ? 12 : Math.min(20, Math.max(10, Math.floor(availableHeight / (count * 2))));
-    const cardHeight = Math.min(135, Math.max(62, Math.floor((availableHeight - (itemsPerCol - 1) * cardGap) / itemsPerCol)));
+    const cardGap = isMultiColumn ? 10 : Math.min(16, Math.max(8, Math.floor((availableHeight - count * 75) / count)));
+    const cardHeight = Math.min(85, Math.max(54, Math.floor((availableHeight - (itemsPerCol - 1) * cardGap) / itemsPerCol)));
 
-    const colWidth = isMultiColumn ? (width - 100 - 24) / 2 : width - 140;
-    const startX = isMultiColumn ? 50 : 70;
+    const colWidth = isMultiColumn ? (width - 100 - 20) / 2 : width - 160;
+    const startX = isMultiColumn ? 50 : 80;
 
     selectedCandidates.forEach((c, i) => {
       const colIdx = isMultiColumn ? Math.floor(i / itemsPerCol) : 0;
       const rowIdx = isMultiColumn ? (i % itemsPerCol) : i;
 
-      const cardX = isMultiColumn ? (startX + colIdx * (colWidth + 24)) : startX;
+      const cardX = isMultiColumn ? (startX + colIdx * (colWidth + 20)) : startX;
       const cardY = cardAreaY + rowIdx * (cardHeight + cardGap);
       const rank = c.actualRank;
 
@@ -180,7 +176,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
       const isTop2 = rank === 2;
       const isTop3 = rank === 3;
 
-      let cardBg = isDark ? 'rgba(30, 41, 59, 0.88)' : 'rgba(255, 255, 255, 0.95)';
+      let cardBg = isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.96)';
       let borderColor = isDark ? 'rgba(255, 255, 255, 0.12)' : '#e2e8f0';
 
       if (isTop1) {
@@ -196,9 +192,9 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
 
       // Draw Card Outer Drop Shadow for 3D feel
       ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(15, 23, 42, 0.08)';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 8;
       ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 4;
+      ctx.shadowOffsetY = 3;
 
       ctx.fillStyle = cardBg;
       ctx.strokeStyle = borderColor;
@@ -210,68 +206,56 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
       ctx.shadowBlur = 0;
       ctx.shadowOffsetY = 0;
 
-      // ── RANK BADGE: 3D ORANGE BOX WITH ROUNDED CORNERS ──
-      const badgeWidth = Math.min(65, Math.max(48, colWidth * 0.16));
-      const badgeHeight = Math.min(42, Math.max(30, cardHeight * 0.62));
+      // ── RANK BADGE: EXACT SQUARE 3D ORANGE BOX (1:1 Ratio) ──
+      const badgeSize = Math.min(50, Math.max(40, cardHeight - 16));
       const badgeX = cardX + 12;
-      const badgeY = cardY + (cardHeight - badgeHeight) / 2;
+      const badgeY = cardY + (cardHeight - badgeSize) / 2;
 
       // 3D Drop Shadow for Badge
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.28)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
       ctx.shadowBlur = 6;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 3;
 
       let badgeGrad;
       if (isTop1) {
-        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeSize);
         badgeGrad.addColorStop(0, '#f59e0b');
         badgeGrad.addColorStop(1, '#d97706');
       } else if (isTop2) {
-        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeSize);
         badgeGrad.addColorStop(0, '#94a3b8');
         badgeGrad.addColorStop(1, '#64748b');
       } else if (isTop3) {
-        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeSize);
         badgeGrad.addColorStop(0, '#ea580c');
         badgeGrad.addColorStop(1, '#c2410c');
       } else {
-        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+        badgeGrad = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeSize);
         badgeGrad.addColorStop(0, '#f97316');
         badgeGrad.addColorStop(1, '#ea580c');
       }
 
       ctx.fillStyle = badgeGrad;
-      roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, 8, true, false);
+      roundRect(ctx, badgeX, badgeY, badgeSize, badgeSize, 8, true, false);
 
       // Reset Shadow
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
       ctx.shadowOffsetY = 0;
 
-      // Badge Text inside 3D Box
+      // Square Rank Badge Text (Crisp #1, #2, #3, etc.)
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-
-      const isNarrowBadge = badgeWidth < 58;
-
-      if (isNarrowBadge) {
-        ctx.font = `bold ${Math.min(18, badgeHeight * 0.55)}px "Arial", sans-serif`;
-        ctx.fillText(`#${rank}`, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
-      } else {
-        ctx.font = `bold ${Math.min(10, badgeHeight * 0.3)}px "Arial", sans-serif`;
-        ctx.fillText('RANK', badgeX + badgeWidth / 2, badgeY + badgeHeight * 0.32);
-
-        ctx.font = `bold ${Math.min(18, badgeHeight * 0.52)}px "Arial", sans-serif`;
-        ctx.fillText(`${rank}`, badgeX + badgeWidth / 2, badgeY + badgeHeight * 0.72);
-      }
+      ctx.font = `bold ${Math.min(22, badgeSize * 0.48)}px "Arial", sans-serif`;
+      ctx.fillText(`#${rank}`, badgeX + badgeSize / 2, badgeY + badgeSize / 2);
 
       // Candidate Avatar Photo / Initial Circle
-      let contentLeft = badgeX + badgeWidth + 14;
+      let contentLeft = badgeX + badgeSize + 14;
 
       if (showPhoto) {
-        const photoRadius = Math.min(24, Math.max(16, cardHeight * 0.3));
+        const photoRadius = Math.min(20, Math.max(15, cardHeight * 0.28));
         const photoX = contentLeft + photoRadius;
         const photoY = cardY + cardHeight / 2;
 
@@ -292,72 +276,86 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         contentLeft = photoX + photoRadius + 14;
       }
 
-      // Candidate Name & Class
+      // Candidate Name & Class (Compact & Balanced Font Sizes)
       ctx.textAlign = 'left';
-      ctx.textBaseline = 'alphabetic';
 
-      const nameFontSize = !isMultiColumn
-        ? Math.min(26, Math.max(18, cardHeight * 0.3))
-        : Math.min(20, Math.max(15, cardHeight * 0.28));
-
-      const textYTop = cardY + Math.max(18, cardHeight * 0.42);
+      const showSubMeta = showClass || showNisn;
 
       if (showName) {
         ctx.fillStyle = textColorMain;
+        const nameFontSize = !isMultiColumn
+          ? Math.min(20, Math.max(16, cardHeight * 0.26))
+          : Math.min(17, Math.max(14, cardHeight * 0.24));
+
         ctx.font = `bold ${nameFontSize}px "Arial", sans-serif`;
         const displayName = toTitleCase(c.name || 'Nama Candidate');
 
         // Truncate name if too long to prevent overlapping right side badges
         let truncatedName = displayName;
-        const maxNameWidth = colWidth - (contentLeft - cardX) - (showFinalScore ? 115 : 20);
+        const maxNameWidth = colWidth - (contentLeft - cardX) - (showFinalScore ? 80 : 20);
         if (ctx.measureText(truncatedName).width > maxNameWidth) {
           while (truncatedName.length > 3 && ctx.measureText(truncatedName + '...').width > maxNameWidth) {
             truncatedName = truncatedName.slice(0, -1);
           }
           truncatedName += '...';
         }
-        ctx.fillText(truncatedName, contentLeft, textYTop);
+
+        if (showSubMeta) {
+          ctx.textBaseline = 'alphabetic';
+          ctx.fillText(truncatedName, contentLeft, cardY + cardHeight / 2 - 2);
+        } else {
+          ctx.textBaseline = 'middle';
+          ctx.fillText(truncatedName, contentLeft, cardY + cardHeight / 2);
+        }
       }
 
-      if (showClass || showNisn) {
+      if (showSubMeta) {
         ctx.fillStyle = textColorSub;
-        ctx.font = `500 ${Math.min(14, Math.max(11, cardHeight * 0.22))}px "Arial", sans-serif`;
+        ctx.textBaseline = 'alphabetic';
+        ctx.font = `500 ${Math.min(12, Math.max(10, cardHeight * 0.18))}px "Arial", sans-serif`;
         const metaParts = [];
         if (showClass && c.className) metaParts.push(`Kelas: ${c.className}`);
         if (showNisn && c.nisn) metaParts.push(`NISN: ${c.nisn}`);
-        ctx.fillText(metaParts.join('  ·  '), contentLeft, textYTop + Math.max(16, cardHeight * 0.24));
+        ctx.fillText(metaParts.join('  ·  '), contentLeft, cardY + cardHeight / 2 + 15);
       }
 
-      // Right Side Badges: Final Score & Status
-      let rightX = cardX + colWidth - 14;
+      // Right Side Badges: NILAI AKHIR (EXACT SQUARE 3D ORANGE BOX 1:1)
+      let rightX = cardX + colWidth - 12;
 
       if (showFinalScore) {
         const finalScoreVal = c.scoreObj.finalScore !== null && c.scoreObj.finalScore !== undefined
           ? c.scoreObj.finalScore.toFixed(2)
           : '-';
 
-        const finalBadgeWidth = Math.max(82, Math.min(100, colWidth * 0.22));
-        const finalBadgeHeight = Math.min(46, Math.max(32, cardHeight * 0.65));
-        const finalBadgeX = rightX - finalBadgeWidth;
-        const finalBadgeY = cardY + (cardHeight - finalBadgeHeight) / 2;
+        const finalBadgeSize = Math.min(50, Math.max(40, cardHeight - 16));
+        const finalBadgeX = rightX - finalBadgeSize;
+        const finalBadgeY = cardY + (cardHeight - finalBadgeSize) / 2;
 
-        const badgeGradFinal = ctx.createLinearGradient(finalBadgeX, 0, finalBadgeX + finalBadgeWidth, 0);
+        // 3D Drop Shadow for Nilai Akhir Square Badge
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+        ctx.shadowBlur = 5;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 2;
+
+        const badgeGradFinal = ctx.createLinearGradient(finalBadgeX, finalBadgeY, finalBadgeX, finalBadgeY + finalBadgeSize);
         badgeGradFinal.addColorStop(0, '#ea580c');
         badgeGradFinal.addColorStop(1, '#f97316');
 
         ctx.fillStyle = badgeGradFinal;
-        roundRect(ctx, finalBadgeX, finalBadgeY, finalBadgeWidth, finalBadgeHeight, 8, true, false);
+        roundRect(ctx, finalBadgeX, finalBadgeY, finalBadgeSize, finalBadgeSize, 8, true, false);
+
+        // Reset Shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
 
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.font = `bold ${finalBadgeHeight * 0.44}px "Arial", sans-serif`;
-        ctx.fillText(finalScoreVal, finalBadgeX + finalBadgeWidth / 2, finalBadgeY + finalBadgeHeight * 0.62);
+        ctx.textBaseline = 'middle';
+        ctx.font = `bold ${Math.min(19, finalBadgeSize * 0.44)}px "Arial", sans-serif`;
+        ctx.fillText(finalScoreVal, finalBadgeX + finalBadgeSize / 2, finalBadgeY + finalBadgeSize / 2);
 
-        ctx.font = `bold ${finalBadgeHeight * 0.22}px "Arial", sans-serif`;
-        ctx.fillText('NILAI AKHIR', finalBadgeX + finalBadgeWidth / 2, finalBadgeY + finalBadgeHeight * 0.88);
-
-        rightX = finalBadgeX - 12;
+        rightX = finalBadgeX - 10;
       }
 
       if (showStatus && !isMultiColumn) {
@@ -367,9 +365,9 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         const statusBg = isLulus ? '#dcfce7' : '#fef3c7';
         const statusColor = isLulus ? '#15803d' : '#b45309';
 
-        ctx.font = `bold ${Math.min(13, cardHeight * 0.18)}px "Arial", sans-serif`;
-        const stWidth = ctx.measureText(statusLabel).width + 16;
-        const stHeight = Math.min(26, cardHeight * 0.38);
+        ctx.font = `bold ${Math.min(12, cardHeight * 0.18)}px "Arial", sans-serif`;
+        const stWidth = ctx.measureText(statusLabel).width + 14;
+        const stHeight = Math.min(24, cardHeight * 0.35);
         const stX = rightX - stWidth;
         const stY = cardY + (cardHeight - stHeight) / 2;
 
@@ -378,38 +376,38 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
 
         ctx.fillStyle = statusColor;
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillText(statusLabel, stX + stWidth / 2, stY + stHeight * 0.68);
+        ctx.textBaseline = 'middle';
+        ctx.fillText(statusLabel, stX + stWidth / 2, stY + stHeight / 2);
       }
     });
 
-    // ── 4. FOOTER OPTIONAL TEXT & WATERMARK ──
+    // ── 4. FOOTER OPTIONAL TEXT & WATERMARK (WELL INSIDE CANVAS FRAME) ──
+    const footerY = height - (showOptionalText ? 80 : 40);
+
+    // Divider line
+    ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(234, 88, 12, 0.25)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(60, footerY);
+    ctx.lineTo(width - 60, footerY);
+    ctx.stroke();
+
     if (showOptionalText && optionalText.trim()) {
-      const footerY = height - 80;
-
-      // Divider line
-      ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(234, 88, 12, 0.2)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(60, footerY);
-      ctx.lineTo(width - 60, footerY);
-      ctx.stroke();
-
       ctx.fillStyle = '#ea580c';
       ctx.font = 'bold 14px "Arial", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
-      ctx.fillText(optionalText.trim(), width / 2, footerY + 28);
+      ctx.fillText(optionalText.trim(), width / 2, footerY + 26);
 
       ctx.fillStyle = textColorSub;
       ctx.font = '12px "Arial", sans-serif';
-      ctx.fillText(`Official PIK-R MANSEKU Announcement  ·  Dicetak pada ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, width / 2, footerY + 50);
+      ctx.fillText(`Official PIK-R MANSEKU Announcement  ·  Dicetak pada ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, width / 2, footerY + 48);
     } else {
       ctx.fillStyle = textColorSub;
       ctx.font = '12px "Arial", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
-      ctx.fillText(`Official PIK-R MANSEKU Announcement  ·  ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, width / 2, height - 20);
+      ctx.fillText(`Official PIK-R MANSEKU Announcement  ·  ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, width / 2, footerY + 26);
     }
 
   }, [
@@ -422,9 +420,6 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     showNisn,
     showClass,
     showPhoto,
-    showPos1,
-    showPos2,
-    showPos3,
     showFinalScore,
     showStatus,
     showOptionalText,
