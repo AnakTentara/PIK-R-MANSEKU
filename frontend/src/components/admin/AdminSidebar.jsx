@@ -13,6 +13,7 @@ import {
   X, 
   FolderOpen, 
   Shield,
+  Megaphone,
   PanelLeftClose,
   PanelLeftOpen
 } from 'lucide-react';
@@ -28,6 +29,7 @@ export default function AdminSidebar({ isOpen = false, onClose }) {
   const navItems = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/pendaftaran', label: 'Pendaftaran', icon: ClipboardList, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
+    { to: '/admin/pengumuman', label: 'Pengumuman Scheduled', icon: Megaphone, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/anggota', label: 'Anggota PIK-R', icon: Users, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/org', label: 'Struktur Org', icon: Network, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/testimoni', label: 'Testimoni Alumni', icon: MessageSquare, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },

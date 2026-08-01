@@ -218,3 +218,44 @@ model AlumniTestimonial {
   updatedAt   DateTime @updatedAt
 }
 
+model ScheduledAnnouncement {
+  id            String    @id @default(uuid())
+  title         String
+  targetGroup   String    // e.g. 'GROUP_WA_CALON', 'GROUP_WA_PENGURUS', 'PERSONAL_WA', 'CUSTOM_JID'
+  targetJid     String?   // e.g. '1203630123456789@g.us'
+  targetName    String?   // e.g. 'Grup Calon Anggota PIK-R 2026'
+  message       String
+  mediaUrl      String?   // file path or URL for uploaded photo/video/doc
+  mediaType     String?   // 'IMAGE', 'VIDEO', 'DOCUMENT', 'NONE'
+  mediaName     String?   // Original filename
+  scheduledAt   DateTime
+  status        String    @default("SCHEDULED") // 'SCHEDULED', 'SENT', 'FAILED', 'CANCELLED'
+  sentAt        DateTime?
+  totalTarget   Int       @default(0)
+  totalSent     Int       @default(0)
+  failureReason String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model WhatsAppGroup {
+  id          String   @id @default(uuid())
+  jid         String   @unique
+  name        String
+  memberCount Int      @default(0)
+  lastMsgAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AnnouncementLog {
+  id             String   @id @default(uuid())
+  announcementId String?
+  sender         String?
+  receiverJid    String?
+  content        String
+  type           String   @default("INFO") // 'INCOMING_MSG', 'OUTGOING_BROADCAST', 'DEBUG'
+  createdAt      DateTime @default(now())
+}
+
+

@@ -141,6 +141,7 @@ exports.Prisma.CandidateScalarFieldEnum = {
   selectionDate: 'selectionDate',
   selectionDay: 'selectionDay',
   selectionNotified: 'selectionNotified',
+  attendanceStatus: 'attendanceStatus',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -301,6 +302,46 @@ exports.Prisma.AlumniTestimonialScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ScheduledAnnouncementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  targetGroup: 'targetGroup',
+  targetJid: 'targetJid',
+  targetName: 'targetName',
+  message: 'message',
+  mediaUrl: 'mediaUrl',
+  mediaType: 'mediaType',
+  mediaName: 'mediaName',
+  scheduledAt: 'scheduledAt',
+  status: 'status',
+  sentAt: 'sentAt',
+  totalTarget: 'totalTarget',
+  totalSent: 'totalSent',
+  failureReason: 'failureReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WhatsAppGroupScalarFieldEnum = {
+  id: 'id',
+  jid: 'jid',
+  name: 'name',
+  memberCount: 'memberCount',
+  lastMsgAt: 'lastMsgAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AnnouncementLogScalarFieldEnum = {
+  id: 'id',
+  announcementId: 'announcementId',
+  sender: 'sender',
+  receiverJid: 'receiverJid',
+  content: 'content',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -324,7 +365,8 @@ exports.Prisma.CandidateOrderByRelevanceFieldEnum = {
   photoPath: 'photoPath',
   password: 'password',
   plainPassword: 'plainPassword',
-  selectionDay: 'selectionDay'
+  selectionDay: 'selectionDay',
+  attendanceStatus: 'attendanceStatus'
 };
 
 exports.Prisma.SelectionScoreOrderByRelevanceFieldEnum = {
@@ -425,6 +467,35 @@ exports.Prisma.AlumniTestimonialOrderByRelevanceFieldEnum = {
   photoPath: 'photoPath',
   content: 'content'
 };
+
+exports.Prisma.ScheduledAnnouncementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  title: 'title',
+  targetGroup: 'targetGroup',
+  targetJid: 'targetJid',
+  targetName: 'targetName',
+  message: 'message',
+  mediaUrl: 'mediaUrl',
+  mediaType: 'mediaType',
+  mediaName: 'mediaName',
+  status: 'status',
+  failureReason: 'failureReason'
+};
+
+exports.Prisma.WhatsAppGroupOrderByRelevanceFieldEnum = {
+  id: 'id',
+  jid: 'jid',
+  name: 'name'
+};
+
+exports.Prisma.AnnouncementLogOrderByRelevanceFieldEnum = {
+  id: 'id',
+  announcementId: 'announcementId',
+  sender: 'sender',
+  receiverJid: 'receiverJid',
+  content: 'content',
+  type: 'type'
+};
 exports.Status = exports.$Enums.Status = {
   PENDING: 'PENDING',
   LULUS: 'LULUS',
@@ -448,7 +519,10 @@ exports.Prisma.ModelName = {
   Member: 'Member',
   OrgMember: 'OrgMember',
   PasswordResetOtp: 'PasswordResetOtp',
-  AlumniTestimonial: 'AlumniTestimonial'
+  AlumniTestimonial: 'AlumniTestimonial',
+  ScheduledAnnouncement: 'ScheduledAnnouncement',
+  WhatsAppGroup: 'WhatsAppGroup',
+  AnnouncementLog: 'AnnouncementLog'
 };
 
 /**

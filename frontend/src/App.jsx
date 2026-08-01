@@ -49,6 +49,7 @@ import AlumniPage from '@/pages/public/AlumniPage';
 import AdminLoginPage from '@/pages/admin/AdminLoginPage';
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
 import AdminPendaftaranPage from '@/pages/admin/AdminPendaftaranPage';
+import AdminPengumumanPage from '@/pages/admin/AdminPengumumanPage';
 import AdminAnggotaPage from '@/pages/admin/AdminAnggotaPage';
 import AdminBlogPage from '@/pages/admin/AdminBlogPage';
 import AdminBlogEditorPage from '@/pages/admin/AdminBlogEditorPage';
@@ -137,6 +138,14 @@ function App() {
             element={
               <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM']}>
                 <AdminPendaftaranPage />
+              </RoleProtectedRoute>
+            } 
+          />
+          <Route 
+            path="pengumuman" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']}>
+                <AdminPengumumanPage />
               </RoleProtectedRoute>
             } 
           />

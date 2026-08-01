@@ -73,6 +73,21 @@ export type PasswordResetOtp = $Result.DefaultSelection<Prisma.$PasswordResetOtp
  * 
  */
 export type AlumniTestimonial = $Result.DefaultSelection<Prisma.$AlumniTestimonialPayload>
+/**
+ * Model ScheduledAnnouncement
+ * 
+ */
+export type ScheduledAnnouncement = $Result.DefaultSelection<Prisma.$ScheduledAnnouncementPayload>
+/**
+ * Model WhatsAppGroup
+ * 
+ */
+export type WhatsAppGroup = $Result.DefaultSelection<Prisma.$WhatsAppGroupPayload>
+/**
+ * Model AnnouncementLog
+ * 
+ */
+export type AnnouncementLog = $Result.DefaultSelection<Prisma.$AnnouncementLogPayload>
 
 /**
  * Enums
@@ -341,6 +356,36 @@ export class PrismaClient<
     * ```
     */
   get alumniTestimonial(): Prisma.AlumniTestimonialDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.scheduledAnnouncement`: Exposes CRUD operations for the **ScheduledAnnouncement** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ScheduledAnnouncements
+    * const scheduledAnnouncements = await prisma.scheduledAnnouncement.findMany()
+    * ```
+    */
+  get scheduledAnnouncement(): Prisma.ScheduledAnnouncementDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.whatsAppGroup`: Exposes CRUD operations for the **WhatsAppGroup** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WhatsAppGroups
+    * const whatsAppGroups = await prisma.whatsAppGroup.findMany()
+    * ```
+    */
+  get whatsAppGroup(): Prisma.WhatsAppGroupDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.announcementLog`: Exposes CRUD operations for the **AnnouncementLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AnnouncementLogs
+    * const announcementLogs = await prisma.announcementLog.findMany()
+    * ```
+    */
+  get announcementLog(): Prisma.AnnouncementLogDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -793,7 +838,10 @@ export namespace Prisma {
     Member: 'Member',
     OrgMember: 'OrgMember',
     PasswordResetOtp: 'PasswordResetOtp',
-    AlumniTestimonial: 'AlumniTestimonial'
+    AlumniTestimonial: 'AlumniTestimonial',
+    ScheduledAnnouncement: 'ScheduledAnnouncement',
+    WhatsAppGroup: 'WhatsAppGroup',
+    AnnouncementLog: 'AnnouncementLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -812,7 +860,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "candidate" | "selectionScore" | "admin" | "post" | "blogPost" | "blogComment" | "blogLike" | "setting" | "member" | "orgMember" | "passwordResetOtp" | "alumniTestimonial"
+      modelProps: "candidate" | "selectionScore" | "admin" | "post" | "blogPost" | "blogComment" | "blogLike" | "setting" | "member" | "orgMember" | "passwordResetOtp" | "alumniTestimonial" | "scheduledAnnouncement" | "whatsAppGroup" | "announcementLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1608,6 +1656,204 @@ export namespace Prisma {
           }
         }
       }
+      ScheduledAnnouncement: {
+        payload: Prisma.$ScheduledAnnouncementPayload<ExtArgs>
+        fields: Prisma.ScheduledAnnouncementFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ScheduledAnnouncementFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ScheduledAnnouncementFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload>
+          }
+          findFirst: {
+            args: Prisma.ScheduledAnnouncementFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ScheduledAnnouncementFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload>
+          }
+          findMany: {
+            args: Prisma.ScheduledAnnouncementFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload>[]
+          }
+          create: {
+            args: Prisma.ScheduledAnnouncementCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload>
+          }
+          createMany: {
+            args: Prisma.ScheduledAnnouncementCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ScheduledAnnouncementDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload>
+          }
+          update: {
+            args: Prisma.ScheduledAnnouncementUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload>
+          }
+          deleteMany: {
+            args: Prisma.ScheduledAnnouncementDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ScheduledAnnouncementUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ScheduledAnnouncementUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScheduledAnnouncementPayload>
+          }
+          aggregate: {
+            args: Prisma.ScheduledAnnouncementAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateScheduledAnnouncement>
+          }
+          groupBy: {
+            args: Prisma.ScheduledAnnouncementGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ScheduledAnnouncementGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ScheduledAnnouncementCountArgs<ExtArgs>
+            result: $Utils.Optional<ScheduledAnnouncementCountAggregateOutputType> | number
+          }
+        }
+      }
+      WhatsAppGroup: {
+        payload: Prisma.$WhatsAppGroupPayload<ExtArgs>
+        fields: Prisma.WhatsAppGroupFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WhatsAppGroupFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WhatsAppGroupFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload>
+          }
+          findFirst: {
+            args: Prisma.WhatsAppGroupFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WhatsAppGroupFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload>
+          }
+          findMany: {
+            args: Prisma.WhatsAppGroupFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload>[]
+          }
+          create: {
+            args: Prisma.WhatsAppGroupCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload>
+          }
+          createMany: {
+            args: Prisma.WhatsAppGroupCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.WhatsAppGroupDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload>
+          }
+          update: {
+            args: Prisma.WhatsAppGroupUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload>
+          }
+          deleteMany: {
+            args: Prisma.WhatsAppGroupDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WhatsAppGroupUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.WhatsAppGroupUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppGroupPayload>
+          }
+          aggregate: {
+            args: Prisma.WhatsAppGroupAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWhatsAppGroup>
+          }
+          groupBy: {
+            args: Prisma.WhatsAppGroupGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WhatsAppGroupGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WhatsAppGroupCountArgs<ExtArgs>
+            result: $Utils.Optional<WhatsAppGroupCountAggregateOutputType> | number
+          }
+        }
+      }
+      AnnouncementLog: {
+        payload: Prisma.$AnnouncementLogPayload<ExtArgs>
+        fields: Prisma.AnnouncementLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AnnouncementLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AnnouncementLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload>
+          }
+          findFirst: {
+            args: Prisma.AnnouncementLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AnnouncementLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload>
+          }
+          findMany: {
+            args: Prisma.AnnouncementLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload>[]
+          }
+          create: {
+            args: Prisma.AnnouncementLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload>
+          }
+          createMany: {
+            args: Prisma.AnnouncementLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.AnnouncementLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload>
+          }
+          update: {
+            args: Prisma.AnnouncementLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.AnnouncementLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AnnouncementLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AnnouncementLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnnouncementLogPayload>
+          }
+          aggregate: {
+            args: Prisma.AnnouncementLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAnnouncementLog>
+          }
+          groupBy: {
+            args: Prisma.AnnouncementLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AnnouncementLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AnnouncementLogCountArgs<ExtArgs>
+            result: $Utils.Optional<AnnouncementLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1716,6 +1962,9 @@ export namespace Prisma {
     orgMember?: OrgMemberOmit
     passwordResetOtp?: PasswordResetOtpOmit
     alumniTestimonial?: AlumniTestimonialOmit
+    scheduledAnnouncement?: ScheduledAnnouncementOmit
+    whatsAppGroup?: WhatsAppGroupOmit
+    announcementLog?: AnnouncementLogOmit
   }
 
   /* Types for Logging */
@@ -1985,6 +2234,7 @@ export namespace Prisma {
     selectionDate: Date | null
     selectionDay: string | null
     selectionNotified: boolean | null
+    attendanceStatus: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2009,6 +2259,7 @@ export namespace Prisma {
     selectionDate: Date | null
     selectionDay: string | null
     selectionNotified: boolean | null
+    attendanceStatus: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2033,6 +2284,7 @@ export namespace Prisma {
     selectionDate: number
     selectionDay: number
     selectionNotified: number
+    attendanceStatus: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -2059,6 +2311,7 @@ export namespace Prisma {
     selectionDate?: true
     selectionDay?: true
     selectionNotified?: true
+    attendanceStatus?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2083,6 +2336,7 @@ export namespace Prisma {
     selectionDate?: true
     selectionDay?: true
     selectionNotified?: true
+    attendanceStatus?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2107,6 +2361,7 @@ export namespace Prisma {
     selectionDate?: true
     selectionDay?: true
     selectionNotified?: true
+    attendanceStatus?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2204,6 +2459,7 @@ export namespace Prisma {
     selectionDate: Date | null
     selectionDay: string | null
     selectionNotified: boolean
+    attendanceStatus: string | null
     createdAt: Date
     updatedAt: Date
     _count: CandidateCountAggregateOutputType | null
@@ -2245,6 +2501,7 @@ export namespace Prisma {
     selectionDate?: boolean
     selectionDay?: boolean
     selectionNotified?: boolean
+    attendanceStatus?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     selectionScore?: boolean | Candidate$selectionScoreArgs<ExtArgs>
@@ -2272,11 +2529,12 @@ export namespace Prisma {
     selectionDate?: boolean
     selectionDay?: boolean
     selectionNotified?: boolean
+    attendanceStatus?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CandidateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "asalSekolah" | "reason" | "status" | "photoPath" | "password" | "plainPassword" | "emailNotified" | "waNotified" | "lastStatus" | "selectionDate" | "selectionDay" | "selectionNotified" | "createdAt" | "updatedAt", ExtArgs["result"]["candidate"]>
+  export type CandidateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nisn" | "name" | "className" | "whatsappNumber" | "email" | "gender" | "asalSekolah" | "reason" | "status" | "photoPath" | "password" | "plainPassword" | "emailNotified" | "waNotified" | "lastStatus" | "selectionDate" | "selectionDay" | "selectionNotified" | "attendanceStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["candidate"]>
   export type CandidateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     selectionScore?: boolean | Candidate$selectionScoreArgs<ExtArgs>
   }
@@ -2306,6 +2564,7 @@ export namespace Prisma {
       selectionDate: Date | null
       selectionDay: string | null
       selectionNotified: boolean
+      attendanceStatus: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["candidate"]>
@@ -2697,6 +2956,7 @@ export namespace Prisma {
     readonly selectionDate: FieldRef<"Candidate", 'DateTime'>
     readonly selectionDay: FieldRef<"Candidate", 'String'>
     readonly selectionNotified: FieldRef<"Candidate", 'Boolean'>
+    readonly attendanceStatus: FieldRef<"Candidate", 'String'>
     readonly createdAt: FieldRef<"Candidate", 'DateTime'>
     readonly updatedAt: FieldRef<"Candidate", 'DateTime'>
   }
@@ -14557,6 +14817,2900 @@ export namespace Prisma {
 
 
   /**
+   * Model ScheduledAnnouncement
+   */
+
+  export type AggregateScheduledAnnouncement = {
+    _count: ScheduledAnnouncementCountAggregateOutputType | null
+    _avg: ScheduledAnnouncementAvgAggregateOutputType | null
+    _sum: ScheduledAnnouncementSumAggregateOutputType | null
+    _min: ScheduledAnnouncementMinAggregateOutputType | null
+    _max: ScheduledAnnouncementMaxAggregateOutputType | null
+  }
+
+  export type ScheduledAnnouncementAvgAggregateOutputType = {
+    totalTarget: number | null
+    totalSent: number | null
+  }
+
+  export type ScheduledAnnouncementSumAggregateOutputType = {
+    totalTarget: number | null
+    totalSent: number | null
+  }
+
+  export type ScheduledAnnouncementMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    targetGroup: string | null
+    targetJid: string | null
+    targetName: string | null
+    message: string | null
+    mediaUrl: string | null
+    mediaType: string | null
+    mediaName: string | null
+    scheduledAt: Date | null
+    status: string | null
+    sentAt: Date | null
+    totalTarget: number | null
+    totalSent: number | null
+    failureReason: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ScheduledAnnouncementMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    targetGroup: string | null
+    targetJid: string | null
+    targetName: string | null
+    message: string | null
+    mediaUrl: string | null
+    mediaType: string | null
+    mediaName: string | null
+    scheduledAt: Date | null
+    status: string | null
+    sentAt: Date | null
+    totalTarget: number | null
+    totalSent: number | null
+    failureReason: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ScheduledAnnouncementCountAggregateOutputType = {
+    id: number
+    title: number
+    targetGroup: number
+    targetJid: number
+    targetName: number
+    message: number
+    mediaUrl: number
+    mediaType: number
+    mediaName: number
+    scheduledAt: number
+    status: number
+    sentAt: number
+    totalTarget: number
+    totalSent: number
+    failureReason: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ScheduledAnnouncementAvgAggregateInputType = {
+    totalTarget?: true
+    totalSent?: true
+  }
+
+  export type ScheduledAnnouncementSumAggregateInputType = {
+    totalTarget?: true
+    totalSent?: true
+  }
+
+  export type ScheduledAnnouncementMinAggregateInputType = {
+    id?: true
+    title?: true
+    targetGroup?: true
+    targetJid?: true
+    targetName?: true
+    message?: true
+    mediaUrl?: true
+    mediaType?: true
+    mediaName?: true
+    scheduledAt?: true
+    status?: true
+    sentAt?: true
+    totalTarget?: true
+    totalSent?: true
+    failureReason?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ScheduledAnnouncementMaxAggregateInputType = {
+    id?: true
+    title?: true
+    targetGroup?: true
+    targetJid?: true
+    targetName?: true
+    message?: true
+    mediaUrl?: true
+    mediaType?: true
+    mediaName?: true
+    scheduledAt?: true
+    status?: true
+    sentAt?: true
+    totalTarget?: true
+    totalSent?: true
+    failureReason?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ScheduledAnnouncementCountAggregateInputType = {
+    id?: true
+    title?: true
+    targetGroup?: true
+    targetJid?: true
+    targetName?: true
+    message?: true
+    mediaUrl?: true
+    mediaType?: true
+    mediaName?: true
+    scheduledAt?: true
+    status?: true
+    sentAt?: true
+    totalTarget?: true
+    totalSent?: true
+    failureReason?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ScheduledAnnouncementAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScheduledAnnouncement to aggregate.
+     */
+    where?: ScheduledAnnouncementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScheduledAnnouncements to fetch.
+     */
+    orderBy?: ScheduledAnnouncementOrderByWithRelationInput | ScheduledAnnouncementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ScheduledAnnouncementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScheduledAnnouncements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScheduledAnnouncements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ScheduledAnnouncements
+    **/
+    _count?: true | ScheduledAnnouncementCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ScheduledAnnouncementAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ScheduledAnnouncementSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ScheduledAnnouncementMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ScheduledAnnouncementMaxAggregateInputType
+  }
+
+  export type GetScheduledAnnouncementAggregateType<T extends ScheduledAnnouncementAggregateArgs> = {
+        [P in keyof T & keyof AggregateScheduledAnnouncement]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateScheduledAnnouncement[P]>
+      : GetScalarType<T[P], AggregateScheduledAnnouncement[P]>
+  }
+
+
+
+
+  export type ScheduledAnnouncementGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScheduledAnnouncementWhereInput
+    orderBy?: ScheduledAnnouncementOrderByWithAggregationInput | ScheduledAnnouncementOrderByWithAggregationInput[]
+    by: ScheduledAnnouncementScalarFieldEnum[] | ScheduledAnnouncementScalarFieldEnum
+    having?: ScheduledAnnouncementScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ScheduledAnnouncementCountAggregateInputType | true
+    _avg?: ScheduledAnnouncementAvgAggregateInputType
+    _sum?: ScheduledAnnouncementSumAggregateInputType
+    _min?: ScheduledAnnouncementMinAggregateInputType
+    _max?: ScheduledAnnouncementMaxAggregateInputType
+  }
+
+  export type ScheduledAnnouncementGroupByOutputType = {
+    id: string
+    title: string
+    targetGroup: string
+    targetJid: string | null
+    targetName: string | null
+    message: string
+    mediaUrl: string | null
+    mediaType: string | null
+    mediaName: string | null
+    scheduledAt: Date
+    status: string
+    sentAt: Date | null
+    totalTarget: number
+    totalSent: number
+    failureReason: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ScheduledAnnouncementCountAggregateOutputType | null
+    _avg: ScheduledAnnouncementAvgAggregateOutputType | null
+    _sum: ScheduledAnnouncementSumAggregateOutputType | null
+    _min: ScheduledAnnouncementMinAggregateOutputType | null
+    _max: ScheduledAnnouncementMaxAggregateOutputType | null
+  }
+
+  type GetScheduledAnnouncementGroupByPayload<T extends ScheduledAnnouncementGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ScheduledAnnouncementGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ScheduledAnnouncementGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ScheduledAnnouncementGroupByOutputType[P]>
+            : GetScalarType<T[P], ScheduledAnnouncementGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ScheduledAnnouncementSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    targetGroup?: boolean
+    targetJid?: boolean
+    targetName?: boolean
+    message?: boolean
+    mediaUrl?: boolean
+    mediaType?: boolean
+    mediaName?: boolean
+    scheduledAt?: boolean
+    status?: boolean
+    sentAt?: boolean
+    totalTarget?: boolean
+    totalSent?: boolean
+    failureReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["scheduledAnnouncement"]>
+
+
+
+  export type ScheduledAnnouncementSelectScalar = {
+    id?: boolean
+    title?: boolean
+    targetGroup?: boolean
+    targetJid?: boolean
+    targetName?: boolean
+    message?: boolean
+    mediaUrl?: boolean
+    mediaType?: boolean
+    mediaName?: boolean
+    scheduledAt?: boolean
+    status?: boolean
+    sentAt?: boolean
+    totalTarget?: boolean
+    totalSent?: boolean
+    failureReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ScheduledAnnouncementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "targetGroup" | "targetJid" | "targetName" | "message" | "mediaUrl" | "mediaType" | "mediaName" | "scheduledAt" | "status" | "sentAt" | "totalTarget" | "totalSent" | "failureReason" | "createdAt" | "updatedAt", ExtArgs["result"]["scheduledAnnouncement"]>
+
+  export type $ScheduledAnnouncementPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ScheduledAnnouncement"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      targetGroup: string
+      targetJid: string | null
+      targetName: string | null
+      message: string
+      mediaUrl: string | null
+      mediaType: string | null
+      mediaName: string | null
+      scheduledAt: Date
+      status: string
+      sentAt: Date | null
+      totalTarget: number
+      totalSent: number
+      failureReason: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["scheduledAnnouncement"]>
+    composites: {}
+  }
+
+  type ScheduledAnnouncementGetPayload<S extends boolean | null | undefined | ScheduledAnnouncementDefaultArgs> = $Result.GetResult<Prisma.$ScheduledAnnouncementPayload, S>
+
+  type ScheduledAnnouncementCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ScheduledAnnouncementFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ScheduledAnnouncementCountAggregateInputType | true
+    }
+
+  export interface ScheduledAnnouncementDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ScheduledAnnouncement'], meta: { name: 'ScheduledAnnouncement' } }
+    /**
+     * Find zero or one ScheduledAnnouncement that matches the filter.
+     * @param {ScheduledAnnouncementFindUniqueArgs} args - Arguments to find a ScheduledAnnouncement
+     * @example
+     * // Get one ScheduledAnnouncement
+     * const scheduledAnnouncement = await prisma.scheduledAnnouncement.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ScheduledAnnouncementFindUniqueArgs>(args: SelectSubset<T, ScheduledAnnouncementFindUniqueArgs<ExtArgs>>): Prisma__ScheduledAnnouncementClient<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ScheduledAnnouncement that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ScheduledAnnouncementFindUniqueOrThrowArgs} args - Arguments to find a ScheduledAnnouncement
+     * @example
+     * // Get one ScheduledAnnouncement
+     * const scheduledAnnouncement = await prisma.scheduledAnnouncement.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ScheduledAnnouncementFindUniqueOrThrowArgs>(args: SelectSubset<T, ScheduledAnnouncementFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ScheduledAnnouncementClient<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScheduledAnnouncement that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScheduledAnnouncementFindFirstArgs} args - Arguments to find a ScheduledAnnouncement
+     * @example
+     * // Get one ScheduledAnnouncement
+     * const scheduledAnnouncement = await prisma.scheduledAnnouncement.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ScheduledAnnouncementFindFirstArgs>(args?: SelectSubset<T, ScheduledAnnouncementFindFirstArgs<ExtArgs>>): Prisma__ScheduledAnnouncementClient<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScheduledAnnouncement that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScheduledAnnouncementFindFirstOrThrowArgs} args - Arguments to find a ScheduledAnnouncement
+     * @example
+     * // Get one ScheduledAnnouncement
+     * const scheduledAnnouncement = await prisma.scheduledAnnouncement.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ScheduledAnnouncementFindFirstOrThrowArgs>(args?: SelectSubset<T, ScheduledAnnouncementFindFirstOrThrowArgs<ExtArgs>>): Prisma__ScheduledAnnouncementClient<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ScheduledAnnouncements that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScheduledAnnouncementFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ScheduledAnnouncements
+     * const scheduledAnnouncements = await prisma.scheduledAnnouncement.findMany()
+     * 
+     * // Get first 10 ScheduledAnnouncements
+     * const scheduledAnnouncements = await prisma.scheduledAnnouncement.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const scheduledAnnouncementWithIdOnly = await prisma.scheduledAnnouncement.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ScheduledAnnouncementFindManyArgs>(args?: SelectSubset<T, ScheduledAnnouncementFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ScheduledAnnouncement.
+     * @param {ScheduledAnnouncementCreateArgs} args - Arguments to create a ScheduledAnnouncement.
+     * @example
+     * // Create one ScheduledAnnouncement
+     * const ScheduledAnnouncement = await prisma.scheduledAnnouncement.create({
+     *   data: {
+     *     // ... data to create a ScheduledAnnouncement
+     *   }
+     * })
+     * 
+     */
+    create<T extends ScheduledAnnouncementCreateArgs>(args: SelectSubset<T, ScheduledAnnouncementCreateArgs<ExtArgs>>): Prisma__ScheduledAnnouncementClient<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ScheduledAnnouncements.
+     * @param {ScheduledAnnouncementCreateManyArgs} args - Arguments to create many ScheduledAnnouncements.
+     * @example
+     * // Create many ScheduledAnnouncements
+     * const scheduledAnnouncement = await prisma.scheduledAnnouncement.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ScheduledAnnouncementCreateManyArgs>(args?: SelectSubset<T, ScheduledAnnouncementCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ScheduledAnnouncement.
+     * @param {ScheduledAnnouncementDeleteArgs} args - Arguments to delete one ScheduledAnnouncement.
+     * @example
+     * // Delete one ScheduledAnnouncement
+     * const ScheduledAnnouncement = await prisma.scheduledAnnouncement.delete({
+     *   where: {
+     *     // ... filter to delete one ScheduledAnnouncement
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ScheduledAnnouncementDeleteArgs>(args: SelectSubset<T, ScheduledAnnouncementDeleteArgs<ExtArgs>>): Prisma__ScheduledAnnouncementClient<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ScheduledAnnouncement.
+     * @param {ScheduledAnnouncementUpdateArgs} args - Arguments to update one ScheduledAnnouncement.
+     * @example
+     * // Update one ScheduledAnnouncement
+     * const scheduledAnnouncement = await prisma.scheduledAnnouncement.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ScheduledAnnouncementUpdateArgs>(args: SelectSubset<T, ScheduledAnnouncementUpdateArgs<ExtArgs>>): Prisma__ScheduledAnnouncementClient<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ScheduledAnnouncements.
+     * @param {ScheduledAnnouncementDeleteManyArgs} args - Arguments to filter ScheduledAnnouncements to delete.
+     * @example
+     * // Delete a few ScheduledAnnouncements
+     * const { count } = await prisma.scheduledAnnouncement.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ScheduledAnnouncementDeleteManyArgs>(args?: SelectSubset<T, ScheduledAnnouncementDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ScheduledAnnouncements.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScheduledAnnouncementUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ScheduledAnnouncements
+     * const scheduledAnnouncement = await prisma.scheduledAnnouncement.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ScheduledAnnouncementUpdateManyArgs>(args: SelectSubset<T, ScheduledAnnouncementUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ScheduledAnnouncement.
+     * @param {ScheduledAnnouncementUpsertArgs} args - Arguments to update or create a ScheduledAnnouncement.
+     * @example
+     * // Update or create a ScheduledAnnouncement
+     * const scheduledAnnouncement = await prisma.scheduledAnnouncement.upsert({
+     *   create: {
+     *     // ... data to create a ScheduledAnnouncement
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ScheduledAnnouncement we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ScheduledAnnouncementUpsertArgs>(args: SelectSubset<T, ScheduledAnnouncementUpsertArgs<ExtArgs>>): Prisma__ScheduledAnnouncementClient<$Result.GetResult<Prisma.$ScheduledAnnouncementPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ScheduledAnnouncements.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScheduledAnnouncementCountArgs} args - Arguments to filter ScheduledAnnouncements to count.
+     * @example
+     * // Count the number of ScheduledAnnouncements
+     * const count = await prisma.scheduledAnnouncement.count({
+     *   where: {
+     *     // ... the filter for the ScheduledAnnouncements we want to count
+     *   }
+     * })
+    **/
+    count<T extends ScheduledAnnouncementCountArgs>(
+      args?: Subset<T, ScheduledAnnouncementCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ScheduledAnnouncementCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ScheduledAnnouncement.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScheduledAnnouncementAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ScheduledAnnouncementAggregateArgs>(args: Subset<T, ScheduledAnnouncementAggregateArgs>): Prisma.PrismaPromise<GetScheduledAnnouncementAggregateType<T>>
+
+    /**
+     * Group by ScheduledAnnouncement.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScheduledAnnouncementGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ScheduledAnnouncementGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ScheduledAnnouncementGroupByArgs['orderBy'] }
+        : { orderBy?: ScheduledAnnouncementGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ScheduledAnnouncementGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetScheduledAnnouncementGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ScheduledAnnouncement model
+   */
+  readonly fields: ScheduledAnnouncementFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ScheduledAnnouncement.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ScheduledAnnouncementClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ScheduledAnnouncement model
+   */
+  interface ScheduledAnnouncementFieldRefs {
+    readonly id: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly title: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly targetGroup: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly targetJid: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly targetName: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly message: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly mediaUrl: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly mediaType: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly mediaName: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly scheduledAt: FieldRef<"ScheduledAnnouncement", 'DateTime'>
+    readonly status: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly sentAt: FieldRef<"ScheduledAnnouncement", 'DateTime'>
+    readonly totalTarget: FieldRef<"ScheduledAnnouncement", 'Int'>
+    readonly totalSent: FieldRef<"ScheduledAnnouncement", 'Int'>
+    readonly failureReason: FieldRef<"ScheduledAnnouncement", 'String'>
+    readonly createdAt: FieldRef<"ScheduledAnnouncement", 'DateTime'>
+    readonly updatedAt: FieldRef<"ScheduledAnnouncement", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ScheduledAnnouncement findUnique
+   */
+  export type ScheduledAnnouncementFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * Filter, which ScheduledAnnouncement to fetch.
+     */
+    where: ScheduledAnnouncementWhereUniqueInput
+  }
+
+  /**
+   * ScheduledAnnouncement findUniqueOrThrow
+   */
+  export type ScheduledAnnouncementFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * Filter, which ScheduledAnnouncement to fetch.
+     */
+    where: ScheduledAnnouncementWhereUniqueInput
+  }
+
+  /**
+   * ScheduledAnnouncement findFirst
+   */
+  export type ScheduledAnnouncementFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * Filter, which ScheduledAnnouncement to fetch.
+     */
+    where?: ScheduledAnnouncementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScheduledAnnouncements to fetch.
+     */
+    orderBy?: ScheduledAnnouncementOrderByWithRelationInput | ScheduledAnnouncementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScheduledAnnouncements.
+     */
+    cursor?: ScheduledAnnouncementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScheduledAnnouncements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScheduledAnnouncements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScheduledAnnouncements.
+     */
+    distinct?: ScheduledAnnouncementScalarFieldEnum | ScheduledAnnouncementScalarFieldEnum[]
+  }
+
+  /**
+   * ScheduledAnnouncement findFirstOrThrow
+   */
+  export type ScheduledAnnouncementFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * Filter, which ScheduledAnnouncement to fetch.
+     */
+    where?: ScheduledAnnouncementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScheduledAnnouncements to fetch.
+     */
+    orderBy?: ScheduledAnnouncementOrderByWithRelationInput | ScheduledAnnouncementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScheduledAnnouncements.
+     */
+    cursor?: ScheduledAnnouncementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScheduledAnnouncements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScheduledAnnouncements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScheduledAnnouncements.
+     */
+    distinct?: ScheduledAnnouncementScalarFieldEnum | ScheduledAnnouncementScalarFieldEnum[]
+  }
+
+  /**
+   * ScheduledAnnouncement findMany
+   */
+  export type ScheduledAnnouncementFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * Filter, which ScheduledAnnouncements to fetch.
+     */
+    where?: ScheduledAnnouncementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScheduledAnnouncements to fetch.
+     */
+    orderBy?: ScheduledAnnouncementOrderByWithRelationInput | ScheduledAnnouncementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ScheduledAnnouncements.
+     */
+    cursor?: ScheduledAnnouncementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScheduledAnnouncements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScheduledAnnouncements.
+     */
+    skip?: number
+    distinct?: ScheduledAnnouncementScalarFieldEnum | ScheduledAnnouncementScalarFieldEnum[]
+  }
+
+  /**
+   * ScheduledAnnouncement create
+   */
+  export type ScheduledAnnouncementCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ScheduledAnnouncement.
+     */
+    data: XOR<ScheduledAnnouncementCreateInput, ScheduledAnnouncementUncheckedCreateInput>
+  }
+
+  /**
+   * ScheduledAnnouncement createMany
+   */
+  export type ScheduledAnnouncementCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ScheduledAnnouncements.
+     */
+    data: ScheduledAnnouncementCreateManyInput | ScheduledAnnouncementCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ScheduledAnnouncement update
+   */
+  export type ScheduledAnnouncementUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ScheduledAnnouncement.
+     */
+    data: XOR<ScheduledAnnouncementUpdateInput, ScheduledAnnouncementUncheckedUpdateInput>
+    /**
+     * Choose, which ScheduledAnnouncement to update.
+     */
+    where: ScheduledAnnouncementWhereUniqueInput
+  }
+
+  /**
+   * ScheduledAnnouncement updateMany
+   */
+  export type ScheduledAnnouncementUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ScheduledAnnouncements.
+     */
+    data: XOR<ScheduledAnnouncementUpdateManyMutationInput, ScheduledAnnouncementUncheckedUpdateManyInput>
+    /**
+     * Filter which ScheduledAnnouncements to update
+     */
+    where?: ScheduledAnnouncementWhereInput
+    /**
+     * Limit how many ScheduledAnnouncements to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScheduledAnnouncement upsert
+   */
+  export type ScheduledAnnouncementUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ScheduledAnnouncement to update in case it exists.
+     */
+    where: ScheduledAnnouncementWhereUniqueInput
+    /**
+     * In case the ScheduledAnnouncement found by the `where` argument doesn't exist, create a new ScheduledAnnouncement with this data.
+     */
+    create: XOR<ScheduledAnnouncementCreateInput, ScheduledAnnouncementUncheckedCreateInput>
+    /**
+     * In case the ScheduledAnnouncement was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ScheduledAnnouncementUpdateInput, ScheduledAnnouncementUncheckedUpdateInput>
+  }
+
+  /**
+   * ScheduledAnnouncement delete
+   */
+  export type ScheduledAnnouncementDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+    /**
+     * Filter which ScheduledAnnouncement to delete.
+     */
+    where: ScheduledAnnouncementWhereUniqueInput
+  }
+
+  /**
+   * ScheduledAnnouncement deleteMany
+   */
+  export type ScheduledAnnouncementDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScheduledAnnouncements to delete
+     */
+    where?: ScheduledAnnouncementWhereInput
+    /**
+     * Limit how many ScheduledAnnouncements to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScheduledAnnouncement without action
+   */
+  export type ScheduledAnnouncementDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScheduledAnnouncement
+     */
+    select?: ScheduledAnnouncementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScheduledAnnouncement
+     */
+    omit?: ScheduledAnnouncementOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WhatsAppGroup
+   */
+
+  export type AggregateWhatsAppGroup = {
+    _count: WhatsAppGroupCountAggregateOutputType | null
+    _avg: WhatsAppGroupAvgAggregateOutputType | null
+    _sum: WhatsAppGroupSumAggregateOutputType | null
+    _min: WhatsAppGroupMinAggregateOutputType | null
+    _max: WhatsAppGroupMaxAggregateOutputType | null
+  }
+
+  export type WhatsAppGroupAvgAggregateOutputType = {
+    memberCount: number | null
+  }
+
+  export type WhatsAppGroupSumAggregateOutputType = {
+    memberCount: number | null
+  }
+
+  export type WhatsAppGroupMinAggregateOutputType = {
+    id: string | null
+    jid: string | null
+    name: string | null
+    memberCount: number | null
+    lastMsgAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WhatsAppGroupMaxAggregateOutputType = {
+    id: string | null
+    jid: string | null
+    name: string | null
+    memberCount: number | null
+    lastMsgAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WhatsAppGroupCountAggregateOutputType = {
+    id: number
+    jid: number
+    name: number
+    memberCount: number
+    lastMsgAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WhatsAppGroupAvgAggregateInputType = {
+    memberCount?: true
+  }
+
+  export type WhatsAppGroupSumAggregateInputType = {
+    memberCount?: true
+  }
+
+  export type WhatsAppGroupMinAggregateInputType = {
+    id?: true
+    jid?: true
+    name?: true
+    memberCount?: true
+    lastMsgAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WhatsAppGroupMaxAggregateInputType = {
+    id?: true
+    jid?: true
+    name?: true
+    memberCount?: true
+    lastMsgAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WhatsAppGroupCountAggregateInputType = {
+    id?: true
+    jid?: true
+    name?: true
+    memberCount?: true
+    lastMsgAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WhatsAppGroupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WhatsAppGroup to aggregate.
+     */
+    where?: WhatsAppGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppGroups to fetch.
+     */
+    orderBy?: WhatsAppGroupOrderByWithRelationInput | WhatsAppGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WhatsAppGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WhatsAppGroups
+    **/
+    _count?: true | WhatsAppGroupCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WhatsAppGroupAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WhatsAppGroupSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WhatsAppGroupMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WhatsAppGroupMaxAggregateInputType
+  }
+
+  export type GetWhatsAppGroupAggregateType<T extends WhatsAppGroupAggregateArgs> = {
+        [P in keyof T & keyof AggregateWhatsAppGroup]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWhatsAppGroup[P]>
+      : GetScalarType<T[P], AggregateWhatsAppGroup[P]>
+  }
+
+
+
+
+  export type WhatsAppGroupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WhatsAppGroupWhereInput
+    orderBy?: WhatsAppGroupOrderByWithAggregationInput | WhatsAppGroupOrderByWithAggregationInput[]
+    by: WhatsAppGroupScalarFieldEnum[] | WhatsAppGroupScalarFieldEnum
+    having?: WhatsAppGroupScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WhatsAppGroupCountAggregateInputType | true
+    _avg?: WhatsAppGroupAvgAggregateInputType
+    _sum?: WhatsAppGroupSumAggregateInputType
+    _min?: WhatsAppGroupMinAggregateInputType
+    _max?: WhatsAppGroupMaxAggregateInputType
+  }
+
+  export type WhatsAppGroupGroupByOutputType = {
+    id: string
+    jid: string
+    name: string
+    memberCount: number
+    lastMsgAt: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: WhatsAppGroupCountAggregateOutputType | null
+    _avg: WhatsAppGroupAvgAggregateOutputType | null
+    _sum: WhatsAppGroupSumAggregateOutputType | null
+    _min: WhatsAppGroupMinAggregateOutputType | null
+    _max: WhatsAppGroupMaxAggregateOutputType | null
+  }
+
+  type GetWhatsAppGroupGroupByPayload<T extends WhatsAppGroupGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WhatsAppGroupGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WhatsAppGroupGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WhatsAppGroupGroupByOutputType[P]>
+            : GetScalarType<T[P], WhatsAppGroupGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WhatsAppGroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jid?: boolean
+    name?: boolean
+    memberCount?: boolean
+    lastMsgAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["whatsAppGroup"]>
+
+
+
+  export type WhatsAppGroupSelectScalar = {
+    id?: boolean
+    jid?: boolean
+    name?: boolean
+    memberCount?: boolean
+    lastMsgAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WhatsAppGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jid" | "name" | "memberCount" | "lastMsgAt" | "createdAt" | "updatedAt", ExtArgs["result"]["whatsAppGroup"]>
+
+  export type $WhatsAppGroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WhatsAppGroup"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      jid: string
+      name: string
+      memberCount: number
+      lastMsgAt: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["whatsAppGroup"]>
+    composites: {}
+  }
+
+  type WhatsAppGroupGetPayload<S extends boolean | null | undefined | WhatsAppGroupDefaultArgs> = $Result.GetResult<Prisma.$WhatsAppGroupPayload, S>
+
+  type WhatsAppGroupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WhatsAppGroupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WhatsAppGroupCountAggregateInputType | true
+    }
+
+  export interface WhatsAppGroupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WhatsAppGroup'], meta: { name: 'WhatsAppGroup' } }
+    /**
+     * Find zero or one WhatsAppGroup that matches the filter.
+     * @param {WhatsAppGroupFindUniqueArgs} args - Arguments to find a WhatsAppGroup
+     * @example
+     * // Get one WhatsAppGroup
+     * const whatsAppGroup = await prisma.whatsAppGroup.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WhatsAppGroupFindUniqueArgs>(args: SelectSubset<T, WhatsAppGroupFindUniqueArgs<ExtArgs>>): Prisma__WhatsAppGroupClient<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WhatsAppGroup that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WhatsAppGroupFindUniqueOrThrowArgs} args - Arguments to find a WhatsAppGroup
+     * @example
+     * // Get one WhatsAppGroup
+     * const whatsAppGroup = await prisma.whatsAppGroup.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WhatsAppGroupFindUniqueOrThrowArgs>(args: SelectSubset<T, WhatsAppGroupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WhatsAppGroupClient<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WhatsAppGroup that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppGroupFindFirstArgs} args - Arguments to find a WhatsAppGroup
+     * @example
+     * // Get one WhatsAppGroup
+     * const whatsAppGroup = await prisma.whatsAppGroup.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WhatsAppGroupFindFirstArgs>(args?: SelectSubset<T, WhatsAppGroupFindFirstArgs<ExtArgs>>): Prisma__WhatsAppGroupClient<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WhatsAppGroup that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppGroupFindFirstOrThrowArgs} args - Arguments to find a WhatsAppGroup
+     * @example
+     * // Get one WhatsAppGroup
+     * const whatsAppGroup = await prisma.whatsAppGroup.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WhatsAppGroupFindFirstOrThrowArgs>(args?: SelectSubset<T, WhatsAppGroupFindFirstOrThrowArgs<ExtArgs>>): Prisma__WhatsAppGroupClient<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WhatsAppGroups that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppGroupFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WhatsAppGroups
+     * const whatsAppGroups = await prisma.whatsAppGroup.findMany()
+     * 
+     * // Get first 10 WhatsAppGroups
+     * const whatsAppGroups = await prisma.whatsAppGroup.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const whatsAppGroupWithIdOnly = await prisma.whatsAppGroup.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WhatsAppGroupFindManyArgs>(args?: SelectSubset<T, WhatsAppGroupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WhatsAppGroup.
+     * @param {WhatsAppGroupCreateArgs} args - Arguments to create a WhatsAppGroup.
+     * @example
+     * // Create one WhatsAppGroup
+     * const WhatsAppGroup = await prisma.whatsAppGroup.create({
+     *   data: {
+     *     // ... data to create a WhatsAppGroup
+     *   }
+     * })
+     * 
+     */
+    create<T extends WhatsAppGroupCreateArgs>(args: SelectSubset<T, WhatsAppGroupCreateArgs<ExtArgs>>): Prisma__WhatsAppGroupClient<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WhatsAppGroups.
+     * @param {WhatsAppGroupCreateManyArgs} args - Arguments to create many WhatsAppGroups.
+     * @example
+     * // Create many WhatsAppGroups
+     * const whatsAppGroup = await prisma.whatsAppGroup.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WhatsAppGroupCreateManyArgs>(args?: SelectSubset<T, WhatsAppGroupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a WhatsAppGroup.
+     * @param {WhatsAppGroupDeleteArgs} args - Arguments to delete one WhatsAppGroup.
+     * @example
+     * // Delete one WhatsAppGroup
+     * const WhatsAppGroup = await prisma.whatsAppGroup.delete({
+     *   where: {
+     *     // ... filter to delete one WhatsAppGroup
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WhatsAppGroupDeleteArgs>(args: SelectSubset<T, WhatsAppGroupDeleteArgs<ExtArgs>>): Prisma__WhatsAppGroupClient<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WhatsAppGroup.
+     * @param {WhatsAppGroupUpdateArgs} args - Arguments to update one WhatsAppGroup.
+     * @example
+     * // Update one WhatsAppGroup
+     * const whatsAppGroup = await prisma.whatsAppGroup.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WhatsAppGroupUpdateArgs>(args: SelectSubset<T, WhatsAppGroupUpdateArgs<ExtArgs>>): Prisma__WhatsAppGroupClient<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WhatsAppGroups.
+     * @param {WhatsAppGroupDeleteManyArgs} args - Arguments to filter WhatsAppGroups to delete.
+     * @example
+     * // Delete a few WhatsAppGroups
+     * const { count } = await prisma.whatsAppGroup.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WhatsAppGroupDeleteManyArgs>(args?: SelectSubset<T, WhatsAppGroupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WhatsAppGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppGroupUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WhatsAppGroups
+     * const whatsAppGroup = await prisma.whatsAppGroup.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WhatsAppGroupUpdateManyArgs>(args: SelectSubset<T, WhatsAppGroupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one WhatsAppGroup.
+     * @param {WhatsAppGroupUpsertArgs} args - Arguments to update or create a WhatsAppGroup.
+     * @example
+     * // Update or create a WhatsAppGroup
+     * const whatsAppGroup = await prisma.whatsAppGroup.upsert({
+     *   create: {
+     *     // ... data to create a WhatsAppGroup
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WhatsAppGroup we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WhatsAppGroupUpsertArgs>(args: SelectSubset<T, WhatsAppGroupUpsertArgs<ExtArgs>>): Prisma__WhatsAppGroupClient<$Result.GetResult<Prisma.$WhatsAppGroupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WhatsAppGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppGroupCountArgs} args - Arguments to filter WhatsAppGroups to count.
+     * @example
+     * // Count the number of WhatsAppGroups
+     * const count = await prisma.whatsAppGroup.count({
+     *   where: {
+     *     // ... the filter for the WhatsAppGroups we want to count
+     *   }
+     * })
+    **/
+    count<T extends WhatsAppGroupCountArgs>(
+      args?: Subset<T, WhatsAppGroupCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WhatsAppGroupCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WhatsAppGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppGroupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WhatsAppGroupAggregateArgs>(args: Subset<T, WhatsAppGroupAggregateArgs>): Prisma.PrismaPromise<GetWhatsAppGroupAggregateType<T>>
+
+    /**
+     * Group by WhatsAppGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppGroupGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WhatsAppGroupGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WhatsAppGroupGroupByArgs['orderBy'] }
+        : { orderBy?: WhatsAppGroupGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WhatsAppGroupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWhatsAppGroupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WhatsAppGroup model
+   */
+  readonly fields: WhatsAppGroupFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WhatsAppGroup.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WhatsAppGroupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WhatsAppGroup model
+   */
+  interface WhatsAppGroupFieldRefs {
+    readonly id: FieldRef<"WhatsAppGroup", 'String'>
+    readonly jid: FieldRef<"WhatsAppGroup", 'String'>
+    readonly name: FieldRef<"WhatsAppGroup", 'String'>
+    readonly memberCount: FieldRef<"WhatsAppGroup", 'Int'>
+    readonly lastMsgAt: FieldRef<"WhatsAppGroup", 'DateTime'>
+    readonly createdAt: FieldRef<"WhatsAppGroup", 'DateTime'>
+    readonly updatedAt: FieldRef<"WhatsAppGroup", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WhatsAppGroup findUnique
+   */
+  export type WhatsAppGroupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppGroup to fetch.
+     */
+    where: WhatsAppGroupWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppGroup findUniqueOrThrow
+   */
+  export type WhatsAppGroupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppGroup to fetch.
+     */
+    where: WhatsAppGroupWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppGroup findFirst
+   */
+  export type WhatsAppGroupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppGroup to fetch.
+     */
+    where?: WhatsAppGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppGroups to fetch.
+     */
+    orderBy?: WhatsAppGroupOrderByWithRelationInput | WhatsAppGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WhatsAppGroups.
+     */
+    cursor?: WhatsAppGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhatsAppGroups.
+     */
+    distinct?: WhatsAppGroupScalarFieldEnum | WhatsAppGroupScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppGroup findFirstOrThrow
+   */
+  export type WhatsAppGroupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppGroup to fetch.
+     */
+    where?: WhatsAppGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppGroups to fetch.
+     */
+    orderBy?: WhatsAppGroupOrderByWithRelationInput | WhatsAppGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WhatsAppGroups.
+     */
+    cursor?: WhatsAppGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhatsAppGroups.
+     */
+    distinct?: WhatsAppGroupScalarFieldEnum | WhatsAppGroupScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppGroup findMany
+   */
+  export type WhatsAppGroupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppGroups to fetch.
+     */
+    where?: WhatsAppGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppGroups to fetch.
+     */
+    orderBy?: WhatsAppGroupOrderByWithRelationInput | WhatsAppGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WhatsAppGroups.
+     */
+    cursor?: WhatsAppGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppGroups.
+     */
+    skip?: number
+    distinct?: WhatsAppGroupScalarFieldEnum | WhatsAppGroupScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppGroup create
+   */
+  export type WhatsAppGroupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * The data needed to create a WhatsAppGroup.
+     */
+    data: XOR<WhatsAppGroupCreateInput, WhatsAppGroupUncheckedCreateInput>
+  }
+
+  /**
+   * WhatsAppGroup createMany
+   */
+  export type WhatsAppGroupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WhatsAppGroups.
+     */
+    data: WhatsAppGroupCreateManyInput | WhatsAppGroupCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WhatsAppGroup update
+   */
+  export type WhatsAppGroupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * The data needed to update a WhatsAppGroup.
+     */
+    data: XOR<WhatsAppGroupUpdateInput, WhatsAppGroupUncheckedUpdateInput>
+    /**
+     * Choose, which WhatsAppGroup to update.
+     */
+    where: WhatsAppGroupWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppGroup updateMany
+   */
+  export type WhatsAppGroupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WhatsAppGroups.
+     */
+    data: XOR<WhatsAppGroupUpdateManyMutationInput, WhatsAppGroupUncheckedUpdateManyInput>
+    /**
+     * Filter which WhatsAppGroups to update
+     */
+    where?: WhatsAppGroupWhereInput
+    /**
+     * Limit how many WhatsAppGroups to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WhatsAppGroup upsert
+   */
+  export type WhatsAppGroupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * The filter to search for the WhatsAppGroup to update in case it exists.
+     */
+    where: WhatsAppGroupWhereUniqueInput
+    /**
+     * In case the WhatsAppGroup found by the `where` argument doesn't exist, create a new WhatsAppGroup with this data.
+     */
+    create: XOR<WhatsAppGroupCreateInput, WhatsAppGroupUncheckedCreateInput>
+    /**
+     * In case the WhatsAppGroup was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WhatsAppGroupUpdateInput, WhatsAppGroupUncheckedUpdateInput>
+  }
+
+  /**
+   * WhatsAppGroup delete
+   */
+  export type WhatsAppGroupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+    /**
+     * Filter which WhatsAppGroup to delete.
+     */
+    where: WhatsAppGroupWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppGroup deleteMany
+   */
+  export type WhatsAppGroupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WhatsAppGroups to delete
+     */
+    where?: WhatsAppGroupWhereInput
+    /**
+     * Limit how many WhatsAppGroups to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WhatsAppGroup without action
+   */
+  export type WhatsAppGroupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppGroup
+     */
+    select?: WhatsAppGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppGroup
+     */
+    omit?: WhatsAppGroupOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AnnouncementLog
+   */
+
+  export type AggregateAnnouncementLog = {
+    _count: AnnouncementLogCountAggregateOutputType | null
+    _min: AnnouncementLogMinAggregateOutputType | null
+    _max: AnnouncementLogMaxAggregateOutputType | null
+  }
+
+  export type AnnouncementLogMinAggregateOutputType = {
+    id: string | null
+    announcementId: string | null
+    sender: string | null
+    receiverJid: string | null
+    content: string | null
+    type: string | null
+    createdAt: Date | null
+  }
+
+  export type AnnouncementLogMaxAggregateOutputType = {
+    id: string | null
+    announcementId: string | null
+    sender: string | null
+    receiverJid: string | null
+    content: string | null
+    type: string | null
+    createdAt: Date | null
+  }
+
+  export type AnnouncementLogCountAggregateOutputType = {
+    id: number
+    announcementId: number
+    sender: number
+    receiverJid: number
+    content: number
+    type: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AnnouncementLogMinAggregateInputType = {
+    id?: true
+    announcementId?: true
+    sender?: true
+    receiverJid?: true
+    content?: true
+    type?: true
+    createdAt?: true
+  }
+
+  export type AnnouncementLogMaxAggregateInputType = {
+    id?: true
+    announcementId?: true
+    sender?: true
+    receiverJid?: true
+    content?: true
+    type?: true
+    createdAt?: true
+  }
+
+  export type AnnouncementLogCountAggregateInputType = {
+    id?: true
+    announcementId?: true
+    sender?: true
+    receiverJid?: true
+    content?: true
+    type?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AnnouncementLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnnouncementLog to aggregate.
+     */
+    where?: AnnouncementLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnnouncementLogs to fetch.
+     */
+    orderBy?: AnnouncementLogOrderByWithRelationInput | AnnouncementLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AnnouncementLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnnouncementLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnnouncementLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AnnouncementLogs
+    **/
+    _count?: true | AnnouncementLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AnnouncementLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AnnouncementLogMaxAggregateInputType
+  }
+
+  export type GetAnnouncementLogAggregateType<T extends AnnouncementLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateAnnouncementLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAnnouncementLog[P]>
+      : GetScalarType<T[P], AggregateAnnouncementLog[P]>
+  }
+
+
+
+
+  export type AnnouncementLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnnouncementLogWhereInput
+    orderBy?: AnnouncementLogOrderByWithAggregationInput | AnnouncementLogOrderByWithAggregationInput[]
+    by: AnnouncementLogScalarFieldEnum[] | AnnouncementLogScalarFieldEnum
+    having?: AnnouncementLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AnnouncementLogCountAggregateInputType | true
+    _min?: AnnouncementLogMinAggregateInputType
+    _max?: AnnouncementLogMaxAggregateInputType
+  }
+
+  export type AnnouncementLogGroupByOutputType = {
+    id: string
+    announcementId: string | null
+    sender: string | null
+    receiverJid: string | null
+    content: string
+    type: string
+    createdAt: Date
+    _count: AnnouncementLogCountAggregateOutputType | null
+    _min: AnnouncementLogMinAggregateOutputType | null
+    _max: AnnouncementLogMaxAggregateOutputType | null
+  }
+
+  type GetAnnouncementLogGroupByPayload<T extends AnnouncementLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AnnouncementLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AnnouncementLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AnnouncementLogGroupByOutputType[P]>
+            : GetScalarType<T[P], AnnouncementLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AnnouncementLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    announcementId?: boolean
+    sender?: boolean
+    receiverJid?: boolean
+    content?: boolean
+    type?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["announcementLog"]>
+
+
+
+  export type AnnouncementLogSelectScalar = {
+    id?: boolean
+    announcementId?: boolean
+    sender?: boolean
+    receiverJid?: boolean
+    content?: boolean
+    type?: boolean
+    createdAt?: boolean
+  }
+
+  export type AnnouncementLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "announcementId" | "sender" | "receiverJid" | "content" | "type" | "createdAt", ExtArgs["result"]["announcementLog"]>
+
+  export type $AnnouncementLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AnnouncementLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      announcementId: string | null
+      sender: string | null
+      receiverJid: string | null
+      content: string
+      type: string
+      createdAt: Date
+    }, ExtArgs["result"]["announcementLog"]>
+    composites: {}
+  }
+
+  type AnnouncementLogGetPayload<S extends boolean | null | undefined | AnnouncementLogDefaultArgs> = $Result.GetResult<Prisma.$AnnouncementLogPayload, S>
+
+  type AnnouncementLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AnnouncementLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AnnouncementLogCountAggregateInputType | true
+    }
+
+  export interface AnnouncementLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AnnouncementLog'], meta: { name: 'AnnouncementLog' } }
+    /**
+     * Find zero or one AnnouncementLog that matches the filter.
+     * @param {AnnouncementLogFindUniqueArgs} args - Arguments to find a AnnouncementLog
+     * @example
+     * // Get one AnnouncementLog
+     * const announcementLog = await prisma.announcementLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AnnouncementLogFindUniqueArgs>(args: SelectSubset<T, AnnouncementLogFindUniqueArgs<ExtArgs>>): Prisma__AnnouncementLogClient<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AnnouncementLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AnnouncementLogFindUniqueOrThrowArgs} args - Arguments to find a AnnouncementLog
+     * @example
+     * // Get one AnnouncementLog
+     * const announcementLog = await prisma.announcementLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AnnouncementLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AnnouncementLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AnnouncementLogClient<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnnouncementLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnnouncementLogFindFirstArgs} args - Arguments to find a AnnouncementLog
+     * @example
+     * // Get one AnnouncementLog
+     * const announcementLog = await prisma.announcementLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AnnouncementLogFindFirstArgs>(args?: SelectSubset<T, AnnouncementLogFindFirstArgs<ExtArgs>>): Prisma__AnnouncementLogClient<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnnouncementLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnnouncementLogFindFirstOrThrowArgs} args - Arguments to find a AnnouncementLog
+     * @example
+     * // Get one AnnouncementLog
+     * const announcementLog = await prisma.announcementLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AnnouncementLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AnnouncementLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AnnouncementLogClient<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AnnouncementLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnnouncementLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AnnouncementLogs
+     * const announcementLogs = await prisma.announcementLog.findMany()
+     * 
+     * // Get first 10 AnnouncementLogs
+     * const announcementLogs = await prisma.announcementLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const announcementLogWithIdOnly = await prisma.announcementLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AnnouncementLogFindManyArgs>(args?: SelectSubset<T, AnnouncementLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AnnouncementLog.
+     * @param {AnnouncementLogCreateArgs} args - Arguments to create a AnnouncementLog.
+     * @example
+     * // Create one AnnouncementLog
+     * const AnnouncementLog = await prisma.announcementLog.create({
+     *   data: {
+     *     // ... data to create a AnnouncementLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends AnnouncementLogCreateArgs>(args: SelectSubset<T, AnnouncementLogCreateArgs<ExtArgs>>): Prisma__AnnouncementLogClient<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AnnouncementLogs.
+     * @param {AnnouncementLogCreateManyArgs} args - Arguments to create many AnnouncementLogs.
+     * @example
+     * // Create many AnnouncementLogs
+     * const announcementLog = await prisma.announcementLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AnnouncementLogCreateManyArgs>(args?: SelectSubset<T, AnnouncementLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a AnnouncementLog.
+     * @param {AnnouncementLogDeleteArgs} args - Arguments to delete one AnnouncementLog.
+     * @example
+     * // Delete one AnnouncementLog
+     * const AnnouncementLog = await prisma.announcementLog.delete({
+     *   where: {
+     *     // ... filter to delete one AnnouncementLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AnnouncementLogDeleteArgs>(args: SelectSubset<T, AnnouncementLogDeleteArgs<ExtArgs>>): Prisma__AnnouncementLogClient<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AnnouncementLog.
+     * @param {AnnouncementLogUpdateArgs} args - Arguments to update one AnnouncementLog.
+     * @example
+     * // Update one AnnouncementLog
+     * const announcementLog = await prisma.announcementLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AnnouncementLogUpdateArgs>(args: SelectSubset<T, AnnouncementLogUpdateArgs<ExtArgs>>): Prisma__AnnouncementLogClient<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AnnouncementLogs.
+     * @param {AnnouncementLogDeleteManyArgs} args - Arguments to filter AnnouncementLogs to delete.
+     * @example
+     * // Delete a few AnnouncementLogs
+     * const { count } = await prisma.announcementLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AnnouncementLogDeleteManyArgs>(args?: SelectSubset<T, AnnouncementLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnnouncementLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnnouncementLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AnnouncementLogs
+     * const announcementLog = await prisma.announcementLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AnnouncementLogUpdateManyArgs>(args: SelectSubset<T, AnnouncementLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AnnouncementLog.
+     * @param {AnnouncementLogUpsertArgs} args - Arguments to update or create a AnnouncementLog.
+     * @example
+     * // Update or create a AnnouncementLog
+     * const announcementLog = await prisma.announcementLog.upsert({
+     *   create: {
+     *     // ... data to create a AnnouncementLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AnnouncementLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AnnouncementLogUpsertArgs>(args: SelectSubset<T, AnnouncementLogUpsertArgs<ExtArgs>>): Prisma__AnnouncementLogClient<$Result.GetResult<Prisma.$AnnouncementLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AnnouncementLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnnouncementLogCountArgs} args - Arguments to filter AnnouncementLogs to count.
+     * @example
+     * // Count the number of AnnouncementLogs
+     * const count = await prisma.announcementLog.count({
+     *   where: {
+     *     // ... the filter for the AnnouncementLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends AnnouncementLogCountArgs>(
+      args?: Subset<T, AnnouncementLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AnnouncementLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AnnouncementLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnnouncementLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AnnouncementLogAggregateArgs>(args: Subset<T, AnnouncementLogAggregateArgs>): Prisma.PrismaPromise<GetAnnouncementLogAggregateType<T>>
+
+    /**
+     * Group by AnnouncementLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnnouncementLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AnnouncementLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AnnouncementLogGroupByArgs['orderBy'] }
+        : { orderBy?: AnnouncementLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AnnouncementLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAnnouncementLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AnnouncementLog model
+   */
+  readonly fields: AnnouncementLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AnnouncementLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AnnouncementLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AnnouncementLog model
+   */
+  interface AnnouncementLogFieldRefs {
+    readonly id: FieldRef<"AnnouncementLog", 'String'>
+    readonly announcementId: FieldRef<"AnnouncementLog", 'String'>
+    readonly sender: FieldRef<"AnnouncementLog", 'String'>
+    readonly receiverJid: FieldRef<"AnnouncementLog", 'String'>
+    readonly content: FieldRef<"AnnouncementLog", 'String'>
+    readonly type: FieldRef<"AnnouncementLog", 'String'>
+    readonly createdAt: FieldRef<"AnnouncementLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AnnouncementLog findUnique
+   */
+  export type AnnouncementLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnnouncementLog to fetch.
+     */
+    where: AnnouncementLogWhereUniqueInput
+  }
+
+  /**
+   * AnnouncementLog findUniqueOrThrow
+   */
+  export type AnnouncementLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnnouncementLog to fetch.
+     */
+    where: AnnouncementLogWhereUniqueInput
+  }
+
+  /**
+   * AnnouncementLog findFirst
+   */
+  export type AnnouncementLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnnouncementLog to fetch.
+     */
+    where?: AnnouncementLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnnouncementLogs to fetch.
+     */
+    orderBy?: AnnouncementLogOrderByWithRelationInput | AnnouncementLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnnouncementLogs.
+     */
+    cursor?: AnnouncementLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnnouncementLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnnouncementLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnnouncementLogs.
+     */
+    distinct?: AnnouncementLogScalarFieldEnum | AnnouncementLogScalarFieldEnum[]
+  }
+
+  /**
+   * AnnouncementLog findFirstOrThrow
+   */
+  export type AnnouncementLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnnouncementLog to fetch.
+     */
+    where?: AnnouncementLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnnouncementLogs to fetch.
+     */
+    orderBy?: AnnouncementLogOrderByWithRelationInput | AnnouncementLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnnouncementLogs.
+     */
+    cursor?: AnnouncementLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnnouncementLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnnouncementLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnnouncementLogs.
+     */
+    distinct?: AnnouncementLogScalarFieldEnum | AnnouncementLogScalarFieldEnum[]
+  }
+
+  /**
+   * AnnouncementLog findMany
+   */
+  export type AnnouncementLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnnouncementLogs to fetch.
+     */
+    where?: AnnouncementLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnnouncementLogs to fetch.
+     */
+    orderBy?: AnnouncementLogOrderByWithRelationInput | AnnouncementLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AnnouncementLogs.
+     */
+    cursor?: AnnouncementLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnnouncementLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnnouncementLogs.
+     */
+    skip?: number
+    distinct?: AnnouncementLogScalarFieldEnum | AnnouncementLogScalarFieldEnum[]
+  }
+
+  /**
+   * AnnouncementLog create
+   */
+  export type AnnouncementLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * The data needed to create a AnnouncementLog.
+     */
+    data: XOR<AnnouncementLogCreateInput, AnnouncementLogUncheckedCreateInput>
+  }
+
+  /**
+   * AnnouncementLog createMany
+   */
+  export type AnnouncementLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AnnouncementLogs.
+     */
+    data: AnnouncementLogCreateManyInput | AnnouncementLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AnnouncementLog update
+   */
+  export type AnnouncementLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * The data needed to update a AnnouncementLog.
+     */
+    data: XOR<AnnouncementLogUpdateInput, AnnouncementLogUncheckedUpdateInput>
+    /**
+     * Choose, which AnnouncementLog to update.
+     */
+    where: AnnouncementLogWhereUniqueInput
+  }
+
+  /**
+   * AnnouncementLog updateMany
+   */
+  export type AnnouncementLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AnnouncementLogs.
+     */
+    data: XOR<AnnouncementLogUpdateManyMutationInput, AnnouncementLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AnnouncementLogs to update
+     */
+    where?: AnnouncementLogWhereInput
+    /**
+     * Limit how many AnnouncementLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnnouncementLog upsert
+   */
+  export type AnnouncementLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * The filter to search for the AnnouncementLog to update in case it exists.
+     */
+    where: AnnouncementLogWhereUniqueInput
+    /**
+     * In case the AnnouncementLog found by the `where` argument doesn't exist, create a new AnnouncementLog with this data.
+     */
+    create: XOR<AnnouncementLogCreateInput, AnnouncementLogUncheckedCreateInput>
+    /**
+     * In case the AnnouncementLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AnnouncementLogUpdateInput, AnnouncementLogUncheckedUpdateInput>
+  }
+
+  /**
+   * AnnouncementLog delete
+   */
+  export type AnnouncementLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+    /**
+     * Filter which AnnouncementLog to delete.
+     */
+    where: AnnouncementLogWhereUniqueInput
+  }
+
+  /**
+   * AnnouncementLog deleteMany
+   */
+  export type AnnouncementLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnnouncementLogs to delete
+     */
+    where?: AnnouncementLogWhereInput
+    /**
+     * Limit how many AnnouncementLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnnouncementLog without action
+   */
+  export type AnnouncementLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnnouncementLog
+     */
+    select?: AnnouncementLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnnouncementLog
+     */
+    omit?: AnnouncementLogOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -14590,6 +17744,7 @@ export namespace Prisma {
     selectionDate: 'selectionDate',
     selectionDay: 'selectionDay',
     selectionNotified: 'selectionNotified',
+    attendanceStatus: 'attendanceStatus',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -14786,6 +17941,55 @@ export namespace Prisma {
   export type AlumniTestimonialScalarFieldEnum = (typeof AlumniTestimonialScalarFieldEnum)[keyof typeof AlumniTestimonialScalarFieldEnum]
 
 
+  export const ScheduledAnnouncementScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    targetGroup: 'targetGroup',
+    targetJid: 'targetJid',
+    targetName: 'targetName',
+    message: 'message',
+    mediaUrl: 'mediaUrl',
+    mediaType: 'mediaType',
+    mediaName: 'mediaName',
+    scheduledAt: 'scheduledAt',
+    status: 'status',
+    sentAt: 'sentAt',
+    totalTarget: 'totalTarget',
+    totalSent: 'totalSent',
+    failureReason: 'failureReason',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ScheduledAnnouncementScalarFieldEnum = (typeof ScheduledAnnouncementScalarFieldEnum)[keyof typeof ScheduledAnnouncementScalarFieldEnum]
+
+
+  export const WhatsAppGroupScalarFieldEnum: {
+    id: 'id',
+    jid: 'jid',
+    name: 'name',
+    memberCount: 'memberCount',
+    lastMsgAt: 'lastMsgAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WhatsAppGroupScalarFieldEnum = (typeof WhatsAppGroupScalarFieldEnum)[keyof typeof WhatsAppGroupScalarFieldEnum]
+
+
+  export const AnnouncementLogScalarFieldEnum: {
+    id: 'id',
+    announcementId: 'announcementId',
+    sender: 'sender',
+    receiverJid: 'receiverJid',
+    content: 'content',
+    type: 'type',
+    createdAt: 'createdAt'
+  };
+
+  export type AnnouncementLogScalarFieldEnum = (typeof AnnouncementLogScalarFieldEnum)[keyof typeof AnnouncementLogScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -14815,7 +18019,8 @@ export namespace Prisma {
     photoPath: 'photoPath',
     password: 'password',
     plainPassword: 'plainPassword',
-    selectionDay: 'selectionDay'
+    selectionDay: 'selectionDay',
+    attendanceStatus: 'attendanceStatus'
   };
 
   export type CandidateOrderByRelevanceFieldEnum = (typeof CandidateOrderByRelevanceFieldEnum)[keyof typeof CandidateOrderByRelevanceFieldEnum]
@@ -14953,6 +18158,44 @@ export namespace Prisma {
   export type AlumniTestimonialOrderByRelevanceFieldEnum = (typeof AlumniTestimonialOrderByRelevanceFieldEnum)[keyof typeof AlumniTestimonialOrderByRelevanceFieldEnum]
 
 
+  export const ScheduledAnnouncementOrderByRelevanceFieldEnum: {
+    id: 'id',
+    title: 'title',
+    targetGroup: 'targetGroup',
+    targetJid: 'targetJid',
+    targetName: 'targetName',
+    message: 'message',
+    mediaUrl: 'mediaUrl',
+    mediaType: 'mediaType',
+    mediaName: 'mediaName',
+    status: 'status',
+    failureReason: 'failureReason'
+  };
+
+  export type ScheduledAnnouncementOrderByRelevanceFieldEnum = (typeof ScheduledAnnouncementOrderByRelevanceFieldEnum)[keyof typeof ScheduledAnnouncementOrderByRelevanceFieldEnum]
+
+
+  export const WhatsAppGroupOrderByRelevanceFieldEnum: {
+    id: 'id',
+    jid: 'jid',
+    name: 'name'
+  };
+
+  export type WhatsAppGroupOrderByRelevanceFieldEnum = (typeof WhatsAppGroupOrderByRelevanceFieldEnum)[keyof typeof WhatsAppGroupOrderByRelevanceFieldEnum]
+
+
+  export const AnnouncementLogOrderByRelevanceFieldEnum: {
+    id: 'id',
+    announcementId: 'announcementId',
+    sender: 'sender',
+    receiverJid: 'receiverJid',
+    content: 'content',
+    type: 'type'
+  };
+
+  export type AnnouncementLogOrderByRelevanceFieldEnum = (typeof AnnouncementLogOrderByRelevanceFieldEnum)[keyof typeof AnnouncementLogOrderByRelevanceFieldEnum]
+
+
   /**
    * Field references
    */
@@ -15033,6 +18276,7 @@ export namespace Prisma {
     selectionDate?: DateTimeNullableFilter<"Candidate"> | Date | string | null
     selectionDay?: StringNullableFilter<"Candidate"> | string | null
     selectionNotified?: BoolFilter<"Candidate"> | boolean
+    attendanceStatus?: StringNullableFilter<"Candidate"> | string | null
     createdAt?: DateTimeFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeFilter<"Candidate"> | Date | string
     selectionScore?: XOR<SelectionScoreNullableScalarRelationFilter, SelectionScoreWhereInput> | null
@@ -15058,6 +18302,7 @@ export namespace Prisma {
     selectionDate?: SortOrderInput | SortOrder
     selectionDay?: SortOrderInput | SortOrder
     selectionNotified?: SortOrder
+    attendanceStatus?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     selectionScore?: SelectionScoreOrderByWithRelationInput
@@ -15087,6 +18332,7 @@ export namespace Prisma {
     selectionDate?: DateTimeNullableFilter<"Candidate"> | Date | string | null
     selectionDay?: StringNullableFilter<"Candidate"> | string | null
     selectionNotified?: BoolFilter<"Candidate"> | boolean
+    attendanceStatus?: StringNullableFilter<"Candidate"> | string | null
     createdAt?: DateTimeFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeFilter<"Candidate"> | Date | string
     selectionScore?: XOR<SelectionScoreNullableScalarRelationFilter, SelectionScoreWhereInput> | null
@@ -15112,6 +18358,7 @@ export namespace Prisma {
     selectionDate?: SortOrderInput | SortOrder
     selectionDay?: SortOrderInput | SortOrder
     selectionNotified?: SortOrder
+    attendanceStatus?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CandidateCountOrderByAggregateInput
@@ -15142,6 +18389,7 @@ export namespace Prisma {
     selectionDate?: DateTimeNullableWithAggregatesFilter<"Candidate"> | Date | string | null
     selectionDay?: StringNullableWithAggregatesFilter<"Candidate"> | string | null
     selectionNotified?: BoolWithAggregatesFilter<"Candidate"> | boolean
+    attendanceStatus?: StringNullableWithAggregatesFilter<"Candidate"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Candidate"> | Date | string
   }
@@ -16136,6 +19384,249 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"AlumniTestimonial"> | Date | string
   }
 
+  export type ScheduledAnnouncementWhereInput = {
+    AND?: ScheduledAnnouncementWhereInput | ScheduledAnnouncementWhereInput[]
+    OR?: ScheduledAnnouncementWhereInput[]
+    NOT?: ScheduledAnnouncementWhereInput | ScheduledAnnouncementWhereInput[]
+    id?: StringFilter<"ScheduledAnnouncement"> | string
+    title?: StringFilter<"ScheduledAnnouncement"> | string
+    targetGroup?: StringFilter<"ScheduledAnnouncement"> | string
+    targetJid?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    targetName?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    message?: StringFilter<"ScheduledAnnouncement"> | string
+    mediaUrl?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    mediaType?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    mediaName?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    scheduledAt?: DateTimeFilter<"ScheduledAnnouncement"> | Date | string
+    status?: StringFilter<"ScheduledAnnouncement"> | string
+    sentAt?: DateTimeNullableFilter<"ScheduledAnnouncement"> | Date | string | null
+    totalTarget?: IntFilter<"ScheduledAnnouncement"> | number
+    totalSent?: IntFilter<"ScheduledAnnouncement"> | number
+    failureReason?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    createdAt?: DateTimeFilter<"ScheduledAnnouncement"> | Date | string
+    updatedAt?: DateTimeFilter<"ScheduledAnnouncement"> | Date | string
+  }
+
+  export type ScheduledAnnouncementOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    targetGroup?: SortOrder
+    targetJid?: SortOrderInput | SortOrder
+    targetName?: SortOrderInput | SortOrder
+    message?: SortOrder
+    mediaUrl?: SortOrderInput | SortOrder
+    mediaType?: SortOrderInput | SortOrder
+    mediaName?: SortOrderInput | SortOrder
+    scheduledAt?: SortOrder
+    status?: SortOrder
+    sentAt?: SortOrderInput | SortOrder
+    totalTarget?: SortOrder
+    totalSent?: SortOrder
+    failureReason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _relevance?: ScheduledAnnouncementOrderByRelevanceInput
+  }
+
+  export type ScheduledAnnouncementWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ScheduledAnnouncementWhereInput | ScheduledAnnouncementWhereInput[]
+    OR?: ScheduledAnnouncementWhereInput[]
+    NOT?: ScheduledAnnouncementWhereInput | ScheduledAnnouncementWhereInput[]
+    title?: StringFilter<"ScheduledAnnouncement"> | string
+    targetGroup?: StringFilter<"ScheduledAnnouncement"> | string
+    targetJid?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    targetName?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    message?: StringFilter<"ScheduledAnnouncement"> | string
+    mediaUrl?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    mediaType?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    mediaName?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    scheduledAt?: DateTimeFilter<"ScheduledAnnouncement"> | Date | string
+    status?: StringFilter<"ScheduledAnnouncement"> | string
+    sentAt?: DateTimeNullableFilter<"ScheduledAnnouncement"> | Date | string | null
+    totalTarget?: IntFilter<"ScheduledAnnouncement"> | number
+    totalSent?: IntFilter<"ScheduledAnnouncement"> | number
+    failureReason?: StringNullableFilter<"ScheduledAnnouncement"> | string | null
+    createdAt?: DateTimeFilter<"ScheduledAnnouncement"> | Date | string
+    updatedAt?: DateTimeFilter<"ScheduledAnnouncement"> | Date | string
+  }, "id">
+
+  export type ScheduledAnnouncementOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    targetGroup?: SortOrder
+    targetJid?: SortOrderInput | SortOrder
+    targetName?: SortOrderInput | SortOrder
+    message?: SortOrder
+    mediaUrl?: SortOrderInput | SortOrder
+    mediaType?: SortOrderInput | SortOrder
+    mediaName?: SortOrderInput | SortOrder
+    scheduledAt?: SortOrder
+    status?: SortOrder
+    sentAt?: SortOrderInput | SortOrder
+    totalTarget?: SortOrder
+    totalSent?: SortOrder
+    failureReason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ScheduledAnnouncementCountOrderByAggregateInput
+    _avg?: ScheduledAnnouncementAvgOrderByAggregateInput
+    _max?: ScheduledAnnouncementMaxOrderByAggregateInput
+    _min?: ScheduledAnnouncementMinOrderByAggregateInput
+    _sum?: ScheduledAnnouncementSumOrderByAggregateInput
+  }
+
+  export type ScheduledAnnouncementScalarWhereWithAggregatesInput = {
+    AND?: ScheduledAnnouncementScalarWhereWithAggregatesInput | ScheduledAnnouncementScalarWhereWithAggregatesInput[]
+    OR?: ScheduledAnnouncementScalarWhereWithAggregatesInput[]
+    NOT?: ScheduledAnnouncementScalarWhereWithAggregatesInput | ScheduledAnnouncementScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ScheduledAnnouncement"> | string
+    title?: StringWithAggregatesFilter<"ScheduledAnnouncement"> | string
+    targetGroup?: StringWithAggregatesFilter<"ScheduledAnnouncement"> | string
+    targetJid?: StringNullableWithAggregatesFilter<"ScheduledAnnouncement"> | string | null
+    targetName?: StringNullableWithAggregatesFilter<"ScheduledAnnouncement"> | string | null
+    message?: StringWithAggregatesFilter<"ScheduledAnnouncement"> | string
+    mediaUrl?: StringNullableWithAggregatesFilter<"ScheduledAnnouncement"> | string | null
+    mediaType?: StringNullableWithAggregatesFilter<"ScheduledAnnouncement"> | string | null
+    mediaName?: StringNullableWithAggregatesFilter<"ScheduledAnnouncement"> | string | null
+    scheduledAt?: DateTimeWithAggregatesFilter<"ScheduledAnnouncement"> | Date | string
+    status?: StringWithAggregatesFilter<"ScheduledAnnouncement"> | string
+    sentAt?: DateTimeNullableWithAggregatesFilter<"ScheduledAnnouncement"> | Date | string | null
+    totalTarget?: IntWithAggregatesFilter<"ScheduledAnnouncement"> | number
+    totalSent?: IntWithAggregatesFilter<"ScheduledAnnouncement"> | number
+    failureReason?: StringNullableWithAggregatesFilter<"ScheduledAnnouncement"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ScheduledAnnouncement"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ScheduledAnnouncement"> | Date | string
+  }
+
+  export type WhatsAppGroupWhereInput = {
+    AND?: WhatsAppGroupWhereInput | WhatsAppGroupWhereInput[]
+    OR?: WhatsAppGroupWhereInput[]
+    NOT?: WhatsAppGroupWhereInput | WhatsAppGroupWhereInput[]
+    id?: StringFilter<"WhatsAppGroup"> | string
+    jid?: StringFilter<"WhatsAppGroup"> | string
+    name?: StringFilter<"WhatsAppGroup"> | string
+    memberCount?: IntFilter<"WhatsAppGroup"> | number
+    lastMsgAt?: DateTimeFilter<"WhatsAppGroup"> | Date | string
+    createdAt?: DateTimeFilter<"WhatsAppGroup"> | Date | string
+    updatedAt?: DateTimeFilter<"WhatsAppGroup"> | Date | string
+  }
+
+  export type WhatsAppGroupOrderByWithRelationInput = {
+    id?: SortOrder
+    jid?: SortOrder
+    name?: SortOrder
+    memberCount?: SortOrder
+    lastMsgAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _relevance?: WhatsAppGroupOrderByRelevanceInput
+  }
+
+  export type WhatsAppGroupWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    jid?: string
+    AND?: WhatsAppGroupWhereInput | WhatsAppGroupWhereInput[]
+    OR?: WhatsAppGroupWhereInput[]
+    NOT?: WhatsAppGroupWhereInput | WhatsAppGroupWhereInput[]
+    name?: StringFilter<"WhatsAppGroup"> | string
+    memberCount?: IntFilter<"WhatsAppGroup"> | number
+    lastMsgAt?: DateTimeFilter<"WhatsAppGroup"> | Date | string
+    createdAt?: DateTimeFilter<"WhatsAppGroup"> | Date | string
+    updatedAt?: DateTimeFilter<"WhatsAppGroup"> | Date | string
+  }, "id" | "jid">
+
+  export type WhatsAppGroupOrderByWithAggregationInput = {
+    id?: SortOrder
+    jid?: SortOrder
+    name?: SortOrder
+    memberCount?: SortOrder
+    lastMsgAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WhatsAppGroupCountOrderByAggregateInput
+    _avg?: WhatsAppGroupAvgOrderByAggregateInput
+    _max?: WhatsAppGroupMaxOrderByAggregateInput
+    _min?: WhatsAppGroupMinOrderByAggregateInput
+    _sum?: WhatsAppGroupSumOrderByAggregateInput
+  }
+
+  export type WhatsAppGroupScalarWhereWithAggregatesInput = {
+    AND?: WhatsAppGroupScalarWhereWithAggregatesInput | WhatsAppGroupScalarWhereWithAggregatesInput[]
+    OR?: WhatsAppGroupScalarWhereWithAggregatesInput[]
+    NOT?: WhatsAppGroupScalarWhereWithAggregatesInput | WhatsAppGroupScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WhatsAppGroup"> | string
+    jid?: StringWithAggregatesFilter<"WhatsAppGroup"> | string
+    name?: StringWithAggregatesFilter<"WhatsAppGroup"> | string
+    memberCount?: IntWithAggregatesFilter<"WhatsAppGroup"> | number
+    lastMsgAt?: DateTimeWithAggregatesFilter<"WhatsAppGroup"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"WhatsAppGroup"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WhatsAppGroup"> | Date | string
+  }
+
+  export type AnnouncementLogWhereInput = {
+    AND?: AnnouncementLogWhereInput | AnnouncementLogWhereInput[]
+    OR?: AnnouncementLogWhereInput[]
+    NOT?: AnnouncementLogWhereInput | AnnouncementLogWhereInput[]
+    id?: StringFilter<"AnnouncementLog"> | string
+    announcementId?: StringNullableFilter<"AnnouncementLog"> | string | null
+    sender?: StringNullableFilter<"AnnouncementLog"> | string | null
+    receiverJid?: StringNullableFilter<"AnnouncementLog"> | string | null
+    content?: StringFilter<"AnnouncementLog"> | string
+    type?: StringFilter<"AnnouncementLog"> | string
+    createdAt?: DateTimeFilter<"AnnouncementLog"> | Date | string
+  }
+
+  export type AnnouncementLogOrderByWithRelationInput = {
+    id?: SortOrder
+    announcementId?: SortOrderInput | SortOrder
+    sender?: SortOrderInput | SortOrder
+    receiverJid?: SortOrderInput | SortOrder
+    content?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    _relevance?: AnnouncementLogOrderByRelevanceInput
+  }
+
+  export type AnnouncementLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AnnouncementLogWhereInput | AnnouncementLogWhereInput[]
+    OR?: AnnouncementLogWhereInput[]
+    NOT?: AnnouncementLogWhereInput | AnnouncementLogWhereInput[]
+    announcementId?: StringNullableFilter<"AnnouncementLog"> | string | null
+    sender?: StringNullableFilter<"AnnouncementLog"> | string | null
+    receiverJid?: StringNullableFilter<"AnnouncementLog"> | string | null
+    content?: StringFilter<"AnnouncementLog"> | string
+    type?: StringFilter<"AnnouncementLog"> | string
+    createdAt?: DateTimeFilter<"AnnouncementLog"> | Date | string
+  }, "id">
+
+  export type AnnouncementLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    announcementId?: SortOrderInput | SortOrder
+    sender?: SortOrderInput | SortOrder
+    receiverJid?: SortOrderInput | SortOrder
+    content?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    _count?: AnnouncementLogCountOrderByAggregateInput
+    _max?: AnnouncementLogMaxOrderByAggregateInput
+    _min?: AnnouncementLogMinOrderByAggregateInput
+  }
+
+  export type AnnouncementLogScalarWhereWithAggregatesInput = {
+    AND?: AnnouncementLogScalarWhereWithAggregatesInput | AnnouncementLogScalarWhereWithAggregatesInput[]
+    OR?: AnnouncementLogScalarWhereWithAggregatesInput[]
+    NOT?: AnnouncementLogScalarWhereWithAggregatesInput | AnnouncementLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AnnouncementLog"> | string
+    announcementId?: StringNullableWithAggregatesFilter<"AnnouncementLog"> | string | null
+    sender?: StringNullableWithAggregatesFilter<"AnnouncementLog"> | string | null
+    receiverJid?: StringNullableWithAggregatesFilter<"AnnouncementLog"> | string | null
+    content?: StringWithAggregatesFilter<"AnnouncementLog"> | string
+    type?: StringWithAggregatesFilter<"AnnouncementLog"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AnnouncementLog"> | Date | string
+  }
+
   export type CandidateCreateInput = {
     id?: string
     nisn: string
@@ -16156,6 +19647,7 @@ export namespace Prisma {
     selectionDate?: Date | string | null
     selectionDay?: string | null
     selectionNotified?: boolean
+    attendanceStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     selectionScore?: SelectionScoreCreateNestedOneWithoutCandidateInput
@@ -16181,6 +19673,7 @@ export namespace Prisma {
     selectionDate?: Date | string | null
     selectionDay?: string | null
     selectionNotified?: boolean
+    attendanceStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     selectionScore?: SelectionScoreUncheckedCreateNestedOneWithoutCandidateInput
@@ -16206,6 +19699,7 @@ export namespace Prisma {
     selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    attendanceStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     selectionScore?: SelectionScoreUpdateOneWithoutCandidateNestedInput
@@ -16231,6 +19725,7 @@ export namespace Prisma {
     selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    attendanceStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     selectionScore?: SelectionScoreUncheckedUpdateOneWithoutCandidateNestedInput
@@ -16256,6 +19751,7 @@ export namespace Prisma {
     selectionDate?: Date | string | null
     selectionDay?: string | null
     selectionNotified?: boolean
+    attendanceStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16280,6 +19776,7 @@ export namespace Prisma {
     selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    attendanceStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16304,6 +19801,7 @@ export namespace Prisma {
     selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    attendanceStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17426,6 +20924,286 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ScheduledAnnouncementCreateInput = {
+    id?: string
+    title: string
+    targetGroup: string
+    targetJid?: string | null
+    targetName?: string | null
+    message: string
+    mediaUrl?: string | null
+    mediaType?: string | null
+    mediaName?: string | null
+    scheduledAt: Date | string
+    status?: string
+    sentAt?: Date | string | null
+    totalTarget?: number
+    totalSent?: number
+    failureReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ScheduledAnnouncementUncheckedCreateInput = {
+    id?: string
+    title: string
+    targetGroup: string
+    targetJid?: string | null
+    targetName?: string | null
+    message: string
+    mediaUrl?: string | null
+    mediaType?: string | null
+    mediaName?: string | null
+    scheduledAt: Date | string
+    status?: string
+    sentAt?: Date | string | null
+    totalTarget?: number
+    totalSent?: number
+    failureReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ScheduledAnnouncementUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    targetGroup?: StringFieldUpdateOperationsInput | string
+    targetJid?: NullableStringFieldUpdateOperationsInput | string | null
+    targetName?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaType?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaName?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTarget?: IntFieldUpdateOperationsInput | number
+    totalSent?: IntFieldUpdateOperationsInput | number
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScheduledAnnouncementUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    targetGroup?: StringFieldUpdateOperationsInput | string
+    targetJid?: NullableStringFieldUpdateOperationsInput | string | null
+    targetName?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaType?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaName?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTarget?: IntFieldUpdateOperationsInput | number
+    totalSent?: IntFieldUpdateOperationsInput | number
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScheduledAnnouncementCreateManyInput = {
+    id?: string
+    title: string
+    targetGroup: string
+    targetJid?: string | null
+    targetName?: string | null
+    message: string
+    mediaUrl?: string | null
+    mediaType?: string | null
+    mediaName?: string | null
+    scheduledAt: Date | string
+    status?: string
+    sentAt?: Date | string | null
+    totalTarget?: number
+    totalSent?: number
+    failureReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ScheduledAnnouncementUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    targetGroup?: StringFieldUpdateOperationsInput | string
+    targetJid?: NullableStringFieldUpdateOperationsInput | string | null
+    targetName?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaType?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaName?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTarget?: IntFieldUpdateOperationsInput | number
+    totalSent?: IntFieldUpdateOperationsInput | number
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScheduledAnnouncementUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    targetGroup?: StringFieldUpdateOperationsInput | string
+    targetJid?: NullableStringFieldUpdateOperationsInput | string | null
+    targetName?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaType?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaName?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTarget?: IntFieldUpdateOperationsInput | number
+    totalSent?: IntFieldUpdateOperationsInput | number
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppGroupCreateInput = {
+    id?: string
+    jid: string
+    name: string
+    memberCount?: number
+    lastMsgAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhatsAppGroupUncheckedCreateInput = {
+    id?: string
+    jid: string
+    name: string
+    memberCount?: number
+    lastMsgAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhatsAppGroupUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jid?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    memberCount?: IntFieldUpdateOperationsInput | number
+    lastMsgAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppGroupUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jid?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    memberCount?: IntFieldUpdateOperationsInput | number
+    lastMsgAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppGroupCreateManyInput = {
+    id?: string
+    jid: string
+    name: string
+    memberCount?: number
+    lastMsgAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhatsAppGroupUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jid?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    memberCount?: IntFieldUpdateOperationsInput | number
+    lastMsgAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppGroupUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jid?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    memberCount?: IntFieldUpdateOperationsInput | number
+    lastMsgAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnnouncementLogCreateInput = {
+    id?: string
+    announcementId?: string | null
+    sender?: string | null
+    receiverJid?: string | null
+    content: string
+    type?: string
+    createdAt?: Date | string
+  }
+
+  export type AnnouncementLogUncheckedCreateInput = {
+    id?: string
+    announcementId?: string | null
+    sender?: string | null
+    receiverJid?: string | null
+    content: string
+    type?: string
+    createdAt?: Date | string
+  }
+
+  export type AnnouncementLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    announcementId?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverJid?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnnouncementLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    announcementId?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverJid?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnnouncementLogCreateManyInput = {
+    id?: string
+    announcementId?: string | null
+    sender?: string | null
+    receiverJid?: string | null
+    content: string
+    type?: string
+    createdAt?: Date | string
+  }
+
+  export type AnnouncementLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    announcementId?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverJid?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnnouncementLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    announcementId?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverJid?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -17526,6 +21304,7 @@ export namespace Prisma {
     selectionDate?: SortOrder
     selectionDay?: SortOrder
     selectionNotified?: SortOrder
+    attendanceStatus?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -17550,6 +21329,7 @@ export namespace Prisma {
     selectionDate?: SortOrder
     selectionDay?: SortOrder
     selectionNotified?: SortOrder
+    attendanceStatus?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -17574,6 +21354,7 @@ export namespace Prisma {
     selectionDate?: SortOrder
     selectionDay?: SortOrder
     selectionNotified?: SortOrder
+    attendanceStatus?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18457,6 +22238,162 @@ export namespace Prisma {
     content?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type ScheduledAnnouncementOrderByRelevanceInput = {
+    fields: ScheduledAnnouncementOrderByRelevanceFieldEnum | ScheduledAnnouncementOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type ScheduledAnnouncementCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    targetGroup?: SortOrder
+    targetJid?: SortOrder
+    targetName?: SortOrder
+    message?: SortOrder
+    mediaUrl?: SortOrder
+    mediaType?: SortOrder
+    mediaName?: SortOrder
+    scheduledAt?: SortOrder
+    status?: SortOrder
+    sentAt?: SortOrder
+    totalTarget?: SortOrder
+    totalSent?: SortOrder
+    failureReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ScheduledAnnouncementAvgOrderByAggregateInput = {
+    totalTarget?: SortOrder
+    totalSent?: SortOrder
+  }
+
+  export type ScheduledAnnouncementMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    targetGroup?: SortOrder
+    targetJid?: SortOrder
+    targetName?: SortOrder
+    message?: SortOrder
+    mediaUrl?: SortOrder
+    mediaType?: SortOrder
+    mediaName?: SortOrder
+    scheduledAt?: SortOrder
+    status?: SortOrder
+    sentAt?: SortOrder
+    totalTarget?: SortOrder
+    totalSent?: SortOrder
+    failureReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ScheduledAnnouncementMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    targetGroup?: SortOrder
+    targetJid?: SortOrder
+    targetName?: SortOrder
+    message?: SortOrder
+    mediaUrl?: SortOrder
+    mediaType?: SortOrder
+    mediaName?: SortOrder
+    scheduledAt?: SortOrder
+    status?: SortOrder
+    sentAt?: SortOrder
+    totalTarget?: SortOrder
+    totalSent?: SortOrder
+    failureReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ScheduledAnnouncementSumOrderByAggregateInput = {
+    totalTarget?: SortOrder
+    totalSent?: SortOrder
+  }
+
+  export type WhatsAppGroupOrderByRelevanceInput = {
+    fields: WhatsAppGroupOrderByRelevanceFieldEnum | WhatsAppGroupOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type WhatsAppGroupCountOrderByAggregateInput = {
+    id?: SortOrder
+    jid?: SortOrder
+    name?: SortOrder
+    memberCount?: SortOrder
+    lastMsgAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WhatsAppGroupAvgOrderByAggregateInput = {
+    memberCount?: SortOrder
+  }
+
+  export type WhatsAppGroupMaxOrderByAggregateInput = {
+    id?: SortOrder
+    jid?: SortOrder
+    name?: SortOrder
+    memberCount?: SortOrder
+    lastMsgAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WhatsAppGroupMinOrderByAggregateInput = {
+    id?: SortOrder
+    jid?: SortOrder
+    name?: SortOrder
+    memberCount?: SortOrder
+    lastMsgAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WhatsAppGroupSumOrderByAggregateInput = {
+    memberCount?: SortOrder
+  }
+
+  export type AnnouncementLogOrderByRelevanceInput = {
+    fields: AnnouncementLogOrderByRelevanceFieldEnum | AnnouncementLogOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type AnnouncementLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    announcementId?: SortOrder
+    sender?: SortOrder
+    receiverJid?: SortOrder
+    content?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AnnouncementLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    announcementId?: SortOrder
+    sender?: SortOrder
+    receiverJid?: SortOrder
+    content?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AnnouncementLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    announcementId?: SortOrder
+    sender?: SortOrder
+    receiverJid?: SortOrder
+    content?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type SelectionScoreCreateNestedOneWithoutCandidateInput = {
@@ -19522,6 +23459,7 @@ export namespace Prisma {
     selectionDate?: Date | string | null
     selectionDay?: string | null
     selectionNotified?: boolean
+    attendanceStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -19546,6 +23484,7 @@ export namespace Prisma {
     selectionDate?: Date | string | null
     selectionDay?: string | null
     selectionNotified?: boolean
+    attendanceStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -19586,6 +23525,7 @@ export namespace Prisma {
     selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    attendanceStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -19610,6 +23550,7 @@ export namespace Prisma {
     selectionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     selectionDay?: NullableStringFieldUpdateOperationsInput | string | null
     selectionNotified?: BoolFieldUpdateOperationsInput | boolean
+    attendanceStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

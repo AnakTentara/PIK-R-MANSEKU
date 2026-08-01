@@ -167,3 +167,32 @@ export const deleteUploadedFile = (filePath) =>
 export const downloadBackupDb = () =>
   api.get('/admin/settings/backup-db', { responseType: 'blob' });
 
+// Announcements & Broadcasts
+export const getAnnouncements = () =>
+  api.get('/admin/announcements');
+
+export const createAnnouncement = (formData) =>
+  api.post('/admin/announcements', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+
+export const updateAnnouncement = (id, formData) =>
+  api.put(`/admin/announcements/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+
+export const deleteAnnouncement = (id) =>
+  api.delete(`/admin/announcements/${id}`);
+
+export const sendNowAnnouncement = (id) =>
+  api.post(`/admin/announcements/${id}/send-now`);
+
+export const getDebugGroups = () =>
+  api.get('/admin/announcements/debug-groups');
+
+export const addDebugGroup = (data) =>
+  api.post('/admin/announcements/debug-groups', data);
+
+export const getDebugLogs = () =>
+  api.get('/admin/announcements/debug-logs');
+
+export const simulateIncomingMessage = (data) =>
+  api.post('/admin/announcements/simulate-incoming', data);
+
+

@@ -138,6 +138,7 @@ exports.Prisma.CandidateScalarFieldEnum = {
   selectionDate: 'selectionDate',
   selectionDay: 'selectionDay',
   selectionNotified: 'selectionNotified',
+  attendanceStatus: 'attendanceStatus',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -146,11 +147,15 @@ exports.Prisma.SelectionScoreScalarFieldEnum = {
   id: 'id',
   candidateId: 'candidateId',
   pos1Evaluator: 'pos1Evaluator',
-  pos1Trust: 'pos1Trust',
   pos1Comm: 'pos1Comm',
-  pos1Arg: 'pos1Arg',
-  pos1Ethics: 'pos1Ethics',
+  pos1Trust: 'pos1Trust',
   pos1Motiv: 'pos1Motiv',
+  pos1Komitmen: 'pos1Komitmen',
+  pos1KerjaSama: 'pos1KerjaSama',
+  pos1Kepemimpinan: 'pos1Kepemimpinan',
+  pos1Pengetahuan: 'pos1Pengetahuan',
+  pos1Etika: 'pos1Etika',
+  pos1Bonus: 'pos1Bonus',
   pos1Avg: 'pos1Avg',
   pos1Completed: 'pos1Completed',
   pos1Notes: 'pos1Notes',
@@ -165,10 +170,13 @@ exports.Prisma.SelectionScoreScalarFieldEnum = {
   pos2Completed: 'pos2Completed',
   pos2Notes: 'pos2Notes',
   pos3Evaluator: 'pos3Evaluator',
-  pos3Aura: 'pos3Aura',
+  pos3Pemahaman: 'pos3Pemahaman',
   pos3Analysis: 'pos3Analysis',
-  pos3PublicSpk: 'pos3PublicSpk',
   pos3Solution: 'pos3Solution',
+  pos3Empati: 'pos3Empati',
+  pos3PublicSpk: 'pos3PublicSpk',
+  pos3Logika: 'pos3Logika',
+  pos3Pengetahuan: 'pos3Pengetahuan',
   pos3Avg: 'pos3Avg',
   pos3Completed: 'pos3Completed',
   pos3Notes: 'pos3Notes',
@@ -282,6 +290,46 @@ exports.Prisma.AlumniTestimonialScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ScheduledAnnouncementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  targetGroup: 'targetGroup',
+  targetJid: 'targetJid',
+  targetName: 'targetName',
+  message: 'message',
+  mediaUrl: 'mediaUrl',
+  mediaType: 'mediaType',
+  mediaName: 'mediaName',
+  scheduledAt: 'scheduledAt',
+  status: 'status',
+  sentAt: 'sentAt',
+  totalTarget: 'totalTarget',
+  totalSent: 'totalSent',
+  failureReason: 'failureReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WhatsAppGroupScalarFieldEnum = {
+  id: 'id',
+  jid: 'jid',
+  name: 'name',
+  memberCount: 'memberCount',
+  lastMsgAt: 'lastMsgAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AnnouncementLogScalarFieldEnum = {
+  id: 'id',
+  announcementId: 'announcementId',
+  sender: 'sender',
+  receiverJid: 'receiverJid',
+  content: 'content',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -304,7 +352,10 @@ exports.Prisma.ModelName = {
   Setting: 'Setting',
   Member: 'Member',
   OrgMember: 'OrgMember',
-  AlumniTestimonial: 'AlumniTestimonial'
+  AlumniTestimonial: 'AlumniTestimonial',
+  ScheduledAnnouncement: 'ScheduledAnnouncement',
+  WhatsAppGroup: 'WhatsAppGroup',
+  AnnouncementLog: 'AnnouncementLog'
 };
 
 /**

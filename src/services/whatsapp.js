@@ -204,6 +204,62 @@ export async function initWhatsApp() {
     const fromJid = msg.key.remoteJid;
     const cleanPhone = extractSenderPhone(msg);
 
+    // ── GROUP JID LISTENER & AUTO-LOGGER ──
+    const isGroup = fromJid.endsWith('@g.us');
+    if (isGroup) {
+      try {
+        let groupName = 'Grup WhatsApp (' + fromJid.slice(0, 12) + ')';
+        try {
+          const groupMeta = await sock.groupMetadata(fromJid);
+          if (groupMeta && groupMeta.subject) {
+            groupName = groupMeta.subject;
+          }
+        } catch (e) {
+          // Fallback if metadata fails
+        }
+
+        await prisma.whatsAppGroup.upsert({
+          where: { jid: fromJid },
+          create: {
+            jid: fromJid,
+            name: groupName,
+            memberCount: 0,
+            lastMsgAt: new Date()
+          },
+          update: {
+            name: groupName,
+            lastMsgAt: new Date()
+          }
+        });
+
+        // Log incoming group message in AnnouncementLog
+        await prisma.announcementLog.create({
+          data: {
+            receiverJid: fromJid,
+            sender: msg.pushName || cleanPhone || 'Anggota Grup',
+            content: text || '[Pesan Media/Sticker]',
+            type: 'INCOMING_MSG'
+          }
+        });
+      } catch (err) {
+        console.error('Error logging WhatsApp group message:', err);
+      }
+
+      // Check command !id or !groupinfo in WhatsApp Group
+      const lowerText = text.trim().toLowerCase();
+      if (lowerText === '!id' || lowerText === '!group' || lowerText === '!info' || lowerText === '!groupinfo') {
+        let gName = fromJid;
+        try {
+          const groupMeta = await sock.groupMetadata(fromJid);
+          if (groupMeta && groupMeta.subject) gName = groupMeta.subject;
+        } catch (e) {}
+
+        const replyMsg = `📌 *INFO ID GRUP WHATSAPP*\n\nNama Grup: *${gName}*\nGroup JID / Channel ID:\n\`${fromJid}\`\n\n💡 *Tips Admin*: Salin Group JID di atas dan tempel pada tab *Pengumuman Scheduled* di Admin Dashboard untuk mengirim pesan / media scheduled ke grup ini!`;
+        await replyToMessage(fromJid, replyMsg, msg);
+        return;
+      }
+    }
+
     if (text.trim().startsWith('/sandi ganti')) {
       try {
         const extra = text.trim().substring(12).trim();
@@ -418,3 +474,45 @@ export async function sendWhatsAppWithAttachments(to, text, attachments = []) {
 export function isWhatsAppReady() {
   return isConnected;
 }
+
+/**
+ * Send WhatsApp Broadcast to Group JID or Specific Destination with optional Media
+ */
+export async function sendWhatsAppGroupBroadcast(toJid, text, mediaObj = null) {
+  if (!sock || !isConnected) {
+    console.warn(`[WhatsApp] Gagal mengirim broadcast ke ${toJid} karena bot belum aktif/terkoneksi.`);
+    return false;
+  }
+
+  try {
+    const targetJid = toJid.includes('@') ? toJid : formatPhoneNumber(toJid);
+
+    if (mediaObj && mediaObj.url && fs.existsSync(mediaObj.url)) {
+      const buffer = fs.readFileSync(mediaObj.url);
+      const mimetype = mediaObj.mimetype || 'application/octet-stream';
+      const type = (mediaObj.type || '').toUpperCase();
+
+      if (type === 'IMAGE' || mimetype.startsWith('image/')) {
+        await sock.sendMessage(targetJid, { image: buffer, caption: text || '' });
+      } else if (type === 'VIDEO' || mimetype.startsWith('video/')) {
+        await sock.sendMessage(targetJid, { video: buffer, caption: text || '' });
+      } else {
+        await sock.sendMessage(targetJid, {
+          document: buffer,
+          mimetype,
+          fileName: mediaObj.name || path.basename(mediaObj.url),
+          caption: text || ''
+        });
+      }
+    } else {
+      if (text && text.trim()) {
+        await sock.sendMessage(targetJid, { text: text.trim() });
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error(`[WhatsApp] Gagal mengirim broadcast grup ke ${toJid}:`, error);
+    return false;
+  }
+}
+

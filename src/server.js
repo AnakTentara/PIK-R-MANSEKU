@@ -12,6 +12,7 @@ import blogRoutes from './routes/blog.js';
 import forumRoutes from './routes/forum.js';
 import publicRoutes from './routes/public.js';
 import { initWhatsApp, isWhatsAppReady } from './services/whatsapp.js';
+import { startAnnouncementScheduler } from './services/announcementScheduler.js';
 
 dotenv.config();
 
@@ -277,6 +278,13 @@ app.listen(PORT, async () => {
     await initWhatsApp();
   } catch (error) {
     console.error('[Server] Gagal menginisialisasi WhatsApp Bot:', error);
+  }
+
+  // Start Announcement Scheduler Service
+  try {
+    startAnnouncementScheduler();
+  } catch (error) {
+    console.error('[Server] Gagal mengaktifkan Announcement Scheduler:', error);
   }
 
   // ─── OTP Cleanup Cron: hapus OTP expired/used setiap 1 jam ────────────────

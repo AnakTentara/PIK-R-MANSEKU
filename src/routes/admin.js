@@ -58,6 +58,17 @@ import {
   deleteUploadedFile,
   getDashboardStats,
 } from '../controllers/admin.js';
+import {
+  getAnnouncements,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
+  sendNowAnnouncement,
+  getDebugGroups,
+  addDebugGroup,
+  getDebugLogs,
+  simulateIncomingMessage
+} from '../controllers/announcement.js';
 import { authAdmin, requireRole } from '../middlewares/auth.js';
 import { loginLimiter } from '../middlewares/rateLimit.js';
 import { uploadDocs } from '../utils/multerConfig.js';
@@ -223,5 +234,16 @@ router.post('/web-editor/upload-logo', authAdmin, requireRole(['DEVELOPER', 'KAB
   const logoUrl = `/uploads/logos/${req.file.filename}`;
   return res.json({ logoUrl });
 });
+
+// Scheduled Announcements & Broadcasts
+router.get('/announcements', authAdmin, getAnnouncements);
+router.post('/announcements', authAdmin, upload.single('media'), createAnnouncement);
+router.put('/announcements/:id', authAdmin, upload.single('media'), updateAnnouncement);
+router.delete('/announcements/:id', authAdmin, deleteAnnouncement);
+router.post('/announcements/:id/send-now', authAdmin, sendNowAnnouncement);
+router.get('/announcements/debug-groups', authAdmin, getDebugGroups);
+router.post('/announcements/debug-groups', authAdmin, addDebugGroup);
+router.get('/announcements/debug-logs', authAdmin, getDebugLogs);
+router.post('/announcements/simulate-incoming', authAdmin, simulateIncomingMessage);
 
 export default router;
