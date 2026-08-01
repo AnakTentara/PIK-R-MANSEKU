@@ -57,6 +57,7 @@ import {
   getUploadedFiles,
   deleteUploadedFile,
   getDashboardStats,
+  triggerGitPullReload,
 } from '../controllers/admin.js';
 import {
   getAnnouncements,
@@ -245,5 +246,8 @@ router.get('/announcements/debug-groups', authAdmin, getDebugGroups);
 router.post('/announcements/debug-groups', authAdmin, addDebugGroup);
 router.get('/announcements/debug-logs', authAdmin, getDebugLogs);
 router.post('/announcements/simulate-incoming', authAdmin, simulateIncomingMessage);
+
+// System 1-Click Trigger Git Pull & Reload
+router.post('/system/git-pull-reload', authAdmin, triggerGitPullReload);
 
 export default router;

@@ -2280,5 +2280,49 @@ export async function exportPOSScoreExcel(req, res) {
   }
 }
 
+// 18. Admin 1-Click Trigger Git Pull & Reload Server
+export async function triggerGitPullReload(req, res) {
+  try {
+    console.log('\n==================================================');
+    console.log('🔄 [Admin Web API] Memulai Git Pull & Auto-Reload...');
+    console.log('==================================================\n');
+
+    let gitOutput = '';
+    try {
+      gitOutput = execSync('git pull origin master', { encoding: 'utf8' });
+      console.log('Git Pull Output:', gitOutput);
+    } catch (e) {
+      gitOutput = e.message;
+      console.warn('Git Pull Warning:', e.message);
+    }
+
+    const frontendPath = path.join(__dirname, '../../frontend');
+    if (fs.existsSync(frontendPath)) {
+      try {
+        console.log('📦 Rebuilding frontend bundle...');
+        execSync('npm run build', { cwd: frontendPath, stdio: 'inherit' });
+        console.log('✅ Frontend build selesai!');
+      } catch (e) {
+        console.warn('⚠️ Frontend build warning:', e.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Git pull berhasil! Server sedang memuat ulang dalam 2 detik.',
+      gitOutput
+    });
+
+    setTimeout(() => {
+      console.log('\n🚀 Memuat ulang server process...\n');
+      process.exit(0);
+    }, 1500);
+  } catch (error) {
+    console.error('Error executing git pull reload:', error);
+    res.status(500).json({ success: false, message: 'Gagal melakukan git pull reload.' });
+  }
+}
+
+
 
 

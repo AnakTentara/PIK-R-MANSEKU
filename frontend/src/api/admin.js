@@ -195,4 +195,7 @@ export const getDebugLogs = () =>
 export const simulateIncomingMessage = (data) =>
   api.post('/admin/announcements/simulate-incoming', data);
 
+export const triggerGitPullReload = () =>
+  api.post('/admin/system/git-pull-reload');
+
 

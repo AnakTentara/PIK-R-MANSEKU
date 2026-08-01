@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDashboardStats } from '@/api/admin';
+import { getDashboardStats, triggerGitPullReload } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
-import { ClipboardList, Users, CheckCircle, XCircle, FileText, MessageSquare, AlertCircle } from 'lucide-react';
+import { ClipboardList, Users, CheckCircle, XCircle, FileText, MessageSquare, AlertCircle, RefreshCw, GitPullRequest } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminDashboardPage.module.css';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [syncingGit, setSyncingGit] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +28,24 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleSyncGitReload = async () => {
+    if (!window.confirm('Jalankan Git Pull & Reload Server sekarang? Server akan memuat update terbaru dari GitHub.')) return;
+    setSyncingGit(true);
+    try {
+      const res = await triggerGitPullReload();
+      if (res.data.success) {
+        toast.success(res.data.message);
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
+    } catch (err) {
+      toast.error('Gagal melakukan sync git.');
+    } finally {
+      setSyncingGit(false);
+    }
+  };
+
   const cand = stats?.candidates || { total: 0, passed: 0, notPassed: 0, pending: 0 };
   const memb = stats?.members || { active: 0 };
   const blog = stats?.blog || { totalNews: 0, totalBlogPosts: 0, pendingBlogDrafts: 0, recentComments: 0 };
@@ -36,7 +55,18 @@ export default function AdminDashboardPage() {
       <AdminHeader
         title="Dashboard Utama"
         subtitle="Analisis data organisasi, pendaftar, rilis berita, dan blog komunitas"
-      />
+      >
+        <button
+          type="button"
+          onClick={handleSyncGitReload}
+          disabled={syncingGit}
+          className="btn btn-secondary btn-sm"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}
+        >
+          {syncingGit ? <span className="spinner" /> : <GitPullRequest size={14} color="#ea580c" />}
+          {syncingGit ? 'Syncing...' : 'Sync Git & Reload Server'}
+        </button>
+      </AdminHeader>
 
       <div className={styles.body}>
         {/* Section Title 1 */}
