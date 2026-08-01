@@ -149,26 +149,47 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
     ctx.fillStyle = lineGrad;
     ctx.fillRect(width / 2 - 150, 126, 300, 3);
 
-    // ── 3. CANDIDATE CARDS COMPACT AUTO-LAYOUTING (1-COL vs 2-COL GRID) ──
+    // ── 3. CANDIDATE CARDS AUTO-SIZING & VERTICAL CENTERING ──
     const count = selectedCandidates.length;
     const isMultiColumn = count > 5;
     const itemsPerCol = isMultiColumn ? Math.ceil(count / 2) : count;
 
-    const cardAreaY = 142;
-    const footerAreaHeight = showOptionalText ? 90 : 45;
-    const availableHeight = height - cardAreaY - footerAreaHeight - 15;
+    const topHeaderBottom = 138;
+    const footerTop = height - (showOptionalText ? 85 : 45);
+    const maxAvailableHeight = footerTop - topHeaderBottom - 20;
 
-    const cardGap = isMultiColumn ? 10 : Math.min(16, Math.max(8, Math.floor((availableHeight - count * 75) / count)));
-    const cardHeight = Math.min(85, Math.max(54, Math.floor((availableHeight - (itemsPerCol - 1) * cardGap) / itemsPerCol)));
+    let cardHeight = 76;
+    let cardGap = 12;
 
-    const colWidth = isMultiColumn ? (width - 100 - 20) / 2 : width - 160;
+    if (!isMultiColumn) {
+      if (count <= 3) {
+        cardHeight = 92;
+        cardGap = 16;
+      } else if (count <= 5) {
+        cardHeight = 82;
+        cardGap = 14;
+      }
+    } else {
+      if (itemsPerCol > 6) {
+        cardHeight = 62;
+        cardGap = 8;
+      } else {
+        cardHeight = 72;
+        cardGap = 10;
+      }
+    }
+
+    const totalCardsHeight = itemsPerCol * cardHeight + (itemsPerCol - 1) * cardGap;
+    const cardAreaY = topHeaderBottom + Math.max(10, Math.floor((maxAvailableHeight - totalCardsHeight) / 2));
+
+    const colWidth = isMultiColumn ? (width - 100 - 24) / 2 : width - 160;
     const startX = isMultiColumn ? 50 : 80;
 
     selectedCandidates.forEach((c, i) => {
       const colIdx = isMultiColumn ? Math.floor(i / itemsPerCol) : 0;
       const rowIdx = isMultiColumn ? (i % itemsPerCol) : i;
 
-      const cardX = isMultiColumn ? (startX + colIdx * (colWidth + 20)) : startX;
+      const cardX = isMultiColumn ? (startX + colIdx * (colWidth + 24)) : startX;
       const cardY = cardAreaY + rowIdx * (cardHeight + cardGap);
       const rank = c.actualRank;
 
@@ -612,7 +633,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
           <div className={styles.previewPanel}>
             <div style={{ color: '#94a3b8', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Sparkles size={14} color="#f97316" />
-              <span>Live Preview Poster Infografis ({aspectRatio === '1:1' ? '1080 x 1080 px' : '1440 x 1080 px'}) — Fits 100% In Frame</span>
+              <span>Live Preview Poster Infografis ({aspectRatio === '1:1' ? '1080 x 1080 px' : '1440 x 1080 px'}) — 100% Fit & Auto-Sized</span>
             </div>
 
             <div className={styles.canvasContainer}>
