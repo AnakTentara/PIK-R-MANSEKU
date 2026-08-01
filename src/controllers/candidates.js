@@ -407,9 +407,14 @@ export async function verifyResetOtp(req, res) {
       });
     }
 
-    // 4. Mark OTP as used
-    await otpModel.update({
-      where: { id: otpRecord.id },
+    // 4. Mark this OTP and all previous OTPs for this user as used/invalidated
+    await otpModel.updateMany({
+      where: {
+        OR: [
+          { id: otpRecord.id },
+          { identifier: { in: searchIds } }
+        ]
+      },
       data: { isUsed: true }
     });
 
