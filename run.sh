@@ -107,38 +107,18 @@ else
 fi
 
 echo ""
-echo -e "${BLUE}=== [4/5] Sinkronisasi Database (Prisma Client Generate) ===${NC}"
-echo -e "${YELLOW}Menjalankan postinstall script secara manual...${NC}"
-node node_modules/@prisma/client/scripts/postinstall.js 2>/dev/null
+echo -e "${BLUE}=== [4/5] Sinkronisasi Database SQLite (local.db) ===${NC}"
+echo -e "${YELLOW}Men-generate Prisma Client...${NC}"
+npx prisma generate --schema=prisma/schema.prisma
 if [ $? -ne 0 ]; then
-  echo -e "${YELLOW}Warning: Gagal menjalankan Prisma postinstall script.${NC}"
-fi
-
-echo -e "${YELLOW}Men-generate client SQLite lokal...${NC}"
-npx prisma generate --schema=prisma/sqlite.prisma
-if [ $? -ne 0 ]; then
-  echo -e "${YELLOW}Warning: Gagal men-generate client SQLite.${NC}"
+  echo -e "${YELLOW}Warning: Gagal men-generate Prisma Client.${NC}"
 fi
 echo -e "${YELLOW}Menyelaraskan tabel database SQLite lokal (db push)...${NC}"
-npx prisma db push --schema=prisma/sqlite.prisma --accept-data-loss
+npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
 if [ $? -ne 0 ]; then
   echo -e "${YELLOW}Warning: Gagal melakukan db push pada SQLite.${NC}"
 fi
-echo -e "${YELLOW}Men-generate client MySQL...${NC}"
-npx prisma generate --schema=prisma/schema.prisma
-if [ $? -ne 0 ]; then
-  echo -e "${YELLOW}Warning: Gagal men-generate client MySQL.${NC}"
-fi
-if [ -n "$DATABASE_URL" ] || [ -f ".env" ]; then
-  echo -e "${YELLOW}Menyelaraskan tabel database MySQL (db push)...${NC}"
-  npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
-  if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}Warning: Gagal melakukan db push pada MySQL.${NC}"
-  fi
-else
-  echo -e "${YELLOW}Info: File .env / DATABASE_URL tidak terdeteksi di shell environment. Melewati db push MySQL.${NC}"
-fi
-echo -e "${GREEN}Prisma Client & Tabel Database berhasil diselaraskan.${NC}"
+echo -e "${GREEN}Prisma Client & Tabel Database SQLite berhasil diselaraskan.${NC}"
 
 echo ""
 echo -e "${BLUE}=== [5/5] Menjalankan Backend & Frontend Secara Bersamaan ===${NC}"

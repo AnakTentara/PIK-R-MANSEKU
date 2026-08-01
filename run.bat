@@ -68,19 +68,11 @@ if %NEED_FRONTEND_INSTALL%==1 (
 echo.
 
 echo ==========================================
-echo [4/5] Men-generate Prisma Client
+echo [4/5] Men-generate Prisma Client & Tabel Database (SQLite)
 echo ==========================================
-call npx prisma generate --schema=prisma/sqlite.prisma
-call npx prisma db push --schema=prisma/sqlite.prisma --accept-data-loss
 call npx prisma generate --schema=prisma/schema.prisma
-if exist .env (
-  call npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
-) else if defined DATABASE_URL (
-  call npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
-) else (
-  echo Info: File .env / DATABASE_URL tidak terdeteksi. Melewati db push MySQL.
-)
-echo Prisma Client ^& Database siap.
+call npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
+echo Prisma Client & Database SQLite siap.
 echo.
 
 echo ==========================================

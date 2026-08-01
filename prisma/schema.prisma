@@ -1,11 +1,10 @@
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:../local.db"
 }
 
 generator client {
   provider      = "prisma-client-js"
-  output        = "../src/generated/mysql"
   binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
@@ -18,8 +17,8 @@ model Candidate {
   email           String
   gender          String
   asalSekolah     String   @default("-")
-  reason          String   @db.Text
-  status          Status   @default(PENDING)
+  reason          String
+  status          String   @default("PENDING")
   photoPath       String?
   
   // Authentication fields for Member Login
@@ -29,11 +28,11 @@ model Candidate {
   // Notification status
   emailNotified   Boolean  @default(false)
   waNotified      Boolean  @default(false)
-  lastStatus      Status   @default(PENDING)
+  lastStatus      String   @default("PENDING")
   
   // Selection schedule fields
   selectionDate       DateTime?
-  selectionDay        String?  // e.g. "Rabu, 29 Juli 2026"
+  selectionDay        String?
   selectionNotified   Boolean  @default(false)
   attendanceStatus    String?  @default("BELUM_KONFIRMASI") // HADIR, TIDAK_HADIR, BELUM_KONFIRMASI
 
@@ -41,10 +40,6 @@ model Candidate {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
-  @@index([whatsappNumber])
-  @@index([status])
-  @@index([name])
 }
 
 model SelectionScore {
@@ -65,7 +60,7 @@ model SelectionScore {
   pos1Bonus          Float?   // Bonus (1-10)
   pos1Avg            Float?   // Rata-rata POS 1
   pos1Completed      Boolean  @default(false)
-  pos1Notes          String?  @db.Text
+  pos1Notes          String?
 
   // POS 2: Tes Minat Bakat
   pos2Evaluator   String?
@@ -77,7 +72,7 @@ model SelectionScore {
   pos2Confidence  Float?   // Percaya Diri (1-10)
   pos2Avg         Float?   // Rata-rata POS 2
   pos2Completed   Boolean  @default(false)
-  pos2Notes       String?  @db.Text
+  pos2Notes       String?
 
   // POS 3: Studi Kasus
   pos3Evaluator      String?
@@ -90,7 +85,7 @@ model SelectionScore {
   pos3Pengetahuan    Float?   // Pengetahuan (1-10)
   pos3Avg            Float?   // Rata-rata POS 3
   pos3Completed      Boolean  @default(false)
-  pos3Notes          String?  @db.Text
+  pos3Notes          String?
 
   // Total & Final Status
   finalScore      Float?   // Rata-rata 33.3% per POS: (pos1Avg + pos2Avg + pos3Avg) / 3
@@ -98,12 +93,6 @@ model SelectionScore {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-}
-
-enum Status {
-  PENDING
-  LULUS
-  TIDAK_LULUS
 }
 
 model Admin {
@@ -121,7 +110,7 @@ model Post {
   id        String    @id @default(uuid())
   title     String
   slug      String    @unique
-  content   String    @db.LongText
+  content   String
   authorId  String
   author    Admin     @relation(fields: [authorId], references: [id])
   views     Int       @default(0) // views count
@@ -133,7 +122,7 @@ model BlogPost {
   id           String        @id @default(uuid())
   title        String
   slug         String        @unique
-  content      String        @db.LongText
+  content      String
   category     String        @default("Umum")
   tags         String        @default("") // Comma-separated tags
   status       String        @default("DRAFT") // DRAFT | PUBLISHED
@@ -153,7 +142,7 @@ model BlogComment {
   id        String        @id @default(uuid())
   postId    String
   post      BlogPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  content   String        @db.Text
+  content   String
   memberId  String?       // FK to Member (optional, if logged in)
   member    Member?       @relation(fields: [memberId], references: [id])
   username  String        // fallback for guest
@@ -176,12 +165,12 @@ model BlogLike {
 
 model Setting {
   key   String @id
-  value String @db.Text
+  value String
 }
 
 model Member {
   id              String   @id @default(uuid())
-  nisn            String?  @unique
+  nisn            String   @unique
   name            String
   className       String
   whatsappNumber  String
@@ -190,62 +179,40 @@ model Member {
   asalSekolah     String   @default("-")
   password        String
   plainPassword   String?
-  status          MemberStatus @default(ACTIVE)
+  status          String   @default("ACTIVE")
   joinYear        Int      @default(2026)
   role            String   @default("member")
   photoPath       String?
-  orgMember       OrgMember?   // back-relation: a Member can be linked to one OrgMember entry
+  orgMember       OrgMember?  // back-relation
   blogPosts       BlogPost[]   // written posts
   blogComments    BlogComment[] // posted comments
   blogLikes       BlogLike[]   // likes
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
-  @@index([whatsappNumber])
-  @@index([status])
-  @@index([name])
-  @@index([joinYear, status])
-}
-
-enum MemberStatus {
-  ACTIVE
-  ALUMNI
 }
 
 model OrgMember {
   id          String   @id @default(uuid())
   name        String
-  role        String   // PEMBINA, KETUA, WAKIL, KABINET, ANGGOTA
-  jabatan     String   // e.g. "Pembina", "Ketua Umum", "Kabid Kesehatan"
+  role        String
+  jabatan     String
   yearStart   Int
   yearEnd     Int?
   isCurrent   Boolean  @default(false)
   photoPath   String?  // used only for orphan entries (no linked Member account)
-  quote       String?  @db.Text
-  memberId    String?  @unique // FK to Member (nullable — allows historical orphan entries)
+  quote       String?
+  memberId    String?  @unique // FK to Member (nullable)
   member      Member?  @relation(fields: [memberId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model PasswordResetOtp {
-  id          String   @id @default(uuid())
-  identifier  String   // NISN or WA number
-  otpCode     String
-  expiresAt   DateTime
-  isUsed      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-
-  @@index([isUsed, expiresAt])   // dipakai saat query OTP aktif
-  @@index([identifier])          // dipakai saat binding OTP ke identifier
-}
-
 model AlumniTestimonial {
   id          String   @id @default(uuid())
   name        String
-  angkatan    String   // e.g. "2023", "2024"
+  angkatan    String
   photoPath   String?
-  content     String   @db.Text
+  content     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -256,7 +223,7 @@ model ScheduledAnnouncement {
   targetGroup   String    // e.g. 'GROUP_WA_CALON', 'GROUP_WA_PENGURUS', 'PERSONAL_WA', 'CUSTOM_JID'
   targetJid     String?   // e.g. '1203630123456789@g.us'
   targetName    String?   // e.g. 'Grup Calon Anggota PIK-R 2026'
-  message       String    @db.Text
+  message       String
   mediaUrl      String?   // file path or URL for uploaded photo/video/doc
   mediaType     String?   // 'IMAGE', 'VIDEO', 'DOCUMENT', 'NONE'
   mediaName     String?   // Original filename
@@ -265,7 +232,7 @@ model ScheduledAnnouncement {
   sentAt        DateTime?
   totalTarget   Int       @default(0)
   totalSent     Int       @default(0)
-  failureReason String?   @db.Text
+  failureReason String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -285,9 +252,19 @@ model AnnouncementLog {
   announcementId String?
   sender         String?
   receiverJid    String?
-  content        String   @db.Text
+  content        String
   type           String   @default("INFO") // 'INCOMING_MSG', 'OUTGOING_BROADCAST', 'DEBUG'
   createdAt      DateTime @default(now())
 }
 
+model PasswordResetOtp {
+  id          String   @id @default(uuid())
+  identifier  String   // NISN or WA number
+  otpCode     String
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
+  @@index([isUsed, expiresAt])
+  @@index([identifier])
+}
