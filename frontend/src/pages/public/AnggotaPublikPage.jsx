@@ -118,6 +118,13 @@ export default function AnggotaPublikPage() {
     return a.name.localeCompare(b.name);
   });
 
+  // Chunk sortedKetuaDivisiList into rows of 4 cards max for clean multi-row tree connectors
+  const divisionRows = [];
+  const cardsPerRow = 4;
+  for (let i = 0; i < sortedKetuaDivisiList.length; i += cardsPerRow) {
+    divisionRows.push(sortedKetuaDivisiList.slice(i, i + cardsPerRow));
+  }
+
   const getMemberJabatan = (memberName) => {
     const normName = normalizeName(memberName);
     const found = orgData.find(o => normalizeName(o.name) === normName);
@@ -167,159 +174,205 @@ export default function AnggotaPublikPage() {
                 </div>
               )}
 
-              {/* Vertical Line Connector */}
-              {(pembina && (ketua || wakil)) && <div className={styles.connectorLine} />}
+              {/* Stem from Pembina down */}
+              {pembina && (ketua || wakil) && <div className={styles.stemLine} />}
+
+              {/* Branch line above Level 2 */}
+              {(ketua && wakil) && <div className={styles.level2BranchLine} />}
 
               {/* Level 2: Ketua & Wakil */}
               {(ketua || wakil) && (
                 <div className={styles.treeLevelRow}>
                   {ketua && (
-                    <div className={`${styles.treeNode} ${styles.nodeKetua}`}>
-                      <div className={styles.nodeAvatar}>
-                        {(ketua.effectivePhoto || ketua.photoPath) ? (
-                          <img src={getUploadUrl(ketua.effectivePhoto || ketua.photoPath)} alt={ketua.name} />
-                        ) : (
-                          <div className={styles.initials}>{ketua.name[0]}</div>
-                        )}
+                    <div className={styles.nodeWithStem}>
+                      {(ketua && wakil) && <div className={styles.stemTop} />}
+                      <div className={`${styles.treeNode} ${styles.nodeKetua}`}>
+                        <div className={styles.nodeAvatar}>
+                          {(ketua.effectivePhoto || ketua.photoPath) ? (
+                            <img src={getUploadUrl(ketua.effectivePhoto || ketua.photoPath)} alt={ketua.name} />
+                          ) : (
+                            <div className={styles.initials}>{ketua.name[0]}</div>
+                          )}
+                        </div>
+                        <h5>{formatName(ketua.name)}</h5>
+                        <p>{ketua.jabatan}</p>
                       </div>
-                      <h5>{formatName(ketua.name)}</h5>
-                      <p>{ketua.jabatan}</p>
                     </div>
                   )}
 
                   {wakil && (
-                    <div className={`${styles.treeNode} ${styles.nodeWakil}`}>
-                      <div className={styles.nodeAvatar}>
-                        {(wakil.effectivePhoto || wakil.photoPath) ? (
-                          <img src={getUploadUrl(wakil.effectivePhoto || wakil.photoPath)} alt={wakil.name} />
-                        ) : (
-                          <div className={styles.initials}>{wakil.name[0]}</div>
-                        )}
+                    <div className={styles.nodeWithStem}>
+                      {(ketua && wakil) && <div className={styles.stemTop} />}
+                      <div className={`${styles.treeNode} ${styles.nodeWakil}`}>
+                        <div className={styles.nodeAvatar}>
+                          {(wakil.effectivePhoto || wakil.photoPath) ? (
+                            <img src={getUploadUrl(wakil.effectivePhoto || wakil.photoPath)} alt={wakil.name} />
+                          ) : (
+                            <div className={styles.initials}>{wakil.name[0]}</div>
+                          )}
+                        </div>
+                        <h5>{formatName(wakil.name)}</h5>
+                        <p>{wakil.jabatan}</p>
                       </div>
-                      <h5>{formatName(wakil.name)}</h5>
-                      <p>{wakil.jabatan}</p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Line Connector to Pengurus Umum */}
-              {(sekretaris || bendahara) && <div className={styles.connectorLine} />}
+              {/* Join Branch from Level 2 to Level 3 */}
+              {(ketua || wakil) && (sekretaris || bendahara) && (
+                <div className={styles.level2BottomJoin}>
+                  {(ketua && wakil) && <div className={styles.level2JoinBranch} />}
+                  <div className={styles.stemLine} />
+                  {(sekretaris && bendahara) && <div className={styles.level3BranchLine} />}
+                </div>
+              )}
 
               {/* Level 3: Pengurus Umum (Sekretaris & Bendahara) */}
               {(sekretaris || bendahara) && (
                 <div className={styles.treeLevelRow}>
                   {sekretaris && (
-                    <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
-                      <div className={styles.nodeAvatarSmall}>
-                        {(sekretaris.effectivePhoto || sekretaris.photoPath) ? (
-                          <img src={getUploadUrl(sekretaris.effectivePhoto || sekretaris.photoPath)} alt={sekretaris.name} />
-                        ) : (
-                          <div className={styles.initialsSmall}>{sekretaris.name[0]}</div>
-                        )}
+                    <div className={styles.nodeWithStem}>
+                      {(sekretaris && bendahara) && <div className={styles.stemTop} />}
+                      <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
+                        <div className={styles.nodeAvatarSmall}>
+                          {(sekretaris.effectivePhoto || sekretaris.photoPath) ? (
+                            <img src={getUploadUrl(sekretaris.effectivePhoto || sekretaris.photoPath)} alt={sekretaris.name} />
+                          ) : (
+                            <div className={styles.initialsSmall}>{sekretaris.name[0]}</div>
+                          )}
+                        </div>
+                        <h6>{formatName(sekretaris.name)}</h6>
+                        <p>{sekretaris.jabatan}</p>
                       </div>
-                      <h6>{formatName(sekretaris.name)}</h6>
-                      <p>{sekretaris.jabatan}</p>
                     </div>
                   )}
 
                   {bendahara && (
-                    <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
-                      <div className={styles.nodeAvatarSmall}>
-                        {(bendahara.effectivePhoto || bendahara.photoPath) ? (
-                          <img src={getUploadUrl(bendahara.effectivePhoto || bendahara.photoPath)} alt={bendahara.name} />
-                        ) : (
-                          <div className={styles.initialsSmall}>{bendahara.name[0]}</div>
-                        )}
+                    <div className={styles.nodeWithStem}>
+                      {(bendahara && sekretaris) && <div className={styles.stemTop} />}
+                      <div className={`${styles.treeNode} ${styles.nodeKabinet}`}>
+                        <div className={styles.nodeAvatarSmall}>
+                          {(bendahara.effectivePhoto || bendahara.photoPath) ? (
+                            <img src={getUploadUrl(bendahara.effectivePhoto || bendahara.photoPath)} alt={bendahara.name} />
+                          ) : (
+                            <div className={styles.initialsSmall}>{bendahara.name[0]}</div>
+                          )}
+                        </div>
+                        <h6>{formatName(bendahara.name)}</h6>
+                        <p>{bendahara.jabatan}</p>
                       </div>
-                      <h6>{formatName(bendahara.name)}</h6>
-                      <p>{bendahara.jabatan}</p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Line Connector to Ketua Divisi Tree Bus */}
-              {sortedKetuaDivisiList.length > 0 && <div className={styles.connectorLine} />}
+              {/* Join Branch from Level 3 to Division Section */}
+              {(sekretaris || bendahara) && sortedKetuaDivisiList.length > 0 && (
+                <div className={styles.level3BottomJoin}>
+                  {(sekretaris && bendahara) && <div className={styles.level3JoinBranch} />}
+                  <div className={styles.stemLine} />
+                </div>
+              )}
 
-              {/* Level 4: Ketua Divisi & Level 5: Anggota Divisi */}
-              {sortedKetuaDivisiList.length > 0 && (
-                <div className={styles.treeBusContainer}>
-                  <div className={styles.treeBusLine} />
-                  <div className={styles.kabinetGrid}>
-                    {sortedKetuaDivisiList.map(k => {
-                      const staff = getDivisionStaff(k.jabatan);
-                      const hasStaff = staff.length > 0;
-                      const isExpanded = !!expandedDivisions[k.id];
+              {/* Level 4: Ketua Divisi & Level 5: Anggota Divisi (Multi-Row Connected Tree) */}
+              {divisionRows.length > 0 && (
+                <div className={styles.divisionTreeContainer}>
+                  {divisionRows.map((rowItems, rowIndex) => {
+                    const count = rowItems.length;
+                    const offsetPercent = count > 1 ? `${(100 / (count * 2)).toFixed(2)}%` : '50%';
 
-                      return (
-                        <div key={k.id} className={styles.kabinetContainer}>
-                          {/* Card Ketua Divisi with Integrated Orange Toggle Button */}
-                          <div className={styles.divisionCardWrapper}>
-                            <div className={`${styles.treeNode} ${styles.nodeKabinetCard}`}>
-                              <div className={styles.nodeAvatarSmall}>
-                                {(k.effectivePhoto || k.photoPath) ? (
-                                  <img src={getUploadUrl(k.effectivePhoto || k.photoPath)} alt={k.name} />
-                                ) : (
-                                  <div className={styles.initialsSmall}>{k.name[0]}</div>
-                                )}
-                              </div>
-                              <h6>{formatName(k.name)}</h6>
-                              <p>{k.jabatan}</p>
-                            </div>
+                    return (
+                      <div key={rowIndex} className={styles.divisionRowBlock}>
+                        {/* Central Trunk line from previous row */}
+                        {rowIndex > 0 && <div className={styles.interRowTrunk} />}
 
-                            {/* Toggle Open/Close Button: Width matches card, Height ~50% of card height (2:1 ratio), Vibrant contrast orange */}
-                            {hasStaff ? (
-                              <button
-                                type="button"
-                                onClick={() => toggleDivision(k.id)}
-                                className={`${styles.toggleStaffBtn} ${isExpanded ? styles.toggleStaffBtnActive : ''}`}
-                                aria-expanded={isExpanded}
-                                title={isExpanded ? 'Sembunyikan anggota' : 'Tampilkan anggota'}
-                              >
-                                <span>{isExpanded ? 'Sembunyikan' : `Lihat (${staff.length}) Anggota`}</span>
-                                <ChevronDown 
-                                  size={16} 
-                                  className={`${styles.toggleIcon} ${isExpanded ? styles.toggleIconRotated : ''}`} 
-                                />
-                              </button>
-                            ) : (
-                              <div className={styles.noStaffBadge}>
-                                <span>Tidak ada anggota</span>
-                              </div>
-                            )}
-                          </div>
+                        {/* Horizontal Branch Line for this specific row */}
+                        {count > 1 && (
+                          <div 
+                            className={styles.rowBranchLine} 
+                            style={{ left: offsetPercent, right: offsetPercent }} 
+                          />
+                        )}
 
-                          {/* Level 5: Staf/Anggota Divisi (Collapsible with smooth grid height transition) */}
-                          {hasStaff && (
-                            <div className={`${styles.staffCollapsible} ${isExpanded ? styles.staffCollapsibleExpanded : ''}`}>
-                              <div className={styles.staffCollapsibleInner}>
-                                <div className={styles.staffDropdown}>
-                                  <div className={styles.staffList}>
-                                    {staff.map(s => (
-                                      <div key={s.id} className={styles.staffNode}>
-                                        <div className={styles.staffAvatar}>
-                                          {(s.effectivePhoto || s.photoPath) ? (
-                                            <img src={getUploadUrl(s.effectivePhoto || s.photoPath)} alt={s.name} />
-                                          ) : (
-                                            <div className={styles.staffInitials}>{s.name[0]}</div>
-                                          )}
-                                        </div>
-                                        <div className={styles.staffInfo}>
-                                          <strong>{formatName(s.name)}</strong>
-                                          <span>{s.jabatan}</span>
+                        {/* Grid of Division Cards for this row */}
+                        <div className={styles.kabinetRowGrid}>
+                          {rowItems.map(k => {
+                            const staff = getDivisionStaff(k.jabatan);
+                            const hasStaff = staff.length > 0;
+                            const isExpanded = !!expandedDivisions[k.id];
+
+                            return (
+                              <div key={k.id} className={styles.kabinetContainer}>
+                                {/* Card Ketua Divisi */}
+                                <div className={styles.divisionCardWrapper}>
+                                  <div className={`${styles.treeNode} ${styles.nodeKabinetCard}`}>
+                                    <div className={styles.nodeAvatarSmall}>
+                                      {(k.effectivePhoto || k.photoPath) ? (
+                                        <img src={getUploadUrl(k.effectivePhoto || k.photoPath)} alt={k.name} />
+                                      ) : (
+                                        <div className={styles.initialsSmall}>{k.name[0]}</div>
+                                      )}
+                                    </div>
+                                    <h6>{formatName(k.name)}</h6>
+                                    <p>{k.jabatan}</p>
+                                  </div>
+
+                                  {/* Orange Toggle Button */}
+                                  {hasStaff ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleDivision(k.id)}
+                                      className={`${styles.toggleStaffBtn} ${isExpanded ? styles.toggleStaffBtnActive : ''}`}
+                                      aria-expanded={isExpanded}
+                                      title={isExpanded ? 'Sembunyikan anggota' : 'Tampilkan anggota'}
+                                    >
+                                      <span>{isExpanded ? 'Sembunyikan' : `Lihat (${staff.length}) Anggota`}</span>
+                                      <ChevronDown 
+                                        size={16} 
+                                        className={`${styles.toggleIcon} ${isExpanded ? styles.toggleIconRotated : ''}`} 
+                                      />
+                                    </button>
+                                  ) : (
+                                    <div className={styles.noStaffBadge}>
+                                      <span>Tidak ada anggota</span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Level 5: Staf/Anggota Divisi */}
+                                {hasStaff && (
+                                  <div className={`${styles.staffCollapsible} ${isExpanded ? styles.staffCollapsibleExpanded : ''}`}>
+                                    <div className={styles.staffCollapsibleInner}>
+                                      <div className={styles.staffDropdown}>
+                                        <div className={styles.staffList}>
+                                          {staff.map(s => (
+                                            <div key={s.id} className={styles.staffNode}>
+                                              <div className={styles.staffAvatar}>
+                                                {(s.effectivePhoto || s.photoPath) ? (
+                                                  <img src={getUploadUrl(s.effectivePhoto || s.photoPath)} alt={s.name} />
+                                                ) : (
+                                                  <div className={styles.staffInitials}>{s.name[0]}</div>
+                                                )}
+                                              </div>
+                                              <div className={styles.staffInfo}>
+                                                <strong>{formatName(s.name)}</strong>
+                                                <span>{s.jabatan}</span>
+                                              </div>
+                                            </div>
+                                          ))}
                                         </div>
                                       </div>
-                                    ))}
+                                    </div>
                                   </div>
-                                </div>
+                                )}
                               </div>
-                            </div>
-                          )}
+                            );
+                          })}
                         </div>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -377,5 +430,6 @@ export default function AnggotaPublikPage() {
     </div>
   );
 }
+
 
 
