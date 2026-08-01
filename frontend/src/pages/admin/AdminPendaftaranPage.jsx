@@ -25,10 +25,11 @@ import {
 import { useUIStore } from '@/stores/uiStore';
 import AdminHeader from '@/components/admin/AdminHeader';
 import SkeletonTable from '@/components/skeletons/SkeletonTable';
+import InfografisModal from '@/components/admin/InfografisModal';
 import {
   Edit, Trash2, Search, CheckCircle, XCircle, AlertCircle, ToggleLeft, ToggleRight,
   FileSpreadsheet, FileJson, ChevronLeft, ChevronRight, UserCheck, Calendar,
-  Send, Paperclip, Shuffle, User, Layers, CheckSquare, Square, X, Key, Eye, EyeOff, ShieldAlert, Lock, Unlock, Award, FileText, Download, Target, GraduationCap, Star, Check
+  Send, Paperclip, Shuffle, User, Layers, CheckSquare, Square, X, Key, Eye, EyeOff, ShieldAlert, Lock, Unlock, Award, FileText, Download, Target, GraduationCap, Star, Check, Sparkles
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminPendaftaranPage.module.css';
@@ -192,6 +193,7 @@ export default function AdminPendaftaranPage() {
   const [loadingScores, setLoadingScores] = useState(false);
   const [savingScoreCandidateId, setSavingScoreCandidateId] = useState(null);
   const [posEvaluator, setPosEvaluator] = useState({ pos1: '', pos2: '', pos3: '' });
+  const [infografisModalOpen, setInfografisModalOpen] = useState(false);
 
   const uniqueSelectionDays = useMemo(() => {
     const set = new Set();
@@ -1682,14 +1684,25 @@ export default function AdminPendaftaranPage() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleExportPOS('all')}
-                  className={styles.btnExportExcel}
-                  style={{ backgroundColor: '#1e40af' }}
-                >
-                  <Download size={16} /> Export All POS (Rapor Total)
-                </button>
+                <div className={styles.posActions} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setInfografisModalOpen(true)}
+                    className="btn btn-warning btn-sm"
+                    style={{ backgroundColor: '#ea580c', borderColor: '#ea580c', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}
+                  >
+                    <Award size={16} /> Download Infografis (1080p)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleExportPOS('all')}
+                    className={styles.btnExportExcel}
+                    style={{ backgroundColor: '#1e40af' }}
+                  >
+                    <Download size={16} /> Export All POS (Rapor Total)
+                  </button>
+                </div>
               </div>
 
               <div className={styles.tableWrap}>
@@ -1748,7 +1761,9 @@ export default function AdminPendaftaranPage() {
                                   ✓ Lengkap & Terkunci
                                 </span>
                               ) : (
-                                <span style={{ color: '#d97706', fontSize: '0.85rem' }}>Belum Dikunci</span>
+                                <span style={{ color: '#d97706', fontWeight: 600, fontSize: '0.82rem' }}>
+                                  ⏳ Belum Lengkap
+                                </span>
                               )}
                             </td>
                             <td style={{ textAlign: 'center' }}>
@@ -1775,6 +1790,29 @@ export default function AdminPendaftaranPage() {
                       })}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Infografis Card Banner Below Table */}
+              <div style={{ padding: '14px 18px', background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', borderRadius: '10px', border: '1px solid #fed7aa', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#ea580c', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Award size={20} />
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, color: '#9a3412' }}>Generator Poster Infografis Top Ranking (1080p)</h4>
+                    <p style={{ margin: 0, fontSize: '0.76rem', color: '#c2410c' }}>
+                      Cetak & unduh gambar poster infografis nilai peserta teratas dengan pilihan rasio 1:1 / 4:3, custom rank, foto profil, dan tema oranye hangat.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setInfografisModalOpen(true)}
+                  className="btn btn-primary btn-sm"
+                  style={{ backgroundColor: '#ea580c', borderColor: '#ea580c', color: '#ffffff', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Sparkles size={16} /> Buat Infografis
+                </button>
               </div>
             </div>
           )}
@@ -2872,6 +2910,14 @@ export default function AdminPendaftaranPage() {
           </div>
         </div>
       )}
+
+      {/* ── INFOGRAFIS TOP RANKING GENERATOR MODAL ── */}
+      <InfografisModal
+        isOpen={infografisModalOpen}
+        onClose={() => setInfografisModalOpen(false)}
+        candidates={candidates}
+        scoresMap={scoresMap}
+      />
     </div>
   );
 }
