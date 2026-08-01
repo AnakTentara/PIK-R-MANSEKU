@@ -5,15 +5,13 @@ import { Save, Database, Mail, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminSettingsPage.module.css';
 
-const DEFAULT_MYSQL = { host: '', port: '3306', user: '', password: '', database: '' };
 const DEFAULT_SMTP = { host: '', port: '587', user: '', password: '', from: '' };
 
 export default function AdminSettingsPage() {
-  const [mysqlConfig, setMysqlConfig] = useState(DEFAULT_MYSQL);
   const [smtpConfig, setSmtpConfig] = useState(DEFAULT_SMTP);
   const [loadingSettings, setLoadingSettings] = useState(true);
-  const [savingMysql, setSavingMysql] = useState(false);
   const [savingSmtp, setSavingSmtp] = useState(false);
+  const [downloadingBackup, setDownloadingBackup] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -25,14 +23,8 @@ export default function AdminSettingsPage() {
       const res = await getSettings();
       const settings = res.data?.settings || res.data || [];
 
-      const mysqlSetting = settings.find((s) => s.key === 'MYSQL_CONFIG');
       const smtpSetting = settings.find((s) => s.key === 'SMTP_CONFIG');
 
-      if (mysqlSetting?.value) {
-        try {
-          setMysqlConfig({ ...DEFAULT_MYSQL, ...JSON.parse(mysqlSetting.value) });
-        } catch {}
-      }
       if (smtpSetting?.value) {
         try {
           setSmtpConfig({ ...DEFAULT_SMTP, ...JSON.parse(smtpSetting.value) });
@@ -42,19 +34,6 @@ export default function AdminSettingsPage() {
       toast.error('Gagal memuat pengaturan.');
     } finally {
       setLoadingSettings(false);
-    }
-  };
-
-  const handleSaveMysql = async (e) => {
-    e.preventDefault();
-    setSavingMysql(true);
-    try {
-      await saveSettings({ key: 'MYSQL_CONFIG', value: JSON.stringify(mysqlConfig) });
-      toast.success('Konfigurasi MySQL disimpan & reconnect diinisiasi!');
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Gagal menyimpan konfigurasi MySQL.');
-    } finally {
-      setSavingMysql(false);
     }
   };
 
@@ -70,8 +49,6 @@ export default function AdminSettingsPage() {
       setSavingSmtp(false);
     }
   };
-
-  const [downloadingBackup, setDownloadingBackup] = useState(false);
 
   const handleDownloadBackup = async () => {
     setDownloadingBackup(true);
@@ -97,7 +74,7 @@ export default function AdminSettingsPage() {
     <div className={styles.page}>
       <AdminHeader
         title="Pengaturan Sistem"
-        subtitle="Konfigurasi database dan email server"
+        subtitle="Konfigurasi email server dan cadangan database"
       />
 
       <div className={styles.body}>
@@ -108,86 +85,6 @@ export default function AdminSettingsPage() {
           </div>
         ) : (
           <div className={styles.grid}>
-            {/* MySQL Config */}
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div className={styles.cardIcon}>
-                  <Database size={18} />
-                </div>
-                <div>
-                  <h2 className={styles.cardTitle}>Konfigurasi Database MySQL</h2>
-                  <p className={styles.cardSubtitle}>
-                    Perubahan akan langsung mereconnect ke database baru
-                  </p>
-                </div>
-              </div>
-              <form onSubmit={handleSaveMysql} className={styles.form}>
-                <div className={styles.formRow}>
-                  <div className="form-group" style={{ flex: 2 }}>
-                    <label className="form-label" htmlFor="mysql-host">Host</label>
-                    <input
-                      id="mysql-host"
-                      type="text"
-                      className="form-input"
-                      placeholder="localhost"
-                      value={mysqlConfig.host}
-                      onChange={(e) => setMysqlConfig((f) => ({ ...f, host: e.target.value }))}
-                    />
-                  </div>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label" htmlFor="mysql-port">Port</label>
-                    <input
-                      id="mysql-port"
-                      type="number"
-                      className="form-input"
-                      placeholder="3306"
-                      value={mysqlConfig.port}
-                      onChange={(e) => setMysqlConfig((f) => ({ ...f, port: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                <div className={styles.formRow}>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label" htmlFor="mysql-user">Username</label>
-                    <input
-                      id="mysql-user"
-                      type="text"
-                      className="form-input"
-                      placeholder="root"
-                      value={mysqlConfig.user}
-                      onChange={(e) => setMysqlConfig((f) => ({ ...f, user: e.target.value }))}
-                    />
-                  </div>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label className="form-label" htmlFor="mysql-password">Password</label>
-                    <input
-                      id="mysql-password"
-                      type="password"
-                      className="form-input"
-                      placeholder="••••••••"
-                      value={mysqlConfig.password}
-                      onChange={(e) => setMysqlConfig((f) => ({ ...f, password: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="mysql-db">Nama Database</label>
-                  <input
-                    id="mysql-db"
-                    type="text"
-                    className="form-input"
-                    placeholder="pikr_manseku"
-                    value={mysqlConfig.database}
-                    onChange={(e) => setMysqlConfig((f) => ({ ...f, database: e.target.value }))}
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary" disabled={savingMysql} style={{ alignSelf: 'flex-start' }}>
-                  {savingMysql ? <span className="spinner" /> : <Save size={15} />}
-                  {savingMysql ? 'Menyimpan...' : 'Simpan & Reconnect'}
-                </button>
-              </form>
-            </div>
-
             {/* SMTP Config */}
             <div className={styles.card}>
               <div className={styles.cardHeader}>
@@ -269,7 +166,7 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Maintenance Config */}
-            <div className={styles.card} style={{ gridColumn: '1 / -1' }}>
+            <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <div className={styles.cardIcon}>
                   <Database size={18} />
@@ -303,3 +200,4 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
