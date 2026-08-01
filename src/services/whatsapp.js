@@ -348,47 +348,66 @@ export async function initWhatsApp() {
       return;
     }
 
-    if (text.startsWith('/cek ')) {
-      const query = text.substring(5).trim();
+    // ── /cek COMMAND (Candidate & Member Lookup) ──
+    const lowerTrimText = text.trim().toLowerCase();
+    if (lowerTrimText.startsWith('/cek') || lowerTrimText.startsWith('!cek') || lowerTrimText.startsWith('cek ')) {
+      let query = '';
+      if (lowerTrimText.startsWith('/cek')) query = text.trim().substring(4).trim();
+      else if (lowerTrimText.startsWith('!cek')) query = text.trim().substring(4).trim();
+      else if (lowerTrimText.startsWith('cek ')) query = text.trim().substring(4).trim();
+
       if (!query) {
         await replyToMessage(fromJid, 'Format salah. Gunakan: */cek [Nama atau NISN]*\nContoh: `/cek Haikal Mabrur` atau `/cek 3102603365`', msg);
         return;
       }
 
-      console.log(`WhatsApp Bot menerima request cek dari ${fromJid} untuk query: "${query}"`);
+      console.log(`[WhatsApp Bot] Request cek dari ${fromJid} untuk query: "${query}"`);
       const isNisn = /^\d+$/.test(query);
 
       try {
         if (isNisn) {
-          const candidate = await prisma.candidate.findUnique({
-            where: { nisn: query }
-          });
+          let person = await prisma.candidate.findFirst({ where: { nisn: query } });
+          if (!person) {
+            person = await prisma.member.findFirst({ where: { nisn: query } });
+          }
 
-          if (candidate) {
-            const replyText = `Halo *${candidate.name}*,\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${candidate.nisn}\n\nTerima kasih!`;
+          if (person) {
+            const replyText = `Halo *${person.name}*,\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${person.nisn}\n\nTerima kasih!`;
             await replyToMessage(fromJid, replyText, msg);
           } else {
             await replyToMessage(fromJid, `Maaf, data pendaftaran dengan NISN *${query}* tidak ditemukan di database.`, msg);
           }
         } else {
-          const allCandidates = await prisma.candidate.findMany({
-            select: { id: true, name: true, nisn: true, className: true }
+          // Fetch from BOTH Candidate and Member tables (handles closed session & migrated candidates)
+          const [candidates, members] = await Promise.all([
+            prisma.candidate.findMany({ select: { id: true, name: true, nisn: true, className: true } }),
+            prisma.member.findMany({ select: { id: true, name: true, nisn: true, className: true } })
+          ]);
+
+          const peopleMap = new Map();
+          candidates.forEach(c => { if (c && c.name) peopleMap.set('c_' + c.id, c); });
+          members.forEach(m => {
+            if (m && m.name) {
+              const existsInCandidates = Array.from(peopleMap.values()).some(p => p.nisn && m.nisn && p.nisn === m.nisn);
+              if (!existsInCandidates) peopleMap.set('m_' + m.id, m);
+            }
           });
 
-          const matches = findSimilarCandidates(query, allCandidates);
+          const allPeople = Array.from(peopleMap.values());
+          const matches = findSimilarCandidates(query, allPeople);
 
           if (matches.length === 0) {
-            await replyToMessage(fromJid, `Maaf, data pendaftaran dengan nama *"${query}"* tidak ditemukan di database.`, msg);
-          } else if (matches[0].exact || matches[0].score > 0.95) {
-            const candidate = matches[0].candidate;
-            const replyText = `Halo *${candidate.name}* (${candidate.className}),\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${candidate.nisn}\n\nTerima kasih!`;
+            await replyToMessage(fromJid, `Maaf, data pendaftaran dengan nama *"${query}"* tidak ditemukan di database. Pastikan ejaan nama Anda sesuai dengan saat pendaftaran.`, msg);
+          } else if (matches[0].exact || matches[0].score >= 0.65 || matches.length === 1) {
+            const person = matches[0].candidate;
+            const replyText = `Halo *${person.name}* (${person.className || 'Anggota/Pendaftar'}),\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${person.nisn}\n\nTerima kasih!`;
             await replyToMessage(fromJid, replyText, msg);
           } else {
-            let replyText = `Data pendaftar dengan nama *"${query}"* tidak ditemukan secara persis.\n\n*Mungkin yang kamu maksud:*\n`;
-            const suggestions = matches.slice(0, 3);
+            let replyText = `Data pendaftar dengan nama *"${query}"* ditemukan beberapa hasil yang cocok:\n`;
+            const suggestions = matches.slice(0, 4);
             suggestions.forEach((match, index) => {
               const c = match.candidate;
-              replyText += `\n${index + 1}. *${c.name}* (Kelas ${c.className})\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${c.nisn}\n`;
+              replyText += `\n${index + 1}. *${c.name}* (Kelas ${c.className || '-'})\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${c.nisn}\n`;
             });
             replyText += `\nSilakan klik link di atas jika sesuai dengan nama Anda.`;
             await replyToMessage(fromJid, replyText, msg);

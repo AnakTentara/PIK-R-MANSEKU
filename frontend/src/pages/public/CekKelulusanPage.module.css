@@ -82,14 +82,15 @@
 
 /* ── Loading ── */
 .loadingScreen {
-  position: fixed;
-  inset: 0;
+  min-height: calc(100vh - var(--navbar-height, 70px));
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: #0f172a;
-  z-index: 200;
+  padding: 40px 16px;
+  box-sizing: border-box;
   animation: fadeIn 0.3s ease;
 }
 
@@ -119,13 +120,14 @@
 
 /* ── Result Screens ── */
 .resultScreen {
-  position: fixed;
-  inset: 0;
+  min-height: calc(100vh - var(--navbar-height, 70px));
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
-  animation: fadeIn 0.5s ease;
+  padding: 40px 16px;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease;
 }
 
 .resultInner {

@@ -61,13 +61,21 @@ export async function registerCandidate(req, res) {
 export async function checkStatus(req, res) {
   const { nisn } = req.query;
 
-  if (!nisn) {
-    return res.status(400).json({ message: 'NISN wajib dicantumkan dalam query' });
+  if (!nisn || !nisn.trim()) {
+    return res.status(400).json({ message: 'NISN atau Nama wajib dicantumkan' });
   }
 
+  const queryStr = nisn.trim();
+
   try {
-    let candidate = await prisma.candidate.findUnique({
-      where: { nisn },
+    // 1. Search Candidate table by NISN or exact Name
+    let candidate = await prisma.candidate.findFirst({
+      where: {
+        OR: [
+          { nisn: queryStr },
+          { name: { contains: queryStr } }
+        ]
+      },
       select: {
         name: true,
         nisn: true,
@@ -76,10 +84,15 @@ export async function checkStatus(req, res) {
       }
     });
 
-    // If not found in candidate table, fallback to member table
+    // 2. Fallback to Member table (Active Members / Migrated Candidates)
     if (!candidate) {
-      const member = await prisma.member.findUnique({
-        where: { nisn },
+      const member = await prisma.member.findFirst({
+        where: {
+          OR: [
+            { nisn: queryStr },
+            { name: { contains: queryStr } }
+          ]
+        },
         select: {
           name: true,
           nisn: true,
@@ -90,9 +103,9 @@ export async function checkStatus(req, res) {
       if (member) {
         candidate = {
           name: member.name,
-          nisn: member.nisn,
+          nisn: member.nisn || queryStr,
           className: member.className,
-          status: 'LULUS' // If they are in the Member table, they are accepted!
+          status: 'LULUS'
         };
       }
     }

@@ -426,7 +426,7 @@ export default function AdminPengumumanPage() {
 
             {/* Schedule Option */}
             <div className={styles.formGroup}>
-              <label className={styles.label}>Waktu Pengiriman</label>
+              <label className={styles.label}>Waktu Pengiriman (WIB — Waktu Indonesia Barat)</label>
 
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '4px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.84rem' }}>
@@ -545,7 +545,7 @@ export default function AdminPengumumanPage() {
 
                         <td>
                           <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#0f172a' }}>
-                            {new Date(a.scheduledAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                            {new Date(a.scheduledAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short' })} WIB
                           </div>
                           {isScheduled && (
                             <div style={{ fontSize: '0.74rem', color: '#ea580c', fontWeight: 600 }}>
