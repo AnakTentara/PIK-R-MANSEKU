@@ -329,60 +329,72 @@ app.listen(PORT, async () => {
 
 // Interactive Console CLI System
 function setupConsoleCLI() {
-  if (!process.stdin.isTTY) return;
+  try {
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false
+    });
 
-  console.log('\n💡 [Console CLI] Ketik /restart atau /pull untuk git pull & reload server otomatis. Ketik /status untuk cek RAM/bot.\n');
+    console.log('\n💡 [Console CLI System Ready]');
+    console.log('👉 Ketik "pull" atau "/restart" untuk Git Pull & Auto-Build/Reload.');
+    console.log('👉 Ketik "status" atau "/status" untuk cek RAM & WhatsApp Bot.\n');
 
-  rl.on('line', (line) => {
-    const input = line.trim().toLowerCase();
+    rl.on('line', (line) => {
+      const input = line.trim().toLowerCase();
 
-    if (input === '/restart' || input === '/pull' || input === '/reload') {
-      console.log('\n==================================================');
-      console.log('🔄 [Console CLI] Memulai Git Pull & Auto-Reload...');
-      console.log('==================================================\n');
+      if (
+        input === 'pull' || input === '/pull' ||
+        input === 'restart' || input === '/restart' ||
+        input === 'reload' || input === '/reload'
+      ) {
+        console.log('\n==================================================');
+        console.log('🔄 [Console CLI] Memulai Git Pull & Auto-Reload...');
+        console.log('==================================================\n');
 
-      try {
-        execSync('git pull origin master', { stdio: 'inherit' });
-        console.log('\n✅ Git pull berhasil!');
+        try {
+          execSync('git pull origin master', { stdio: 'inherit' });
+          console.log('\n✅ Git pull berhasil!');
 
-        const frontendPath = path.join(__dirname, '../frontend');
-        if (fs.existsSync(frontendPath)) {
-          console.log('📦 Rebuilding frontend bundle...');
-          try {
-            execSync('npm run build', { cwd: frontendPath, stdio: 'inherit' });
-            console.log('✅ Frontend build selesai!');
-          } catch (e) {
-            console.warn('⚠️ Frontend build warning:', e.message);
+          const frontendPath = path.join(__dirname, '../frontend');
+          if (fs.existsSync(frontendPath)) {
+            console.log('📦 Rebuilding frontend bundle...');
+            try {
+              execSync('npm run build', { cwd: frontendPath, stdio: 'inherit' });
+              console.log('✅ Frontend build selesai!');
+            } catch (e) {
+              console.warn('⚠️ Frontend build warning:', e.message);
+            }
           }
+
+          console.log('\n🚀 Memuat ulang server backend...\n');
+          process.exit(0);
+        } catch (err) {
+          console.error('❌ Gagal mengeksekusi git pull / restart:', err.message);
         }
+      } else if (input === 'status' || input === '/status') {
+        const ramUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
+        const uptimeSec = Math.floor(process.uptime());
+        const uptimeMin = (uptimeSec / 60).toFixed(1);
+        const waReady = isWhatsAppReady() ? 'CONNECTED ✅' : 'DISCONNECTED ❌';
 
-        console.log('\n🚀 Memuat ulang server backend...\n');
-        process.exit(0);
-      } catch (err) {
-        console.error('❌ Gagal mengeksekusi git pull / restart:', err.message);
+        console.log('\n📊 === STATUS SISTEM LIVE ===');
+        console.log(`⏱️ Uptime: ${uptimeSec} detik (${uptimeMin} menit)`);
+        console.log(`💾 RAM Usage: ${ramUsage} MB`);
+        console.log(`💬 WhatsApp Bot: ${waReady}`);
+        console.log('=============================\n');
+      } else if (input === 'help' || input === '/help') {
+        console.log('\n📌 === PERINTAH KONSOL TERSEDIA ===');
+        console.log('👉 pull / restart / /restart : Git pull otomatis & reload server');
+        console.log('👉 status / /status          : Cek RAM, Uptime, dan Status WhatsApp Bot');
+        console.log('===================================\n');
       }
-    } else if (input === '/status') {
-      const ramUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
-      const uptimeSec = Math.floor(process.uptime());
-      const uptimeMin = (uptimeSec / 60).toFixed(1);
-      const waReady = isWhatsAppReady() ? 'CONNECTED ✅' : 'DISCONNECTED ❌';
-
-      console.log('\n📊 === STATUS SISTEM LIVE ===');
-      console.log(`⏱️ Uptime: ${uptimeSec} detik (${uptimeMin} menit)`);
-      console.log(`💾 RAM Usage: ${ramUsage} MB`);
-      console.log(`💬 WhatsApp Bot: ${waReady}`);
-      console.log('=============================\n');
-    } else if (input === '/help') {
-      console.log('\n📌 === PERINTAH KONSOL TERSEDIA ===');
-      console.log('👉 /restart ATAU /pull  : Git pull otomatis dari GitHub & reload server tanpa restart manual');
-      console.log('👉 /status               : Cek RAM, Uptime, dan Status WhatsApp Bot');
-      console.log('===================================\n');
-    }
-  });
+    });
+  } catch (err) {
+    console.warn('[Console CLI] Tidak dapat mengaktifkan stdin listener:', err.message);
+  }
 }
 
