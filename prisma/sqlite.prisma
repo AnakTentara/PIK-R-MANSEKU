@@ -258,4 +258,17 @@ model AnnouncementLog {
   createdAt      DateTime @default(now())
 }
 
+model PasswordResetOtp {
+  id          String   @id @default(uuid())
+  identifier  String   // NISN or WA number
+  otpCode     String
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([isUsed, expiresAt])
+  @@index([identifier])
+}
+
+
 

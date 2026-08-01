@@ -330,6 +330,15 @@ exports.Prisma.AnnouncementLogScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PasswordResetOtpScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  otpCode: 'otpCode',
+  expiresAt: 'expiresAt',
+  isUsed: 'isUsed',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -355,7 +364,8 @@ exports.Prisma.ModelName = {
   AlumniTestimonial: 'AlumniTestimonial',
   ScheduledAnnouncement: 'ScheduledAnnouncement',
   WhatsAppGroup: 'WhatsAppGroup',
-  AnnouncementLog: 'AnnouncementLog'
+  AnnouncementLog: 'AnnouncementLog',
+  PasswordResetOtp: 'PasswordResetOtp'
 };
 
 /**

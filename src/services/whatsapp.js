@@ -348,13 +348,10 @@ export async function initWhatsApp() {
       return;
     }
 
-    // ── /cek COMMAND (Candidate & Member Lookup) ──
+    // ── /cek COMMAND (Candidate & Member Lookup - Explicit Prefix /cek or !cek Only) ──
     const lowerTrimText = text.trim().toLowerCase();
-    if (lowerTrimText.startsWith('/cek') || lowerTrimText.startsWith('!cek') || lowerTrimText.startsWith('cek ')) {
-      let query = '';
-      if (lowerTrimText.startsWith('/cek')) query = text.trim().substring(4).trim();
-      else if (lowerTrimText.startsWith('!cek')) query = text.trim().substring(4).trim();
-      else if (lowerTrimText.startsWith('cek ')) query = text.trim().substring(4).trim();
+    if (lowerTrimText.startsWith('/cek') || lowerTrimText.startsWith('!cek')) {
+      const query = text.trim().substring(4).trim();
 
       if (!query) {
         await replyToMessage(fromJid, 'Format salah. Gunakan: */cek [Nama atau NISN]*\nContoh: `/cek Haikal Mabrur` atau `/cek 3102603365`', msg);
