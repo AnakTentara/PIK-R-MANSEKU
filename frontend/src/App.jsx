@@ -21,6 +21,22 @@ function ScrollToTop() {
     canonicalLink.setAttribute('href', `https://pikr-manseku.my.id${cleanPath}`);
   }, [pathname]);
 
+  // Auto-recover from stale dynamic chunk imports on new deployments
+  useEffect(() => {
+    const handleError = (e) => {
+      if (e?.message && (
+        e.message.includes('Loading chunk') ||
+        e.message.includes('Importing a module script failed') ||
+        e.message.includes('Failed to fetch dynamically imported module')
+      )) {
+        console.warn('[CacheBuster] Stale cached module detected, reloading page automatically...');
+        window.location.reload();
+      }
+    };
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
   return null;
 }
 

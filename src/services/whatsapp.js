@@ -58,26 +58,9 @@ export function extractSenderPhone(msg) {
 
 export async function findUserFromWA(msg, extraText = '') {
   const cleanPhone = extractSenderPhone(msg);
-  const pushName = msg?.pushName ? msg.pushName.trim() : '';
   const query = extraText.trim();
 
-  // 1. Search by explicitly passed query (NISN or Name)
-  if (query) {
-    const isNisn = /^\d+$/.test(query);
-    if (isNisn) {
-      const m = await prisma.member.findUnique({ where: { nisn: query } });
-      if (m) return m;
-      const c = await prisma.candidate.findUnique({ where: { nisn: query } });
-      if (c) return c;
-    }
-
-    const m = await prisma.member.findFirst({ where: { name: { contains: query } } });
-    if (m) return m;
-    const c = await prisma.candidate.findFirst({ where: { name: { contains: query } } });
-    if (c) return c;
-  }
-
-  // 2. Search by phone number (if extracted)
+  // 1. Search strictly by sender's phone number (Primary Secure Match)
   if (cleanPhone) {
     const searchSlice = cleanPhone.length > 9 ? cleanPhone.slice(-9) : cleanPhone;
     const m = await prisma.member.findFirst({
@@ -101,38 +84,16 @@ export async function findUserFromWA(msg, extraText = '') {
     if (c) return c;
   }
 
-  // 3. Fallback: Search by WhatsApp display name (pushName) — batasi query untuk efisiensi
-  if (pushName && pushName.length > 2) {
-    // Coba cari dengan LIKE dulu (lebih efisien dari full fuzzy)
-    const quickMatch = await prisma.member.findFirst({
-      where: { name: { contains: pushName.split(' ')[0] } }
-    });
-    if (quickMatch) return quickMatch;
-
-    const quickCandMatch = await prisma.candidate.findFirst({
-      where: { name: { contains: pushName.split(' ')[0] } }
-    });
-    if (quickCandMatch) return quickCandMatch;
-
-    // Fallback fuzzy hanya jika LIKE tidak menemukan hasil
-    const allMembers = await prisma.member.findMany({
-      select: { id: true, name: true, nisn: true, whatsappNumber: true, plainPassword: true },
-      take: 200 // batasi max 200 baris agar tidak membebani memory
-    });
-    const matchedM = findSimilarCandidates(pushName, allMembers);
-    if (matchedM.length > 0 && (matchedM[0].exact || matchedM[0].score > 0.8)) {
-      return matchedM[0].candidate;
-    }
-
-    const allCandidates = await prisma.candidate.findMany({
-      select: { id: true, name: true, nisn: true, whatsappNumber: true, plainPassword: true },
-      take: 200
-    });
-    const matchedC = findSimilarCandidates(pushName, allCandidates);
-    if (matchedC.length > 0 && (matchedC[0].exact || matchedC[0].score > 0.8)) {
-      return matchedC[0].candidate;
-    }
+  // 2. Search by explicit NISN (digits only) for OTP verification
+  if (query && /^\d+$/.test(query)) {
+    const m = await prisma.member.findUnique({ where: { nisn: query } });
+    if (m) return m;
+    const c = await prisma.candidate.findUnique({ where: { nisn: query } });
+    if (c) return c;
   }
+
+  return null;
+}
 
   return null;
 }
@@ -260,7 +221,16 @@ export async function initWhatsApp() {
       }
     }
 
-    if (text.trim().startsWith('/sandi ganti')) {
+    if (text.trim().startsWith('/sandi ganti') || text.trim().startsWith('!sandi ganti')) {
+      if (isGroup) {
+        await replyToMessage(
+          fromJid,
+          `🛑 *PERINGATAN KEAMANAN PRIVASI*\n\nDemi menjaga kerahasiaan akun dan kata sandi Anda, perintah */sandi ganti* *TIDAK BISA* digunakan di dalam grup.\n\n🔒 *Silakan kirim pesan ini secara Pribadi (Private Chat / Japri)* langsung ke nomor Bot WhatsApp ini untuk menerima OTP reset sandi secara aman!`,
+          msg
+        );
+        return;
+      }
+
       try {
         const extra = text.trim().substring(12).trim();
         const user = await findUserFromWA(msg, extra);
@@ -311,15 +281,35 @@ export async function initWhatsApp() {
       return;
     }
 
-    if (text.trim().startsWith('/sandi')) {
+    if (text.trim().startsWith('/sandi') || text.trim().startsWith('!sandi')) {
+      if (isGroup) {
+        await replyToMessage(
+          fromJid,
+          `🛑 *PERINGATAN KEAMANAN PRIVASI*\n\nDemi menjaga kerahasiaan kata sandi dan akun Anda, perintah */sandi* *TIDAK BISA* digunakan di dalam grup.\n\n🔒 *Silakan kirim pesan ini secara Pribadi (Private Chat / Japri)* langsung ke nomor Bot WhatsApp ini untuk melihat rincian kata sandi Anda secara aman!`,
+          msg
+        );
+        return;
+      }
+
       try {
         const extra = text.trim().substring(6).trim();
+
+        // Security Guard: Prevent retrieving password for arbitrary names
+        if (extra && !/^\d+$/.test(extra) && extra.toLowerCase() !== 'ganti') {
+          await replyToMessage(
+            fromJid,
+            `🛑 *AKSES DITOLAK — KEAMANAN PRIVASI*\n\nPerintah */sandi* tidak dapat digunakan untuk melihat kata sandi orang lain demi menjaga keamanan akun.\n\n🔒 *Silakan ketik */sandi* tanpa tambahan nama* untuk melihat kata sandi akun Anda sendiri secara aman.`,
+            msg
+          );
+          return;
+        }
+
         const user = await findUserFromWA(msg, extra);
 
         if (!user) {
           await replyToMessage(
             fromJid,
-            `❌ *DATA TIDAK DITEMUKAN*\n\nNomor WhatsApp / Nama WhatsApp Anda (*${msg.pushName || cleanPhone || 'Pengguna'}*) belum terdaftar.\n\n💡 *Tips*: Ketik perintah */sandi [NISN Anda]* (contoh: \`/sandi 3102603365\`) untuk mengecek kata sandi NISN Anda secara langsung.`,
+            `❌ *NOMOR WHATSAPP TIDAK TERDAFTAR*\n\nNomor WhatsApp Anda (*${cleanPhone || 'Pengguna'}*) belum terdaftar sebagai akun anggota PIK-R MANSEKU.\n\nJika nomor WhatsApp Anda saat pendaftaran berbeda, silakan hubungi Admin / Panitia untuk memperbarui data nomor WhatsApp Anda.`,
             msg
           );
           return;

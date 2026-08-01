@@ -246,14 +246,28 @@ async function seedDummyOrgData() {
   }
 }
 
-// SPA Static Fallback & HTML Serving for Google Crawler / Direct Route Requests
+// SPA Static Fallback & HTML Serving (No-Cache for index.html so normal refresh always gets latest build)
 const distPath = path.join(__dirname, '../frontend/dist');
 if (fs.existsSync(distPath)) {
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      } else if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  }));
+
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots')) {
       return next();
     }
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     return res.sendFile(path.join(distPath, 'index.html'));
   });
 }
