@@ -423,6 +423,7 @@ export default function AdminPendaftaranPage() {
 
   // ─── Modal 3: Kirim WA Massal + PDF Modal State ─────────────────────────
   const [waModalOpen, setWaModalOpen] = useState(false);
+  const [waModalType, setWaModalType] = useState('seleksi'); // 'seleksi' | 'kelulusan'
   const [massWaTemplate, setMassWaTemplate] = useState('');
   const [massPdfFiles, setMassPdfFiles] = useState([]);
   const [massDebugMode, setMassDebugMode] = useState(false);
@@ -835,18 +836,28 @@ export default function AdminPendaftaranPage() {
     }
   };
 
-  // ─── Modal 3 Handlers (Kirim WA Seleksi Massal + PDF) ─────────────────
-  const openMassWaModal = () => {
-    const defaultTemplate =
-      `Halo {nama} ({kelas}),\n\n` +
-      `Selamat! Kamu dijadwalkan untuk mengikuti *Tahap Seleksi Calon Anggota PIK-R MANSEKU* pada:\n` +
-      `📅 *Hari/Tanggal:* {hari_seleksi}\n` +
-      `📌 *NISN:* {nisn}\n` +
-      `📍 *Lokasi:* Ruang PIK-R MAN 1 Muara Enim\n\n` +
-      `Harap hadir tepat waktu dan membawa dokumen terlampir ya.\n\n` +
-      `Semangat dan persiapkan dirimu sebaik mungkin! 💪`;
+  // ─── Modal 3 Handlers (Kirim WA Seleksi / Kelulusan Massal + PDF) ──────
+  const DEFAULT_SELEKSI_TEMPLATE =
+    `Halo {nama} ({kelas}),\n\n` +
+    `Selamat! Kamu dijadwalkan untuk mengikuti *Tahap Seleksi Calon Anggota PIK-R MANSEKU* pada:\n` +
+    `📅 *Hari/Tanggal:* {hari_seleksi}\n` +
+    `📌 *NISN:* {nisn}\n` +
+    `📍 *Lokasi:* Ruang PIK-R MAN 1 Muara Enim\n\n` +
+    `Harap hadir tepat waktu dan membawa dokumen terlampir ya.\n\n` +
+    `Semangat dan persiapkan dirimu sebaik mungkin! 💪`;
 
-    setMassWaTemplate(defaultTemplate);
+  const DEFAULT_KELULUSAN_TEMPLATE =
+    `Halo {nama} ({kelas}),\n\n` +
+    `Pengumuman hasil seleksi penerimaan Anggota Baru PIK-R MANSEKU telah resmi dirilis!\n\n` +
+    `Silakan cek status kelulusanmu secara mandiri melalui website PIK-R MANSEKU pada menu *Cek Kelulusan* atau kunjungi link berikut:\n` +
+    `👉 https://pik-r-manseku.sch.id/cek-kelulusan\n\n` +
+    `Atau masukkan Nomor NISN (*{nisn}*) kamu di kolom pencarian cek kelulusan.\n\n` +
+    `Terima kasih telah mengikuti seluruh tahapan seleksi. Salam Genre! 🌟`;
+
+  const openMassWaModal = (type = 'seleksi') => {
+    const isKelulusan = type === 'kelulusan';
+    setWaModalType(type);
+    setMassWaTemplate(isKelulusan ? DEFAULT_KELULUSAN_TEMPLATE : DEFAULT_SELEKSI_TEMPLATE);
     setMassPdfFiles([]);
     setMassDebugMode(false);
     setMassDebugNumber('');
@@ -856,10 +867,12 @@ export default function AdminPendaftaranPage() {
   const handleExecuteMassWa = async () => {
     let targetIds = targetBatchIds.length > 0
       ? targetBatchIds
-      : candidates.filter(c => c.status === 'PENDING' && c.selectionDay).map(c => c.id);
+      : waModalType === 'kelulusan'
+        ? candidates.filter(c => c.status === 'ACCEPTED' || c.status === 'REJECTED' || c.status === 'PENDING').map(c => c.id)
+        : candidates.filter(c => c.status === 'PENDING' && c.selectionDay).map(c => c.id);
 
     if (targetIds.length === 0) {
-      toast.error('Belum ada peserta yang memiliki jadwal seleksi.');
+      toast.error(waModalType === 'kelulusan' ? 'Belum ada peserta seleksi.' : 'Belum ada peserta yang memiliki jadwal seleksi.');
       return;
     }
 
@@ -1834,7 +1847,7 @@ export default function AdminPendaftaranPage() {
                   <button type="button" onClick={openRandomizeModal} className="btn btn-secondary btn-sm">
                     <Shuffle size={16} /> Atur Hari Seleksi Otomatis
                   </button>
-                  <button type="button" onClick={openMassWaModal} className="btn btn-primary btn-sm">
+                  <button type="button" onClick={() => openMassWaModal('seleksi')} className="btn btn-primary btn-sm">
                     <Send size={16} /> Kirim WA Seleksi Massal
                   </button>
                 </div>
@@ -2817,9 +2830,9 @@ export default function AdminPendaftaranPage() {
           <div className={`${styles.modalCard} ${styles.wideModalCard}`} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div>
-                <h3>📢 Kirim Notifikasi WA Seleksi Massal + PDF</h3>
+                <h3>{waModalType === 'kelulusan' ? '🎓 Kirim Pengumuman WA Kelulusan Massal + PDF' : '📢 Kirim Notifikasi WA Seleksi Massal + PDF'}</h3>
                 <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                  Akan dikirim ke {targetBatchIds.length > 0 ? `${targetBatchIds.length} peserta terpilih` : `${candidates.filter(c => c.status === 'PENDING' && c.selectionDay).length} peserta berjadwal`}
+                  Akan dikirim ke {targetBatchIds.length > 0 ? `${targetBatchIds.length} peserta terpilih` : waModalType === 'kelulusan' ? `${candidates.filter(c => c.status === 'ACCEPTED' || c.status === 'REJECTED' || c.status === 'PENDING').length} peserta seleksi` : `${candidates.filter(c => c.status === 'PENDING' && c.selectionDay).length} peserta berjadwal`}
                 </span>
               </div>
               <button
@@ -2860,7 +2873,27 @@ export default function AdminPendaftaranPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Template Teks Pesan WhatsApp</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+                  <label className="form-label">Template Teks Pesan WhatsApp</label>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => { setWaModalType('kelulusan'); setMassWaTemplate(DEFAULT_KELULUSAN_TEMPLATE); }}
+                      className="btn btn-ghost btn-sm"
+                      style={{ fontSize: '0.72rem', padding: '2px 8px', border: '1px solid var(--color-border-strong)' }}
+                    >
+                      🎓 Template Kelulusan
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setWaModalType('seleksi'); setMassWaTemplate(DEFAULT_SELEKSI_TEMPLATE); }}
+                      className="btn btn-ghost btn-sm"
+                      style={{ fontSize: '0.72rem', padding: '2px 8px', border: '1px solid var(--color-border-strong)' }}
+                    >
+                      📅 Template Jadwal
+                    </button>
+                  </div>
+                </div>
                 <textarea
                   rows={6}
                   className="form-textarea"
@@ -2868,7 +2901,7 @@ export default function AdminPendaftaranPage() {
                   onChange={(e) => setMassWaTemplate(e.target.value)}
                 />
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                  Placeholder otomatis: <code>&#123;nama&#125;</code>, <code>&#123;nisn&#125;</code>, <code>&#123;kelas&#125;</code>, <code>&#123;hari_seleksi&#125;</code>
+                  Placeholder otomatis: <code>&#123;nama&#125;</code>, <code>&#123;nisn&#125;</code>, <code>&#123;kelas&#125;</code>, <code>&#123;hari_seleksi&#125;</code>, <code>&#123;status&#125;</code>
                 </span>
               </div>
 

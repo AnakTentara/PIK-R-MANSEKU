@@ -303,6 +303,10 @@
   overflow: hidden;
 }
 
+.wideEditModalCard {
+  max-width: 860px;
+}
+
 @keyframes modalScale {
   from { opacity: 0; transform: scale(0.95) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
@@ -566,11 +570,33 @@
   max-width: 300px;
 }
 
+.modalFormInner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .modalFormInner {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .photoEditSection {
+    margin-bottom: 0;
+    height: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
 /* Edit Grid */
 .editGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px 16px;
+  gap: 8px 16px;
 }
 
 /* Wisudakan Angkatan Button */
