@@ -18,13 +18,10 @@ import { startAnnouncementScheduler } from './services/announcementScheduler.js'
 
 dotenv.config();
 
-// ─── Validasi ENV — hanya peringatan, tidak crash server ────────────────────
-// Di Pterodactyl, env vars di-set via panel (bukan file .env), jadi bisa tetap jalan.
-const RECOMMENDED_ENV = ['JWT_SECRET', 'DATABASE_URL'];
-const missingEnv = RECOMMENDED_ENV.filter(k => !process.env[k]);
-if (missingEnv.length > 0) {
-  console.warn(`⚠️  [ENV] Variable belum di-set: ${missingEnv.join(', ')}`);
-  console.warn('    Pastikan sudah dikonfigurasi di panel Pterodactyl atau file .env');
+// ─── Validasi ENV — hanya info, tidak crash server ─────────────────────────
+// JWT_SECRET punya fallback default, DATABASE tidak perlu (SQLite otomatis).
+if (!process.env.JWT_SECRET) {
+  console.log('ℹ️  [ENV] JWT_SECRET belum di-set, menggunakan default fallback.');
 }
 // ────────────────────────────────────────────────────────────────────────────
 
