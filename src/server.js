@@ -263,7 +263,7 @@ if (fs.existsSync(distPath)) {
     }
   }));
 
-  app.get('*', (req, res, next) => {
+  app.get('(.*)', (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots')) {
       return next();
     }
