@@ -1,3 +1,5 @@
+/* AdminTestimonialsPage — Premium Redesign */
+
 .page {
   display: flex;
   flex-direction: column;
@@ -6,8 +8,9 @@
 
 .content {
   flex: 1;
-  padding: var(--space-lg);
+  padding: var(--admin-page-padding);
   background-color: var(--color-bg);
+  animation: fadeInUp 0.4s ease both;
 }
 
 .grid {
@@ -24,19 +27,19 @@
 
 .card {
   background: var(--color-surface);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-border);
-  padding: var(--space-md);
+  border-radius: var(--admin-card-radius);
+  box-shadow: var(--admin-card-shadow);
+  border: 1px solid var(--color-border-strong);
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  box-shadow: var(--admin-card-shadow-hover);
 }
 
 .cardHeader {
@@ -56,14 +59,19 @@
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid var(--color-border-strong);
+  border: 2px solid var(--color-border-strong);
+  transition: border-color 0.2s;
+}
+
+.avatar:hover {
+  border-color: var(--color-accent);
 }
 
 .avatarPlaceholder {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: var(--color-accent-subtle);
+  background: linear-gradient(135deg, var(--color-accent-subtle) 0%, rgba(249,115,22,0.15) 100%);
   color: var(--color-accent);
   display: flex;
   align-items: center;
@@ -74,7 +82,7 @@
 
 .name {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
   color: var(--color-text-primary);
   font-size: 0.95rem;
@@ -82,18 +90,19 @@
 
 .badge {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--color-accent);
-  background-color: var(--color-accent-subtle);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-weight: 500;
+  background: var(--color-accent-subtle);
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  font-weight: 600;
   margin-top: 2px;
+  border: 1px solid var(--color-accent-border);
 }
 
 .actions {
   display: flex;
-  gap: 2px;
+  gap: 4px;
 }
 
 .cardBody {
@@ -103,34 +112,36 @@
 .text {
   font-size: 0.9rem;
   color: var(--color-text-secondary);
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0;
   font-style: italic;
+  position: relative;
+  padding-left: 12px;
+  border-left: 2px solid var(--color-border-strong);
 }
 
 .empty {
   text-align: center;
-  padding: var(--space-3xl) var(--space-lg);
-  color: var(--color-text-secondary);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
+  padding: 64px var(--space-lg);
+  color: var(--color-text-muted);
+  background: var(--color-surface-2);
+  border-radius: var(--admin-card-radius);
   border: 1px solid var(--color-border);
+  font-size: 0.9375rem;
 }
 
-/* Modal Styling */
+/* Modal */
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(4px);
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: var(--space-md);
+  animation: fadeIn 0.2s ease;
 }
 
 .modal {
@@ -139,22 +150,22 @@
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   overflow-y: auto;
-  animation: modalEnter 0.25s ease-out;
+  animation: modalEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes modalEnter {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-md) var(--space-lg);
-  border-bottom: 1px solid var(--color-border);
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--color-border-strong);
   position: sticky;
   top: 0;
   background-color: var(--color-surface);
@@ -164,23 +175,27 @@
 .modalHeader h3 {
   font-family: var(--font-display);
   font-weight: 700;
+  font-size: 1.1rem;
   margin: 0;
 }
 
 .closeBtn {
   background: none;
   border: none;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 4px;
+  border-radius: var(--radius-xs);
+  transition: all 0.15s ease;
 }
 
 .closeBtn:hover {
   color: var(--color-text-primary);
+  background: var(--color-surface-2);
 }
 
 .form {
-  padding: var(--space-lg);
+  padding: 20px 24px;
 }
 
 .photoSection {
@@ -189,6 +204,10 @@
   align-items: center;
   gap: var(--space-sm);
   margin-bottom: var(--space-lg);
+  padding: 20px;
+  background: var(--color-surface-2);
+  border-radius: var(--admin-card-radius);
+  border: 1px dashed var(--color-border-strong);
 }
 
 .photoPreviewWrapper {
@@ -196,10 +215,11 @@
   height: 90px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px dashed var(--color-border-strong);
+  border: 3px solid var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 0 4px var(--color-accent-subtle);
 }
 
 .photoPreview {
@@ -216,17 +236,20 @@
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  background-color: var(--color-surface-2);
-  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--color-accent);
+  padding: 6px 14px;
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
-  color: var(--color-text-secondary);
+  font-weight: 600;
+  color: #fff;
   cursor: pointer;
-  border: 1px solid var(--color-border-strong);
+  border: none;
+  transition: all 0.2s ease;
 }
 
 .photoLabel:hover {
-  background-color: var(--color-border-strong);
+  background-color: var(--color-accent-hover);
+  transform: translateY(-1px);
 }
 
 .fileInput {
@@ -238,10 +261,11 @@
   justify-content: flex-end;
   gap: var(--space-sm);
   margin-top: var(--space-lg);
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border-strong);
+  background-color: var(--color-surface);
   position: sticky;
   bottom: 0;
-  background-color: var(--color-surface);
-  padding-top: var(--space-sm);
   z-index: 5;
 }
 
@@ -249,13 +273,7 @@
   .form {
     padding: var(--space-md);
   }
-}
-
-@media (max-width: 768px) {
-  .tableWrap {
-    overflow-x: auto;
-  }
-  .table {
-    min-width: 560px;
+  .grid {
+    grid-template-columns: 1fr;
   }
 }

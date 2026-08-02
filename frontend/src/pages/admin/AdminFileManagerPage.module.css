@@ -1,8 +1,12 @@
+/* AdminFileManagerPage — Premium Redesign */
+
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
   height: 100%;
+  padding: var(--admin-page-padding);
+  animation: fadeInUp 0.4s ease both;
 }
 
 .controls {
@@ -30,19 +34,19 @@
 
 .searchInput {
   width: 100%;
-  padding: 10px 12px 10px 40px;
-  border: 1px solid var(--color-border);
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   background-color: var(--color-surface);
   color: var(--color-text-primary);
   font-size: 0.9rem;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
+  outline: none;
 }
 
 .searchInput:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px var(--color-accent-subtle);
-  outline: none;
+  box-shadow: 0 0 0 3px var(--color-accent-subtle);
 }
 
 .tabs {
@@ -53,28 +57,29 @@
 
 .tab {
   padding: 8px 16px;
-  background-color: var(--color-surface-2);
-  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
 }
 
 .tab:hover {
-  background-color: var(--color-border);
+  background-color: var(--color-surface-2);
+  color: var(--color-text-primary);
 }
 
 .activeTab {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
-  color: white;
+  background-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: #fff !important;
 }
 
 .activeTab:hover {
-  background-color: var(--color-accent);
+  background-color: var(--color-accent-hover) !important;
 }
 
 .loadingContainer,
@@ -85,10 +90,11 @@
   justify-content: center;
   padding: 80px 20px;
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--admin-card-radius);
   text-align: center;
   gap: var(--space-md);
+  box-shadow: var(--admin-card-shadow);
 }
 
 .emptyIcon {
@@ -108,18 +114,18 @@
 
 .card {
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--admin-card-radius);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--admin-card-shadow);
   display: flex;
   flex-direction: column;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  box-shadow: var(--admin-card-shadow-hover);
 }
 
 .previewContainer {
@@ -134,20 +140,22 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .previewImage {
+  transform: scale(1.05);
 }
 
 .overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(15, 23, 42, 0.4);
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(15, 23, 42, 0.5) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity var(--transition-fast);
+  transition: opacity 0.25s ease;
 }
 
 .previewContainer:hover .overlay {
@@ -155,11 +163,12 @@
 }
 
 .overlayIcon {
-  color: white;
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .details {
-  padding: var(--space-md);
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -184,14 +193,17 @@
 }
 
 .categoryBadge {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-.photos { background-color: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
-.blog { background-color: rgba(249, 115, 22, 0.15); color: var(--color-accent); }
-.logos { background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.photos { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.2); }
+.blog { background-color: var(--color-accent-subtle); color: var(--color-accent); border: 1px solid var(--color-accent-border); }
+.logos { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
 
 .fileSize {
   color: var(--color-text-muted);
@@ -203,33 +215,31 @@
   align-items: center;
   margin-top: 4px;
   padding-top: var(--space-sm);
-  border-top: 1px solid var(--color-border-strong);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Modal */
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: var(--space-md);
+  animation: fadeIn 0.2s ease;
 }
 
 .modalCard {
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
   width: 100%;
   max-width: 800px;
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-lg);
   position: relative;
   animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -248,15 +258,19 @@
   font-size: 1.5rem;
   color: var(--color-text-muted);
   cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-xs);
+  transition: all 0.15s ease;
 }
 
 .modalCloseBtn:hover {
   color: var(--color-text-primary);
+  background: var(--color-surface-2);
 }
 
 .modalTitle {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   margin: 0 0 var(--space-lg) 0;
   color: var(--color-text-primary);
@@ -271,7 +285,7 @@
 .modalPreview {
   background-color: var(--color-surface-2);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--admin-card-radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -298,10 +312,11 @@
 }
 
 .metaLabel {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--color-text-muted);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .metaValue {
@@ -311,12 +326,12 @@
 }
 
 .metaValueCode {
-  font-family: monospace;
+  font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 0.8rem;
-  padding: 4px 8px;
+  padding: 4px 10px;
   background-color: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xs);
   color: var(--color-text-secondary);
 }
 
@@ -334,5 +349,12 @@
   }
   .modalPreview {
     height: 220px;
+  }
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .searchWrapper {
+    max-width: 100%;
   }
 }

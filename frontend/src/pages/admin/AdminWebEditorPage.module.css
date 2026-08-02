@@ -1,8 +1,11 @@
+/* AdminWebEditorPage — Premium Redesign */
+
 .page {
-  padding: var(--space-xl);
+  padding: var(--admin-page-padding);
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  animation: fadeInUp 0.4s ease both;
 }
 
 .header {
@@ -13,81 +16,92 @@
 
 .title {
   font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: var(--color-text-primary);
+  letter-spacing: -0.01em;
 }
 
 .tabs {
   display: flex;
-  gap: var(--space-md);
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-sm);
+  gap: 4px;
+  border-bottom: 2px solid var(--color-border-strong);
+  padding-bottom: 0;
 }
 
 .tab {
   background: none;
   border: none;
-  padding: var(--space-sm) var(--space-md);
+  padding: 10px 18px;
   font-family: var(--font-sans);
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--color-text-secondary);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
+  margin-bottom: -2px;
+  border-radius: 6px 6px 0 0;
 }
 
 .tab:hover {
-  color: var(--color-text-primary);
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
 }
 
 .tab.active {
   color: var(--color-accent);
   border-bottom-color: var(--color-accent);
+  font-weight: 700;
+  background: var(--color-accent-subtle);
 }
 
 .contentPanel {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--admin-card-radius);
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  box-shadow: var(--admin-card-shadow);
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: 6px;
 }
 
 .label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.01em;
 }
 
 .input, .textarea {
   width: 100%;
-  padding: var(--space-sm) var(--space-md);
+  padding: 10px 14px;
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-family: var(--font-sans);
-  background: var(--color-background);
+  background: var(--color-surface);
   color: var(--color-text-primary);
-  transition: border-color 0.2s;
+  font-size: 0.9rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
 }
 
 .input:focus, .textarea:focus {
-  outline: none;
   border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-subtle);
 }
 
 .textarea {
   resize: vertical;
   min-height: 100px;
+  line-height: 1.6;
 }
 
 .checkboxLabel {
@@ -109,10 +123,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  padding: var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-background);
+  padding: 16px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--admin-card-radius);
+  background: var(--color-surface-2);
+  transition: all 0.2s ease;
+}
+
+.customPageItem:hover {
+  border-color: var(--color-accent-border);
 }
 
 .customPageHeader {
@@ -125,10 +144,19 @@
   background: var(--color-error);
   color: white;
   border: none;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
+
+.btnDanger:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
 .uploadRow {
   display: flex;
   align-items: center;
@@ -141,7 +169,7 @@
   height: 50px;
   border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   background-color: var(--color-surface-2);
 }
 
@@ -163,8 +191,27 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: var(--color-text-secondary);
 }
 
 .uploadBtnLabel:hover {
-  background: var(--color-border);
+  background: var(--color-surface-3);
+  border-color: var(--color-accent-border);
+  color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+  .tabs {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  .contentPanel {
+    padding: 16px;
+  }
 }

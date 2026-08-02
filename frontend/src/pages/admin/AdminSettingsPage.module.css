@@ -1,3 +1,5 @@
+/* AdminSettingsPage — Premium Redesign */
+
 .page {
   display: flex;
   flex-direction: column;
@@ -5,25 +7,31 @@
 }
 
 .body {
-  padding: var(--space-lg) var(--space-xl);
+  padding: var(--admin-page-padding);
+  animation: fadeInUp 0.4s ease both;
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
   align-items: start;
 }
 
 .card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-xs);
+  border-radius: var(--admin-card-radius);
+  padding: 24px;
+  box-shadow: var(--admin-card-shadow);
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  transition: box-shadow 0.25s ease;
+}
+
+.card:hover {
+  box-shadow: var(--admin-card-shadow-hover);
 }
 
 .cardHeader {
@@ -31,24 +39,24 @@
   align-items: flex-start;
   gap: var(--space-md);
   padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .cardIcon {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-accent-subtle);
+  background: linear-gradient(135deg, var(--color-accent-subtle) 0%, rgba(249,115,22,0.15) 100%);
   color: var(--color-accent);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   flex-shrink: 0;
 }
 
 .cardTitle {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--color-text-primary);
   margin-bottom: 3px;
@@ -57,6 +65,7 @@
 .cardSubtitle {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
+  line-height: 1.4;
 }
 
 .form {
@@ -74,12 +83,25 @@
 .skelGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
 }
 
 .skelCard {
   height: 420px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--admin-card-radius);
+}
+
+/* Maintenance */
+.maintenanceBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.maintenanceDesc {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
 }
 
 @media (max-width: 900px) {
@@ -97,16 +119,4 @@
   .body {
     padding: var(--space-md);
   }
-}
-
-.maintenanceBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.maintenanceDesc {
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-  line-height: 1.5;
 }

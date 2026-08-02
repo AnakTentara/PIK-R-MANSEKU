@@ -1,6 +1,7 @@
 .layout {
   display: flex;
   min-height: 100vh;
+  background-color: var(--color-bg);
 }
 
 .main {
@@ -16,7 +17,7 @@
   margin-left: 0 !important;
 }
 
-/* Mobile top bar — hidden on desktop */
+/* Mobile top bar */
 .mobileTopBar {
   display: none;
   align-items: center;
@@ -26,7 +27,7 @@
   left: 0;
   right: 0;
   height: 56px;
-  background-color: #0f172a;
+  background: linear-gradient(180deg, #0f172a 0%, #0c1322 100%);
   padding: 0 16px;
   z-index: 100;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -39,7 +40,7 @@
   letter-spacing: 0.02em;
 }
 
-/* Hamburger toggle button */
+/* Hamburger */
 .hamburgerBtn {
   display: flex;
   align-items: center;
@@ -51,7 +52,7 @@
   background: rgba(255, 255, 255, 0.06);
   color: #e2e8f0;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -59,20 +60,22 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* Overlay — hidden by default */
+/* Overlay */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
   z-index: 150;
   display: none;
+  animation: fadeIn 0.2s ease;
 }
 
 .overlay.visible {
   display: block;
 }
 
-/* ── Mobile breakpoint ───────────────────────────── */
+/* ── Mobile breakpoint ── */
 @media (max-width: 768px) {
   .mobileTopBar {
     display: flex;
@@ -80,7 +83,7 @@
 
   .main {
     margin-left: 0;
-    padding-top: 56px; /* offset for fixed top bar */
+    padding-top: 56px;
     width: 100%;
     overflow-x: hidden;
   }

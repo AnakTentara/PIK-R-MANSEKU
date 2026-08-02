@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDashboardStats, triggerGitPullReload } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
-import { ClipboardList, Users, CheckCircle, XCircle, FileText, MessageSquare, AlertCircle, RefreshCw, GitPullRequest } from 'lucide-react';
+import { ClipboardList, Users, CheckCircle, XCircle, FileText, MessageSquare, AlertCircle, RefreshCw, GitPullRequest, Settings, Megaphone, LayoutDashboard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminDashboardPage.module.css';
 
@@ -10,10 +10,13 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [syncingGit, setSyncingGit] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
   }, []);
 
   const fetchData = async () => {
@@ -50,6 +53,15 @@ export default function AdminDashboardPage() {
   const memb = stats?.members || { active: 0 };
   const blog = stats?.blog || { totalNews: 0, totalBlogPosts: 0, pendingBlogDrafts: 0, recentComments: 0 };
 
+  const formattedTime = currentTime.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   return (
     <div className={styles.page}>
       <AdminHeader
@@ -69,6 +81,41 @@ export default function AdminDashboardPage() {
       </AdminHeader>
 
       <div className={styles.body}>
+        {/* Welcome Section */}
+        <div className={styles.welcomeSection}>
+          <h2 className={styles.welcomeGreeting}>Welcome back, Admin!</h2>
+          <p className={styles.welcomeTime}>{formattedTime}</p>
+        </div>
+
+        {/* Quick Actions */}
+        <h3 className={styles.sectionTitle}>Quick Actions</h3>
+        <div className={styles.quickActions}>
+          <div className={styles.quickActionCard} onClick={() => navigate('/admin/pendaftaran')}>
+            <ClipboardList className={styles.quickActionIcon} size={24} />
+            <span className={styles.quickActionLabel}>Pendaftaran</span>
+          </div>
+          <div className={styles.quickActionCard} onClick={() => navigate('/admin/anggota')}>
+            <Users className={styles.quickActionIcon} size={24} />
+            <span className={styles.quickActionLabel}>Anggota</span>
+          </div>
+          <div className={styles.quickActionCard} onClick={() => navigate('/admin/blog')}>
+            <FileText className={styles.quickActionIcon} size={24} />
+            <span className={styles.quickActionLabel}>Blog</span>
+          </div>
+          <div className={styles.quickActionCard} onClick={() => navigate('/admin/pengumuman')}>
+            <Megaphone className={styles.quickActionIcon} size={24} />
+            <span className={styles.quickActionLabel}>Pengumuman</span>
+          </div>
+          <div className={styles.quickActionCard} onClick={() => navigate('/admin/org')}>
+            <LayoutDashboard className={styles.quickActionIcon} size={24} />
+            <span className={styles.quickActionLabel}>Organisasi</span>
+          </div>
+          <div className={styles.quickActionCard} onClick={() => navigate('/admin/settings')}>
+            <Settings className={styles.quickActionIcon} size={24} />
+            <span className={styles.quickActionLabel}>Settings</span>
+          </div>
+        </div>
+
         {/* Section Title 1 */}
         <h3 className={styles.sectionTitle}>Analisis Pendaftaran & Anggota</h3>
         
@@ -136,7 +183,7 @@ export default function AdminDashboardPage() {
 
         <div className={styles.statsGrid}>
           <div className={styles.statCard}>
-            <div className={`${styles.statIcon} ${styles.statIconBlue}`} style={{ backgroundColor: '#eff6ff', color: '#1d4ed8' }}>
+            <div className={`${styles.statIcon} ${styles.statIconBlue}`}>
               <FileText size={22} />
             </div>
             <div className={styles.statInfo}>
@@ -146,7 +193,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className={styles.statCard}>
-            <div className={`${styles.statIcon} ${styles.statIconGreen}`} style={{ backgroundColor: '#ecfdf5', color: '#047857' }}>
+            <div className={`${styles.statIcon} ${styles.statIconGreen}`}>
               <Users size={22} />
             </div>
             <div className={styles.statInfo}>
@@ -156,13 +203,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className={`${styles.statCard} ${blog.pendingBlogDrafts > 0 ? styles.draftAlertCard : ''}`}>
-            <div 
-              className={styles.statIcon} 
-              style={{ 
-                backgroundColor: blog.pendingBlogDrafts > 0 ? '#fff7ed' : '#f9fafb', 
-                color: blog.pendingBlogDrafts > 0 ? '#ea580c' : '#4b5563' 
-              }}
-            >
+            <div className={`${styles.statIcon} ${blog.pendingBlogDrafts > 0 ? styles.statIconRed : ''}`}>
               <AlertCircle size={22} />
             </div>
             <div className={styles.statInfo}>
@@ -174,7 +215,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className={styles.statCard}>
-            <div className={`${styles.statIcon} ${styles.statIconGreenLight}`} style={{ backgroundColor: '#f5f3ff', color: '#6d28d9' }}>
+            <div className={`${styles.statIcon} ${styles.statIconGreenLight}`}>
               <MessageSquare size={22} />
             </div>
             <div className={styles.statInfo}>

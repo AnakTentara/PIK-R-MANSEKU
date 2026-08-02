@@ -1,24 +1,59 @@
+/* AdminLoginPage — Premium Redesign */
+
 .page {
-  min-height: calc(100vh - var(--navbar-height));
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg);
+  background-color: #0f172a;
   padding: var(--space-xl) var(--space-md);
-  background-image: radial-gradient(ellipse at 60% 20%, rgba(249,115,22,0.04) 0%, transparent 60%);
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(249, 115, 22, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(249, 115, 22, 0.06) 0%, transparent 50%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle animated background pattern */
+.page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
 }
 
 .card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-xl);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.25),
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 40px 36px;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  animation: loginCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes loginCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .header {
@@ -26,25 +61,28 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .logo {
-  height: 56px;
+  height: 64px;
   width: auto;
   object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(249, 115, 22, 0.3));
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: 1.375rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: var(--color-text-primary);
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
   font-size: 0.875rem;
   color: var(--color-text-muted);
+  line-height: 1.4;
 }
 
 .form {
@@ -58,7 +96,7 @@
 }
 
 .pwdInput {
-  padding-right: 44px;
+  padding-right: 44px !important;
 }
 
 .eyeBtn {
@@ -69,17 +107,31 @@
   color: var(--color-text-muted);
   display: flex;
   align-items: center;
-  padding: 4px;
-  border-radius: var(--radius-xs, 4px);
-  transition: color 0.15s;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
+
 .eyeBtn:hover {
-  color: var(--color-text-secondary);
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
 }
 
 @media (max-width: 480px) {
   .card {
-    padding: var(--space-xl) var(--space-lg) !important;
-    max-width: calc(100vw - 2rem) !important;
+    padding: 32px 24px;
+    max-width: calc(100vw - 2rem);
+    border-radius: 14px;
+  }
+
+  .logo {
+    height: 52px;
+  }
+
+  .title {
+    font-size: 1.25rem;
   }
 }
