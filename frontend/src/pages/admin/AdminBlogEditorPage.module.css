@@ -1,0 +1,93 @@
+/* AdminBlogEditorPage — Premium Redesign */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.body {
+  padding: var(--admin-page-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  max-width: 900px;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--admin-card-radius);
+  box-shadow: var(--admin-card-shadow);
+}
+
+.titleInput {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  border: none;
+  border-bottom: 2px solid var(--color-border-strong);
+  background: transparent;
+  padding: 8px 0;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s ease;
+}
+
+.titleInput:focus {
+  border-bottom-color: var(--color-accent);
+}
+
+.titleInput::placeholder {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.slugPreview {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.slugPreview code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-2);
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  font-size: 0.8125rem;
+  border: 1px solid var(--color-border);
+}
+
+.editorWrap {
+  min-height: 400px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--admin-card-radius);
+  overflow: hidden;
+  box-shadow: var(--admin-card-shadow);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--space-sm);
+  padding: 16px 0 0;
+  border-top: 1px solid var(--color-border-strong);
+}
+
+/* Skeleton */
+.skelTitle {
+  height: 48px;
+  width: 70%;
+  border-radius: var(--radius-sm);
+}
+
+.skelEditor {
+  height: 360px;
+  border-radius: var(--admin-card-radius);
+}

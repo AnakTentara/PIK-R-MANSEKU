@@ -1,0 +1,130 @@
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/stores/authStore';
+import { useUIStore } from '@/stores/uiStore';
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Settings, 
+  LogOut, 
+  ClipboardList, 
+  Users, 
+  Network, 
+  MessageSquare, 
+  X, 
+  FolderOpen, 
+  Shield,
+  Megaphone,
+  PanelLeftClose,
+  PanelLeftOpen
+} from 'lucide-react';
+import styles from './AdminSidebar.module.css';
+
+export default function AdminSidebar({ isOpen = false, onClose }) {
+  const { adminUser, logoutAdmin } = useAuthStore();
+  const { sidebarCollapsed, toggleSidebarCollapsed } = useUIStore();
+  const navigate = useNavigate();
+
+  const role = adminUser?.role || 'KABINET_UMUM';
+
+  const navItems = [
+    { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
+    { to: '/admin/pendaftaran', label: 'Pendaftaran', icon: ClipboardList, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
+    { to: '/admin/pengumuman', label: 'Pengumuman Scheduled', icon: Megaphone, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
+    { to: '/admin/anggota', label: 'Anggota PIK-R', icon: Users, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
+    { to: '/admin/org', label: 'Struktur Org', icon: Network, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
+    { to: '/admin/testimoni', label: 'Testimoni Alumni', icon: MessageSquare, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
+    { to: '/admin/blog', label: 'Blog', icon: FileText, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
+    { to: '/admin/web-editor', label: 'Web Editor', icon: LayoutDashboard, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
+    { to: '/admin/file-manager', label: 'File Manager', icon: FolderOpen, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
+    { to: '/admin/users', label: 'Akun', icon: Shield, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
+    { to: '/admin/settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['DEVELOPER'] },
+  ].filter(item => item.allowedRoles.includes(role));
+
+  const handleLogout = () => {
+    logoutAdmin();
+    navigate('/');
+  };
+
+  const getRoleBadgeLabel = (roleVal) => {
+    switch (roleVal) {
+      case 'DEVELOPER': return 'Developer';
+      case 'KABINET_UMUM': return 'Kabinet Umum';
+      case 'MEDINFO': return 'MedInfo';
+      default: return roleVal;
+    }
+  };
+
+  return (
+    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''} ${sidebarCollapsed ? styles.sidebarCollapsed : ''}`}>
+      {/* Logo + Desktop Toggle + Mobile Close Button */}
+      <div className={styles.logoArea}>
+        <img
+          src="/media/logos/logo_pik-r.png"
+          alt="PIK-R MANSEKU"
+          className={styles.logo}
+        />
+        <div className={styles.logoText}>
+          <span className={styles.logoTitle}>PIK-R</span>
+          <span className={styles.logoSub}>Admin Panel</span>
+        </div>
+
+        {/* Desktop sidebar toggle button next to logo */}
+        <button
+          type="button"
+          className={styles.desktopToggleBtn}
+          onClick={toggleSidebarCollapsed}
+          title={sidebarCollapsed ? "Tampilkan Sidebar" : "Sembunyikan Sidebar"}
+          aria-label="Toggle Sidebar"
+        >
+          {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+        </button>
+
+        {/* Close button — visible only on mobile */}
+        <button
+          className={styles.closeBtn}
+          onClick={onClose}
+          aria-label="Tutup menu"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      {/* Navigation */}
+      <nav className={styles.nav}>
+        {navItems.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            onClick={onClose}
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.active : ''}`
+            }
+          >
+            <Icon size={18} />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Bottom */}
+      <div className={styles.bottom}>
+        <div className={styles.adminInfo}>
+          <div className={styles.adminAvatar}>
+            {adminUser?.username?.[0]?.toUpperCase() || 'A'}
+          </div>
+          <div>
+            <span className={styles.adminName}>{adminUser?.username || 'Admin'}</span>
+            <span className={styles.adminRole} style={{ fontSize: '0.7rem', display: 'block', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+              {getRoleBadgeLabel(role)}
+            </span>
+          </div>
+        </div>
+        <button onClick={handleLogout} className={styles.logoutBtn} title="Keluar">
+          <LogOut size={16} />
+          <span>Keluar</span>
+        </button>
+      </div>
+    </aside>
+  );
+}

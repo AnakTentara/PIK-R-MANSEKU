@@ -1,0 +1,18 @@
+{
+  "watch": ["src", "prisma"],
+  "ext": "js,json,prisma",
+  "ignore": [
+    "local.db",
+    "local.db-journal",
+    ".baileys_auth/**",
+    "public/uploads/**",
+    "uploads/**",
+    "node_modules/**",
+    "frontend/**",
+    ".git/**",
+    "*.log",
+    "*.png",
+    "*.jpg"
+  ],
+  "delay": "1000"
+}

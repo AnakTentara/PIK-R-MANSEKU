@@ -1,0 +1,397 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import prisma, { initDatabase } from './config/db.js';
+import adminRoutes from './routes/admin.js';
+import candidateRoutes from './routes/candidates.js';
+import blogRoutes from './routes/blog.js';
+import forumRoutes from './routes/forum.js';
+import publicRoutes from './routes/public.js';
+import readline from 'readline';
+import { execSync } from 'child_process';
+import { initWhatsApp, isWhatsAppReady } from './services/whatsapp.js';
+import { startAnnouncementScheduler } from './services/announcementScheduler.js';
+
+dotenv.config();
+
+// ─── Validasi ENV — hanya info, tidak crash server ─────────────────────────
+// JWT_SECRET punya fallback default, DATABASE tidak perlu (SQLite otomatis).
+if (!process.env.JWT_SECRET) {
+  console.log('ℹ️  [ENV] JWT_SECRET belum di-set, menggunakan default fallback.');
+}
+// ────────────────────────────────────────────────────────────────────────────
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 25552;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:25551';
+
+// Trust reverse proxy (Pterodactyl/Nginx) agar rate limiter bisa baca IP asli user
+app.set('trust proxy', 1);
+
+// Force HTTP -> HTTPS 301 Permanent Redirect for Google SEO Canonical compliance
+app.use((req, res, next) => {
+  const xfp = req.headers['x-forwarded-proto'];
+  if (xfp && xfp.toLowerCase() === 'http') {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
+
+// Middleware
+app.use(cors({
+  origin: [FRONTEND_URL, 'http://localhost:25551', 'https://pikr-manseku.my.id'],
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../public/uploads/photos');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve uploaded photos as static files
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+app.use('/api/uploads', express.static(path.join(__dirname, '../public/uploads')));
+
+// Routes
+app.use('/api/admin', adminRoutes);
+app.use('/api/candidates', candidateRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/forum', forumRoutes);
+app.use('/api/public', publicRoutes);
+
+// SEO: Robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.header('Content-Type', 'text/plain');
+  res.send(`User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://pikr-manseku.my.id/sitemap.xml`);
+});
+
+// SEO: Dynamic Sitemap.xml
+app.get('/sitemap.xml', async (req, res) => {
+  res.header('Content-Type', 'application/xml');
+  const baseUrl = 'https://pikr-manseku.my.id';
+  const staticPages = [
+    '',
+    '/kami',
+    '/daftar',
+    '/cek-kelulusan',
+    '/berita',
+    '/blog',
+    '/anggota',
+    '/alumni'
+  ];
+  
+  try {
+    const posts = await prisma.post.findMany({
+      select: { slug: true, updatedAt: true }
+    });
+    
+    const blogPosts = await prisma.blogPost.findMany({
+      where: { status: 'PUBLISHED' },
+      select: { slug: true, updatedAt: true }
+    });
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    
+    staticPages.forEach(page => {
+      xml += `  <url>\n`;
+      xml += `    <loc>${baseUrl}${page}</loc>\n`;
+      xml += `    <changefreq>daily</changefreq>\n`;
+      xml += `    <priority>${page === '' ? '1.0' : '0.8'}</priority>\n`;
+      xml += `  </url>\n`;
+    });
+    
+    posts.forEach(post => {
+      xml += `  <url>\n`;
+      xml += `    <loc>${baseUrl}/berita/${post.slug}</loc>\n`;
+      xml += `    <lastmod>${post.updatedAt.toISOString().split('T')[0]}</lastmod>\n`;
+      xml += `    <changefreq>weekly</changefreq>\n`;
+      xml += `    <priority>0.7</priority>\n`;
+      xml += `  </url>\n`;
+    });
+    
+    blogPosts.forEach(post => {
+      xml += `  <url>\n`;
+      xml += `    <loc>${baseUrl}/blog/${post.slug}</loc>\n`;
+      xml += `    <lastmod>${post.updatedAt.toISOString().split('T')[0]}</lastmod>\n`;
+      xml += `    <changefreq>weekly</changefreq>\n`;
+      xml += `    <priority>0.6</priority>\n`;
+      xml += `  </url>\n`;
+    });
+    
+    xml += `</urlset>`;
+    return res.send(xml);
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    return res.status(500).send('Error generating sitemap');
+  }
+});
+
+// Health check endpoint — cek DB dan WA Bot
+app.get('/health', async (req, res) => {
+  let dbStatus = 'OK';
+  try { await prisma.$queryRaw`SELECT 1`; }
+  catch { dbStatus = 'ERROR'; }
+
+  const waStatus = isWhatsAppReady() ? 'CONNECTED' : 'DISCONNECTED';
+  const overall = dbStatus === 'OK' ? 'OK' : 'DEGRADED';
+
+  return res.status(dbStatus === 'OK' ? 200 : 503).json({
+    status: overall,
+    services: { db: dbStatus, whatsapp: waStatus },
+    uptime: Math.floor(process.uptime()) + 's',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Helper function to seed default admin
+async function seedDefaultAdmin() {
+  try {
+    const defaultUsername = 'pikr-manseku';
+    const defaultPassword = 'pikrman2026==';
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+    // Clean up old temporary 'admin' and 'pikrmanseku01' accounts if they exist
+    try {
+      const oldAdmin = await prisma.admin.findUnique({ where: { username: 'admin' } });
+      if (oldAdmin) {
+        await prisma.admin.delete({ where: { username: 'admin' } });
+        console.log('Removed temporary admin account.');
+      }
+      const oldDev = await prisma.admin.findUnique({ where: { username: 'pikrmanseku01' } });
+      if (oldDev) {
+        await prisma.admin.delete({ where: { username: 'pikrmanseku01' } });
+        console.log('Removed old developer account pikrmanseku01.');
+      }
+    } catch (e) {
+      // Ignore errors (e.g. table not ready yet)
+    }
+
+    // Upsert new default admin credentials
+    await prisma.admin.upsert({
+      where: { username: defaultUsername },
+      update: { role: 'DEVELOPER' },
+      create: {
+        username: defaultUsername,
+        password: hashedPassword,
+        role: 'DEVELOPER'
+      }
+    });
+
+    console.log('==================================================');
+    console.log('Seed Akun Admin Berhasil:');
+    console.log(`Username: ${defaultUsername}`);
+    console.log(`Password: ${defaultPassword}`);
+    console.log('==================================================');
+  } catch (error) {
+    console.error('Gagal menjalankan seeding admin default:', error);
+  }
+}
+
+// Seed dummy org structure if empty
+async function seedDummyOrgData() {
+  try {
+    const count = await prisma.orgMember.count();
+    if (count > 0) return; // Already seeded
+
+    const YEAR = new Date().getFullYear();
+    const dummies = [
+      { name: 'Drs. Ahmad Fauzi, M.Pd', role: 'PEMBINA', jabatan: 'Pembina', yearStart: YEAR, isCurrent: true, quote: 'PIK-R MANSEKU adalah wadah terbaik untuk mengembangkan karakter dan potensi remaja. Jadilah generasi yang bermanfaat!' },
+      { name: 'Siti Rahmawati', role: 'KETUA', jabatan: 'Ketua Umum', yearStart: YEAR, isCurrent: true, quote: 'Bersama kita bisa membangun PIK-R MANSEKU menjadi organisasi yang lebih baik untuk generasi mendatang.' },
+      { name: 'Muhammad Rizki', role: 'WAKIL', jabatan: 'Wakil Ketua', yearStart: YEAR, isCurrent: true, quote: 'Satu langkah kecil bersama dapat menjadi perubahan besar bagi komunitas kita.' },
+      { name: 'Nurul Hidayah', role: 'KABINET', jabatan: 'Sekretaris Umum', yearStart: YEAR, isCurrent: true },
+      { name: 'Fajar Maulana', role: 'KABINET', jabatan: 'Bendahara Umum', yearStart: YEAR, isCurrent: true },
+      { name: 'Aisyah Putri', role: 'KABINET', jabatan: 'Koordinator Bidang Kesehatan Reproduksi', yearStart: YEAR, isCurrent: true },
+      { name: 'Dini Permata', role: 'KABINET', jabatan: 'Koordinator Bidang Humas & Media', yearStart: YEAR, isCurrent: true },
+      { name: 'Budi Santoso', role: 'KABINET', jabatan: 'Koordinator Bidang Pengembangan Diri', yearStart: YEAR, isCurrent: true },
+    ];
+
+    for (const d of dummies) {
+      await prisma.orgMember.create({ data: { ...d, yearEnd: null, photoPath: null, quote: d.quote || null } });
+    }
+
+    // Seed dummy testimonials
+    const tCount = await prisma.alumniTestimonial.count();
+    if (tCount === 0) {
+      const testimonials = [
+        { name: 'Rania Safitri', angkatan: '2023', content: 'PIK-R MANSEKU telah membuka wawasan saya tentang kesehatan remaja dan pentingnya konseling sebaya. Pengalaman yang tak terlupakan!', photoPath: null },
+        { name: 'Hendra Pratama', angkatan: '2023', content: 'Bergabung dengan PIK-R adalah keputusan terbaik semasa SMA. Banyak ilmu dan sahabat yang saya dapatkan di sini.', photoPath: null },
+        { name: 'Dinda Maharani', angkatan: '2024', content: 'Program-program PIK-R sangat bermanfaat dan membentuk karakter saya. Terima kasih PIK-R MANSEKU!', photoPath: null },
+      ];
+      for (const t of testimonials) {
+        await prisma.alumniTestimonial.create({ data: t });
+      }
+    }
+
+    console.log('[Seed] Data dummy organisasi & testimoni berhasil ditambahkan.');
+  } catch (error) {
+    console.error('[Seed] Gagal menambahkan data dummy organisasi:', error.message);
+  }
+}
+
+// SPA Static Fallback & HTML Serving (No-Cache for index.html so normal refresh always gets latest build)
+const distPath = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      } else if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  }));
+
+  app.get(/^.*$/, (req, res, next) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots')) {
+      return next();
+    }
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    return res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
+// Start Server
+app.listen(PORT, async () => {
+  // Initialize Database before queries run
+  await initDatabase();
+
+  console.log(`[Server] PIK-R MANSEKU Backend berjalan di port ${PORT}`);
+  console.log(`[Server] Mengizinkan CORS dari origin: ${FRONTEND_URL}`);
+  
+  // Seed admin if necessary
+  await seedDefaultAdmin();
+
+  // Seed dummy org data if empty
+  await seedDummyOrgData();
+  
+  // Initialize WhatsApp Bot service in the background
+  try {
+    console.log('[Server] Menghubungkan ke WhatsApp Web...');
+    await initWhatsApp();
+  } catch (error) {
+    console.error('[Server] Gagal menginisialisasi WhatsApp Bot:', error);
+  }
+
+  // Start Announcement Scheduler Service
+  try {
+    startAnnouncementScheduler();
+  } catch (error) {
+    console.error('[Server] Gagal mengaktifkan Announcement Scheduler:', error);
+  }
+
+  // ─── OTP Cleanup Cron: hapus OTP expired/used setiap 1 jam ────────────────
+  setInterval(async () => {
+    try {
+      const otpModel = prisma.passwordResetOtp || prisma.PasswordResetOtp;
+      if (otpModel) {
+        const { count } = await otpModel.deleteMany({
+          where: {
+            OR: [
+              { expiresAt: { lt: new Date() } }, // sudah expired
+              { isUsed: true }                    // sudah digunakan
+            ]
+          }
+        });
+        if (count > 0) console.log(`[Cleanup] ${count} OTP kedaluwarsa berhasil dihapus.`);
+      }
+    } catch (e) {
+      // silent — jangan crash server karena cleanup gagal
+    }
+  }, 60 * 60 * 1000); // setiap 1 jam
+
+  // Start Interactive Terminal Console CLI Listener (/restart, /pull, /status, /help)
+  setupConsoleCLI();
+});
+
+// Interactive Console CLI System
+function setupConsoleCLI() {
+  try {
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false
+    });
+
+    console.log('\n💡 [Console CLI System Ready]');
+    console.log('👉 Ketik "pull" atau "/restart" untuk Git Pull & Auto-Build/Reload.');
+    console.log('👉 Ketik "status" atau "/status" untuk cek RAM & WhatsApp Bot.\n');
+
+    rl.on('line', (line) => {
+      const input = line.trim().toLowerCase();
+
+      if (
+        input === 'pull' || input === '/pull' ||
+        input === 'restart' || input === '/restart' ||
+        input === 'reload' || input === '/reload'
+      ) {
+        console.log('\n==================================================');
+        console.log('🔄 [Console CLI] Memulai Git Pull & Auto-Reload...');
+        console.log('==================================================\n');
+
+        try {
+          execSync('git pull origin master', { stdio: 'inherit' });
+          console.log('\n✅ Git pull berhasil!');
+
+          const frontendPath = path.join(__dirname, '../frontend');
+          if (fs.existsSync(frontendPath)) {
+            console.log('📦 Rebuilding frontend bundle...');
+            try {
+              execSync('npm run build', { cwd: frontendPath, stdio: 'inherit' });
+              console.log('✅ Frontend build selesai!');
+            } catch (e) {
+              console.warn('⚠️ Frontend build warning:', e.message);
+            }
+          }
+
+          console.log('\n🚀 Memuat ulang server backend...\n');
+          process.exit(0);
+        } catch (err) {
+          console.error('❌ Gagal mengeksekusi git pull / restart:', err.message);
+        }
+      } else if (input === 'status' || input === '/status') {
+        const ramUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
+        const uptimeSec = Math.floor(process.uptime());
+        const uptimeMin = (uptimeSec / 60).toFixed(1);
+        const waReady = isWhatsAppReady() ? 'CONNECTED ✅' : 'DISCONNECTED ❌';
+
+        console.log('\n📊 === STATUS SISTEM LIVE ===');
+        console.log(`⏱️ Uptime: ${uptimeSec} detik (${uptimeMin} menit)`);
+        console.log(`💾 RAM Usage: ${ramUsage} MB`);
+        console.log(`💬 WhatsApp Bot: ${waReady}`);
+        console.log('=============================\n');
+      } else if (input === 'help' || input === '/help') {
+        console.log('\n📌 === PERINTAH KONSOL TERSEDIA ===');
+        console.log('👉 pull / restart / /restart : Git pull otomatis & reload server');
+        console.log('👉 status / /status          : Cek RAM, Uptime, dan Status WhatsApp Bot');
+        console.log('===================================\n');
+      }
+    });
+  } catch (err) {
+    console.warn('[Console CLI] Tidak dapat mengaktifkan stdin listener:', err.message);
+  }
+}
+
