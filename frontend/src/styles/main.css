@@ -24,6 +24,7 @@
   /* Accent — Oranye PIK-R */
   --color-accent:        #f97316;
   --color-accent-hover:  #ea580c;
+  --color-accent-light:  #fb923c;
   --color-accent-dark:   #c2410c;
   --color-accent-subtle: rgba(249, 115, 22, 0.08);
   --color-accent-border: rgba(249, 115, 22, 0.25);
@@ -102,7 +103,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(249, 115, 22, 0.2) 0%, rgba(249, 115, 22, 0.4) 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 20%, transparent) 0%, color-mix(in srgb, var(--color-accent) 40%, transparent) 100%);
   border-radius: 10px;
 }
 
@@ -113,7 +114,7 @@
 /* Firefox compatibility */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(249, 115, 22, 0.3) transparent;
+  scrollbar-color: color-mix(in srgb, var(--color-accent) 30%, transparent) transparent;
 }
 
 html {

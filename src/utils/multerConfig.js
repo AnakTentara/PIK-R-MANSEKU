@@ -66,3 +66,13 @@ function makeDocUpload(subfolder, sizeMB = 15) {
 }
 
 export const uploadDocs = makeDocUpload('documents', 15);
+
+// File Excel anggota: disimpan di memori (tidak ditulis ke disk), maks 5MB, hanya .xlsx
+export const uploadExcel = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/\.xlsx$/i.test(file.originalname)) cb(null, true);
+    else cb(new Error('Hanya file .xlsx yang diperbolehkan'));
+  }
+});

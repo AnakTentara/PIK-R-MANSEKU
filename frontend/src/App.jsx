@@ -9,6 +9,7 @@ function ScrollToTop() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.documentElement.toggleAttribute('data-admin', pathname.startsWith('/admin'));
 
     // Dynamically update Canonical Tag for Google SEO
     let canonicalLink = document.querySelector('link[rel="canonical"]');
@@ -59,6 +60,7 @@ import ResetSandiPage from '@/pages/public/ResetSandiPage';
 import KamiPage from '@/pages/public/KamiPage';
 import AnggotaPublikPage from '@/pages/public/AnggotaPublikPage';
 import AlumniPage from '@/pages/public/AlumniPage';
+import MemberProfilePage from '@/pages/public/MemberProfilePage';
 
 
 // Admin Pages
@@ -70,11 +72,12 @@ import AdminAnggotaPage from '@/pages/admin/AdminAnggotaPage';
 import AdminBlogPage from '@/pages/admin/AdminBlogPage';
 import AdminBlogEditorPage from '@/pages/admin/AdminBlogEditorPage';
 import AdminSettingsPage from '@/pages/admin/AdminSettingsPage';
-import AdminWebEditorPage from '@/pages/admin/AdminWebEditorPage';
+import AdminDesignPage from '@/pages/admin/AdminDesignPage';
 import AdminOrgPage from '@/pages/admin/AdminOrgPage';
 import AdminTestimonialsPage from '@/pages/admin/AdminTestimonialsPage';
 import AdminFileManagerPage from '@/pages/admin/AdminFileManagerPage';
 import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import AdminAbsensiPage from '@/pages/admin/AdminAbsensiPage';
 import { useAuthStore } from '@/stores/authStore';
 
 // Admin Layout
@@ -89,6 +92,12 @@ function PublicLayout() {
       <Footer />
     </>
   );
+}
+
+/* /@slug -> profil anggota, segmen lain tanpa "@" -> 404 */
+function MemberProfileGate() {
+  const { pathname } = useLocation();
+  return pathname.startsWith('/@') ? <MemberProfilePage /> : <NotFoundPage />;
 }
 
 function RoleProtectedRoute({ allowedRoles, children }) {
@@ -129,6 +138,8 @@ function App() {
           <Route path="/kami" element={<KamiPage />} />
           <Route path="/anggota" element={<AnggotaPublikPage />} />
           <Route path="/alumni" element={<AlumniPage />} />
+          {/* Profil dari QR ID Card. React Router tidak mendukung prefix "@" di segmen, jadi dicek di halaman */}
+          <Route path="/:handle" element={<MemberProfileGate />} />
           <Route
             path="/profil"
             element={
@@ -166,17 +177,20 @@ function App() {
             } 
           />
           <Route path="anggota" element={<AdminAnggotaPage />} />
+          <Route path="absensi" element={<AdminAbsensiPage />} />
           <Route path="blog" element={<AdminBlogPage />} />
           <Route path="blog/new" element={<AdminBlogEditorPage />} />
           <Route path="blog/edit/:id" element={<AdminBlogEditorPage />} />
-          <Route 
-            path="web-editor" 
+          <Route
+            path="desain"
             element={
-              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM']}>
-                <AdminWebEditorPage />
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']}>
+                <AdminDesignPage />
               </RoleProtectedRoute>
-            } 
+            }
           />
+          {/* Web Editor sudah digabung ke Desain */}
+          <Route path="web-editor" element={<Navigate to="/admin/desain" replace />} />
           <Route 
             path="file-manager" 
             element={

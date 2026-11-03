@@ -15,7 +15,9 @@ import {
   Shield,
   Megaphone,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  CalendarCheck,
+  Palette
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -31,10 +33,11 @@ export default function AdminSidebar({ isOpen = false, onClose }) {
     { to: '/admin/pendaftaran', label: 'Pendaftaran', icon: ClipboardList, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/pengumuman', label: 'Pengumuman Scheduled', icon: Megaphone, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/anggota', label: 'Anggota PIK-R', icon: Users, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
+    { to: '/admin/absensi', label: 'Absensi', icon: CalendarCheck, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/org', label: 'Struktur Org', icon: Network, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/testimoni', label: 'Testimoni Alumni', icon: MessageSquare, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/blog', label: 'Blog', icon: FileText, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
-    { to: '/admin/web-editor', label: 'Web Editor', icon: LayoutDashboard, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
+    { to: '/admin/desain', label: 'Desain', icon: Palette, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/file-manager', label: 'File Manager', icon: FolderOpen, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/users', label: 'Akun', icon: Shield, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/settings', label: 'Pengaturan', icon: Settings, allowedRoles: ['DEVELOPER'] },

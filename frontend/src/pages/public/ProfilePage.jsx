@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { getProfile, updateProfile } from '@/api/candidates';
 import { useAuthStore } from '@/stores/authStore';
 import SkeletonProfile from '@/components/skeletons/SkeletonProfile';
-import { LogOut, Edit2, X, Save, Download, Heart, Bookmark, MessageSquare, Clock, ArrowRight } from 'lucide-react';
+import { LogOut, Edit2, X, Save, Download, Heart, Bookmark, MessageSquare, Clock, ArrowRight, IdCard } from 'lucide-react';
+import CardEditor from '@/components/common/CardEditor';
 import toast from 'react-hot-toast';
 import { getUploadUrl } from '@/api/axios';
 import { formatDate } from '@/utils/formatDate';
@@ -37,7 +38,7 @@ export default function ProfilePage() {
   const [photoPreview, setPhotoPreview] = useState('');
 
   // Lists from local storage
-  const [activeTab, setActiveTab] = useState('liked'); // 'liked' | 'saved' | 'commented'
+  const [activeTab, setActiveTab] = useState('liked'); // 'liked' | 'saved' | 'commented' | 'card'
   const [likedPosts, setLikedPosts] = useState([]);
   const [savedPosts, setSavedPosts] = useState([]);
   const [commentedPosts, setCommentedPosts] = useState([]);
@@ -59,7 +60,8 @@ export default function ProfilePage() {
         email: data.email || '',
         reason: data.reason || '',
         asalSekolah: data.asalSekolah || '',
-        gender: data.gender || ''
+        gender: data.gender || '',
+        bio: data.bio || ''
       });
 
       if (data) {
@@ -90,6 +92,8 @@ export default function ProfilePage() {
     formData.append('reason', form.reason || '');
     formData.append('asalSekolah', form.asalSekolah || '');
     formData.append('gender', form.gender || '');
+    // Bio hanya ada untuk anggota (tampil di biodata publik /@slug)
+    if (profile?.slug) formData.append('bio', form.bio || '');
     if (photoFile) {
       formData.append('photo', photoFile);
     }
@@ -111,6 +115,9 @@ export default function ProfilePage() {
   const handleDownloadProfile = async () => {
     if (!profile) return;
 
+    const cs = getComputedStyle(document.documentElement);
+    const ACC = cs.getPropertyValue('--color-accent').trim() || '#f97316';
+    const ACC_HOVER = cs.getPropertyValue('--color-accent-hover').trim() || '#ea580c';
     const W = 760, H = 440;
     const canvas = document.createElement('canvas');
     canvas.width = W * 2; canvas.height = H * 2; // retina
@@ -128,21 +135,21 @@ export default function ProfilePage() {
 
     // ── Accent stripe left ───────────────────────
     const stripe = ctx.createLinearGradient(0, 0, 0, H);
-    stripe.addColorStop(0, '#f97316');
-    stripe.addColorStop(1, '#ea580c');
+    stripe.addColorStop(0, ACC);
+    stripe.addColorStop(1, ACC_HOVER);
     ctx.fillStyle = stripe;
     roundRect(ctx, 0, 0, 6, H, [18, 0, 0, 18]);
     ctx.fill();
 
     // ── Decorative circles ───────────────────────
     ctx.globalAlpha = 0.06;
-    ctx.fillStyle = '#f97316';
+    ctx.fillStyle = ACC;
     ctx.beginPath(); ctx.arc(W - 80, -60, 150, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.arc(W + 20, H, 110, 0, Math.PI * 2); ctx.fill();
     ctx.globalAlpha = 1;
 
     // ── Logo text / org name ─────────────────────
-    ctx.fillStyle = '#f97316';
+    ctx.fillStyle = ACC;
     ctx.font = 'bold 11px system-ui, sans-serif';
     ctx.letterSpacing = '3px';
     ctx.fillText('PIK-R MANSEKU', 30, 40);
@@ -153,9 +160,9 @@ export default function ProfilePage() {
     ctx.fillText('Pusat Informasi dan Konseling Remaja', 30, 58);
 
     // Thin separator
-    ctx.strokeStyle = 'rgba(249,115,22,0.35)';
+    ctx.strokeStyle = ACC; ctx.globalAlpha = 0.35;
     ctx.lineWidth = 0.8;
-    ctx.beginPath(); ctx.moveTo(30, 68); ctx.lineTo(W - 30, 68); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(30, 68); ctx.lineTo(W - 30, 68); ctx.stroke(); ctx.globalAlpha = 1;
 
     // ── KARTU ANGGOTA header ─────────────────────
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
@@ -183,7 +190,7 @@ export default function ProfilePage() {
     ctx.restore();
 
     // Avatar border ring
-    ctx.strokeStyle = '#f97316';
+    ctx.strokeStyle = ACC;
     ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.arc(avatarX, avatarY, avatarR + 2, 0, Math.PI * 2); ctx.stroke();
 
@@ -210,12 +217,12 @@ export default function ProfilePage() {
     });
 
     // ── Bottom divider ───────────────────────────
-    ctx.strokeStyle = 'rgba(249,115,22,0.3)';
+    ctx.strokeStyle = ACC; ctx.globalAlpha = 0.3;
     ctx.lineWidth = 0.8;
-    ctx.beginPath(); ctx.moveTo(30, H - 52); ctx.lineTo(W - 30, H - 52); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(30, H - 52); ctx.lineTo(W - 30, H - 52); ctx.stroke(); ctx.globalAlpha = 1;
 
     // ── Motto ────────────────────────────────────
-    ctx.fillStyle = 'rgba(249,115,22,0.9)';
+    ctx.fillStyle = ACC;
     ctx.font = 'bold 11px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Beriman · Bertanggung Jawab · Berencana', W / 2, H - 32);
@@ -248,7 +255,7 @@ export default function ProfilePage() {
   function drawAvatarFallback(ctx, cx, cy, r, name) {
     ctx.fillStyle = '#1e3a5f';
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#f97316';
+    ctx.fillStyle = ACC;
     ctx.font = `bold ${r * 0.75}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -401,6 +408,15 @@ export default function ProfilePage() {
                       <span className={styles.detailLabel}>Alasan Masuk PIK-R</span>
                       <p className={styles.detailQuote}>"{profile?.reason || '—'}"</p>
                     </div>
+                    {profile?.slug && (
+                      <div className={styles.detailItem} style={{ gridColumn: 'span 2' }}>
+                        <span className={styles.detailLabel}>Bio (tampil di biodata publik)</span>
+                        <p className={styles.detailQuote}>{profile.bio ? `"${profile.bio}"` : '— belum diisi —'}</p>
+                        <a href={`/@${profile.slug}`} target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-accent-dark)' }}>
+                          Lihat biodata publik saya →
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -482,6 +498,22 @@ export default function ProfilePage() {
                         onChange={(e) => setForm((f) => ({ ...f, reason: e.target.value }))}
                       />
                     </div>
+                    {profile?.slug && (
+                      <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                        <label className="form-label" htmlFor="edit-bio">
+                          Bio / Kata-kata ({(form.bio || '').length}/300)
+                        </label>
+                        <textarea
+                          id="edit-bio"
+                          className="form-textarea"
+                          rows={3}
+                          maxLength={300}
+                          placeholder="Tulis kata-kata atau motto singkatmu. Tampil di biodata publik dari QR ID Card."
+                          value={form.bio}
+                          onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className={styles.editActions} style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -521,6 +553,15 @@ export default function ProfilePage() {
                   <MessageSquare size={16} />
                   Komentar Artikel ({commentedPosts.length})
                 </button>
+              {profile?.slug && (
+                <button
+                  onClick={() => setActiveTab('card')}
+                  className={`${styles.tabBtn} ${activeTab === 'card' ? styles.tabActive : ''}`}
+                >
+                  <IdCard size={16} />
+                  Kartu Saya
+                </button>
+              )}
               </div>
 
               <div className={styles.tabContentPanel}>
@@ -530,6 +571,7 @@ export default function ProfilePage() {
                 {activeTab === 'saved' && (
                   <PostList posts={savedPosts} emptyMessage="Belum ada artikel yang disimpan. Simpan artikel menarik untuk dibaca nanti!" />
                 )}
+                {activeTab === 'card' && profile?.slug && <CardEditor profile={profile} />}
                 {activeTab === 'commented' && (
                   <PostList posts={commentedPosts} emptyMessage="Belum ada artikel yang Anda komentari." />
                 )}

@@ -32,3 +32,14 @@ export function toTitleCase(str) {
     })
     .join(' ');
 }
+
+// Gelar akademik: toTitleCase menyisipkan spasi setelah titik ("S. Pd"), padahal penulisan bakunya "S.Pd"
+const GELAR_RE = /\b([SMDA])\. (Pd|Kom|Si|E|Ag|H|T|Psi|Kep|Farm|Sos|Hum|Ked|Ds)\b/g;
+
+/**
+ * Format nama orang untuk disimpan: Title Case, spasi rapi, inisial "M. Halo", gelar "S.Pd" utuh.
+ * Dipakai di SEMUA jalur input (pendaftaran, tambah/edit anggota, impor Excel) supaya konsisten.
+ */
+export function formatPersonName(str) {
+  return toTitleCase(str).replace(GELAR_RE, '$1.$2');
+}

@@ -126,6 +126,22 @@ export const updateOrgMember = (id, formData) =>
 export const deleteOrgMember = (id) =>
   api.delete(`/admin/org/${id}`);
 
+// Daftar jabatan baku + pemegang aktif, dan sinkronisasi Anggota <-> Struktur
+export const getOrgPositions = () =>
+  api.get('/admin/org/positions');
+
+export const saveOrgPositions = (positions) =>
+  api.put('/admin/org/positions', { positions });
+
+export const resetOrgPositions = () =>
+  api.post('/admin/org/positions/reset');
+
+export const getOrgSyncReport = () =>
+  api.get('/admin/org/sync-report');
+
+export const runOrgSyncFix = () =>
+  api.post('/admin/org/sync-fix');
+
 // Testimonials
 export const getTestimonials = () =>
   api.get('/admin/testimonials');
@@ -168,7 +184,7 @@ export const deleteUploadedFile = (filePath) =>
   api.delete('/admin/files', { data: { filePath } });
 
 export const downloadBackupDb = () =>
-  api.get('/admin/settings/backup-db', { responseType: 'blob' });
+  api.get('/admin/settings/backup-db', { responseType: 'blob', timeout: 300000 });
 
 // Announcements & Broadcasts
 export const getAnnouncements = () =>
@@ -201,4 +217,26 @@ export const simulateIncomingMessage = (data) =>
 export const triggerGitPullReload = () =>
   api.post('/admin/system/git-pull-reload');
 
+// Excel anggota
+export const exportMembersExcel = (status) =>
+  api.get('/admin/members/export', { params: status ? { status } : undefined, responseType: 'blob', timeout: 60000 });
 
+export const downloadMembersTemplate = () =>
+  api.get('/admin/members/template', { responseType: 'blob' });
+
+export const importMembersExcel = (file, { dryRun = true, displaceMode } = {}) => {
+  const fd = new FormData();
+  fd.append('file', file);
+  if (displaceMode) fd.append('displaceMode', displaceMode);
+  return api.post('/admin/members/import', fd, { params: dryRun ? { dryRun: 1 } : undefined, timeout: 120000 });
+};
+
+// Desain situs & kartu biodata
+export const getAdminDesign = () => api.get('/admin/design');
+export const saveAdminDesign = (design) => api.put('/admin/design', { design });
+export const uploadDesignImage = (file) => {
+  const fd = new FormData();
+  fd.append('image', file);
+  return api.post('/admin/design/upload', fd);
+};
+export const resetMemberCard = (memberId) => api.put(`/admin/members/${memberId}/card`, { reset: true });

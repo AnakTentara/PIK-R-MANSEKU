@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 import fs from 'fs';
+import os from 'os';
+import archiver from 'archiver';
 import path from 'path';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -10,6 +12,11 @@ import prisma, { initDatabase, getDbProvider } from '../config/db.js';
 import { sendBulkNotifications } from '../services/notification.js';
 
 import { toTitleCase } from '../utils/nameUtils.js';
+import { closeOrgForMembers, ORG_TITLE_SELECT, alumniLabel } from '../utils/memberUtils.js';
+import { formatPersonName } from '../utils/nameUtils.js';
+import { buildMembersWorkbook, buildTemplateWorkbook, parseMembersSheet, planImport, applyImport } from '../utils/memberExcel.js';
+import { getCatalog, saveCatalog, resetCatalog, DEFAULT_POSITIONS } from '../utils/orgCatalog.js';
+import { OrgError, defaultJabatanForRole, saveOrgEntry, deleteOrgEntry, assignPosition, clearPosition, syncOrgName, archiveBeforeDelete, buildSyncReport, applySyncFixes } from '../utils/orgSync.js';
 import { sendWhatsApp, sendWhatsAppWithAttachments } from '../services/whatsapp.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -765,16 +772,142 @@ export async function finishAndMigrateSession(req, res) {
 // MEMBER CRUD
 // ─────────────────────────────────────────────────
 
+// ── Excel Anggota ─────────────────────────────────────────────────────────────
+
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+// GET /api/admin/members/export?status=ACTIVE|ALUMNI
+export async function exportMembersExcel(req, res) {
+  try {
+    const status = ['ACTIVE', 'ALUMNI'].includes(req.query.status) ? req.query.status : undefined;
+    const wb = await buildMembersWorkbook({ status });
+    const tag = status === 'ACTIVE' ? 'AKTIF' : status === 'ALUMNI' ? 'ALUMNI' : 'SEMUA';
+    res.setHeader('Content-Type', XLSX_MIME);
+    res.setHeader('Content-Disposition', `attachment; filename="Anggota_PIKR_${tag}_${new Date().toISOString().slice(0, 10)}.xlsx"`);
+    await wb.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error('Error exportMembersExcel:', error);
+    if (!res.headersSent) res.status(500).json({ message: 'Gagal membuat file Excel' });
+  }
+}
+
+// GET /api/admin/members/template
+export async function downloadMembersTemplate(req, res) {
+  try {
+    const wb = await buildTemplateWorkbook();
+    res.setHeader('Content-Type', XLSX_MIME);
+    res.setHeader('Content-Disposition', 'attachment; filename="Templat_Impor_Anggota_PIKR.xlsx"');
+    await wb.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error('Error downloadMembersTemplate:', error);
+    if (!res.headersSent) res.status(500).json({ message: 'Gagal membuat templat' });
+  }
+}
+
+// POST /api/admin/members/import?dryRun=1  (multipart, field "file")
+// dryRun=1 hanya mengembalikan rencana; tanpa dryRun data disimpan. displaceMode: archive | remove
+export async function importMembersExcel(req, res) {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'Pilih file Excel (.xlsx) dulu' });
+    const rows = await parseMembersSheet(req.file.buffer);
+    const { plan, summary } = await planImport(rows);
+    const dryRun = req.query.dryRun === '1' || req.query.dryRun === 'true';
+    if (dryRun) return res.json({ dryRun: true, summary, plan });
+    const result = await applyImport(plan, req.body?.displaceMode === 'remove' ? 'remove' : 'archive');
+    return res.json({ dryRun: false, summary, result });
+  } catch (error) {
+    if (error instanceof OrgError) return res.status(error.status).json({ message: error.message });
+    console.error('Error importMembersExcel:', error);
+    return res.status(400).json({ message: 'File tidak bisa dibaca. Pastikan formatnya .xlsx dan memakai templat.' });
+  }
+}
+
+// ── Sinkronisasi Anggota <-> Struktur Organisasi ──────────────────────────────
+
+// GET /api/admin/org/positions — daftar jabatan baku + pemegang aktif (untuk pemilih jabatan)
+export async function getOrgPositions(req, res) {
+  try {
+    const catalog = await getCatalog();
+    const holders = await prisma.orgMember.findMany({
+      where: { isCurrent: true },
+      select: { jabatan: true, name: true, memberId: true, photoPath: true, member: { select: { photoPath: true, className: true } } }
+    });
+    const byJabatan = {};
+    holders.forEach(h => {
+      (byJabatan[h.jabatan] ||= []).push({
+        name: h.name.trim(), memberId: h.memberId,
+        photoPath: h.member?.photoPath || h.photoPath || null, className: h.member?.className || null
+      });
+    });
+    return res.json(catalog.map(p => ({ ...p, holders: byJabatan[p.label] || [] })));
+  } catch (error) {
+    console.error('Error getOrgPositions:', error);
+    return res.status(500).json({ message: 'Gagal mengambil daftar jabatan' });
+  }
+}
+
+// PUT /api/admin/org/positions — simpan katalog jabatan (tambah, ubah nama, geser hierarki)
+export async function saveOrgPositions(req, res) {
+  try {
+    const out = await saveCatalog(req.body?.positions);
+    return res.json({ message: 'Hierarki jabatan disimpan', ...out });
+  } catch (error) {
+    if (error instanceof OrgError) return res.status(error.status).json({ message: error.message });
+    console.error('Error saveOrgPositions:', error);
+    return res.status(500).json({ message: 'Gagal menyimpan hierarki jabatan' });
+  }
+}
+
+// POST /api/admin/org/positions/reset — kembali ke hierarki bawaan (data pengurus tidak diubah)
+export async function resetOrgPositions(req, res) {
+  try {
+    await resetCatalog();
+    return res.json({ message: 'Hierarki dikembalikan ke bawaan', catalog: DEFAULT_POSITIONS });
+  } catch (error) {
+    if (error instanceof OrgError) return res.status(error.status).json({ message: error.message });
+    console.error('Error resetOrgPositions:', error);
+    return res.status(500).json({ message: 'Gagal mengembalikan hierarki' });
+  }
+}
+
+// GET /api/admin/org/sync-report — ketidaksesuaian data peran anggota vs struktur
+export async function getOrgSyncReport(req, res) {
+  try {
+    return res.json(await buildSyncReport());
+  } catch (error) {
+    console.error('Error getOrgSyncReport:', error);
+    return res.status(500).json({ message: 'Gagal membuat laporan sinkronisasi' });
+  }
+}
+
+// POST /api/admin/org/sync-fix — terapkan perbaikan aman (yang butuh keputusan admin tetap dilaporkan)
+export async function runOrgSyncFix(req, res) {
+  try {
+    return res.json(await applySyncFixes());
+  } catch (error) {
+    if (error instanceof OrgError) return res.status(error.status).json({ message: error.message });
+    console.error('Error runOrgSyncFix:', error);
+    return res.status(500).json({ message: 'Gagal menerapkan sinkronisasi' });
+  }
+}
+
 // 15. Get All Members (no auto-alumni — status managed by admin)
 export async function getMembers(req, res) {
   try {
-
     const { status } = req.query;
     const members = await prisma.member.findMany({
       where: status ? { status } : undefined,
-      orderBy: { joinYear: 'desc' }
+      orderBy: { joinYear: 'desc' },
+      include: { orgMember: { select: ORG_TITLE_SELECT } }
     });
-    return res.json(members);
+    // jabatan = jabatan struktur aktif (null bila tidak ada); alumniLabel = label alumni tim inti
+    return res.json(members.map(({ orgMember, ...m }) => ({
+      ...m,
+      jabatan: orgMember?.isCurrent ? orgMember.jabatan : null,
+      alumniLabel: m.status === 'ALUMNI' ? alumniLabel(orgMember) : null
+    })));
   } catch (error) {
     console.error('Error fetching members:', error);
     return res.status(500).json({ message: 'Gagal mengambil data anggota' });
@@ -783,7 +916,8 @@ export async function getMembers(req, res) {
 
 // 15.5 Create Member manually
 export async function createMember(req, res) {
-  const { nisn, name, className, whatsappNumber, email, gender, role, status, asalSekolah, plainPassword: customPassword } = req.body;
+  req.body.name = formatPersonName(req.body.name);
+  const { nisn, name, className, whatsappNumber, email, gender, role, jabatan, displaceMode, status, asalSekolah, plainPassword: customPassword } = req.body;
   const currentYear = new Date().getFullYear();
 
   const isPembina = role === 'PEMBINA';
@@ -835,31 +969,15 @@ export async function createMember(req, res) {
     });
 
 
-    // If role is a leadership role, automatically create an OrgMember entry
-    if (role && role !== 'member') {
-      // Unset previous active OrgMember with same role if it exists
-      if (role !== 'KABINET') {
-        await prisma.orgMember.updateMany({ where: { role, isCurrent: true }, data: { isCurrent: false } });
-      }
-
-      // Determine default specific position (jabatan)
-      let jabatan = 'Pengurus';
-      if (role === 'PEMBINA') jabatan = 'Pembina';
-      else if (role === 'KETUA') jabatan = 'Ketua Umum';
-      else if (role === 'WAKIL') jabatan = 'Wakil Ketua';
-
-      await prisma.orgMember.create({
-        data: {
-          name,
-          role,
-          jabatan,
-          yearStart: currentYear,
-          isCurrent: true
-        }
-      });
+    // Peran/jabatan kepengurusan: buat entri struktur lewat aturan sinkronisasi (menggantikan pemegang lama untuk jabatan tunggal)
+    const wantedJabatan = jabatan || defaultJabatanForRole(role);
+    let displaced = [];
+    if (wantedJabatan && role && role !== 'member' && (status || 'ACTIVE') === 'ACTIVE') {
+      displaced = (await assignPosition(member.id, wantedJabatan, { displaceMode })).displaced;
     }
 
-    return res.status(201).json({ message: 'Anggota berhasil ditambahkan secara manual', member });
+    const fresh = await prisma.member.findUnique({ where: { id: member.id } });
+    return res.status(201).json({ message: 'Anggota berhasil ditambahkan secara manual', member: fresh, displaced });
   } catch (error) {
     console.error('Error creating member:', error);
     return res.status(500).json({ message: 'Gagal menambahkan anggota secara manual' });
@@ -868,8 +986,9 @@ export async function createMember(req, res) {
 
 // 16. Update Member
 export async function updateMember(req, res) {
+  if (req.body.name !== undefined) req.body.name = formatPersonName(req.body.name);
   const { id } = req.params;
-  const { name, className, whatsappNumber, email, gender, status, role, plainPassword, asalSekolah, joinYear } = req.body;
+  const { name, className, whatsappNumber, email, gender, status, role, jabatan, displaceMode, plainPassword, asalSekolah, joinYear, bio } = req.body;
   try {
     const member = await prisma.member.findUnique({ where: { id } });
     if (!member) return res.status(404).json({ message: 'Anggota tidak ditemukan' });
@@ -882,8 +1001,10 @@ export async function updateMember(req, res) {
       gender: gender ?? member.gender,
       asalSekolah: asalSekolah ?? member.asalSekolah,
       status: status ?? member.status,
-      role: role ?? member.role,
+      // role dikelola orgSync di bawah (mengikuti jabatan aktif)
     };
+    // Bio tampil di biodata publik /@slug. undefined = tidak diubah
+    if (bio !== undefined) updateData.bio = String(bio).trim().slice(0, 300) || null;
 
     // Handle joinYear update
     if (joinYear !== undefined && joinYear !== '') {
@@ -901,7 +1022,26 @@ export async function updateMember(req, res) {
     }
 
     const updated = await prisma.member.update({ where: { id }, data: updateData });
-    return res.json({ message: 'Data anggota berhasil diperbarui', member: updated });
+    // Nama berubah -> ikut di struktur
+    if (name && name.trim() !== member.name.trim()) await syncOrgName(id, name);
+
+    let displaced = [];
+    if (updated.status === 'ALUMNI') {
+      // Alumni tidak punya jabatan aktif; riwayat tim inti tersimpan di arsip kepengurusan
+      if (member.status !== 'ALUMNI') await closeOrgForMembers([id]);
+      await prisma.member.update({ where: { id }, data: { role: updated.role === 'PEMBINA' ? 'PEMBINA' : 'member' } });
+    } else if (role !== undefined || jabatan !== undefined) {
+      if (role === 'member' && !jabatan) await clearPosition(id);
+      else {
+        const target = jabatan || (role && role !== member.role ? defaultJabatanForRole(role) : null);
+        if (target) displaced = (await assignPosition(id, target, { displaceMode })).displaced;
+        else if (role && role !== 'member' && role !== member.role) {
+          return res.status(400).json({ message: 'Pilih jabatan spesifik untuk peran ini (mis. Ketua MedInfo, Anggota Humas).' });
+        }
+      }
+    }
+    const fresh = await prisma.member.findUnique({ where: { id } });
+    return res.json({ message: 'Data anggota berhasil diperbarui', member: fresh, displaced });
   } catch (error) {
     console.error('Error updating member:', error);
     return res.status(500).json({ message: 'Gagal memperbarui data anggota' });
@@ -912,6 +1052,8 @@ export async function updateMember(req, res) {
 export async function deleteMember(req, res) {
   const { id } = req.params;
   try {
+    // Jabatan aktif diarsipkan dulu supaya bagan struktur tidak menyisakan data yatim
+    await archiveBeforeDelete(id);
     await prisma.member.delete({ where: { id } });
     return res.json({ message: 'Anggota berhasil dihapus' });
   } catch (error) {
@@ -949,58 +1091,13 @@ export async function getOrgMembers(req, res) {
 
 // 19. Create Org Member
 export async function createOrgMember(req, res) {
-  const { name, role, jabatan, yearStart, yearEnd, isCurrent, quote, memberId } = req.body;
-  const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : null;
-  
-  let finalName = name;
-  let memberRecord = null;
   try {
-    if (memberId) {
-      memberRecord = await prisma.member.findUnique({ where: { id: memberId } });
-      if (memberRecord) {
-        finalName = memberRecord.name;
-      }
-    }
-
-    if (!finalName || !role || !jabatan || !yearStart) {
-      return res.status(400).json({ message: 'Nama/Anggota, role, jabatan, dan tahun mulai wajib diisi' });
-    }
-
-    // Determine finalIsCurrent automatically based on yearEnd and current year
-    const currentYear = new Date().getFullYear();
-    const parsedYearEnd = yearEnd ? parseInt(yearEnd) : null;
-    let finalIsCurrent = isCurrent === 'true' || isCurrent === true;
-    
-    if (parsedYearEnd) {
-      if (parsedYearEnd >= currentYear) {
-        finalIsCurrent = true;
-      } else {
-        finalIsCurrent = false;
-      }
-    }
-
-    const org = await prisma.orgMember.create({
-      data: {
-        name: finalName, role, jabatan,
-        yearStart: parseInt(yearStart),
-        yearEnd: parsedYearEnd,
-        isCurrent: finalIsCurrent,
-        photoPath,       // stored only for orphan entries
-        quote: quote || null,
-        memberId: memberId || null,  // FK link to Member account
-      }
-    });
-
-    // Sync member role if linked
-    if (memberRecord) {
-      await prisma.member.update({
-        where: { id: memberId },
-        data: { role }
-      });
-    }
-
-    return res.status(201).json({ message: 'Anggota organisasi berhasil ditambahkan', org });
+    const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : null;
+    const { org, displaced } = await saveOrgEntry({ ...req.body, photoPath: photoPath ?? undefined, displaceMode: req.body.displaceMode });
+    const note = displaced.length ? ` (${displaced.join(', ')} dipindahkan ke arsip)` : '';
+    return res.status(201).json({ message: 'Anggota organisasi berhasil ditambahkan' + note, org, displaced });
   } catch (error) {
+    if (error instanceof OrgError) return res.status(error.status).json({ message: error.message });
     console.error('Error creating org member:', error);
     return res.status(500).json({ message: 'Gagal menambahkan anggota organisasi' });
   }
@@ -1008,76 +1105,13 @@ export async function createOrgMember(req, res) {
 
 // 20. Update Org Member
 export async function updateOrgMember(req, res) {
-  const { id } = req.params;
-  const { name, role, jabatan, yearStart, yearEnd, isCurrent, quote, memberId } = req.body;
   try {
-    const existing = await prisma.orgMember.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ message: 'Data tidak ditemukan' });
-
-    const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : existing.photoPath;
-
-    // Determine finalIsCurrent automatically based on yearEnd and current year
-    const currentYear = new Date().getFullYear();
-    const parsedYearEnd = yearEnd !== undefined ? (yearEnd ? parseInt(yearEnd) : null) : existing.yearEnd;
-    let finalIsCurrent = isCurrent !== undefined ? (isCurrent === 'true' || isCurrent === true) : existing.isCurrent;
-    
-    if (parsedYearEnd) {
-      if (parsedYearEnd >= currentYear) {
-        finalIsCurrent = true;
-      } else {
-        finalIsCurrent = false;
-      }
-    }
-
-    // Resolve memberId: use sent value, fall back to existing
-    let resolvedMemberId = existing.memberId;
-    let memberRecord = null;
-    if (memberId === '' || memberId === 'NONE') {
-      resolvedMemberId = null; // explicitly unlink
-    } else if (memberId && memberId !== 'MANUAL') {
-      memberRecord = await prisma.member.findUnique({ where: { id: memberId } });
-      if (memberRecord) {
-        resolvedMemberId = memberId;
-      }
-    }
-
-    const updated = await prisma.orgMember.update({
-      where: { id },
-      data: {
-        name: (memberRecord ? memberRecord.name : name) ?? existing.name,
-        role: role ?? existing.role,
-        jabatan: jabatan ?? existing.jabatan,
-        yearStart: yearStart ? parseInt(yearStart) : existing.yearStart,
-        yearEnd: parsedYearEnd,
-        isCurrent: finalIsCurrent,
-        photoPath,
-        quote: quote !== undefined ? quote : existing.quote,
-        memberId: resolvedMemberId,
-      }
-    });
-
-    // Sync member role if linked member has a changed role
-    const effectiveRole = role ?? existing.role;
-    if (memberRecord && effectiveRole !== memberRecord.role) {
-      await prisma.member.update({
-        where: { id: resolvedMemberId },
-        data: { role: effectiveRole }
-      });
-    } else if (!memberRecord && role && role !== existing.role) {
-      // Fallback: still try name-match if no FK (backward compat for old entries)
-      const correspondingMember = await prisma.member.findFirst({
-        where: { name: name ?? existing.name, status: 'ACTIVE' }
-      });
-      if (correspondingMember) {
-        await prisma.member.update({
-          where: { id: correspondingMember.id },
-          data: { role }
-        });
-      }
-    }
-
-    return res.json({ message: 'Data organisasi berhasil diperbarui', org: updated });
+    const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : undefined;
+    const { org, displaced } = await saveOrgEntry({ ...req.body, id: req.params.id, photoPath });
+    const note = displaced.length ? ` (${displaced.join(', ')} dipindahkan ke arsip)` : '';
+    return res.json({ message: 'Data organisasi berhasil diperbarui' + note, org, displaced });
   } catch (error) {
+    if (error instanceof OrgError) return res.status(error.status).json({ message: error.message });
     console.error('Error updating org member:', error);
     return res.status(500).json({ message: 'Gagal memperbarui data organisasi' });
   }
@@ -1085,11 +1119,11 @@ export async function updateOrgMember(req, res) {
 
 // 21. Delete Org Member
 export async function deleteOrgMember(req, res) {
-  const { id } = req.params;
   try {
-    await prisma.orgMember.delete({ where: { id } });
+    await deleteOrgEntry(req.params.id);
     return res.json({ message: 'Data organisasi berhasil dihapus' });
   } catch (error) {
+    if (error instanceof OrgError) return res.status(error.status).json({ message: error.message });
     console.error('Error deleting org member:', error);
     return res.status(500).json({ message: 'Gagal menghapus data organisasi' });
   }
@@ -1387,20 +1421,58 @@ export async function deleteUploadedFile(req, res) {
   }
 }
 
+// GET /api/admin/settings/backup-db
+// ZIP berisi: pikr_manseku.db (snapshot konsisten, aman saat server berjalan), uploads/ (semua gambar & dokumen), info.json
 export async function downloadBackupDb(req, res) {
+  const tmp = path.join(os.tmpdir(), `pikr_snapshot_${Date.now()}_${process.pid}.db`);
+  const cleanup = () => fs.promises.rm(tmp, { force: true }).catch(() => {});
   try {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const dbPath = path.join(__dirname, '../../local.db');
-
-    if (fs.existsSync(dbPath)) {
-      return res.download(dbPath, 'pikr_manseku_backup.db');
-    } else {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const dbPath = path.join(here, '../../local.db');
+    const uploadsDir = path.join(here, '../../public/uploads');
+    if (!fs.existsSync(dbPath)) {
       return res.status(404).json({ message: 'Database SQLite local.db tidak ditemukan di root server.' });
     }
+
+    // VACUUM INTO menyalin database yang sedang dipakai tanpa file setengah tertulis; cadangan: salin biasa
+    try {
+      await prisma.$executeRawUnsafe(`VACUUM INTO '${tmp.replace(/'/g, "''")}'`);
+    } catch {
+      await fs.promises.copyFile(dbPath, tmp);
+    }
+
+    let files = 0;
+    let bytes = 0;
+    const walk = (dir) => {
+      if (!fs.existsSync(dir)) return;
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) walk(full);
+        else { files++; bytes += fs.statSync(full).size; }
+      }
+    };
+    walk(uploadsDir);
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="pikr_manseku_backup_${stamp}.zip"`);
+    const zip = archiver('zip', { zlib: { level: 6 } });
+    zip.on('error', (err) => { console.error('Error zip backup:', err); res.destroy(err); });
+    res.on('close', cleanup);
+    zip.pipe(res);
+    zip.file(tmp, { name: 'pikr_manseku.db' });
+    if (fs.existsSync(uploadsDir)) zip.directory(uploadsDir, 'uploads');
+    zip.append(JSON.stringify({
+      dibuat: new Date().toISOString(), versi: process.env.npm_package_version || null,
+      database: 'pikr_manseku.db', gambar: files, ukuranGambarByte: bytes,
+      pulihkan: 'Hentikan server, salin pikr_manseku.db menjadi local.db di root server, dan isi folder uploads/ ke public/uploads/.'
+    }, null, 2), { name: 'info.json' });
+    await zip.finalize();
   } catch (error) {
     console.error('Error backing up database:', error);
-    return res.status(500).json({ message: 'Gagal membuat cadangan database' });
+    await cleanup();
+    if (!res.headersSent) return res.status(500).json({ message: 'Gagal membuat cadangan database' });
+    res.destroy();
   }
 }
 
@@ -2301,14 +2373,15 @@ export async function bulkSetAlumni(req, res) {
       return res.status(400).json({ message: 'Tahun angkatan (joinYear) wajib diisi.' });
     }
 
-    const result = await prisma.member.updateMany({
-      where: {
-        status: 'ACTIVE',
-        joinYear: parseInt(joinYear),
-        NOT: { role: 'PEMBINA' }
-      },
-      data: { status: 'ALUMNI' }
-    });
+    const where = {
+      status: 'ACTIVE',
+      joinYear: parseInt(joinYear),
+      NOT: { role: 'PEMBINA' }
+    };
+    // Alumni tidak lagi punya jabatan aktif: tutup dulu jabatan struktur mereka
+    const targets = await prisma.member.findMany({ where, select: { id: true } });
+    await closeOrgForMembers(targets.map(m => m.id));
+    const result = await prisma.member.updateMany({ where, data: { status: 'ALUMNI' } });
 
     return res.json({
       success: true,

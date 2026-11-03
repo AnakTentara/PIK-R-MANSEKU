@@ -11,3 +11,10 @@ export const getPublicOrg = () =>
 
 export const getPublicTestimonials = () =>
   api.get('/public/testimonials');
+
+// Profil anggota dari QR ID Card: /@slug
+export const getMemberProfile = (slug) =>
+  api.get(`/public/profile/${encodeURIComponent(slug)}`);
+
+export const getOrgStructure = () =>
+  api.get('/public/org-structure');

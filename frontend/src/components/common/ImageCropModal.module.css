@@ -128,7 +128,7 @@
 
 .slider {
   flex: 1;
-  accent-color: var(--color-primary, #f97316);
+  accent-color: var(--color-accent);
   cursor: pointer;
 }
 
@@ -164,8 +164,8 @@
 
 .controlBtn:hover {
   background-color: var(--color-bg, #f8fafc);
-  border-color: var(--color-primary, #f97316);
-  color: var(--color-primary, #f97316);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .footer {

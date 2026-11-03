@@ -34,6 +34,7 @@ import {
 import toast from 'react-hot-toast';
 import styles from './AdminPendaftaranPage.module.css';
 import { downloadBlob } from '@/utils/truncate';
+import SelectField from '@/components/common/SelectField';
 
 const ITEMS_PER_PAGE = 100;
 const DAYS_OF_WEEK = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -1120,7 +1121,7 @@ export default function AdminPendaftaranPage() {
                 />
               </div>
 
-              <select
+              <SelectField
                 value={filterKelas}
                 onChange={(e) => handleKelasChange(e.target.value)}
                 className={styles.filterSelect}
@@ -1129,7 +1130,7 @@ export default function AdminPendaftaranPage() {
                 {kelasOptions.map((k) => (
                   <option key={k} value={k}>{k}</option>
                 ))}
-              </select>
+              </SelectField>
 
               {search && (
                 <button
@@ -1234,7 +1235,7 @@ export default function AdminPendaftaranPage() {
               {/* Filter Toolbar Extra */}
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>Filter Presensi:</span>
-                <select
+                <SelectField
                   value={filterHariSeleksi}
                   onChange={e => setFilterHariSeleksi(e.target.value)}
                   className={styles.filterSelect}
@@ -1244,9 +1245,9 @@ export default function AdminPendaftaranPage() {
                   {uniqueSelectionDays.map(day => (
                     <option key={day} value={day}>{day}</option>
                   ))}
-                </select>
+                </SelectField>
 
-                <select
+                <SelectField
                   value={filterStatusPresensi}
                   onChange={e => setFilterStatusPresensi(e.target.value)}
                   className={styles.filterSelect}
@@ -1256,7 +1257,7 @@ export default function AdminPendaftaranPage() {
                   <option value="HADIR">Hadir</option>
                   <option value="TIDAK_HADIR">Tidak Hadir (Absen)</option>
                   <option value="BELUM_KONFIRMASI">Belum Presensi</option>
-                </select>
+                </SelectField>
               </div>
 
               {/* Candidate Presensi Card List */}
@@ -1419,7 +1420,7 @@ export default function AdminPendaftaranPage() {
                       <div className={styles.scoreCardFooter}>
                         <div className={styles.evaluatorWrap}>
                           <User size={14} color="#64748b" />
-                          <select
+                          <SelectField
                             value={s.pos1Evaluator || ''}
                             disabled={isLocked}
                             onChange={e => handleEvaluatorChange(c.id, 'pos1', e.target.value)}
@@ -1432,7 +1433,7 @@ export default function AdminPendaftaranPage() {
                             {evaluators.admins.map(a => (
                               <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
                             ))}
-                          </select>
+                          </SelectField>
                         </div>
                         <div className={styles.scoreCardActions}>
                           <span className={`${styles.avgBadgeLarge} ${getAvgBadgeClass(s.pos1Avg)}`}>
@@ -1529,7 +1530,7 @@ export default function AdminPendaftaranPage() {
                       <div className={styles.scoreCardFooter}>
                         <div className={styles.evaluatorWrap}>
                           <User size={14} color="#64748b" />
-                          <select
+                          <SelectField
                             value={s.pos2Evaluator || ''}
                             disabled={isLocked}
                             onChange={e => handleEvaluatorChange(c.id, 'pos2', e.target.value)}
@@ -1542,7 +1543,7 @@ export default function AdminPendaftaranPage() {
                             {evaluators.admins.map(a => (
                               <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
                             ))}
-                          </select>
+                          </SelectField>
                         </div>
                         <div className={styles.scoreCardActions}>
                           <span className={`${styles.avgBadgeLarge} ${getAvgBadgeClass(s.pos2Avg)}`}>
@@ -1640,7 +1641,7 @@ export default function AdminPendaftaranPage() {
                       <div className={styles.scoreCardFooter}>
                         <div className={styles.evaluatorWrap}>
                           <User size={14} color="#64748b" />
-                          <select
+                          <SelectField
                             value={s.pos3Evaluator || ''}
                             disabled={isLocked}
                             onChange={e => handleEvaluatorChange(c.id, 'pos3', e.target.value)}
@@ -1653,7 +1654,7 @@ export default function AdminPendaftaranPage() {
                             {evaluators.admins.map(a => (
                               <option key={`adm-${a.id}`} value={a.username}>Admin: {a.username}</option>
                             ))}
-                          </select>
+                          </SelectField>
                         </div>
                         <div className={styles.scoreCardActions}>
                           <span className={`${styles.avgBadgeLarge} ${getAvgBadgeClass(s.pos3Avg)}`}>
@@ -1958,7 +1959,7 @@ export default function AdminPendaftaranPage() {
                 />
               </div>
 
-              <select
+              <SelectField
                 value={filterKelas}
                 onChange={(e) => handleKelasChange(e.target.value)}
                 className={styles.filterSelect}
@@ -1967,9 +1968,9 @@ export default function AdminPendaftaranPage() {
                 {kelasOptions.map((k) => (
                   <option key={k} value={k}>{k}</option>
                 ))}
-              </select>
+              </SelectField>
 
-              <select
+              <SelectField
                 value={statusFilter}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 className={styles.filterSelect}
@@ -1978,7 +1979,7 @@ export default function AdminPendaftaranPage() {
                 <option value="PENDING">PENDING</option>
                 <option value="LULUS">LULUS</option>
                 <option value="TIDAK_LULUS">TIDAK LULUS</option>
-              </select>
+              </SelectField>
             </div>
 
             <div className={styles.toolbarRight}>
@@ -2153,7 +2154,7 @@ export default function AdminPendaftaranPage() {
                   />
                 </div>
 
-                <select
+                <SelectField
                   value={filterKelas}
                   onChange={(e) => handleKelasChange(e.target.value)}
                   className={styles.filterSelect}
@@ -2162,9 +2163,9 @@ export default function AdminPendaftaranPage() {
                   {kelasOptions.map((k) => (
                     <option key={k} value={k}>{k}</option>
                   ))}
-                </select>
+                </SelectField>
 
-                <select
+                <SelectField
                   value={statusFilter}
                   onChange={(e) => handleStatusChange(e.target.value)}
                   className={styles.filterSelect}
@@ -2173,7 +2174,7 @@ export default function AdminPendaftaranPage() {
                   <option value="PENDING">PENDING</option>
                   <option value="LULUS">LULUS</option>
                   <option value="TIDAK_LULUS">TIDAK LULUS</option>
-                </select>
+                </SelectField>
               </div>
 
               <div className={styles.toolbarRight}>
@@ -2429,14 +2430,14 @@ export default function AdminPendaftaranPage() {
 
                   <div className="form-group">
                     <label className="form-label">Jenis Kelamin</label>
-                    <select
+                    <SelectField
                       className="form-select"
                       value={editForm.gender}
                       onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
                     >
                       <option value="Laki-laki">Laki-laki</option>
                       <option value="Perempuan">Perempuan</option>
-                    </select>
+                    </SelectField>
                   </div>
 
                   <div className="form-group">
@@ -2559,7 +2560,7 @@ export default function AdminPendaftaranPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div className="form-group">
                     <label className="form-label">Status Seleksi Candidate</label>
-                    <select
+                    <SelectField
                       className="form-select"
                       value={editForm.status}
                       onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
@@ -2567,7 +2568,7 @@ export default function AdminPendaftaranPage() {
                       <option value="PENDING">PENDING (Proses Seleksi)</option>
                       <option value="LULUS">LULUS (Siap Dipromosikan)</option>
                       <option value="TIDAK_LULUS">TIDAK LULUS</option>
-                    </select>
+                    </SelectField>
                   </div>
 
                   <div style={{ backgroundColor: 'var(--color-surface-2)', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border-strong)', display: 'flex', flexDirection: 'column', gap: '12px' }}>

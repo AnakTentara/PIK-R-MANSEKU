@@ -183,6 +183,11 @@ model Member {
   joinYear        Int      @default(2026)
   role            String   @default("member")
   photoPath       String?
+  bio             String?  // kata-kata / bio singkat di halaman biodata /@slug
+  cardConfig      String?  // JSON: kustomisasi kartu biodata /@slug oleh anggota (cover, foto kartu, field tersembunyi, kartu info)
+  memberCode      String?  @unique // kode ID Card, mis. PIKR_0001-26 (barcode depan)
+  slug            String?  @unique // link profil /@slug (QR belakang ID Card)
+  attendances     Attendance[]
   orgMember       OrgMember?  // back-relation
   blogPosts       BlogPost[]   // written posts
   blogComments    BlogComment[] // posted comments
@@ -267,4 +272,48 @@ model PasswordResetOtp {
 
   @@index([isUsed, expiresAt])
   @@index([identifier])
+}
+
+// ─── Absensi (absen.pikr-manseku.my.id) ───────────────────────────────
+model AttendanceSession {
+  id          String       @id @default(uuid())
+  date        String       @unique // YYYY-MM-DD (WIB, UTC+7)
+  type        String       @default("WAJIB") // WAJIB (Alfa dihitung otomatis) | TAMBAHAN (Alfa diisi manual)
+  title       String       @default("Kegiatan Rutin")
+  description String?
+  startTime   String?      // HH:mm, jam kegiatan wajib dari pengaturan
+  openedBy    String
+  records     Attendance[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Attendance {
+  id        String            @id @default(uuid())
+  sessionId String
+  session   AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member            @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  status    String            // HADIR | SAKIT | IZIN | ALFA
+  checkIn   DateTime?
+  checkOut  DateTime?
+  note      String?
+  createdBy String
+  updatedBy String?
+  clientId  String?           @unique // id dari HP, mencegah data dobel saat kirim ulang offline
+  logs      AttendanceLog[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([sessionId, memberId])
+}
+
+model AttendanceLog {
+  id           String     @id @default(uuid())
+  attendanceId String
+  attendance   Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+  action       String     // IN | OUT | SAKIT | IZIN | ALFA | EDIT
+  detail       String?
+  by           String
+  createdAt    DateTime   @default(now())
 }

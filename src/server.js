@@ -11,6 +11,10 @@ import candidateRoutes from './routes/candidates.js';
 import blogRoutes from './routes/blog.js';
 import forumRoutes from './routes/forum.js';
 import publicRoutes from './routes/public.js';
+import absenRoutes from './routes/absen.js';
+import { getPublicProfile } from './controllers/absen.js';
+import { ensureAbsenAccount } from './middlewares/authAbsen.js';
+import { ensureMemberIdentity } from './utils/slug.js';
 import readline from 'readline';
 import { execSync } from 'child_process';
 import { initWhatsApp, isWhatsAppReady } from './services/whatsapp.js';
@@ -46,8 +50,19 @@ app.use((req, res, next) => {
 });
 
 // Middleware
+// Origin tambahan (dipisah koma) lewat CORS_EXTRA_ORIGINS, mis. alamat LAN untuk tes dari HP
+const extraOrigins = (process.env.CORS_EXTRA_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 app.use(cors({
-  origin: [FRONTEND_URL, 'http://localhost:25551', 'https://pikr-manseku.my.id'],
+  origin: [
+    FRONTEND_URL,
+    'http://localhost:25551',
+    'http://localhost:25554',
+    'https://pikr-manseku.my.id',
+    'https://www.pikr-manseku.my.id',
+    'https://d-base.pikr-manseku.my.id',
+    'https://absen.pikr-manseku.my.id',
+    ...extraOrigins
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -69,6 +84,8 @@ app.use('/api/candidates', candidateRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/forum', forumRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/absen', absenRoutes);
+app.get('/api/public/profile/:slug', getPublicProfile);
 
 // SEO: Robots.txt
 app.get('/robots.txt', (req, res) => {
@@ -284,13 +301,22 @@ app.listen(PORT, async () => {
 
   // Seed dummy org data if empty
   await seedDummyOrgData();
-  
+
+  // Absensi: akun bersama + kode ID Card & link profil untuk semua anggota
+  await ensureAbsenAccount();
+  await ensureMemberIdentity();
+
   // Initialize WhatsApp Bot service in the background
-  try {
-    console.log('[Server] Menghubungkan ke WhatsApp Web...');
-    await initWhatsApp();
-  } catch (error) {
-    console.error('[Server] Gagal menginisialisasi WhatsApp Bot:', error);
+  // (bisa dimatikan untuk tes lokal dengan DISABLE_WHATSAPP=1, supaya tidak bentrok dengan bot di VPS)
+  if (process.env.DISABLE_WHATSAPP === '1') {
+    console.log('[Server] WhatsApp Bot dinonaktifkan (DISABLE_WHATSAPP=1).');
+  } else {
+    try {
+      console.log('[Server] Menghubungkan ke WhatsApp Web...');
+      await initWhatsApp();
+    } catch (error) {
+      console.error('[Server] Gagal menginisialisasi WhatsApp Bot:', error);
+    }
   }
 
   // Start Announcement Scheduler Service

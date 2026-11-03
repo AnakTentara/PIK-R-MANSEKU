@@ -63,7 +63,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #f97316;
+  color: var(--color-accent);
   margin-bottom: 8px;
 }
 
@@ -71,7 +71,7 @@
   display: inline-block;
   width: 28px;
   height: 2px;
-  background: #f97316;
+  background: var(--color-accent);
   border-radius: 2px;
 }
 
@@ -87,7 +87,7 @@
 }
 
 .heroTitle strong {
-  color: #f97316;
+  color: var(--color-accent);
   display: block;
 }
 
@@ -115,21 +115,21 @@
   align-items: center;
   gap: 7px;
   padding: 12px 24px;
-  background: #f97316;
+  background: var(--color-accent);
   color: #fff;
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: 8px;
   text-decoration: none;
-  border: 2px solid #f97316;
+  border: 2px solid var(--color-accent);
   transition: background 0.22s ease, transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s ease;
   will-change: transform;
 }
 .heroBtnPrimary:hover {
-  background: #ea580c;
-  border-color: #ea580c;
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(249, 115, 22, 0.35);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
 .heroBtnOutline {
@@ -147,9 +147,9 @@
   transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
 }
 .heroBtnOutline:hover {
-  border-color: #f97316;
-  color: #f97316;
-  background: #fff7ed;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
 }
 
 /* Stats row */
@@ -178,7 +178,7 @@
 }
 
 .heroStatNum span {
-  color: #f97316;
+  color: var(--color-accent);
 }
 
 .heroStatLabel {
@@ -229,7 +229,7 @@
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 18%, transparent) 0%, transparent 70%);
   z-index: 6;
   pointer-events: none;
   filter: blur(24px);
@@ -310,7 +310,7 @@
 }
 
 .slideDot.activeDot {
-  background: #f97316;
+  background: var(--color-accent);
   width: 22px;
   border-radius: 4px;
 }
@@ -363,7 +363,7 @@
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -409,7 +409,7 @@
   display: block;
   width: 48px;
   height: 3px;
-  background: linear-gradient(90deg, #f97316, #fb923c);
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
   border-radius: 2px;
 }
 

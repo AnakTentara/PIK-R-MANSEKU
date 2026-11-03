@@ -4,6 +4,11 @@ import { Toaster } from 'react-hot-toast';
 import App from './App.jsx';
 import './styles/main.css';
 import './styles/skeleton.css';
+import { loadCachedTheme, refreshTheme } from './utils/theme';
+
+// Pasang tema pilihan admin sebelum tampil (tanpa berkedip), lalu segarkan dari server
+loadCachedTheme();
+refreshTheme();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

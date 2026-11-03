@@ -25,3 +25,6 @@ export const getPublicSettings = () =>
 export const verifyResetOtp = (data) =>
   api.post('/candidates/reset-sandi/verify-otp', data);
 
+// Kartu biodata milik anggota (/@slug)
+export const getMyCard = () => api.get('/candidates/me/card');
+export const saveMyCard = (formData) => api.put('/candidates/me/card', formData);

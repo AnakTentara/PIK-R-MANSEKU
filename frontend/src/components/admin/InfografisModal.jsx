@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Award, Download, X, Settings2, Image as ImageIcon, Sparkles, CheckSquare } from 'lucide-react';
 import styles from './InfografisModal.module.css';
+import SelectField from '@/components/common/SelectField';
 
 export default function InfografisModal({ isOpen, onClose, candidates = [], scoresMap = {} }) {
   const canvasRef = useRef(null);
@@ -547,25 +548,25 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
               <div className={styles.rowTwoCol}>
                 <div>
                   <label className={styles.label}>Rasio Layar</label>
-                  <select
+                  <SelectField
                     value={aspectRatio}
                     onChange={(e) => setAspectRatio(e.target.value)}
                     className={styles.select}
                   >
                     <option value="1:1">1:1 (Instagram Feed / Status)</option>
                     <option value="4:3">4:3 (Layar Presentation / Banner)</option>
-                  </select>
+                  </SelectField>
                 </div>
                 <div>
                   <label className={styles.label}>Gaya Tema</label>
-                  <select
+                  <SelectField
                     value={themeMode}
                     onChange={(e) => setThemeMode(e.target.value)}
                     className={styles.select}
                   >
                     <option value="orange_light">Oren Warm Soft White</option>
                     <option value="orange_dark">Oren Dark Sleek Night</option>
-                  </select>
+                  </SelectField>
                 </div>
               </div>
             </div>

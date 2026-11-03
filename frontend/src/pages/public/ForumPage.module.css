@@ -395,7 +395,7 @@
   color: #fff;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 40%, transparent);
   z-index: 100;
   text-decoration: none;
   transition: transform 0.2s;

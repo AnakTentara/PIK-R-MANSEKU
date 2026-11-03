@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser, getMembers, createMember, updateMember, deleteMember } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
-import { Plus, Edit2, Trash2, UserCheck, Shield, Key, Loader2, User, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit2, Trash2, UserCheck, Shield, Loader2, User, Eye, EyeOff } from 'lucide-react';
+import { useUIStore } from '@/stores/uiStore';
 import toast from 'react-hot-toast';
 import styles from './AdminUsersPage.module.css';
+import SelectField from '@/components/common/SelectField';
 
 const ROLES = [
   { value: 'DEVELOPER', label: 'Developer (Super Admin)' },
@@ -12,12 +14,10 @@ const ROLES = [
 ];
 
 export default function AdminUsersPage() {
-  const [activeTab, setActiveTab] = useState('PEMBINA'); // 'PEMBINA' | 'MEMBER' | 'ADMIN'
   const [loading, setLoading] = useState(true);
 
   // Lists
   const [pembinaList, setPembinaList] = useState([]);
-  const [memberList, setMemberList] = useState([]);
   const [adminList, setAdminList] = useState([]);
   const [showPasswords, setShowPasswords] = useState({});
 
@@ -41,6 +41,7 @@ export default function AdminUsersPage() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const openConfirm = useUIStore((st) => st.openConfirm);
 
   useEffect(() => {
     fetchAllAccounts();
@@ -56,7 +57,6 @@ export default function AdminUsersPage() {
 
       const allM = membersRes.data || [];
       setPembinaList(allM.filter(m => m.role === 'PEMBINA'));
-      setMemberList(allM.filter(m => m.role !== 'PEMBINA'));
       setAdminList(adminRes.data?.users || []);
     } catch (err) {
       toast.error('Gagal memuat daftar akun.');
@@ -110,16 +110,22 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleDeleteAdmin = async (user) => {
+  const handleDeleteAdmin = (user) => {
     if (user.username === 'pikr-manseku') return toast.error('Akun Master tidak dapat dihapus.');
-    if (!window.confirm(`Hapus akun admin "${user.username}"?`)) return;
-    try {
-      await deleteAdminUser(user.id);
-      toast.success('Akun admin berhasil dihapus.');
-      fetchAllAccounts();
-    } catch (err) {
-      toast.error('Gagal menghapus admin.');
-    }
+    openConfirm({
+      title: 'Hapus akun admin?',
+      message: `Akun "${user.username}" tidak akan bisa login lagi.`,
+      danger: true,
+      onConfirm: async () => {
+        try {
+          await deleteAdminUser(user.id);
+          toast.success('Akun admin berhasil dihapus.');
+          fetchAllAccounts();
+        } catch {
+          toast.error('Gagal menghapus admin.');
+        }
+      }
+    });
   };
 
   // ── Pembina Modal Handlers ──
@@ -185,233 +191,133 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleDeleteMemberAccount = async (m) => {
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus akun "${m.name}"?`)) return;
-    try {
-      await deleteMember(m.id);
-      toast.success('Akun berhasil dihapus.');
-      fetchAllAccounts();
-    } catch (err) {
-      toast.error('Gagal menghapus akun.');
+  const handleDeleteMemberAccount = (m) => openConfirm({
+    title: 'Hapus akun pembina?',
+    message: `Akun "${m.name.trim()}" dihapus permanen. Jabatannya di struktur organisasi dipindahkan ke arsip.`,
+    danger: true,
+    onConfirm: async () => {
+      try {
+        await deleteMember(m.id);
+        toast.success('Akun berhasil dihapus.');
+        fetchAllAccounts();
+      } catch {
+        toast.error('Gagal menghapus akun.');
+      }
     }
-  };
+  });
 
   return (
     <div className={styles.page}>
       <AdminHeader
         title="Manajemen Akun Terpadu"
-        subtitle="Pusat kelola seluruh akun Pembina, Anggota PIK-R, dan Admin Sistem dalam satu tempat"
+        subtitle="Akun Pembina dan akun pengelola website (Developer / Admin). Akun anggota dikelola di menu Anggota PIK-R."
       />
-
-      <div className={styles.actionBar}>
-        <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${activeTab === 'PEMBINA' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('PEMBINA')}
-          >
-            <UserCheck size={16} /> Akun Pembina ({pembinaList.length})
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'MEMBER' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('MEMBER')}
-          >
-            <User size={16} /> Akun Anggota ({memberList.length})
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'ADMIN' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('ADMIN')}
-          >
-            <Shield size={16} /> Akun Admin Sistem ({adminList.length})
-          </button>
-        </div>
-
-        <div>
-          {activeTab === 'PEMBINA' && (
-            <button className="btn btn-primary" onClick={() => handleOpenPembinaModal()}>
-              <Plus size={16} /> Tambah Akun Pembina
-            </button>
-          )}
-          {activeTab === 'ADMIN' && (
-            <button className="btn btn-primary" onClick={() => handleOpenAdminModal()}>
-              <Plus size={16} /> Tambah Admin Sistem
-            </button>
-          )}
-        </div>
-      </div>
 
       {loading ? (
         <div className={styles.loadingContainer}>
           <Loader2 className="spinner" size={32} />
           <p>Memuat daftar akun...</p>
         </div>
-      ) : activeTab === 'PEMBINA' ? (
-        /* ── PEMBINA TAB ── */
-        pembinaList.length === 0 ? (
-          <div className={styles.emptyContainer}>
-            <UserCheck size={48} className={styles.emptyIcon} />
-            <p>Belum ada Akun Pembina. Klik "Tambah Akun Pembina" di atas untuk membuat tanpa NISN.</p>
-          </div>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>No.</th>
-                  <th>Nama Lengkap</th>
-                  <th>No. WhatsApp</th>
-                  <th>Email</th>
-                  <th>Jenis Kelamin</th>
-                  <th>Kata Sandi</th>
-                  <th style={{ textAlign: 'right' }}>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pembinaList.map((p, idx) => (
-                  <tr key={p.id}>
-                    <td>{idx + 1}</td>
-                    <td className={styles.usernameCol}>
-                      <UserCheck size={16} style={{ color: 'var(--color-accent)' }} />
-                      {p.name}
-                    </td>
-                    <td>{p.whatsappNumber}</td>
-                    <td>{p.email}</td>
-                    <td>{p.gender}</td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span>{showPasswords[p.id] ? (p.plainPassword || '—') : '••••••••'}</span>
-                        <button className="btn btn-ghost btn-sm" onClick={() => togglePasswordShow(p.id)}>
-                          {showPasswords[p.id] ? <EyeOff size={14} /> : <Eye size={14} />}
-                        </button>
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className={styles.actions}>
-                        <button className="btn btn-ghost" onClick={() => handleOpenPembinaModal(p)} title="Edit Pembina">
-                          <Edit2 size={14} />
-                        </button>
-                        <button className="btn btn-ghost text-error" onClick={() => handleDeleteMemberAccount(p)} title="Hapus">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )
-      ) : activeTab === 'MEMBER' ? (
-        /* ── MEMBER TAB ── */
-        memberList.length === 0 ? (
-          <div className={styles.emptyContainer}>
-            <User size={48} className={styles.emptyIcon} />
-            <p>Belum ada data anggota aktif.</p>
-          </div>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>No.</th>
-                  <th>NISN</th>
-                  <th>Nama Lengkap</th>
-                  <th>Kelas</th>
-                  <th>No. WA</th>
-                  <th>Status</th>
-                  <th>Kata Sandi</th>
-                  <th style={{ textAlign: 'right' }}>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {memberList.map((m, idx) => (
-                  <tr key={m.id}>
-                    <td>{idx + 1}</td>
-                    <td style={{ fontFamily: 'monospace', fontWeight: 600 }}>{m.nisn || '—'}</td>
-                    <td className={styles.usernameCol}>{m.name}</td>
-                    <td>{m.className}</td>
-                    <td>{m.whatsappNumber}</td>
-                    <td>
-                      <span className={`badge ${m.status === 'ACTIVE' ? 'badge-success' : 'badge-pending'}`}>
-                        {m.status === 'ACTIVE' ? 'Aktif' : 'Alumni'}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span>{showPasswords[m.id] ? (m.plainPassword || '—') : '••••••••'}</span>
-                        <button className="btn btn-ghost btn-sm" onClick={() => togglePasswordShow(m.id)}>
-                          {showPasswords[m.id] ? <EyeOff size={14} /> : <Eye size={14} />}
-                        </button>
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className={styles.actions}>
-                        <button className="btn btn-ghost text-error" onClick={() => handleDeleteMemberAccount(m)} title="Hapus Akun">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )
       ) : (
-        /* ── ADMIN SYSTEM TAB ── */
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Username</th>
-                <th>Tingkat Otoritas (Role)</th>
-                <th>Tanggal Dibuat</th>
-                <th style={{ textAlign: 'right' }}>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {adminList.map((user, idx) => (
-                <tr key={user.id}>
-                  <td>{idx + 1}</td>
-                  <td className={styles.usernameCol}>
-                    <User size={14} className={styles.usernameIcon} />
-                    {user.username}
-                    {user.username === 'pikr-manseku' && (
-                      <span className={styles.masterBadge}>Master</span>
-                    )}
-                  </td>
-                  <td>
-                    <span className={`${styles.roleBadge} ${styles[user.role.toLowerCase()]}`}>
-                      <Shield size={12} style={{ marginRight: 4 }} />
-                      {ROLES.find(r => r.value === user.role)?.label || user.role}
-                    </span>
-                  </td>
-                  <td>
-                    {new Date(user.createdAt).toLocaleDateString('id-ID', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric'
-                    })}
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div className={styles.actions}>
-                      <button className="btn btn-ghost" onClick={() => handleOpenAdminModal(user)} title="Edit User">
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        className="btn btn-ghost text-error"
-                        onClick={() => handleDeleteAdmin(user)}
-                        disabled={user.username === 'pikr-manseku'}
-                        title="Hapus User"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className={styles.sections}>
+          {/* ── Pembina ── */}
+          <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div>
+            <h2 className={styles.sectionTitle}><UserCheck size={18} /> Pembina <span className={styles.sectionCount}>{pembinaList.length}</span></h2>
+            <p className={styles.sectionHint}>Akun Pembina tanpa NISN. Jabatan "Pembina" di Struktur Organisasi ikut tersinkron.</p>
+          </div>
+          <button className="btn btn-primary" onClick={() => handleOpenPembinaModal()}><Plus size={16} /> Tambah Pembina</button>
+        </div>
+            {pembinaList.length === 0 ? (
+              <div className={styles.emptyContainer}>
+                <UserCheck size={40} className={styles.emptyIcon} />
+                <p>Belum ada akun Pembina. Klik "Tambah Pembina" untuk membuatnya.</p>
+              </div>
+            ) : (
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>No.</th><th>Nama Lengkap</th><th>No. WhatsApp</th><th>Email</th><th>Jenis Kelamin</th><th>Kata Sandi</th>
+                      <th style={{ textAlign: 'right' }}>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pembinaList.map((p, idx) => (
+                      <tr key={p.id}>
+                        <td>{idx + 1}</td>
+                        <td className={styles.usernameCol}><UserCheck size={16} style={{ color: 'var(--color-accent)' }} />{p.name.trim()}</td>
+                        <td>{p.whatsappNumber}</td>
+                        <td>{p.email}</td>
+                        <td>{p.gender}</td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>{showPasswords[p.id] ? (p.plainPassword || '—') : '••••••••'}</span>
+                            <button className="btn btn-ghost btn-sm" onClick={() => togglePasswordShow(p.id)}>
+                              {showPasswords[p.id] ? <EyeOff size={14} /> : <Eye size={14} />}
+                            </button>
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div className={styles.actions}>
+                            <button className="btn btn-ghost" onClick={() => handleOpenPembinaModal(p)} title="Edit Pembina"><Edit2 size={14} /></button>
+                            <button className="btn btn-ghost text-error" onClick={() => handleDeleteMemberAccount(p)} title="Hapus"><Trash2 size={14} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          {/* ── Developer & Admin Website ── */}
+          <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div>
+            <h2 className={styles.sectionTitle}><Shield size={18} /> Developer &amp; Admin Website <span className={styles.sectionCount}>{adminList.length}</span></h2>
+            <p className={styles.sectionHint}>Akun pengelola dashboard. Developer penuh, Kabinet Umum operasional, MedInfo hanya baca.</p>
+          </div>
+          <button className="btn btn-primary" onClick={() => handleOpenAdminModal()}><Plus size={16} /> Tambah Admin</button>
+        </div>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>No.</th><th>Username</th><th>Tingkat Otoritas (Role)</th><th>Tanggal Dibuat</th>
+                    <th style={{ textAlign: 'right' }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminList.map((user, idx) => (
+                    <tr key={user.id}>
+                      <td>{idx + 1}</td>
+                      <td className={styles.usernameCol}>
+                        <User size={14} className={styles.usernameIcon} />
+                        {user.username}
+                        {user.username === 'pikr-manseku' && <span className={styles.masterBadge}>Master</span>}
+                      </td>
+                      <td>
+                        <span className={`${styles.roleBadge} ${styles[user.role.toLowerCase()]}`}>
+                          <Shield size={12} style={{ marginRight: 4 }} />
+                          {ROLES.find(r => r.value === user.role)?.label || user.role}
+                        </span>
+                      </td>
+                      <td>{new Date(user.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className={styles.actions}>
+                          <button className="btn btn-ghost" onClick={() => handleOpenAdminModal(user)} title="Edit User"><Edit2 size={14} /></button>
+                          <button className="btn btn-ghost text-error" onClick={() => handleDeleteAdmin(user)} disabled={user.username === 'pikr-manseku'} title="Hapus User"><Trash2 size={14} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
       )}
 
@@ -461,7 +367,7 @@ export default function AdminUsersPage() {
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="user-role">Tingkat Kewenangan (Role)</label>
-                <select
+                <SelectField
                   id="user-role"
                   className="form-input"
                   value={adminRole}
@@ -471,7 +377,7 @@ export default function AdminUsersPage() {
                   {ROLES.map(r => (
                     <option key={r.value} value={r.value}>{r.label}</option>
                   ))}
-                </select>
+                </SelectField>
               </div>
               <div className={styles.modalActions}>
                 <button type="button" className="btn btn-ghost" onClick={() => setAdminModalOpen(false)}>Batal</button>
@@ -535,7 +441,7 @@ export default function AdminUsersPage() {
 
               <div className="form-group">
                 <label className="form-label" htmlFor="pembina-gender">Jenis Kelamin *</label>
-                <select
+                <SelectField
                   id="pembina-gender"
                   className="form-select"
                   value={pembinaForm.gender}
@@ -543,7 +449,7 @@ export default function AdminUsersPage() {
                 >
                   <option value="Laki-laki">Laki-laki</option>
                   <option value="Perempuan">Perempuan</option>
-                </select>
+                </SelectField>
               </div>
 
               <div className="form-group">

@@ -1,7 +1,7 @@
 {
   "name": "pikr-manseku-frontend",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -29,9 +29,7 @@
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^6.28.0",
-    "zustand": "^5.0.2",
-    "@ckeditor/ckeditor5-react": "^9.4.0",
-    "@ckeditor/ckeditor5-build-classic": "^44.0.0"
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.17",

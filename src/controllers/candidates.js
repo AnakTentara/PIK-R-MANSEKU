@@ -207,8 +207,10 @@ export async function getProfile(req, res) {
 
 // 5. Update Candidate Profile (Self)
 export async function updateProfile(req, res) {
-  const { name, className, whatsappNumber, email, gender, reason, asalSekolah } = req.body;
+  const { name, className, whatsappNumber, email, gender, reason, asalSekolah, bio } = req.body;
   const photoPath = req.file ? `/uploads/photos/${req.file.filename}` : undefined;
+  // Bio tampil di biodata publik /@slug (khusus anggota). undefined = tidak diubah
+  const cleanBio = bio === undefined ? undefined : (String(bio).trim().slice(0, 300) || null);
 
   try {
     let candidate = await prisma.candidate.findUnique({
@@ -246,6 +248,7 @@ export async function updateProfile(req, res) {
               email: email ?? correspondingMember.email,
               gender: gender ?? correspondingMember.gender,
               asalSekolah: asalSekolah ?? correspondingMember.asalSekolah,
+              ...(cleanBio !== undefined && { bio: cleanBio }),
               photoPath: photoPath ?? correspondingMember.photoPath
             }
           });
@@ -275,6 +278,7 @@ export async function updateProfile(req, res) {
           email: email ?? member.email,
           gender: gender ?? member.gender,
           asalSekolah: asalSekolah ?? member.asalSekolah,
+          ...(cleanBio !== undefined && { bio: cleanBio }),
           photoPath: photoPath ?? member.photoPath
         }
       });

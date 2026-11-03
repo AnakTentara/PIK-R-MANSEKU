@@ -14,7 +14,7 @@ const CATEGORIES = [
   { value: 'Semua', label: 'Semua', color: 'var(--color-text-secondary)' },
   { value: 'Umum', label: 'Umum', color: '#6b7280' },
   { value: 'Edukasi', label: 'Edukasi', color: '#3b82f6' },
-  { value: 'Kegiatan', label: 'Kegiatan', color: '#f97316' },
+  { value: 'Kegiatan', label: 'Kegiatan', color: 'var(--color-accent)' },
   { value: 'Konseling', label: 'Konseling', color: '#8b5cf6' },
   { value: 'Pengumuman', label: 'Pengumuman', color: '#ef4444' },
   { value: 'Curhat', label: 'Curhat', color: '#ec4899' },

@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminPengumumanPage.module.css';
+import SelectField from '@/components/common/SelectField';
 
 export default function AdminPengumumanPage() {
   const [activeTab, setActiveTab] = useState('create'); // 'create' | 'history' | 'debugger'
@@ -345,7 +346,7 @@ export default function AdminPengumumanPage() {
             {/* Target Group */}
             <div className={styles.formGroup}>
               <label className={styles.label}>Target Tujuan Penerima</label>
-              <select
+              <SelectField
                 value={targetGroup}
                 onChange={(e) => setTargetGroup(e.target.value)}
                 className={styles.select}
@@ -353,7 +354,7 @@ export default function AdminPengumumanPage() {
                 <option value="GROUP_WA_CALON">Grup Calon Anggota PIK-R (Personalisasi Peserta)</option>
                 <option value="GROUP_WA_PENGURUS">Grup Pengurus & Anggota Aktif</option>
                 <option value="CUSTOM_JID">Grup WhatsApp Khusus (Group JID e.g. 120363...)</option>
-              </select>
+              </SelectField>
             </div>
 
             {/* Custom Group JID if selected */}

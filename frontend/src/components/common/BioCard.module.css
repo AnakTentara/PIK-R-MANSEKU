@@ -1,0 +1,320 @@
+/* ── Bingkai utama ── */
+.frame {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border-radius: 28px;
+  border: 1px solid var(--color-border-strong);
+  box-shadow: 0 24px 60px -24px rgba(194, 65, 12, 0.25), var(--shadow-md);
+  overflow: hidden;
+  animation: rise 0.5s var(--transition-smooth) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+}
+
+/* ── Sampul ── */
+.cover {
+  position: relative;
+  height: 168px;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 45%, var(--color-accent-light) 100%);
+  padding: 18px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.coverPattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.14) 0 14px, transparent 14px 28px);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+}
+
+.org {
+  position: relative;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.16);
+  padding: 6px 12px;
+  border-radius: 99px;
+  backdrop-filter: blur(4px);
+}
+
+.orgSchool { white-space: nowrap; }
+
+@media (max-width: 420px) {
+  .orgSchool { display: none; }
+}
+
+.share {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(4px);
+  transition: transform 0.15s, background 0.15s;
+}
+
+.share:hover { background: rgba(0, 0, 0, 0.28); }
+.share:active { transform: scale(0.92); }
+
+/* ── Identitas ── */
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px 8px;
+  margin-top: -78px;
+  position: relative;
+}
+
+.photoRing {
+  padding: 6px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: 0 10px 30px -10px rgba(194, 65, 12, 0.45);
+}
+
+.photo {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 3px solid var(--card-accent, var(--color-accent));
+}
+
+.initials {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--color-accent-subtle), #ffe6d3);
+  color: var(--card-accent-dark, var(--color-accent-dark));
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 52px;
+}
+
+.name {
+  margin-top: 16px;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 5vw, 32px);
+  line-height: 1.15;
+  color: var(--color-text-primary);
+  text-wrap: balance;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.role {
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  text-wrap: balance;
+  max-width: 100%;
+  background: var(--card-accent, var(--color-accent));
+  color: #fff;
+}
+
+/* Alumni biasa (bukan tim inti): tanpa jabatan, pil netral */
+.roleAlumniPlain {
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-strong);
+}
+
+/* Alumni: label berperiode, mis. "ALUMNI KETUA UMUM 2025/2026" */
+.roleAlumni {
+  background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent-light));
+  letter-spacing: 0.02em;
+}
+
+/* ── Bagian ── */
+.section {
+  padding: 24px clamp(20px, 5vw, 40px) 4px;
+}
+
+.sectionTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 14px;
+}
+
+.sectionTitle::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-strong);
+}
+
+.bio {
+  position: relative;
+  margin: 0;
+  padding: 18px 20px 18px 52px;
+  border-radius: 18px;
+  background: var(--color-accent-subtle);
+  border-left: 4px solid var(--card-accent, var(--color-accent));
+}
+
+.bio p {
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--color-text-primary);
+  white-space: pre-line;
+}
+
+.quoteIcon {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  color: var(--card-accent, var(--color-accent));
+}
+
+.bioEmpty {
+  color: var(--color-text-muted);
+  font-style: italic;
+  font-size: 15px;
+}
+
+/* ── Biodata ── */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+}
+
+.factIcon {
+  grid-row: span 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--color-surface);
+  color: var(--card-accent, var(--color-accent));
+  box-shadow: var(--shadow-xs);
+}
+
+.fact dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.mono {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+
+/* ── Footer bingkai ── */
+.footer {
+  margin-top: 28px;
+  padding: 20px clamp(20px, 5vw, 40px) 24px;
+  border-top: 1px dashed var(--color-border-strong);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.footer em {
+  color: var(--card-accent-dark, var(--color-accent-dark));
+  font-weight: 600;
+  font-style: normal;
+}
+
+.link {
+  margin-top: 10px;
+  font-weight: 600;
+  color: var(--card-accent-dark, var(--color-accent-dark));
+  text-decoration: none;
+}
+
+.link:hover { text-decoration: underline; }
+
+
+/* ── Sampul: pilihan motif ── */
+.cover { background-size: cover; background-position: center; }
+.cover_gradasi { background: linear-gradient(135deg, var(--card-accent, var(--color-accent)) 0%, color-mix(in srgb, var(--card-accent, var(--color-accent)) 60%, var(--color-accent-light)) 100%); }
+.cover_garis { background: linear-gradient(135deg, var(--card-accent, var(--color-accent)), color-mix(in srgb, var(--card-accent, var(--color-accent)) 70%, #fff)); }
+.cover_titik { background: var(--card-accent, var(--color-accent)); }
+.cover_titik .coverArt { background-image: radial-gradient(rgba(255,255,255,.28) 2px, transparent 2.5px); background-size: 18px 18px; mask-image: none; }
+.cover_gelombang { background: linear-gradient(180deg, var(--card-accent, var(--color-accent)), color-mix(in srgb, var(--card-accent, var(--color-accent)) 65%, #fff)); }
+.cover_gelombang .coverArt { background: radial-gradient(120% 80% at 50% 120%, var(--color-surface) 46%, transparent 47%); mask-image: none; }
+.cover_polos { background: var(--card-accent, var(--color-accent)); }
+.cover_polos .coverArt, .cover_foto .coverArt { display: none; }
+
+/* ── Gaya kartu ── */
+.style_klasik .frame, .style_klasik { border-radius: 8px; box-shadow: none; border: 2px solid var(--card-accent, var(--color-accent)); }
+.style_klasik .cover { height: 150px; }
+.style_klasik .identity { margin-top: -62px; }
+.style_klasik .photo { width: 112px; height: 112px; }
+.style_klasik .photo { border-radius: 12px; }
+.style_klasik .photoRing { border-radius: 16px; }
+.style_kaca { background: color-mix(in srgb, var(--color-surface) 78%, transparent); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.5); }
+.style_minimal { box-shadow: none; border: 1px solid var(--color-border-strong); }
+.style_minimal .cover { height: 90px; background: var(--color-surface-2); }
+.style_minimal .cover .org { background: var(--color-surface); color: var(--color-text-secondary); }
+.style_minimal .identity { margin-top: -50px; }
+.style_minimal .photo { width: 110px; height: 110px; }
+
+/* ── Kartu info tambahan ── */
+.infoGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.infoCard { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: var(--color-accent-subtle); border: 1px solid var(--color-accent-border); }
+.infoIcon { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--color-surface); color: var(--card-accent, var(--color-accent)); box-shadow: var(--shadow-xs); }
+.infoCard > div { display: flex; flex-direction: column; min-width: 0; }
+.infoCard span:not(.infoIcon) { font-size: 12px; font-weight: 600; color: var(--color-text-muted); }
+.infoCard b { font-size: 15px; color: var(--color-text-primary); overflow-wrap: anywhere; }

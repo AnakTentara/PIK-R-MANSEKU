@@ -52,17 +52,17 @@ export default function AdminSettingsPage() {
 
   const handleDownloadBackup = async () => {
     setDownloadingBackup(true);
-    const loadingToast = toast.loading('Mengunduh backup database...');
+    const loadingToast = toast.loading('Menyiapkan backup (database + gambar)...');
     try {
       const res = await downloadBackupDb();
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'pikr_manseku_backup.db');
+      link.setAttribute('download', `pikr_manseku_backup_${new Date().toISOString().slice(0, 10)}.zip`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success('Backup database berhasil diunduh!', { id: loadingToast });
+      toast.success('Backup (database + gambar) berhasil diunduh!', { id: loadingToast });
     } catch (err) {
       toast.error('Gagal mengunduh backup database.', { id: loadingToast });
     } finally {
@@ -174,13 +174,13 @@ export default function AdminSettingsPage() {
                 <div>
                   <h2 className={styles.cardTitle}>Pemeliharaan & Cadangan Data</h2>
                   <p className={styles.cardSubtitle}>
-                    Unduh salinan cadangan database SQLite lokal Anda secara berkala
+                    Unduh salinan cadangan database SQLite beserta semua gambar yang diunggah secara berkala
                   </p>
                 </div>
               </div>
               <div className={styles.maintenanceBody}>
                 <p className={styles.maintenanceDesc}>
-                  File cadangan ini berisi semua data pengguna, anggota aktif, pendaftaran, testimoni, dan histori kelulusan. Disarankan untuk mencadangkan file ini secara manual sebelum melakukan pembaruan sistem.
+                  File ZIP ini berisi database dan folder gambar (foto anggota, logo, blog, dokumen), yaitu semua data pengguna, anggota aktif, pendaftaran, testimoni, dan histori kelulusan. Disarankan untuk mencadangkan file ini secara manual sebelum melakukan pembaruan sistem.
                 </p>
                 <button
                   type="button"
@@ -190,7 +190,7 @@ export default function AdminSettingsPage() {
                   style={{ alignSelf: 'flex-start' }}
                 >
                   {downloadingBackup ? <span className="spinner" /> : <Download size={15} />}
-                  {downloadingBackup ? 'Mengunduh...' : 'Unduh Cadangan Database (.db)'}
+                  {downloadingBackup ? 'Mengunduh...' : 'Unduh Cadangan (Database + Gambar)'}
                 </button>
               </div>
             </div>

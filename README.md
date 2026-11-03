@@ -17,6 +17,11 @@
 - **🎓 Sistem Alumni Otomatis** — Batas masa aktif keanggotaan berbasis jenjang kelas (Kelas 10 = 3 tahun, Kelas 11 = 2 tahun, Kelas 12 = 1 tahun).
 - **🛡️ Dashboard Admin Lengkap** — CRUD Pendaftar, Manajemen Pengurus, Web Editor, File Manager, dan Export Excel/JSON.
 - **🤖 WhatsApp Bot (Baileys)** — Perintah `/cek [Nama/NISN]`, `/sandi`, dan `/sandi ganti`.
+- **📅 Absensi Online** — Web absen terpisah (`absen.pikr-manseku.my.id`) dengan scan barcode ID Card, rekap, dan ekspor Excel/PDF. API ada di backend yang sama (`/api/absen/*`).
+- **🪪 ID Card & Biodata Publik** — Barcode batang (`PIKR_0001-26`) di depan kartu, QR tautan biodata `/@nama` di belakang. Kartu bisa diatur anggota sendiri.
+- **🎨 Desain** — Tema warna situs, gaya kartu biodata, dan isi halaman (menggantikan Web Editor).
+- **🧭 Struktur Organisasi Dinamis** — Hierarki jabatan bisa diatur (seret-lepas), sinkron otomatis dengan peran anggota, arsip kepengurusan, dan label alumni tim inti.
+- **📊 Excel Anggota** — Ekspor dan impor dengan pratinjau per baris.
 - **📝 Blog & Forum Diskusi** — Postingan jurnalisme dan ruang diskusi anggota.
 
 ---

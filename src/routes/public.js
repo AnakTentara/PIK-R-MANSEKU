@@ -1,5 +1,8 @@
 import express from 'express';
 import prisma from '../config/db.js';
+import { INTI_ROLES, ORG_TITLE_SELECT, alumniLabel } from '../utils/memberUtils.js';
+import { getCatalog, DEFAULT_POSITIONS } from '../utils/orgCatalog.js';
+import { getPublicDesign } from '../controllers/design.js';
 
 const router = express.Router();
 
@@ -18,29 +21,42 @@ router.get('/members', async (req, res) => {
   }
 });
 
-// GET /api/public/alumni — Alumni members
+// GET /api/public/alumni — Alumni members.
+// Alumni tidak punya jabatan; hanya yang pernah tim inti (ketua, wakil, kabinet) diberi label,
+// mis. 'ALUMNI KETUA UMUM 2025/2026'.
 router.get('/alumni', async (req, res) => {
   try {
     const members = await prisma.member.findMany({
       where: { status: 'ALUMNI' },
-      orderBy: { joinYear: 'desc' },
-      select: { id: true, name: true, className: true, gender: true, joinYear: true, photoPath: true }
+      orderBy: [{ joinYear: 'desc' }, { name: 'asc' }],
+      select: {
+        id: true, name: true, className: true, gender: true, joinYear: true, photoPath: true, slug: true, status: true,
+        orgMember: { select: ORG_TITLE_SELECT }
+      }
     });
-    return res.json(members);
+    return res.json(members.map(({ orgMember, ...m }) => ({
+      ...m,
+      name: m.name.trim(),
+      alumniLabel: alumniLabel(orgMember),
+      isInti: !!alumniLabel(orgMember)
+    })));
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Gagal mengambil data alumni' });
   }
 });
 
-// GET /api/public/org — Org structure (current + history)
+// GET /api/public/org — Struktur organisasi.
+// Hanya pengurus AKTIF (isCurrent) yang tampil di bagan. Arsip kepengurusan lama hanya berisi
+// tim inti; anggota bidang yang sudah alumni tidak lagi dimunculkan.
 router.get('/org', async (req, res) => {
   try {
     const org = await prisma.orgMember.findMany({
       orderBy: [{ yearStart: 'desc' }, { role: 'asc' }],
       include: {
         member: {
-          select: { id: true, name: true, photoPath: true, className: true, status: true, role: true, nisn: true }
+          // NISN sengaja tidak dikirim ke publik
+          select: { id: true, name: true, photoPath: true, className: true, status: true, role: true }
         }
       }
     });
@@ -52,7 +68,8 @@ router.get('/org', async (req, res) => {
     });
     const memberByName = new Map(activeMembers.map(m => [m.name.toLowerCase().trim(), m.photoPath]));
 
-    const normalized = org.map((m) => {
+    const visible = org.filter(m => m.isCurrent || INTI_ROLES.includes(m.role));
+    const normalized = visible.map((m) => {
       const linkedPhoto = m.member?.photoPath;
       const matchedPhoto = memberByName.get((m.name || '').toLowerCase().trim());
       const effectivePhoto = linkedPhoto || matchedPhoto || m.photoPath || null;
@@ -67,6 +84,20 @@ router.get('/org', async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Gagal mengambil data struktur organisasi' });
+  }
+});
+
+router.get('/design', getPublicDesign);
+
+// GET /api/public/org-structure — susunan hierarki jabatan (baris, urutan, induk).
+// customized=false -> hierarki bawaan, halaman publik memakai bagan klasik.
+router.get('/org-structure', async (req, res) => {
+  try {
+    const catalog = await getCatalog();
+    return res.json({ customized: JSON.stringify(catalog) !== JSON.stringify(DEFAULT_POSITIONS), catalog });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Gagal mengambil susunan jabatan' });
   }
 });
 

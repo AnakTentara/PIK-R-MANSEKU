@@ -1,8 +1,4 @@
 import express from 'express';
-import path from 'path';
-import fs from 'fs';
-import multer from 'multer';
-import { fileURLToPath } from 'url';
 import {
   registerCandidate,
   checkStatus,
@@ -14,32 +10,8 @@ import {
 import { authCandidate } from '../middlewares/auth.js';
 import { loginLimiter, otpLimiter, registerLimiter } from '../middlewares/rateLimit.js';
 import prisma from '../config/db.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Multer config for candidate/member photo uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../public/uploads/photos');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  }
-});
-const upload = multer({
-  storage,
-  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(new Error('Only image files are allowed'));
-  }
-});
+import { uploadPhoto as upload } from '../utils/multerConfig.js';
+import { getMyCard, updateMyCard } from '../controllers/design.js';
 
 const router = express.Router();
 
@@ -70,6 +42,8 @@ router.post('/reset-sandi/verify-otp', otpLimiter, verifyResetOtp);
 // Protected Candidate Routes
 router.get('/me', authCandidate, getProfile);
 router.put('/me', authCandidate, upload.single('photo'), updateProfile);
+router.get('/me/card', authCandidate, getMyCard);
+router.put('/me/card', authCandidate, upload.fields([{ name: 'cardPhoto', maxCount: 1 }, { name: 'coverPhoto', maxCount: 1 }]), updateMyCard);
 
 export default router;
 

@@ -1,292 +1,294 @@
-import { useState, useEffect } from 'react';
-import { getOrgMembers, createOrgMember, updateOrgMember, deleteOrgMember, getMembers } from '@/api/admin';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  getOrgMembers, createOrgMember, updateOrgMember, deleteOrgMember, getMembers,
+  getOrgPositions, getOrgSyncReport, runOrgSyncFix
+} from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import SkeletonTable from '@/components/skeletons/SkeletonTable';
+import PickerField, { compareText } from '@/components/common/PickerField';
+import PhotoAvatar from '@/components/common/PhotoAvatar';
+import ReplaceFlow from '@/components/admin/ReplaceFlow';
+import HierarchyEditor from '@/components/admin/HierarchyEditor';
 import { useUIStore } from '@/stores/uiStore';
-import { Network, Plus, Edit2, Trash2, Check, X, Upload, Link, Unlink } from 'lucide-react';
+import {
+  Plus, Edit2, Trash2, X, Upload, Link as LinkIcon, Unlink, Archive, Users, AlertTriangle, Wand2, Search, Layers
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getUploadUrl } from '@/api/axios';
 import { compressImage } from '@/utils/compressor';
 import styles from './AdminOrgPage.module.css';
 
-const POSITIONS = [
-  // Pimpinan Inti
-  { label: 'Ketua Umum', role: 'KETUA' },
-  { label: 'Wakil Ketua Umum', role: 'WAKIL' },
-  { label: 'Sekretaris Umum', role: 'KABINET' },
-  { label: 'Bendahara Umum', role: 'KABINET' },
-  
-  // Ketua Divisi
-  { label: 'Ketua MedInfo', role: 'KABINET' },
-  { label: 'Ketua Konselor Sebaya', role: 'KABINET' },
-  { label: 'Ketua Pendidik Sebaya', role: 'KABINET' },
-  { label: 'Ketua Humas', role: 'KABINET' },
-  { label: 'Ketua Informasi', role: 'KABINET' },
-  { label: 'Ketua Konseling dan Pendamping', role: 'KABINET' },
-  { label: 'Ketua Kegiatan dan Kreativitas', role: 'KABINET' },
-  
-  // Anggota Divisi
-  { label: 'Anggota MedInfo', role: 'ANGGOTA' },
-  { label: 'Anggota Konselor Sebaya', role: 'ANGGOTA' },
-  { label: 'Anggota Pendidik Sebaya', role: 'ANGGOTA' },
-  { label: 'Anggota Humas', role: 'ANGGOTA' },
-  { label: 'Anggota Informasi', role: 'ANGGOTA' },
-  { label: 'Anggota Konseling dan Pendamping', role: 'ANGGOTA' },
-  { label: 'Anggota Kegiatan dan Kreativitas', role: 'ANGGOTA' }
+const ROLE_ORDER = { PEMBINA: 0, KETUA: 1, WAKIL: 2, KABINET: 3, ANGGOTA: 4 };
+const ROLE_LABEL = { PEMBINA: 'Pembina', KETUA: 'Ketua', WAKIL: 'Wakil', KABINET: 'Kabinet', ANGGOTA: 'Anggota' };
+const TABS = [
+  { key: 'AKTIF', label: 'Pengurus Aktif', icon: Users },
+  { key: 'ARSIP', label: 'Arsip Kepengurusan', icon: Archive }
 ];
+const periode = (m) => {
+  const end = m.yearEnd && m.yearEnd > m.yearStart ? m.yearEnd : m.yearStart + 1;
+  return `${m.yearStart}/${end}`;
+};
 
 export default function AdminOrgPage() {
   const [members, setMembers] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [allMembers, setAllMembers] = useState([]);
+  const [report, setReport] = useState({ fixes: [], needsPosition: [] });
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('ALL'); // ALL | CURRENT | ARCHIVE
+  const [tab, setTab] = useState('AKTIF');
+  const [q, setQ] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isPembinaMode, setIsPembinaMode] = useState(false);
-  
-  // Form State
+
+  // Form
   const [name, setName] = useState('');
-  const [role, setRole] = useState('PEMBINA');
   const [jabatan, setJabatan] = useState('');
   const [yearStart, setYearStart] = useState(new Date().getFullYear());
-  const [yearEnd, setYearEnd] = useState('');
-  const [isCurrent, setIsCurrent] = useState(false);
   const [quote, setQuote] = useState('');
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
-  
-  // Link to existing member state
-  const [allMembers, setAllMembers] = useState([]);
   const [selectedMemberId, setSelectedMemberId] = useState('');
-  
-  const openConfirm = useUIStore((state) => state.openConfirm);
+  const [replaceOpen, setReplaceOpen] = useState(false);
+  const [hierOpen, setHierOpen] = useState(false);
 
-  const fetchMembers = async () => {
+  const openConfirm = useUIStore((s) => s.openConfirm);
+
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getOrgMembers();
-      setMembers(res.data);
-    } catch (err) {
+      const [org, pos, mem, rep] = await Promise.all([
+        getOrgMembers(), getOrgPositions(), getMembers(), getOrgSyncReport()
+      ]);
+      setMembers(org.data);
+      setPositions(pos.data);
+      setAllMembers(mem.data || []);
+      setReport(rep.data);
+    } catch {
       toast.error('Gagal mengambil data struktur organisasi');
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchAllActiveMembers = async () => {
-    try {
-      const res = await getMembers({ status: 'ACTIVE' });
-      setAllMembers(res.data || []);
-    } catch (err) {
-      console.error('Failed to load members for selection:', err);
-    }
-  };
-
-  useEffect(() => {
-    fetchMembers();
-    fetchAllActiveMembers();
   }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const active = useMemo(() => members.filter((m) => m.isCurrent), [members]);
+  const archive = useMemo(() => members.filter((m) => !m.isCurrent), [members]);
+
+  const rows = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const list = (tab === 'AKTIF' ? active : archive).filter(
+      (m) => !needle || `${m.name} ${m.jabatan}`.toLowerCase().includes(needle)
+    );
+    if (tab === 'AKTIF') {
+      return list.sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9) || compareText(a.jabatan, b.jabatan) || compareText(a.name, b.name));
+    }
+    // Arsip: periode terbaru dulu, lalu tim inti, lalu A–Z
+    return list.sort((a, b) => b.yearStart - a.yearStart || (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9) || compareText(a.name, b.name));
+  }, [tab, active, archive, q]);
+
+  const archiveByYear = useMemo(() => {
+    const map = new Map();
+    rows.forEach((m) => { const k = periode(m); if (!map.has(k)) map.set(k, []); map.get(k).push(m); });
+    return [...map.entries()];
+  }, [rows]);
+
+  /* ── Opsi pemilih ───────────────────────────────────────── */
+  const memberOptions = useMemo(() => {
+    const pembina = isPembinaMode;
+    return allMembers
+      .filter((m) => m.status === 'ACTIVE' && (pembina ? m.role === 'PEMBINA' : m.role !== 'PEMBINA'))
+      .map((m) => ({
+        value: m.id,
+        label: m.name.trim(),
+        description: m.jabatan ? `${m.className || 'Umum'} · saat ini ${m.jabatan}` : (m.className || 'Umum'),
+        avatar: m.photoPath ? getUploadUrl(m.photoPath) : '',
+        group: m.className ? m.className.split(/[-. ]/)[0].toUpperCase() : 'Umum'
+      }));
+  }, [allMembers, isPembinaMode]);
+
+  const positionOptions = useMemo(
+    () => positions
+      .filter((p) => p.role !== 'PEMBINA')
+      .map((p) => ({
+        value: p.label,
+        label: p.label,
+        group: p.group,
+        description: p.holders.length && p.unique ? `Dipegang ${p.holders[0].name}` : (p.unique ? 'Kosong' : `${p.holders.length} orang`),
+        badge: p.unique && p.holders.length && p.holders[0].memberId !== selectedMemberId ? 'Akan menggantikan' : undefined
+      })),
+    [positions, selectedMemberId]
+  );
+
+  const selectedMember = allMembers.find((m) => m.id === selectedMemberId);
+  const chosenPosition = positions.find((p) => p.label === jabatan);
+  const willDisplace = chosenPosition?.unique ? chosenPosition.holders.filter((h) => h.memberId !== selectedMemberId) : [];
+
+  /* ── Modal ──────────────────────────────────────────────── */
+  const resetPhoto = (url = '') => { setPhotoFile(null); setPhotoPreview(url); };
 
   const handleOpenAddModal = (forPembina = false) => {
     setEditingId(null);
     setName('');
-    setSelectedMemberId(forPembina ? 'MANUAL' : '');
-    setRole(forPembina ? 'PEMBINA' : 'KABINET');
+    setSelectedMemberId('');
     setJabatan(forPembina ? 'Pembina' : '');
     setIsPembinaMode(forPembina);
     setYearStart(new Date().getFullYear());
-    setYearEnd('');
-    setIsCurrent(false);
     setQuote('');
-    setPhotoFile(null);
-    setPhotoPreview('');
+    resetPhoto();
     setModalOpen(true);
   };
 
   const handleOpenEditModal = (m) => {
     setEditingId(m.id);
     setName(m.name);
-    // Use stored memberId FK directly (no more fragile name-matching)
-    const existingMemberId = m.memberId || '';
-    setSelectedMemberId(existingMemberId || (m.role === 'PEMBINA' ? 'MANUAL' : ''));
-    setRole(m.role);
+    setSelectedMemberId(m.memberId || '');
     setJabatan(m.jabatan);
     setIsPembinaMode(m.role === 'PEMBINA');
     setYearStart(m.yearStart);
-    setYearEnd(m.yearEnd || '');
-    setIsCurrent(m.isCurrent);
     setQuote(m.quote || '');
-    setPhotoFile(null);
-    // Use effectivePhoto (member photo if linked, else orgMember's own photo)
-    setPhotoPreview(m.effectivePhoto ? getUploadUrl(m.effectivePhoto) : '');
+    resetPhoto(m.effectivePhoto ? getUploadUrl(m.effectivePhoto) : '');
     setModalOpen(true);
   };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 25 * 1024 * 1024) {
-        toast.error('Ukuran foto pengurus maksimal adalah 25MB.');
-        return;
-      }
-      const compToast = toast.loading('Mengompresi foto...');
-      compressImage(file)
-        .then((compressed) => {
-          setPhotoFile(compressed);
-          setPhotoPreview(URL.createObjectURL(compressed));
-          toast.success('Foto siap diupload (berhasil dikompresi).', { id: compToast });
-        })
-        .catch(() => {
-          setPhotoFile(file);
-          setPhotoPreview(URL.createObjectURL(file));
-          toast.error('Gagal mengompresi, menggunakan file asli.', { id: compToast });
-        });
-    }
+    if (!file) return;
+    if (file.size > 25 * 1024 * 1024) return toast.error('Ukuran foto pengurus maksimal adalah 25MB.');
+    const t = toast.loading('Mengompresi foto...');
+    compressImage(file)
+      .then((c) => { setPhotoFile(c); setPhotoPreview(URL.createObjectURL(c)); toast.success('Foto siap diupload.', { id: t }); })
+      .catch(() => { setPhotoFile(file); setPhotoPreview(URL.createObjectURL(file)); toast.error('Gagal mengompresi, memakai file asli.', { id: t }); });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name || !jabatan || !yearStart) {
-      return toast.error('Harap isi semua kolom wajib!');
-    }
-
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('role', role);
-    formData.append('jabatan', jabatan);
-    formData.append('yearStart', yearStart);
-    if (yearEnd) formData.append('yearEnd', yearEnd);
-    formData.append('isCurrent', isCurrent);
-    if (quote) formData.append('quote', quote);
-    // Only upload photo if no member is linked (orphan entries)
-    if (photoFile && (!selectedMemberId || selectedMemberId === 'MANUAL')) {
-      formData.append('photo', photoFile);
-    }
-    // Send memberId FK
-    if (selectedMemberId && selectedMemberId !== 'MANUAL') {
-      formData.append('memberId', selectedMemberId);
-    } else if (editingId) {
-      // On edit: if explicitly set to MANUAL, signal unlink
-      if (selectedMemberId === 'MANUAL') formData.append('memberId', 'NONE');
-    }
+  const save = async (displaceMode) => {
+    const fd = new FormData();
+    if (!selectedMemberId) fd.append('name', name.trim());
+    fd.append('jabatan', jabatan);
+    fd.append('yearStart', yearStart);
+    fd.append('isCurrent', true);
+    if (displaceMode) fd.append('displaceMode', displaceMode);
+    if (quote) fd.append('quote', quote);
+    if (photoFile && !selectedMemberId) fd.append('photo', photoFile);
+    if (selectedMemberId) fd.append('memberId', selectedMemberId);
+    else if (editingId) fd.append('memberId', 'NONE');
 
     try {
-      if (editingId) {
-        await updateOrgMember(editingId, formData);
-        toast.success('Pengurus berhasil diperbarui');
-      } else {
-        await createOrgMember(formData);
-        toast.success('Pengurus baru berhasil ditambahkan');
-      }
+      const res = editingId ? await updateOrgMember(editingId, fd) : await createOrgMember(fd);
+      toast.success(res.data.message || 'Tersimpan');
+      setReplaceOpen(false);
       setModalOpen(false);
-      fetchMembers();
+      load();
     } catch (err) {
+      setReplaceOpen(false);
       toast.error(err.response?.data?.message || 'Gagal menyimpan data pengurus');
     }
   };
 
-  const handleDelete = (id) => {
-    openConfirm({
-      title: 'Hapus Pengurus',
-      message: 'Apakah Anda yakin ingin menghapus data pengurus ini? Tindakan ini tidak dapat dibatalkan.',
-      danger: true,
-      onConfirm: async () => {
-        try {
-          await deleteOrgMember(id);
-          toast.success('Pengurus berhasil dihapus');
-          fetchMembers();
-        } catch (err) {
-          toast.error('Gagal menghapus pengurus');
-        }
-      }
-    });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!jabatan) return toast.error('Pilih jabatan kepengurusan.');
+    if (!selectedMemberId && !name.trim()) return toast.error('Pilih akun anggota atau isi nama.');
+    // Jabatan tunggal yang sedang dipegang orang lain: minta konfirmasi dulu
+    if (willDisplace.length > 0) return setReplaceOpen(true);
+    save();
   };
 
-  const ROLE_ORDER = { KETUA: 1, WAKIL: 2, KABINET: 3, PEMBINA: 4, ANGGOTA: 5 };
+  const handleArchive = (m) => openConfirm({
+    title: 'Pindahkan ke arsip?',
+    message: `${m.name.trim()} (${m.jabatan}) akan masuk Arsip Kepengurusan ${periode({ ...m, yearEnd: new Date().getFullYear() })} dan kembali menjadi anggota biasa.`,
+    onConfirm: async () => {
+      try {
+        const fd = new FormData();
+        fd.append('isCurrent', false);
+        fd.append('yearEnd', new Date().getFullYear());
+        await updateOrgMember(m.id, fd);
+        toast.success('Dipindahkan ke arsip');
+        load();
+      } catch (err) { toast.error(err.response?.data?.message || 'Gagal mengarsipkan'); }
+    }
+  });
 
-  const sortedMembers = [...members].sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9));
+  const handleDelete = (m) => openConfirm({
+    title: 'Hapus data kepengurusan?',
+    message: `Catatan ${m.name.trim()} — ${m.jabatan} (${periode(m)}) dihapus permanen dari struktur dan arsip.`,
+    danger: true,
+    onConfirm: async () => {
+      try { await deleteOrgMember(m.id); toast.success('Data dihapus'); load(); }
+      catch (err) { toast.error(err.response?.data?.message || 'Gagal menghapus'); }
+    }
+  });
 
-  // Exclude members already assigned to the structure (except current editing member)
-  const assignedMemberIds = new Set(members.map((m) => m.memberId).filter(Boolean));
-  const availableMembers = allMembers.filter((m) => !assignedMemberIds.has(m.id) || m.id === selectedMemberId);
+  const handleSyncFix = async () => {
+    try {
+      const r = await runOrgSyncFix();
+      toast.success(`${r.data.applied} data disinkronkan`);
+      load();
+    } catch (err) { toast.error(err.response?.data?.message || 'Gagal menyinkronkan'); }
+  };
+
+  const needSync = report.fixes.length > 0 || report.needsPosition.length > 0;
 
   return (
     <div className={styles.page}>
-      <AdminHeader title="Struktur Organisasi" subtitle="Manajemen pengurus dan pembina aktif PIK-R MANSEKU">
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn btn-primary" onClick={() => handleOpenAddModal(false)}>
-            <Plus size={16} /> Tambah Pengurus
-          </button>
-          <button className="btn btn-secondary" onClick={() => handleOpenAddModal(true)}>
-            <Plus size={16} /> Tambah Pembina
-          </button>
-        </div>
-      </AdminHeader>
+      <AdminHeader title="Struktur Organisasi" subtitle="Pengurus aktif dan arsip kepengurusan PIK-R MANSEKU" />
 
       <div className={styles.content}>
+        {needSync && (
+          <div className={styles.syncBanner}>
+            <AlertTriangle size={18} />
+            <div className={styles.syncText}>
+              <b>Data anggota dan struktur belum sinkron.</b>
+              <span>
+                {report.fixes.length > 0 && `${report.fixes.length} bisa diperbaiki otomatis`}
+                {report.fixes.length > 0 && report.needsPosition.length > 0 && ' · '}
+                {report.needsPosition.length > 0 && `${report.needsPosition.length} anggota berperan pengurus tapi belum punya jabatan (${report.needsPosition.slice(0, 3).map((p) => p.name).join(', ')}${report.needsPosition.length > 3 ? '…' : ''}). Tambahkan lewat "Tambah Pengurus".`}
+              </span>
+            </div>
+            {report.fixes.length > 0 && (
+              <button className="btn btn-primary btn-sm" onClick={handleSyncFix}><Wand2 size={14} /> Sinkronkan</button>
+            )}
+          </div>
+        )}
+
+        <div className={styles.toolbar}>
+          <nav className={styles.tabs}>
+            {TABS.map(({ key, label, icon: Icon }) => (
+              <button key={key} className={`${styles.tab} ${tab === key ? styles.active : ''}`} onClick={() => setTab(key)}>
+                <Icon size={15} /> {label} <span className={styles.tabCount}>{key === 'AKTIF' ? active.length : archive.length}</span>
+              </button>
+            ))}
+          </nav>
+          <div className={styles.toolbarActions}>
+            <label className={styles.searchBox}>
+              <Search size={15} />
+              <input placeholder="Cari nama / jabatan" value={q} onChange={(e) => setQ(e.target.value)} />
+            </label>
+            <button className="btn btn-primary" onClick={() => handleOpenAddModal(false)}><Plus size={16} /> Tambah Pengurus</button>
+            <button className="btn btn-secondary" onClick={() => handleOpenAddModal(true)}><Plus size={16} /> Tambah Pembina</button>
+            <button className="btn btn-secondary" onClick={() => setHierOpen(true)} title="Tambah jabatan, ganti nama, geser hierarki"><Layers size={16} /> Atur Hierarki</button>
+          </div>
+        </div>
+
         {loading ? (
           <SkeletonTable rows={5} cols={7} />
-        ) : sortedMembers.length === 0 ? (
-          <div className={styles.empty}>Belum ada data pengurus aktif terdaftar.</div>
-        ) : (
-          <div className={styles.tableCard}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Foto</th>
-                  <th>Nama Pengurus</th>
-                  <th>Jabatan</th>
-                  <th>Tingkat Peran</th>
-                  <th>Tahun Mulai</th>
-                  <th>Akun Terhubung</th>
-                  <th style={{ textAlign: 'right' }}>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedMembers.map((m, idx) => (
-                  <tr key={m.id}>
-                    <td>{idx + 1}</td>
-                    <td>
-                      {m.effectivePhoto ? (
-                        <img src={getUploadUrl(m.effectivePhoto)} alt={m.name} className={styles.avatar} />
-                      ) : (
-                        <div className={styles.avatarPlaceholder}>{m.name[0]}</div>
-                      )}
-                    </td>
-                    <td className={styles.name}>{m.name}</td>
-                    <td><strong>{m.jabatan}</strong></td>
-                    <td>
-                      <span className={`${styles.roleBadge} ${styles[m.role.toLowerCase()]}`}>
-                        {m.role}
-                      </span>
-                    </td>
-                    <td>{m.yearStart}</td>
-                    <td>
-                      {m.memberId ? (
-                        <span className={styles.linkedBadge}>
-                          <Link size={12} /> {m.member?.nisn ? `NISN: ${m.member.nisn}` : 'Terhubung (Pembina)'}
-                        </span>
-                      ) : (
-                        <span className={styles.orphanBadge}>
-                          <Unlink size={12} /> Mandiri
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => handleOpenEditModal(m)} title="Edit">
-                          <Edit2 size={14} />
-                        </button>
-                        <button className="btn btn-ghost btn-sm text-danger" onClick={() => handleDelete(m.id)} title="Hapus">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        ) : rows.length === 0 ? (
+          <div className={styles.empty}>
+            {tab === 'AKTIF' ? 'Belum ada pengurus aktif.' : 'Belum ada arsip kepengurusan. Pengurus yang menjadi alumni otomatis masuk ke sini.'}
           </div>
+        ) : tab === 'AKTIF' ? (
+          <div className={styles.tableCard}>
+            <OrgTable rows={rows} onEdit={handleOpenEditModal} onDelete={handleDelete} onArchive={handleArchive} />
+          </div>
+        ) : (
+          archiveByYear.map(([period, list]) => (
+            <section key={period} className={styles.archiveGroup}>
+              <h3 className={styles.archiveTitle}><Archive size={16} /> Kepengurusan {period} <span>{list.length} orang</span></h3>
+              <div className={styles.tableCard}>
+                <OrgTable rows={list} archive onEdit={handleOpenEditModal} onDelete={handleDelete} />
+              </div>
+            </section>
+          ))
         )}
       </div>
 
@@ -298,118 +300,66 @@ export default function AdminOrgPage() {
               <button className={styles.closeBtn} onClick={() => setModalOpen(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className={styles.form}>
-              {(!selectedMemberId || selectedMemberId === 'MANUAL') && (
+              {!selectedMemberId ? (
                 <div className={styles.photoSection}>
                   <div className={styles.photoPreviewWrapper}>
-                    {photoPreview ? (
-                      <img src={photoPreview} alt="Preview" className={styles.photoPreview} />
-                    ) : (
-                      <div className={styles.photoPlaceholder}><Upload size={24} /></div>
-                    )}
+                    {photoPreview ? <img src={photoPreview} alt="Preview" className={styles.photoPreview} /> : <div className={styles.photoPlaceholder}><Upload size={24} /></div>}
                   </div>
                   <label className={styles.photoLabel}>
                     <Upload size={14} /> Pilih Foto Pengurus
                     <input type="file" accept="image/*" onChange={handlePhotoChange} className={styles.fileInput} />
                   </label>
                 </div>
+              ) : (
+                <div className={styles.linkedPhotoInfo}>
+                  {selectedMember?.photoPath
+                    ? <img src={getUploadUrl(selectedMember.photoPath)} alt="" className={styles.linkedPhotoAvatar} />
+                    : <div className={styles.linkedPhotoPlaceholder}>{selectedMember?.name?.[0] || '?'}</div>}
+                  <span>Nama, foto, dan kelas diambil otomatis dari akun <strong>{selectedMember?.name?.trim()}</strong>.</span>
+                </div>
               )}
 
-              {selectedMemberId && selectedMemberId !== 'MANUAL' && (() => {
-                const linked = allMembers.find(m => m.id === selectedMemberId);
-                return linked?.photoPath ? (
-                  <div className={styles.linkedPhotoInfo}>
-                    <img src={getUploadUrl(linked.photoPath)} alt={linked.name} className={styles.linkedPhotoAvatar} />
-                    <span>Foto & Data diambil otomatis dari akun <strong>{linked.name}</strong>.</span>
-                  </div>
-                ) : (
-                  <div className={styles.linkedPhotoInfo}>
-                    <div className={styles.linkedPhotoPlaceholder}>{linked?.name?.[0] || '?'}</div>
-                    <span>Anggota <strong>{linked?.name}</strong> terhubung (Belum ada foto).</span>
-                  </div>
-                );
-              })()}
-
               <div className={styles.grid}>
-                 <div className="form-group">
-                   <label className="form-label">
-                     {isPembinaMode 
-                       ? (editingId ? 'Tautkan ke Akun Pembina' : 'Pilih Akun Pembina *') 
-                       : (editingId ? 'Tautkan ke Akun Anggota' : 'Pilih Akun Anggota *')}
-                   </label>
-                   <select
-                     className="form-select"
-                     value={selectedMemberId}
-                     onChange={(e) => {
-                       const val = e.target.value;
-                       setSelectedMemberId(val);
-                       if (val && val !== 'MANUAL') {
-                         const found = allMembers.find((m) => m.id === val);
-                         if (found) setName(found.name);
-                       } else if (!editingId) {
-                         setName('');
-                       }
-                     }}
-                     required={!isPembinaMode && !editingId}
-                   >
-                     <option value="">{editingId ? '— Pilih Akun —' : '— Pilih Akun Terdaftar —'}</option>
-                     {editingId && <option value="MANUAL">✕ Lepas tautan (tanpa akun)</option>}
-                     {availableMembers
-                       .filter(m => isPembinaMode ? m.role === 'PEMBINA' : m.role !== 'PEMBINA')
-                       .map((m) => (
-                         <option key={m.id} value={m.id}>
-                           {m.name} ({m.role} - {m.className || 'Umum'})
-                         </option>
-                       ))}
-                   </select>
-                 </div>
-                 
-                 <div className="form-group">
-                   <label className="form-label">Nama Lengkap *</label>
-                   <input
-                     type="text"
-                     className="form-input"
-                     value={name}
-                     onChange={(e) => setName(e.target.value)}
-                     readOnly={selectedMemberId && selectedMemberId !== 'MANUAL'}
-                     required
-                     style={selectedMemberId && selectedMemberId !== 'MANUAL' ? { backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' } : {}}
-                     placeholder={selectedMemberId && selectedMemberId !== 'MANUAL' ? "Terisi otomatis dari akun" : "Masukkan nama lengkap"}
-                   />
-                 </div>
-                 
-                 <div className="form-group">
-                   <label className="form-label">Jabatan Kepengurusan *</label>
-                   {isPembinaMode ? (
-                     <input
-                       type="text"
-                       className="form-input"
-                       value="Pembina"
-                       readOnly
-                       style={{ backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' }}
-                     />
-                   ) : (
-                     <select
-                       className="form-select"
-                       value={jabatan}
-                       onChange={(e) => {
-                         const val = e.target.value;
-                         setJabatan(val);
-                         const matchedPos = POSITIONS.find((p) => p.label === val);
-                         if (matchedPos) {
-                           setRole(matchedPos.role);
-                         }
-                       }}
-                       required
-                     >
-                       <option value="">— Pilih Jabatan —</option>
-                       {POSITIONS.map((p) => (
-                         <option key={p.label} value={p.label}>
-                           {p.label}
-                         </option>
-                       ))}
-                     </select>
-                   )}
-                 </div>
+                <div className="form-group">
+                  <label className="form-label">{isPembinaMode ? 'Akun Pembina' : 'Akun Anggota'} {!editingId && !isPembinaMode ? '*' : ''}</label>
+                  <PickerField
+                    value={selectedMemberId}
+                    options={memberOptions}
+                    sort="az"
+                    title={isPembinaMode ? 'Pilih akun pembina' : 'Pilih akun anggota'}
+                    placeholder={isPembinaMode ? 'Pilih akun pembina' : 'Pilih akun anggota'}
+                    clearLabel={editingId || isPembinaMode ? 'Tanpa akun (input manual)' : undefined}
+                    required={!isPembinaMode && !editingId}
+                    onChange={(v, o) => { setSelectedMemberId(v); if (o) setName(o.label); else if (!editingId) setName(''); }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Nama Lengkap *</label>
+                  <input
+                    type="text" className="form-input" value={name} onChange={(e) => setName(e.target.value)}
+                    readOnly={!!selectedMemberId} required
+                    placeholder={selectedMemberId ? 'Terisi otomatis dari akun' : 'Masukkan nama lengkap'}
+                    style={selectedMemberId ? { backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' } : undefined}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Jabatan Kepengurusan *</label>
+                  {isPembinaMode ? (
+                    <input type="text" className="form-input" value="Pembina" readOnly style={{ backgroundColor: 'var(--color-surface-2)', cursor: 'not-allowed' }} />
+                  ) : (
+                    <PickerField
+                      value={jabatan}
+                      options={positionOptions}
+                      title="Pilih jabatan"
+                      placeholder="Pilih jabatan"
+                      searchable
+                      required
+                      onChange={(v) => setJabatan(v)}
+                    />
+                  )}
+                </div>
 
                 <div className="form-group">
                   <label className="form-label">Tahun Mulai Menjabat *</label>
@@ -417,11 +367,17 @@ export default function AdminOrgPage() {
                 </div>
               </div>
 
+              {willDisplace.length > 0 && (
+                <div className={styles.displaceNote}>
+                  <AlertTriangle size={16} />
+                  <span><b>{willDisplace.map((h) => h.name).join(', ')}</b> saat ini menjabat <b>{jabatan}</b> dan akan dipindahkan ke arsip.</span>
+                </div>
+              )}
+
               <div className="form-group">
-                <label className="form-label">Kata Sambutan / Kutipan (Quote)</label>
+                <label className="form-label">Kata Sambutan / Kutipan</label>
                 <textarea className="form-textarea" rows={3} value={quote} onChange={(e) => setQuote(e.target.value)} placeholder="Tuliskan kata motivasi atau sambutan singkat..." />
               </div>
-
 
               <div className={styles.modalActions}>
                 <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Batal</button>
@@ -431,6 +387,63 @@ export default function AdminOrgPage() {
           </div>
         </div>
       )}
+
+      <HierarchyEditor open={hierOpen} positions={positions} onClose={() => setHierOpen(false)} onSaved={load} />
+
+      <ReplaceFlow
+        open={replaceOpen}
+        jabatan={jabatan}
+        oldHolders={willDisplace}
+        newPerson={{
+          name: (selectedMember?.name || name).trim(),
+          photoPath: selectedMember?.photoPath || null,
+          className: selectedMember?.className,
+          caption: 'Pejabat baru'
+        }}
+        onCancel={() => setReplaceOpen(false)}
+        onConfirm={save}
+      />
     </div>
+  );
+}
+
+function OrgTable({ rows, archive = false, onEdit, onDelete, onArchive }) {
+  return (
+    <table className={styles.table}>
+      <thead>
+        <tr>
+          <th>No</th><th>Foto</th><th>Nama</th><th>Jabatan</th><th>Peran</th><th>{archive ? 'Periode' : 'Mulai'}</th><th>Akun</th>
+          <th style={{ textAlign: 'right' }}>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((m, idx) => (
+          <tr key={m.id}>
+            <td>{idx + 1}</td>
+            <td>
+              <PhotoAvatar src={m.effectivePhoto ? getUploadUrl(m.effectivePhoto) : ''} name={m.name} className={styles.avatar} placeholderClassName={styles.avatarPlaceholder} />
+            </td>
+            <td className={styles.name}>{m.name.trim()}</td>
+            <td><strong>{m.jabatan}</strong></td>
+            <td><span className={`${styles.roleBadge} ${styles[m.role.toLowerCase()]}`}>{ROLE_LABEL[m.role] || m.role}</span></td>
+            <td>{archive ? periode(m) : m.yearStart}</td>
+            <td>
+              {m.memberId
+                ? <span className={styles.linkedBadge}><LinkIcon size={12} /> {m.member?.status === 'ALUMNI' ? 'Alumni' : 'Terhubung'}</span>
+                : <span className={styles.orphanBadge}><Unlink size={12} /> Mandiri</span>}
+            </td>
+            <td style={{ textAlign: 'right' }}>
+              <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
+                {!archive && (
+                  <button className="btn btn-ghost btn-sm" onClick={() => onArchive(m)} title="Pindahkan ke arsip"><Archive size={14} /></button>
+                )}
+                <button className="btn btn-ghost btn-sm" onClick={() => onEdit(m)} title="Edit"><Edit2 size={14} /></button>
+                <button className="btn btn-ghost btn-sm text-danger" onClick={() => onDelete(m)} title="Hapus"><Trash2 size={14} /></button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

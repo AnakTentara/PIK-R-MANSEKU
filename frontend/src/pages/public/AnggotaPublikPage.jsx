@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getPublicOrg, getPublicMembers } from '@/api/public';
+import { getPublicOrg, getPublicMembers, getOrgStructure } from '@/api/public';
+import OrgTreeDynamic from '@/components/common/OrgTreeDynamic';
 import SEO from '@/components/common/SEO';
 import { getUploadUrl } from '@/api/axios';
 import { ChevronDown } from 'lucide-react';
@@ -57,6 +58,7 @@ const isMemberInOrgTree = (member, orgList) => {
 export default function AnggotaPublikPage() {
   const [orgData, setOrgData] = useState([]);
   const [members, setMembers] = useState([]);
+  const [structure, setStructure] = useState(null); // { customized, catalog }
   const [loading, setLoading] = useState(true);
   const [expandedDivisions, setExpandedDivisions] = useState({});
 
@@ -80,9 +82,10 @@ export default function AnggotaPublikPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [orgRes, memRes] = await Promise.all([getPublicOrg(), getPublicMembers()]);
+        const [orgRes, memRes, structRes] = await Promise.all([getPublicOrg(), getPublicMembers(), getOrgStructure().catch(() => null)]);
         setOrgData(orgRes.data || []);
         setMembers(memRes.data || []);
+        setStructure(structRes?.data || null);
       } catch (err) {
         console.error(err);
       } finally {
@@ -156,6 +159,9 @@ export default function AnggotaPublikPage() {
           {loading ? (
             <div className="spinner" style={{ margin: '40px auto' }} />
           ) : (
+            structure?.customized ? (
+              <OrgTreeDynamic catalog={structure.catalog} people={orgData.filter((m) => m.isCurrent)} formatName={formatName} />
+            ) : (
             <div className={styles.treeContainer}>
               {/* Level 1: Pembina */}
               {pembina && (
@@ -376,6 +382,7 @@ export default function AnggotaPublikPage() {
                 </div>
               )}
             </div>
+            )
           )}
         </div>
       </section>

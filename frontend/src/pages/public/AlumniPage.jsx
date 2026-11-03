@@ -26,10 +26,10 @@ export default function AlumniPage() {
   const years = Array.from(new Set(alumni.map(a => a.joinYear))).sort((a, b) => b - a);
 
   // Filter
-  const filteredAlumni = alumni.filter(a => {
-    if (selectedYear === 'ALL') return true;
-    return a.joinYear === parseInt(selectedYear);
-  });
+  // Alumni tim inti (berlabel) tampil lebih dulu, sisanya urut abjad
+  const filteredAlumni = alumni
+    .filter(a => selectedYear === 'ALL' || a.joinYear === parseInt(selectedYear))
+    .sort((a, b) => (b.isInti - a.isInti) || a.name.localeCompare(b.name, 'id'));
 
   return (
     <div className="page-wrapper">
@@ -86,7 +86,7 @@ export default function AlumniPage() {
           ) : (
             <div className={styles.grid}>
               {filteredAlumni.map(a => (
-                <div key={a.id} className={styles.card}>
+                <div key={a.id} className={`${styles.card} ${a.isInti ? styles.cardInti : ''}`}>
                   <div className={styles.avatar}>
                     <div className={styles.initials}>
                       {a.name[0]}
@@ -95,6 +95,7 @@ export default function AlumniPage() {
                   <div className={styles.info}>
                     <h4>{a.name}</h4>
                     <p>Kelas saat aktif: {a.className}</p>
+                    {a.alumniLabel && <span className={styles.intiBadge}>{a.alumniLabel}</span>}
                     <span className={styles.yearBadge}>Angkatan {a.joinYear}</span>
                   </div>
                 </div>

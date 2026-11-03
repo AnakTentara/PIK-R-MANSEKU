@@ -1,8 +1,4 @@
 import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import {
   loginAdmin,
   getCandidates,
@@ -44,6 +40,14 @@ import {
   createOrgMember,
   updateOrgMember,
   deleteOrgMember,
+  getOrgPositions,
+  exportMembersExcel,
+  downloadMembersTemplate,
+  importMembersExcel,
+  saveOrgPositions,
+  resetOrgPositions,
+  getOrgSyncReport,
+  runOrgSyncFix,
   // Testimonials
   getTestimonials,
   createTestimonial,
@@ -73,79 +77,8 @@ import {
 } from '../controllers/announcement.js';
 import { authAdmin, requireRole } from '../middlewares/auth.js';
 import { loginLimiter } from '../middlewares/rateLimit.js';
-import { uploadDocs } from '../utils/multerConfig.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Multer config for photo uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../public/uploads/photos'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  }
-});
-const upload = multer({
-  storage,
-  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(new Error('Only image files are allowed'));
-  }
-});
-
-// Multer config for blog images
-const blogImagesDir = path.join(__dirname, '../../public/uploads/blog');
-if (!fs.existsSync(blogImagesDir)) {
-  fs.mkdirSync(blogImagesDir, { recursive: true });
-}
-
-const blogStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, blogImagesDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `blog-${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  }
-});
-
-const uploadBlog = multer({
-  storage: blogStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(new Error('Only image files are allowed'));
-  }
-});
-
-// Multer config for web logo uploads
-const logoStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../../public/uploads/logos');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `logo-${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  }
-});
-
-const uploadLogo = multer({
-  storage: logoStorage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(new Error('Only image files are allowed'));
-  }
-});
-
+import { getAdminDesign, saveAdminDesign, uploadDesignImage, adminUpdateMemberCard } from '../controllers/design.js';
+import { uploadDocs, uploadPhoto as upload, uploadBlog, uploadLogo, uploadExcel } from '../utils/multerConfig.js';
 
 const router = express.Router();
 
@@ -202,6 +135,16 @@ router.post('/session/open', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM'
 router.post('/session/finish', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), finishAndMigrateSession);
 
 // Member CRUD (MEDINFO can read, but only DEVELOPER and KABINET_UMUM can create/edit/delete)
+// Desain situs & kartu biodata
+router.get('/design', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), getAdminDesign);
+router.put('/design', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), saveAdminDesign);
+router.post('/design/upload', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('image'), uploadDesignImage);
+router.put('/members/:id/card', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), adminUpdateMemberCard);
+
+// Rute statis sebelum /members/:id
+router.get('/members/export', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), exportMembersExcel);
+router.get('/members/template', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), downloadMembersTemplate);
+router.post('/members/import', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), uploadExcel.single('file'), importMembersExcel);
 router.get('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']), getMembers);
 router.post('/members', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), createMember);
 router.post('/members/bulk-alumni', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), bulkSetAlumni);
@@ -210,6 +153,12 @@ router.delete('/members/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM
 
 // Org Member CRUD (DEVELOPER and KABINET_UMUM only)
 router.get('/org', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getOrgMembers);
+// Rute statis harus sebelum /org/:id
+router.get('/org/positions', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getOrgPositions);
+router.put('/org/positions', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), saveOrgPositions);
+router.post('/org/positions/reset', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), resetOrgPositions);
+router.get('/org/sync-report', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getOrgSyncReport);
+router.post('/org/sync-fix', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), runOrgSyncFix);
 router.post('/org', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), createOrgMember);
 router.put('/org/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), updateOrgMember);
 router.delete('/org/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteOrgMember);
