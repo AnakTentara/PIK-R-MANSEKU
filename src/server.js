@@ -18,15 +18,12 @@ import { ensureMemberIdentity } from './utils/slug.js';
 import readline from 'readline';
 import { execSync } from 'child_process';
 import { initWhatsApp, isWhatsAppReady } from './services/whatsapp.js';
+import { SITE_URL, ALLOWED_ORIGINS } from './config/site.js';
 import { startAnnouncementScheduler } from './services/announcementScheduler.js';
 
 dotenv.config();
 
 // ─── Validasi ENV — hanya info, tidak crash server ─────────────────────────
-// JWT_SECRET punya fallback default, DATABASE tidak perlu (SQLite otomatis).
-if (!process.env.JWT_SECRET) {
-  console.log('ℹ️  [ENV] JWT_SECRET belum di-set, menggunakan default fallback.');
-}
 // ────────────────────────────────────────────────────────────────────────────
 
 
@@ -50,21 +47,8 @@ app.use((req, res, next) => {
 });
 
 // Middleware
-// Origin tambahan (dipisah koma) lewat CORS_EXTRA_ORIGINS, mis. alamat LAN untuk tes dari HP
-const extraOrigins = (process.env.CORS_EXTRA_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
-app.use(cors({
-  origin: [
-    FRONTEND_URL,
-    'http://localhost:25551',
-    'http://localhost:25554',
-    'https://pikr-manseku.my.id',
-    'https://www.pikr-manseku.my.id',
-    'https://d-base.pikr-manseku.my.id',
-    'https://absen.pikr-manseku.my.id',
-    ...extraOrigins
-  ],
-  credentials: true
-}));
+// Origin yang boleh memanggil API: semua diturunkan dari .env (lihat config/site.js)
+app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -95,13 +79,13 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://pikr-manseku.my.id/sitemap.xml`);
+Sitemap: ${SITE_URL}/sitemap.xml`);
 });
 
 // SEO: Dynamic Sitemap.xml
 app.get('/sitemap.xml', async (req, res) => {
   res.header('Content-Type', 'application/xml');
-  const baseUrl = 'https://pikr-manseku.my.id';
+  const baseUrl = SITE_URL;
   const staticPages = [
     '',
     '/kami',
@@ -214,7 +198,7 @@ async function seedDefaultAdmin() {
     console.log('==================================================');
     console.log('Seed Akun Admin Berhasil:');
     console.log(`Username: ${defaultUsername}`);
-    console.log(`Password: ${defaultPassword}`);
+    console.log('Password: (bawaan dari kode; segera ganti lewat dashboard)');
     console.log('==================================================');
   } catch (error) {
     console.error('Gagal menjalankan seeding admin default:', error);

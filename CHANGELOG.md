@@ -4,6 +4,24 @@ Seluruh rilis, pembaruan fitur, dan perbaikan bug pada platform PIK-R MANSEKU di
 
 ---
 
+## [v2.2.0] — 2026-11-05
+
+Siap produksi di satu komputer, mudah dipindah server, dan Mode Cepat untuk absensi.
+
+### 🌟 Fitur Baru
+- **Absensi — Mode Cepat:** `POST /api/absen/scan` menerima `quick: true`. Scan langsung dicatat masuk atau keluar tanpa popup. Scan kedua dalam 1 menit dibaca "dobel" (bukan keluar), anggota yang sudah masuk dan keluar dijawab `DONE` tanpa mengubah data, dan dua scan bersamaan tidak membuat baris dobel.
+- **Absensi — semua status bisa dikosongkan:** `DELETE /api/absen/records/:id` kini boleh dilakukan petugas web absen (bukan hanya admin), sehingga masuk, keluar, izin, sakit, dan alfa bisa dikembalikan ke "belum diisi". Pengosongan dicatat di log server.
+- **Mode produksi:** `ecosystem.config.cjs` (backend, situs utama, web absen, cadangan harian), `scripts/serve-static.mjs` (server statis dengan kompresi, cache, rute SPA, proxy API), `scripts/backup.mjs` (ZIP harian pukul 03:00, simpan 14 terbaru).
+- **Pindah server dari `.env`:** `src/config/site.js` menurunkan semua alamat (link QR, email, WhatsApp, sitemap, robots, CORS) dari `PUBLIC_SITE_URL`. Ada `.env.example`.
+
+### 🔧 Perubahan
+- `JWT_SECRET` wajib acak di produksi. Server menolak berjalan dengan nilai bawaan lama (`src/config/secret.js`).
+- Kata sandi admin bawaan tidak lagi dicetak ke log.
+- Logika cadangan dipindah ke `src/utils/backup.js` (dipakai tombol dashboard dan skrip harian).
+- Bot WhatsApp mati secara bawaan di `ecosystem.config.cjs`; aktifkan hanya di satu server dengan `WHATSAPP=1`.
+
+---
+
 ## [v2.1.0] — 2026-11-03
 
 ID Card kini bersumber dari satu daftar Excel, supaya kode barcode dan link QR tidak lagi tertukar antar anggota.

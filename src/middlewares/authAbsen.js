@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import prisma from '../config/db.js';
+import { JWT_SECRET } from '../config/secret.js';
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
 /**
  * Akun bersama aplikasi absensi (dipakai turun-temurun dari tahun ke tahun).

@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import prisma from '../config/db.js';
 
 import { toTitleCase } from '../utils/nameUtils.js';
+import { JWT_SECRET } from '../config/secret.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
 // 1. Public Candidate Registration
 export async function registerCandidate(req, res) {

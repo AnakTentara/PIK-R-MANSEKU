@@ -8,12 +8,15 @@ import { memberTitle, ORG_TITLE_SELECT, alumniLabel } from '../utils/memberUtils
 import { getDesign, sanitizeCardConfig } from '../utils/designConfig.js';
 import { buildRosterWorkbook, parseRosterSheet, planRosterImport, applyRosterImport } from '../utils/idcardExcel.js';
 import { OrgError } from '../utils/orgSync.js';
+import { SITE_URL } from '../config/site.js';
 
 const ACTIONS = ['IN', 'OUT', 'SAKIT', 'IZIN', 'ALFA'];
 // PERTEMUAN = rutin mingguan, WAJIB = kegiatan wajib bertanggal, TAMBAHAN = dibuat manual.
 // Alfa otomatis berlaku untuk PERTEMUAN dan WAJIB; TAMBAHAN diisi manual.
 const SESSION_TYPES = ['PERTEMUAN', 'WAJIB', 'TAMBAHAN'];
 export const isMandatory = (type) => type === 'PERTEMUAN' || type === 'WAJIB';
+// Mode Cepat: scan kedua dalam rentang ini dianggap dobel (kartu masih di depan kamera), bukan absen keluar
+const QUICK_GUARD_MS = 60 * 1000;
 const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
 const DEFAULTS = { wajibDay: 5, wajibTime: '15:00', wajibTitle: 'Pertemuan Rutin' }; // Jum'at 15.00
 
@@ -359,14 +362,46 @@ export async function scanCard(req, res) {
       ? await prisma.attendance.findUnique({ where: { sessionId_memberId: { sessionId: session.id, memberId: member.id } } })
       : null;
 
-    return res.json({
+    const base = {
       date,
       now: wibTime(new Date()),
       session: shapeSession(session),
       member: shapeMember(member),
       record: shapeRecord(record),
       suggested: suggestAction(record)
-    });
+    };
+
+    // Mode Cepat: scan langsung dicatat (masuk / keluar) tanpa popup konfirmasi
+    if (req.body.quick) {
+      if (!session) return res.status(409).json({ code: 'NO_SESSION', message: 'Belum ada kegiatan hari ini. Buat kegiatan baru dulu.' });
+      const action = suggestAction(record);
+      if (action === 'DONE') return res.json({ ...base, quick: { result: 'DONE', checkIn: base.record.checkIn, checkOut: base.record.checkOut } });
+      const now = new Date();
+      // Kartu yang masih di depan kamera / terscan dua kali tidak boleh langsung dianggap absen keluar
+      if (action === 'OUT' && now - record.checkIn < QUICK_GUARD_MS) {
+        return res.json({ ...base, quick: { result: 'DUPLICATE', time: wibTime(record.checkIn) } });
+      }
+      const by = req.officer.name;
+      const previous = action === 'IN' && record ? record.status : null; // Sakit/Izin/Alfa yang tergantikan
+      let saved;
+      try {
+        if (action === 'IN') {
+          saved = record
+            ? await prisma.attendance.update({ where: { id: record.id }, data: { status: 'HADIR', checkIn: now, checkOut: null, note: null, updatedBy: by } })
+            : await prisma.attendance.create({ data: { status: 'HADIR', checkIn: now, sessionId: session.id, memberId: member.id, createdBy: by } });
+        } else {
+          saved = await prisma.attendance.update({ where: { id: record.id }, data: { checkOut: now, updatedBy: by } });
+        }
+      } catch (e) {
+        // Dua scan nyaris bersamaan membuat baris yang sama: yang kedua dianggap dobel
+        if (e.code === 'P2002') return res.json({ ...base, quick: { result: 'DUPLICATE', time: wibTime(now) } });
+        throw e;
+      }
+      await prisma.attendanceLog.create({ data: { attendanceId: saved.id, action, detail: wibTime(now), by } });
+      return res.json({ ...base, record: shapeRecord(saved), quick: { result: action, time: wibTime(now), previous } });
+    }
+
+    return res.json(base);
   } catch (error) {
     console.error('Error absen scanCard:', error);
     return res.status(500).json({ message: 'Gagal memproses scan' });
@@ -702,10 +737,12 @@ export async function deleteSession(req, res) {
 }
 
 // DELETE /api/absen/records/:id — hapus 1 data absen (kembali ke "belum diisi" / Alfa otomatis)
+// DELETE /api/absen/records/:id — mengosongkan absen anggota di kegiatan itu (kembali ke "belum diisi")
 export async function deleteRecord(req, res) {
   try {
-    await prisma.attendance.delete({ where: { id: req.params.id } });
-    return res.json({ message: 'Data absen dihapus' });
+    const gone = await prisma.attendance.delete({ where: { id: req.params.id }, include: { session: { select: { date: true } }, member: { select: { name: true } } } });
+    console.log(`[Absen] absen dikosongkan: ${gone.member.name} ${gone.session.date} (${gone.status}) oleh ${req.officer.name}`);
+    return res.json({ message: 'Absen dikosongkan' });
   } catch (error) {
     return res.status(404).json({ message: 'Data absen tidak ditemukan' });
   }
@@ -756,7 +793,7 @@ export async function resetSharedPassword(req, res) {
 export async function listIdCards(req, res) {
   try {
     await ensureMemberIdentity();
-    const base = process.env.PUBLIC_SITE_URL || 'https://pikr-manseku.my.id';
+    const base = SITE_URL;
     const members = await prisma.member.findMany({
       where: { status: 'ACTIVE' },
       select: { id: true, name: true, className: true, photoPath: true, memberCode: true, slug: true }

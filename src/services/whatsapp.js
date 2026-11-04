@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import prisma from '../config/db.js';
 import { findSimilarCandidates } from '../utils/similarity.js';
+import { SITE_URL } from '../config/site.js';
 
 let sock = null;
 let isConnected = false;
@@ -268,7 +269,7 @@ export async function initWhatsApp() {
         }
 
         const nisnParam = user.nisn ? `nisn=${user.nisn}` : `wa=${user.whatsappNumber}`;
-        const replyText = `🔐 *KODE OTP RESET SANDI PIK-R MANSEKU*\n\nHalo *${user.name}*,\n\nKode OTP Anda untuk mengganti kata sandi adalah: *${otpCode}*\n\n⏰ *Berlaku:* 10 Menit\n\nSilakan buka link di bawah ini dan masukkan kode OTP di atas untuk mengatur kata sandi baru:\n🔗 https://pikr-manseku.my.id/reset-sandi?${nisnParam}\n\n⚠️ *PERINGATAN*: Rahasiakan kode OTP ini dari siapa pun!`;
+        const replyText = `🔐 *KODE OTP RESET SANDI PIK-R MANSEKU*\n\nHalo *${user.name}*,\n\nKode OTP Anda untuk mengganti kata sandi adalah: *${otpCode}*\n\n⏰ *Berlaku:* 10 Menit\n\nSilakan buka link di bawah ini dan masukkan kode OTP di atas untuk mengatur kata sandi baru:\n🔗 ${SITE_URL}/reset-sandi?${nisnParam}\n\n⚠️ *PERINGATAN*: Rahasiakan kode OTP ini dari siapa pun!`;
 
         await replyToMessage(fromJid, replyText, msg);
       } catch (err) {
@@ -357,7 +358,7 @@ export async function initWhatsApp() {
           }
 
           if (person) {
-            const replyText = `Halo *${person.name}*,\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${person.nisn}\n\nTerima kasih!`;
+            const replyText = `Halo *${person.name}*,\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 ${SITE_URL}/cek-kelulusan?nisn=${person.nisn}\n\nTerima kasih!`;
             await replyToMessage(fromJid, replyText, msg);
           } else {
             await replyToMessage(fromJid, `Maaf, data pendaftaran dengan NISN *${query}* tidak ditemukan di database.`, msg);
@@ -385,14 +386,14 @@ export async function initWhatsApp() {
             await replyToMessage(fromJid, `Maaf, data pendaftaran dengan nama *"${query}"* tidak ditemukan di database. Pastikan ejaan nama Anda sesuai dengan saat pendaftaran.`, msg);
           } else if (matches[0].exact || matches[0].score >= 0.65 || matches.length === 1) {
             const person = matches[0].candidate;
-            const replyText = `Halo *${person.name}* (${person.className || 'Anggota/Pendaftar'}),\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${person.nisn}\n\nTerima kasih!`;
+            const replyText = `Halo *${person.name}* (${person.className || 'Anggota/Pendaftar'}),\n\nHasil kelulusan pendaftaran PIK-R MANSEKU Anda dapat dicek secara langsung melalui link berikut:\n🔗 ${SITE_URL}/cek-kelulusan?nisn=${person.nisn}\n\nTerima kasih!`;
             await replyToMessage(fromJid, replyText, msg);
           } else {
             let replyText = `Data pendaftar dengan nama *"${query}"* ditemukan beberapa hasil yang cocok:\n`;
             const suggestions = matches.slice(0, 4);
             suggestions.forEach((match, index) => {
               const c = match.candidate;
-              replyText += `\n${index + 1}. *${c.name}* (Kelas ${c.className || '-'})\n🔗 https://pikr-manseku.my.id/cek-kelulusan?nisn=${c.nisn}\n`;
+              replyText += `\n${index + 1}. *${c.name}* (Kelas ${c.className || '-'})\n🔗 ${SITE_URL}/cek-kelulusan?nisn=${c.nisn}\n`;
             });
             replyText += `\nSilakan klik link di atas jika sesuai dengan nama Anda.`;
             await replyToMessage(fromJid, replyText, msg);

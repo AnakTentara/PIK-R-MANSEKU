@@ -12,6 +12,7 @@ import prisma from '../config/db.js';
 import { ensureMemberIdentity } from './slug.js';
 import { OrgError } from './orgSync.js';
 import { cellText, norm } from './memberExcel.js';
+import { SITE_URL } from '../config/site.js';
 
 const CODE_RE = /^PIKR_(\d{1,6})-(\d{2})$/;
 const ORANGE = 'FFF97316';
@@ -45,7 +46,7 @@ const words = (s) => String(s || '').toUpperCase().replace(/[^A-Z]+/g, ' ').trim
 
 export async function buildRosterWorkbook() {
   await ensureMemberIdentity();
-  const base = process.env.PUBLIC_SITE_URL || 'https://pikr-manseku.my.id';
+  const base = SITE_URL;
   const members = await prisma.member.findMany({ where: { status: 'ACTIVE' } });
   const byName = (a, b) => a.name.trim().localeCompare(b.name.trim(), 'id');
   const withCode = members.filter((m) => m.memberCode).sort((a, b) => a.memberCode.localeCompare(b.memberCode));

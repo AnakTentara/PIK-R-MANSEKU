@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import prisma from '../config/db.js';
+import { JWT_SECRET } from '../config/secret.js';
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
 export async function authAdmin(req, res, next) {
   const authHeader = req.headers['authorization'];

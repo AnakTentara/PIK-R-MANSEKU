@@ -56,7 +56,7 @@ router.get('/members/:id/history', authAbsen, getMemberHistory);
 router.post('/scan', authAbsen, requireWriter, scanCard);
 router.post('/records', authAbsen, requireWriter, recordAttendance);
 router.patch('/records/:id', authAbsen, requireWriter, editRecordTime);
-router.delete('/records/:id', authAbsen, requireManager, deleteRecord);
+router.delete('/records/:id', authAbsen, requireWriter, deleteRecord);
 router.get('/records/:id/logs', authAbsen, getRecordLogs);
 
 // Rekap

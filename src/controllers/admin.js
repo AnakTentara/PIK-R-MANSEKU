@@ -18,11 +18,13 @@ import { buildMembersWorkbook, buildTemplateWorkbook, parseMembersSheet, planImp
 import { getCatalog, saveCatalog, resetCatalog, DEFAULT_POSITIONS } from '../utils/orgCatalog.js';
 import { OrgError, defaultJabatanForRole, saveOrgEntry, deleteOrgEntry, assignPosition, clearPosition, syncOrgName, archiveBeforeDelete, buildSyncReport, applySyncFixes } from '../utils/orgSync.js';
 import { sendWhatsApp, sendWhatsAppWithAttachments } from '../services/whatsapp.js';
+import { SITE_URL } from '../config/site.js';
+import { writeBackupZip, BackupError } from '../utils/backup.js';
+import { JWT_SECRET } from '../config/secret.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeypikrmanseku123';
 
 
 // 1. Admin Login
@@ -658,7 +660,7 @@ export async function promoteCandidateToMember(req, res) {
 
     // Send automatic WA congratulation notification
     try {
-      const waMsg = `🎉 *SELAMAT ${formattedName.toUpperCase()}!*\n\nKamu telah resmi dinyatakan *LULUS* dan dipromosikan sebagai *Anggota PIK-R MANSEKU*.\n\nSilakan cek status kelulusan dan kredensial akun kamu melalui tautan di bawah ini:\n🔗 https://pikr-manseku.my.id/cek-kelulusan\n\nSelamat bergabung di keluarga besar PIK-R MANSEKU! 💪`;
+      const waMsg = `🎉 *SELAMAT ${formattedName.toUpperCase()}!*\n\nKamu telah resmi dinyatakan *LULUS* dan dipromosikan sebagai *Anggota PIK-R MANSEKU*.\n\nSilakan cek status kelulusan dan kredensial akun kamu melalui tautan di bawah ini:\n🔗 ${SITE_URL}/cek-kelulusan\n\nSelamat bergabung di keluarga besar PIK-R MANSEKU! 💪`;
       await sendWhatsApp(candidate.whatsappNumber, waMsg);
     } catch (waErr) {
       console.error('Gagal mengirim WA promosi anggota:', waErr);
@@ -1421,57 +1423,18 @@ export async function deleteUploadedFile(req, res) {
   }
 }
 
-// GET /api/admin/settings/backup-db
-// ZIP berisi: pikr_manseku.db (snapshot konsisten, aman saat server berjalan), uploads/ (semua gambar & dokumen), info.json
+// GET /api/admin/settings/backup-db — ZIP: database + uploads + info.json (lihat utils/backup.js)
 export async function downloadBackupDb(req, res) {
-  const tmp = path.join(os.tmpdir(), `pikr_snapshot_${Date.now()}_${process.pid}.db`);
-  const cleanup = () => fs.promises.rm(tmp, { force: true }).catch(() => {});
   try {
-    const here = path.dirname(fileURLToPath(import.meta.url));
-    const dbPath = path.join(here, '../../local.db');
-    const uploadsDir = path.join(here, '../../public/uploads');
-    if (!fs.existsSync(dbPath)) {
-      return res.status(404).json({ message: 'Database SQLite local.db tidak ditemukan di root server.' });
-    }
-
-    // VACUUM INTO menyalin database yang sedang dipakai tanpa file setengah tertulis; cadangan: salin biasa
-    try {
-      await prisma.$executeRawUnsafe(`VACUUM INTO '${tmp.replace(/'/g, "''")}'`);
-    } catch {
-      await fs.promises.copyFile(dbPath, tmp);
-    }
-
-    let files = 0;
-    let bytes = 0;
-    const walk = (dir) => {
-      if (!fs.existsSync(dir)) return;
-      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-        const full = path.join(dir, e.name);
-        if (e.isDirectory()) walk(full);
-        else { files++; bytes += fs.statSync(full).size; }
-      }
-    };
-    walk(uploadsDir);
-
-    const stamp = new Date().toISOString().slice(0, 10);
     res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Disposition', `attachment; filename="pikr_manseku_backup_${stamp}.zip"`);
-    const zip = archiver('zip', { zlib: { level: 6 } });
-    zip.on('error', (err) => { console.error('Error zip backup:', err); res.destroy(err); });
-    res.on('close', cleanup);
-    zip.pipe(res);
-    zip.file(tmp, { name: 'pikr_manseku.db' });
-    if (fs.existsSync(uploadsDir)) zip.directory(uploadsDir, 'uploads');
-    zip.append(JSON.stringify({
-      dibuat: new Date().toISOString(), versi: process.env.npm_package_version || null,
-      database: 'pikr_manseku.db', gambar: files, ukuranGambarByte: bytes,
-      pulihkan: 'Hentikan server, salin pikr_manseku.db menjadi local.db di root server, dan isi folder uploads/ ke public/uploads/.'
-    }, null, 2), { name: 'info.json' });
-    await zip.finalize();
+    res.setHeader('Content-Disposition', `attachment; filename="pikr_manseku_backup_${new Date().toISOString().slice(0, 10)}.zip"`);
+    await writeBackupZip(res);
   } catch (error) {
     console.error('Error backing up database:', error);
-    await cleanup();
-    if (!res.headersSent) return res.status(500).json({ message: 'Gagal membuat cadangan database' });
+    if (!res.headersSent) {
+      res.removeHeader('Content-Disposition');
+      return res.status(error instanceof BackupError ? 404 : 500).json({ message: error instanceof BackupError ? error.message : 'Gagal membuat cadangan database' });
+    }
     res.destroy();
   }
 }
