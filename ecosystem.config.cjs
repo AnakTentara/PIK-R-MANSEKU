@@ -46,10 +46,10 @@ module.exports = {
       kill_timeout: 8000,
       env: {
         NODE_ENV: 'production',
-        PORT: API_PORT,
-        // Bot WhatsApp mati bawaan: dua perangkat memakai sesi yang sama akan saling memutus.
-        // Aktifkan (set WHATSAPP=1 sebelum pm2 start) hanya di SATU server, setelah bot lama dimatikan.
-        DISABLE_WHATSAPP: process.env.WHATSAPP === '1' ? '0' : '1'
+        PORT: API_PORT
+        // Bot WhatsApp dinyalakan/dimatikan dari dashboard (Pengaturan → Atur Bot WhatsApp).
+        // Komputer uji: tulis DISABLE_WHATSAPP=1 di .env supaya bot terkunci mati dan tidak berebut sesi
+        // dengan server utama (dua perangkat memakai sesi yang sama akan saling memutus).
       }
     },
     {

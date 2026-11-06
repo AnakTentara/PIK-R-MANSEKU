@@ -79,6 +79,15 @@ import { authAdmin, requireRole } from '../middlewares/auth.js';
 import { loginLimiter } from '../middlewares/rateLimit.js';
 import { getAdminDesign, saveAdminDesign, uploadDesignImage, adminUpdateMemberCard } from '../controllers/design.js';
 import { uploadDocs, uploadPhoto as upload, uploadBlog, uploadLogo, uploadExcel } from '../utils/multerConfig.js';
+import multer from 'multer';
+import * as waBot from '../controllers/waBot.js';
+
+// Foto profil bot: disimpan di memori lalu langsung dikirim ke WhatsApp (tidak ditulis ke disk)
+const uploadBotPhoto = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => cb(null, ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype))
+});
 
 const router = express.Router();
 
@@ -113,6 +122,18 @@ router.get('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM
 router.put('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), upload.single('photo'), updateCandidate);
 router.delete('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteCandidate);
 router.post('/candidates/:id/promote-to-member', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), promoteCandidateToMember);
+
+// Bot WhatsApp (DEVELOPER only) — halaman Pengaturan → Atur Bot WhatsApp
+const dev = [authAdmin, requireRole(['DEVELOPER'])];
+router.get('/wa/stream', waBot.stream); // SSE; token di query, diperiksa di controller
+router.get('/wa/status', ...dev, waBot.status);
+router.post('/wa/start', ...dev, waBot.start);
+router.post('/wa/stop', ...dev, waBot.stop);
+router.post('/wa/restart', ...dev, waBot.restart);
+router.post('/wa/logout', ...dev, waBot.logout);
+router.put('/wa/profile', ...dev, waBot.profile);
+router.post('/wa/photo', ...dev, uploadBotPhoto.single('photo'), waBot.photo);
+router.post('/wa/test', ...dev, waBot.test);
 
 // Settings Management (DEVELOPER only)
 router.get('/settings', authAdmin, requireRole(['DEVELOPER']), getSettings);

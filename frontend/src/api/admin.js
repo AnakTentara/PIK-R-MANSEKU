@@ -240,3 +240,20 @@ export const uploadDesignImage = (file) => {
   return api.post('/admin/design/upload', fd);
 };
 export const resetMemberCard = (memberId) => api.put(`/admin/members/${memberId}/card`, { reset: true });
+
+// Bot WhatsApp (Pengaturan → Atur Bot WhatsApp)
+export const getWaStatus = () => api.get('/admin/wa/status');
+export const startWaBot = (pairingPhone) => api.post('/admin/wa/start', pairingPhone ? { pairingPhone } : {}, { timeout: 60000 });
+export const stopWaBot = () => api.post('/admin/wa/stop');
+export const restartWaBot = () => api.post('/admin/wa/restart', {}, { timeout: 60000 });
+export const logoutWaBot = () => api.post('/admin/wa/logout', {}, { timeout: 60000 });
+export const updateWaProfile = (data) => api.put('/admin/wa/profile', data, { timeout: 30000 });
+export const updateWaPhoto = (file) => {
+  const fd = new FormData();
+  fd.append('photo', file);
+  return api.post('/admin/wa/photo', fd, { timeout: 60000 });
+};
+export const sendWaTest = (to) => api.post('/admin/wa/test', { to }, { timeout: 60000 });
+/** Alamat SSE untuk status + log langsung (EventSource tidak bisa mengirim header, token lewat query). */
+export const waStreamUrl = (after = 0) =>
+  `/api/admin/wa/stream?token=${encodeURIComponent(localStorage.getItem('admin_token') || '')}&after=${after}`;

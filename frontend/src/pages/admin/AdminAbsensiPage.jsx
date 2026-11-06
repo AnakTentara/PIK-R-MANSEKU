@@ -252,8 +252,11 @@ function SessionModal({ session, onClose, onSaved }) {
   };
 
   return (
-    <Modal title={session ? 'Edit kegiatan' : 'Kegiatan baru'} onClose={onClose}>
-      <form onSubmit={submit} className={styles.form}>
+    <Modal title={session ? 'Edit kegiatan' : 'Kegiatan baru'} onClose={onClose} actions={<>
+      <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
+      <button type="submit" form="session-form" className="btn btn-primary" disabled={busy}>{busy ? 'Menyimpan…' : 'Simpan'}</button>
+    </>}>
+      <form id="session-form" onSubmit={submit} className={styles.form}>
         {!session && (
           <div className="form-group">
             <label className="form-label">Tanggal</label>
@@ -278,10 +281,6 @@ function SessionModal({ session, onClose, onSaved }) {
             </SelectField>
           </div>
         )}
-        <div className={styles.modalActions}>
-          <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
-          <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Menyimpan…' : 'Simpan'}</button>
-        </div>
       </form>
     </Modal>
   );
@@ -457,7 +456,12 @@ function RecordModal({ cell, onClose, onSaved }) {
   });
 
   return (
-    <Modal title={`${row.name.trim()} · ${longDate(session.date)}`} onClose={onClose}>
+    <Modal title={`${row.name.trim()} · ${longDate(session.date)}`} onClose={onClose} actions={<>
+      {day.id && !day.auto && <button type="button" className="btn btn-ghost text-danger" onClick={remove}><Trash2 size={14} /> Hapus</button>}
+      <span style={{ flex: 1 }} />
+      <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
+      <button type="button" className="btn btn-primary" onClick={save} disabled={busy || (action === 'IN' && !time)}>Simpan</button>
+    </>}>
       <p className={styles.muted} style={{ marginBottom: 12 }}>{session.title}</p>
       <div className={styles.choice}>
         {[['IN', 'Hadir'], ['SAKIT', 'Sakit'], ['IZIN', 'Izin'], ['ALFA', 'Alfa']].map(([k, l]) => (
@@ -475,12 +479,6 @@ function RecordModal({ cell, onClose, onSaved }) {
           <textarea className="form-textarea" rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="Opsional" />
         </div>
       )}
-      <div className={styles.modalActions}>
-        {day.id && !day.auto && <button type="button" className="btn btn-ghost text-danger" onClick={remove}><Trash2 size={14} /> Hapus</button>}
-        <span style={{ flex: 1 }} />
-        <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
-        <button type="button" className="btn btn-primary" onClick={save} disabled={busy || (action === 'IN' && !time)}>Simpan</button>
-      </div>
     </Modal>
   );
 }
@@ -488,7 +486,7 @@ function RecordModal({ cell, onClose, onSaved }) {
 function HistoryModal({ history, onClose }) {
   const { row, data } = history;
   return (
-    <Modal title={`Riwayat kehadiran · ${row.name.trim()}`} onClose={onClose} wide>
+    <Modal title={`Riwayat kehadiran · ${row.name.trim()}`} onClose={onClose} wide actions={<button type="button" className="btn btn-secondary" onClick={onClose}>Tutup</button>}>
       {!data ? <div className={styles.loading}><Loader2 className={styles.spin} /></div> : (
         <>
           <div className={styles.miniStats}>
@@ -615,7 +613,10 @@ function IdCardTab({ isManager }) {
       )}
 
       {preview && (
-        <Modal title="Pratinjau impor ID Card" onClose={() => setPreview(null)} wide>
+        <Modal title="Pratinjau impor ID Card" onClose={() => setPreview(null)} wide actions={<>
+          <button className="btn btn-secondary" onClick={() => setPreview(null)}>Batal</button>
+          <button className="btn btn-primary" onClick={applyImport} disabled={!preview.changed}><Check size={16} /> Simpan {preview.changed} kode</button>
+        </>}>
           <p>
             <b>{preview.changed}</b> kode akan disimpan, <b>{preview.same}</b> sudah sama,{' '}
             <b>{preview.skipped}</b> baris tanpa kode dilewati, <b>{preview.errors.length}</b> bermasalah.
@@ -645,25 +646,20 @@ function IdCardTab({ isManager }) {
               </ul>
             </>
           )}
-          <div className={styles.modalActions}>
-            <button className="btn btn-secondary" onClick={() => setPreview(null)}>Batal</button>
-            <button className="btn btn-primary" onClick={applyImport} disabled={!preview.changed}><Check size={16} /> Simpan {preview.changed} kode</button>
-          </div>
         </Modal>
       )}
 
       {resetOpen && (
-        <Modal title="Hapus semua kode ID Card?" onClose={() => setResetOpen(false)}>
+        <Modal title="Hapus semua kode ID Card?" onClose={() => setResetOpen(false)} actions={<>
+          <button className="btn btn-secondary" onClick={() => setResetOpen(false)}>Batal</button>
+          <button className="btn btn-primary" onClick={doReset} disabled={confirmText !== 'HAPUS'}><Trash2 size={16} /> Hapus semua kode</button>
+        </>}>
           <p>
             Kode ID Card <b>{withCode} anggota</b> akan dikosongkan. ID Card yang sudah dicetak dengan kode lama
             tidak akan terbaca lagi sampai kode baru diisi. Data anggota lain tidak berubah.
           </p>
           <p className={styles.muted}>Ketik <b>HAPUS</b> untuk melanjutkan.</p>
           <input className="form-input" value={confirmText} onChange={e => setConfirmText(e.target.value)} placeholder="HAPUS" autoFocus />
-          <div className={styles.modalActions}>
-            <button className="btn btn-secondary" onClick={() => setResetOpen(false)}>Batal</button>
-            <button className="btn btn-primary" onClick={doReset} disabled={confirmText !== 'HAPUS'}><Trash2 size={16} /> Hapus semua kode</button>
-          </div>
         </Modal>
       )}
     </section>
@@ -784,7 +780,8 @@ function SettingsTab() {
 
 // ─── Modal sederhana ────────────────────────────────────────────────────────
 
-function Modal({ title, children, onClose, wide }) {
+/** Popup halaman Absensi: isi menggulir, tombol di `actions` tampil di bar bawah yang selalu terlihat. */
+function Modal({ title, children, onClose, wide, actions }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
@@ -792,12 +789,13 @@ function Modal({ title, children, onClose, wide }) {
   }, [onClose]);
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`${styles.modal} ${wide ? styles.modalWide : ''}`} role="dialog" aria-modal="true">
+      <div className={`${styles.modal} ${wide ? styles.modalWide : ''} modal-shell`} role="dialog" aria-modal="true">
         <div className={styles.modalHead}>
           <h3>{title}</h3>
           <button className={styles.close} onClick={onClose} aria-label="Tutup"><X size={18} /></button>
         </div>
-        <div className={styles.modalBody}>{children}</div>
+        <div className={`${styles.modalBody} modal-scroll`}>{children}</div>
+        {actions && <div className="modal-bar">{actions}</div>}
       </div>
     </div>
   );

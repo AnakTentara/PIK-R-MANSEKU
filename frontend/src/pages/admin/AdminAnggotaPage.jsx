@@ -591,13 +591,13 @@ export default function AdminAnggotaPage() {
       {/* Edit Modal */}
       {editModalOpen && (
         <div className={styles.modalOverlay}>
-          <div className={`${styles.modalCard} ${styles.wideEditModalCard}`}>
+          <div className={`${styles.modalCard} ${styles.wideEditModalCard} modal-shell`}>
             <div className={styles.modalHeader}>
               <h3>Edit Anggota &amp; Akun</h3>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: 2 }}>NISN: <strong>{selectedMember?.nisn}</strong></p>
             </div>
-            <form onSubmit={handleSaveEdit} className={styles.modalForm}>
-              <fieldset disabled={uploading} style={{ border: 'none', padding: 0, margin: 0 }}>
+            <form onSubmit={handleSaveEdit} className="modal-form">
+              <fieldset disabled={uploading} className={`${styles.modalForm} modal-scroll`} style={{ border: 'none', margin: 0 }}>
                 <div className={styles.modalFormInner}>
                   {/* Photo Upload */}
                   <div className={styles.photoEditSection}>
@@ -755,7 +755,7 @@ export default function AdminAnggotaPage() {
                 </div>
               </fieldset>
 
-              <div className={styles.modalActions}>
+              <div className={`${styles.modalActions} modal-bar`}>
                 {uploading ? (
                   <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
@@ -784,11 +784,12 @@ export default function AdminAnggotaPage() {
       {/* Add Modal */}
       {addModalOpen && (
         <div className={styles.modalOverlay}>
-          <div className={styles.modalCard}>
+          <div className={`${styles.modalCard} modal-shell`}>
             <div className={styles.modalHeader}>
               <h3>Tambah Anggota Baru secara Manual</h3>
             </div>
-            <form onSubmit={handleSaveAdd} className={styles.modalForm}>
+            <form onSubmit={handleSaveAdd} className="modal-form">
+              <div className={`${styles.modalForm} modal-scroll`}>
               <div className="form-group">
                 <label className="form-label" htmlFor="add-nisn">NISN *</label>
                 <input
@@ -912,7 +913,8 @@ export default function AdminAnggotaPage() {
                 />
               </div>
 
-              <div className={styles.modalActions}>
+              </div>
+              <div className={`${styles.modalActions} modal-bar`}>
                 <button type="submit" className="btn btn-primary">
                   Tambah Anggota
                 </button>
@@ -932,7 +934,8 @@ export default function AdminAnggotaPage() {
       {/* Credentials Success Modal */}
       {credentialsModalOpen && createdCredentials && (
         <div className={styles.modalOverlay}>
-          <div className={styles.modalCard} style={{ maxWidth: '400px', textAlign: 'center', padding: '24px' }}>
+          <div className={`${styles.modalCard} modal-shell modal-padded`} style={{ maxWidth: '400px', textAlign: 'center' }}>
+            <div className="modal-scroll">
             <CheckCircle size={48} style={{ color: 'var(--color-success)', margin: '0 auto 16px' }} />
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: 'var(--color-text-primary)' }}>
               Anggota Berhasil Ditambahkan!
@@ -972,14 +975,17 @@ export default function AdminAnggotaPage() {
               </div>
             </div>
 
-            <button
-              type="button"
-              className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
-              onClick={() => setCredentialsModalOpen(false)}
-            >
-              Selesai & Tutup
-            </button>
+            </div>
+            <div className="modal-bar">
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => setCredentialsModalOpen(false)}
+              >
+                Selesai & Tutup
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -987,7 +993,8 @@ export default function AdminAnggotaPage() {
       {/* Wisudakan Angkatan Modal */}
       {alumniModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setAlumniModalOpen(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px' }}>
+          <div className={`${styles.modalContent} modal-shell modal-padded`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px' }}>
+            <div className="modal-scroll">
             <h2 className={styles.modalTitle}>
               <GraduationCap size={22} /> Wisudakan Angkatan
             </h2>
@@ -1015,7 +1022,8 @@ export default function AdminAnggotaPage() {
               </div>
             )}
 
-            <div className={styles.modalActions}>
+            </div>
+            <div className={`${styles.modalActions} modal-bar`}>
               <button type="button" className="btn btn-ghost" onClick={() => setAlumniModalOpen(false)}>Batal</button>
               <button
                 type="button"

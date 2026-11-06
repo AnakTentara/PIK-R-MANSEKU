@@ -294,12 +294,13 @@ export default function AdminOrgPage() {
 
       {modalOpen && (
         <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
+          <div className={`${styles.modal} modal-shell`}>
             <div className={styles.modalHeader}>
               <h3>{editingId ? 'Edit Data Pengurus' : (isPembinaMode ? 'Tambah Pembina Baru' : 'Tambah Pengurus Baru')}</h3>
               <button className={styles.closeBtn} onClick={() => setModalOpen(false)}><X size={20} /></button>
             </div>
-            <form onSubmit={handleSubmit} className={styles.form}>
+            <form onSubmit={handleSubmit} className="modal-form">
+              <div className={`${styles.form} modal-scroll`}>
               {!selectedMemberId ? (
                 <div className={styles.photoSection}>
                   <div className={styles.photoPreviewWrapper}>
@@ -379,7 +380,8 @@ export default function AdminOrgPage() {
                 <textarea className="form-textarea" rows={3} value={quote} onChange={(e) => setQuote(e.target.value)} placeholder="Tuliskan kata motivasi atau sambutan singkat..." />
               </div>
 
-              <div className={styles.modalActions}>
+              </div>
+              <div className={`${styles.modalActions} modal-bar`}>
                 <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Batal</button>
                 <button type="submit" className="btn btn-primary">Simpan</button>
               </div>

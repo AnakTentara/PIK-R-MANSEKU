@@ -290,17 +290,12 @@ app.listen(PORT, async () => {
   await ensureAbsenAccount();
   await ensureMemberIdentity();
 
-  // Initialize WhatsApp Bot service in the background
-  // (bisa dimatikan untuk tes lokal dengan DISABLE_WHATSAPP=1, supaya tidak bentrok dengan bot di VPS)
-  if (process.env.DISABLE_WHATSAPP === '1') {
-    console.log('[Server] WhatsApp Bot dinonaktifkan (DISABLE_WHATSAPP=1).');
-  } else {
-    try {
-      console.log('[Server] Menghubungkan ke WhatsApp Web...');
-      await initWhatsApp();
-    } catch (error) {
-      console.error('[Server] Gagal menginisialisasi WhatsApp Bot:', error);
-    }
+  // Bot WhatsApp: nyala/mati diatur dari dashboard (Pengaturan → Atur Bot WhatsApp).
+  // DISABLE_WHATSAPP=1 di .env mengunci bot mati (komputer uji, supaya tidak berebut sesi dengan server utama).
+  try {
+    await initWhatsApp();
+  } catch (error) {
+    console.error('[Server] Gagal menginisialisasi WhatsApp Bot:', error);
   }
 
   // Start Announcement Scheduler Service

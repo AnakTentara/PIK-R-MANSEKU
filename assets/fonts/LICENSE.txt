@@ -1,0 +1,3 @@
+Inter (Rasmus Andersson) dan Outfit (Rodrigo Fuenzalida) — SIL Open Font License 1.1
+https://openfontlicense.org — diambil dari paket npm @expo-google-fonts/inter dan @expo-google-fonts/outfit.
+Dipakai bot WhatsApp untuk menggambar kartu dan tabel (src/services/waCards.js).

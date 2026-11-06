@@ -476,3 +476,50 @@ ul, ol {
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: var(--radius-sm);
 }
+
+/* ── Popup dashboard: isi bisa digulir, bar tombol selalu terlihat ──────────────
+   Semua popup admin memakai tiga kelas ini (di samping kelas modul masing-masing):
+     .modal-shell  kartu popup: kolom flex setinggi layar maksimum, tidak menggulir sendiri
+     .modal-scroll bagian isi: satu-satunya yang menggulir
+     .modal-bar    bar tombol (Simpan / Batal) di dasar kartu: tidak ikut menggulir
+   Dulu tombol berada di ujung isi, jadi harus menggulir dulu untuk menemukan Simpan. */
+.modal-shell {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: min(92vh, 92dvh) !important;
+  overflow: hidden !important;
+  padding-bottom: 0 !important;
+}
+.modal-shell > * { flex-shrink: 0; }
+.modal-shell > .modal-scroll {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-bar {
+  position: relative !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  border-top: 1px solid var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  box-shadow: 0 -8px 18px -12px rgba(15, 23, 42, 0.22);
+  z-index: 2;
+}
+/* Kartu popup yang bertepi (padding) sendiri: bar menempel penuh ke tepi kartu */
+.modal-shell.modal-padded { padding: var(--modal-pad, 24px) var(--modal-pad, 24px) 0 !important; }
+.modal-shell.modal-padded > .modal-bar { margin: 12px calc(-1 * var(--modal-pad, 24px)) 0 !important; }
+.modal-shell.modal-padded > .modal-scroll { margin: 0 calc(-1 * var(--modal-pad, 24px)); padding: 0 var(--modal-pad, 24px) 4px; }
+/* <form> pembungkus isi + bar: ikut menjadi kolom supaya bar tetap di dasar */
+.modal-shell > form.modal-form { display: flex !important; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden !important; padding: 0 !important; gap: 0 !important; }
+.modal-shell > form.modal-form > .modal-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+@media (max-width: 560px) {
+  .modal-bar > .btn, .modal-bar > button { flex: 1 1 auto; justify-content: center; }
+}

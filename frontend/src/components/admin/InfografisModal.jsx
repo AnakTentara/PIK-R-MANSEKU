@@ -479,7 +479,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+      <div className={`${styles.modalCard} modal-shell`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className={styles.modalHeader}>
           <div className={styles.modalHeaderTitle}>
@@ -496,7 +496,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         </div>
 
         {/* Body Grid: Settings Panel + Live Canvas Preview */}
-        <div className={styles.modalBody}>
+        <div className={`${styles.modalBody} modal-scroll`}>
           {/* Settings Panel */}
           <div className={styles.settingsPanel}>
             {/* Rentang Rank */}
@@ -638,7 +638,7 @@ export default function InfografisModal({ isOpen, onClose, candidates = [], scor
         </div>
 
         {/* Modal Footer */}
-        <div className={styles.modalFooter}>
+        <div className={`${styles.modalFooter} modal-bar`}>
           <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
             Menampilkan <strong>{selectedCandidates.length}</strong> peserta teratas dalam tata letak otomatis ({selectedCandidates.length > 5 ? '2 Kolom Kanan-Kiri' : '1 Kolom Terpusat'}).
           </span>

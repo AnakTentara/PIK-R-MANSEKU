@@ -2323,7 +2323,7 @@ export default function AdminPendaftaranPage() {
       {/* ─── MODAL 1: 3-TAB CANDIDATE DETAIL/EDIT MODAL ────────────────── */}
       {editModalOpen && selectedCandidate && (
         <div className={styles.modalOverlay} onClick={() => setEditModalOpen(false)}>
-          <div className={`${styles.modalCard} ${styles.wideModalCard}`} onClick={(e) => e.stopPropagation()}>
+          <div className={`${styles.modalCard} ${styles.wideModalCard} modal-shell`} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div>
                 <h3>Detail & Pengaturan Calon Anggota</h3>
@@ -2361,7 +2361,7 @@ export default function AdminPendaftaranPage() {
               </button>
             </div>
 
-            <div className={styles.modalForm}>
+            <div className={`${styles.modalForm} modal-scroll`}>
               {/* TAB 1: BIODATA */}
               {modalTab === 'biodata' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -2609,7 +2609,7 @@ export default function AdminPendaftaranPage() {
             </div>
 
             {/* Modal Bottom Actions (Structured Left-Right) */}
-            <div className={styles.modalActions}>
+            <div className={`${styles.modalActions} modal-bar`}>
               <button
                 type="button"
                 onClick={() => handleDeleteCandidate(selectedCandidate.id, selectedCandidate.name)}
@@ -2642,7 +2642,7 @@ export default function AdminPendaftaranPage() {
       {/* ─── MODAL 2: ATUR HARI SELEKSI MASSAL MODAL ────────────────────── */}
       {randomizeModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setRandomizeModalOpen(false)}>
-          <div className={`${styles.modalCard} ${styles.wideModalCard}`} onClick={(e) => e.stopPropagation()}>
+          <div className={`${styles.modalCard} ${styles.wideModalCard} modal-shell`} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div>
                 <h3>🎲 Acak & Atur Hari Seleksi Massal</h3>
@@ -2658,7 +2658,7 @@ export default function AdminPendaftaranPage() {
               </button>
             </div>
 
-            <div className={styles.modalForm}>
+            <div className={`${styles.modalForm} modal-scroll`}>
               {/* 1. Mode Pemilihan Peserta */}
               <div className="form-group">
                 <label className="form-label" style={{ fontWeight: 700 }}>1. Mode Pemilihan Peserta Seleksi</label>
@@ -2803,7 +2803,7 @@ export default function AdminPendaftaranPage() {
               </div>
             </div>
 
-            <div className={styles.modalActions}>
+            <div className={`${styles.modalActions} modal-bar`}>
               <button
                 type="button"
                 onClick={() => setRandomizeModalOpen(false)}
@@ -2828,7 +2828,7 @@ export default function AdminPendaftaranPage() {
       {/* ─── MODAL 3: KIRIM WA SELEKSI MASSAL + PDF MODAL ───────────── */}
       {waModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setWaModalOpen(false)}>
-          <div className={`${styles.modalCard} ${styles.wideModalCard}`} onClick={(e) => e.stopPropagation()}>
+          <div className={`${styles.modalCard} ${styles.wideModalCard} modal-shell`} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div>
                 <h3>{waModalType === 'kelulusan' ? '🎓 Kirim Pengumuman WA Kelulusan Massal + PDF' : '📢 Kirim Notifikasi WA Seleksi Massal + PDF'}</h3>
@@ -2844,7 +2844,7 @@ export default function AdminPendaftaranPage() {
               </button>
             </div>
 
-            <div className={styles.modalForm}>
+            <div className={`${styles.modalForm} modal-scroll`}>
               {/* Mode Debug / Override Admin Target Number */}
               <div className={styles.debugBox}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem' }}>
@@ -2923,7 +2923,7 @@ export default function AdminPendaftaranPage() {
               </div>
             </div>
 
-            <div className={styles.modalActions}>
+            <div className={`${styles.modalActions} modal-bar`}>
               <button
                 type="button"
                 onClick={() => setWaModalOpen(false)}

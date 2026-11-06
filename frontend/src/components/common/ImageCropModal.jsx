@@ -101,7 +101,7 @@ export default function ImageCropModal({ imageSrc, onCropComplete, onClose }) {
 
   return (
     <div className={styles.overlay} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
-      <div className={styles.modal}>
+      <div className={`${styles.modal} modal-shell`}>
         <div className={styles.header}>
           <h3>Potong &amp; Atur Foto Profil</h3>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Tutup">
@@ -109,7 +109,7 @@ export default function ImageCropModal({ imageSrc, onCropComplete, onClose }) {
           </button>
         </div>
 
-        <div className={styles.body}>
+        <div className={`${styles.body} modal-scroll`}>
           {/* Crop Viewport */}
           <div
             className={styles.cropViewport}
@@ -158,7 +158,7 @@ export default function ImageCropModal({ imageSrc, onCropComplete, onClose }) {
           </div>
         </div>
 
-        <div className={styles.footer}>
+        <div className={`${styles.footer} modal-bar`}>
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             Batal
           </button>

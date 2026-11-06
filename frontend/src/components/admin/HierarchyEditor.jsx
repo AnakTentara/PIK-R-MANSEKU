@@ -202,7 +202,7 @@ export default function HierarchyEditor({ open, positions, onClose, onSaved }) {
 
   return createPortal(
     <div className={styles.overlay} onMouseDown={(e) => e.target === e.currentTarget && !saving && onClose()}>
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-label="Atur hierarki jabatan">
+      <div className={`${styles.modal} modal-shell modal-padded`} style={{ '--modal-pad': '20px' }} role="dialog" aria-modal="true" aria-label="Atur hierarki jabatan">
         <div className={styles.head}>
           <h3><Layers size={18} /> Atur Hierarki Jabatan</h3>
           <button className={styles.close} onClick={onClose} aria-label="Tutup"><X size={18} /></button>
@@ -251,7 +251,7 @@ export default function HierarchyEditor({ open, positions, onClose, onSaved }) {
           </form>
         )}
 
-        <div className={styles.actions}>
+        <div className={`${styles.actions} modal-bar`}>
           <button type="button" className={styles.ghost} onClick={reset} disabled={saving}><RotateCcw size={15} /> Kembalikan bawaan</button>
           <span className={styles.spacer} />
           <button type="button" className={styles.ghost} onClick={onClose} disabled={saving}>Batal</button>

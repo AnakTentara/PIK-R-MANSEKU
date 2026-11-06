@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getSettings, saveSettings, downloadBackupDb } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
-import { Save, Database, Mail, Download } from 'lucide-react';
+import { Save, Database, Mail, Download, MessageCircle, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminSettingsPage.module.css';
 
@@ -74,10 +75,18 @@ export default function AdminSettingsPage() {
     <div className={styles.page}>
       <AdminHeader
         title="Pengaturan Sistem"
-        subtitle="Konfigurasi email server dan cadangan database"
+        subtitle="Bot WhatsApp, email server, dan cadangan database"
       />
 
       <div className={styles.body}>
+        <Link to="/admin/settings/bot" className={styles.botCard}>
+          <span className={styles.botIcon}><MessageCircle size={22} /></span>
+          <span className={styles.botText}>
+            <b>Atur Bot WhatsApp</b>
+            <small>Nyalakan atau matikan bot, hubungkan dengan QR / kode, profil bot, dan terminal debug</small>
+          </span>
+          <ChevronRight size={20} className={styles.botChevron} />
+        </Link>
         {loadingSettings ? (
           <div className={styles.skelGrid}>
             <div className={`skeleton ${styles.skelCard}`} />

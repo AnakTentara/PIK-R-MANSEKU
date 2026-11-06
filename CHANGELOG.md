@@ -4,6 +4,29 @@ Seluruh rilis, pembaruan fitur, dan perbaikan bug pada platform PIK-R MANSEKU di
 
 ---
 
+## [v2.3.0] — 2026-11-06
+
+Bot WhatsApp diatur dari dashboard dan membalas dengan kartu/tabel bergambar; semua popup dashboard punya bar tombol yang selalu terlihat.
+
+### 🌟 Fitur Baru
+- **Pengaturan → Atur Bot WhatsApp** (`/admin/settings/bot`, Developer): tombol nyala/mati, hubungkan lewat **QR** atau **kode pairing** (nomor telepon), putuskan tautan, mulai ulang, **profil bot** (foto, nama, info, nomor, tanda terverifikasi), **uji kirim**, dan **terminal debug** dengan log langsung (SSE), saring, jeda, salin.
+- **Bot membalas dengan kartu dan tabel bergambar** (`src/services/waCards.js`, SVG → PNG lewat `@resvg/resvg-js`, font Inter/Outfit di `assets/fonts/`). Teks tetap dikirim sebagai caption supaya bisa disalin.
+  - `/menu` kartu daftar perintah, `/cek` kartu hasil seleksi (atau tabel bila beberapa nama cocok), `/sandi ganti` kartu OTP.
+  - Baru: `/absen` kartu kehadiran pribadi 90 hari (japri), `/rekap` tabel kehadiran hari ini (hanya pengurus inti yang nomornya terdaftar).
+- **API bot** `/api/admin/wa/*`: `status`, `start` (opsional `pairingPhone`), `stop`, `restart`, `logout`, `profile`, `photo`, `test`, `stream` (SSE).
+
+### 🔧 Perubahan
+- **Bot WhatsApp ditulis ulang** di atas Baileys resmi (`@whiskeysockets/baileys` 7.0.0-rc14). Pesan tombol/list/carousel tidak dipakai: lewat WhatsApp Web pesan itu sering tidak tampil di HP penerima, dan fork yang memaksakannya (mis. `ourin-baileys`) sudah ditandai malware (GHSA-5qgv-v3j9-f64g). Tidak ada sisa `ourin` di proyek ini.
+- Nyala/mati bot disimpan di Setting `wa_enabled` (bawaan **mati**). `DISABLE_WHATSAPP=1` di `.env` kini mengunci bot mati (komputer uji). `ecosystem.config.cjs` tidak lagi mengatur bot.
+- Bot lebih aman dari tanda spam: satu antrean kirim dengan jeda acak 1,2–2 detik, status "sedang mengetik", tidak online otomatis, tidak menyinkronkan riwayat, tampil sebagai "Chrome (Windows)" di Perangkat Tertaut.
+- Sesi dipakai di server lain (`connectionReplaced`) kini menghentikan bot dengan pesan jelas, bukan saling memutus terus-menerus. Logout dari HP menghapus sesi dan menunggu ditautkan ulang dari dashboard.
+- **Semua popup dashboard**: isi menggulir, tombol (Simpan/Batal/dll.) di **bar bawah yang selalu terlihat**. Kelas global `.modal-shell`, `.modal-scroll`, `.modal-bar` di `main.css`; dipasang di Absensi, Anggota, File Manager, Struktur, Pendaftaran, Testimoni, Pengguna, Hierarki Jabatan, Impor Excel, Ganti Pejabat, Potong Foto, Infografis, dan konfirmasi global.
+- `buildRecap` di `controllers/absen.js` diekspor (dipakai bot).
+- Dependensi: `+qrcode`, `+@resvg/resvg-js`, `-qrcode-terminal`.
+
+### 🐛 Perbaikan
+- Popup **Tambah/Edit Akun Admin** (halaman Pengguna) langsung error karena ikon `Key` belum diimpor.
+
 ## [v2.2.0] — 2026-11-05
 
 Siap produksi di satu komputer, mudah dipindah server, dan Mode Cepat untuk absensi.

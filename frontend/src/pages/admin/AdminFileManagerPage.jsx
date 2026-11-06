@@ -158,10 +158,10 @@ export default function AdminFileManagerPage() {
       {/* File Preview Modal */}
       {selectedFile && (
         <div className={styles.modalOverlay} onClick={() => setSelectedFile(null)}>
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+          <div className={`${styles.modalCard} modal-shell modal-padded`} onClick={(e) => e.stopPropagation()}>
             <button className={styles.modalCloseBtn} onClick={() => setSelectedFile(null)}>×</button>
             <h3 className={styles.modalTitle}>Detail & Pratampilan File</h3>
-            <div className={styles.modalBody}>
+            <div className={`${styles.modalBody} modal-scroll`}>
               <div className={styles.modalPreview}>
                 <img src={getUploadUrl(selectedFile.path)} alt={selectedFile.name} />
               </div>
@@ -194,18 +194,17 @@ export default function AdminFileManagerPage() {
                   <span className={styles.metaLabel}>Path Internal:</span>
                   <span className={styles.metaValueCode}>{selectedFile.path}</span>
                 </div>
-                
-                <div className={styles.modalActions}>
-                  <button className="btn btn-primary" onClick={() => handleCopyLink(selectedFile)}>
-                    <Copy size={16} />
-                    Salin Link URL
-                  </button>
-                  <button className="btn btn-danger" onClick={() => handleDelete(selectedFile)}>
-                    <Trash2 size={16} />
-                    Hapus File
-                  </button>
-                </div>
               </div>
+            </div>
+            <div className="modal-bar">
+              <button className="btn btn-danger" onClick={() => handleDelete(selectedFile)}>
+                <Trash2 size={16} />
+                Hapus File
+              </button>
+              <button className="btn btn-primary" onClick={() => handleCopyLink(selectedFile)}>
+                <Copy size={16} />
+                Salin Link URL
+              </button>
             </div>
           </div>
         </div>

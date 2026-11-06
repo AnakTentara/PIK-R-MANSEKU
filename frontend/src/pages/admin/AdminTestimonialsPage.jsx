@@ -178,12 +178,13 @@ export default function AdminTestimonialsPage() {
 
       {modalOpen && (
         <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
+          <div className={`${styles.modal} modal-shell`}>
             <div className={styles.modalHeader}>
               <h3>{editingId ? 'Edit Testimoni' : 'Tambah Testimoni Baru'}</h3>
               <button className={styles.closeBtn} onClick={() => setModalOpen(false)}><X size={20} /></button>
             </div>
-            <form onSubmit={handleSubmit} className={styles.form}>
+            <form onSubmit={handleSubmit} className="modal-form">
+              <div className={`${styles.form} modal-scroll`}>
               <div className={styles.photoSection}>
                 <div className={styles.photoPreviewWrapper}>
                   {photoPreview ? (
@@ -213,7 +214,8 @@ export default function AdminTestimonialsPage() {
                 <textarea className="form-textarea" rows={4} value={content} onChange={(e) => setContent(e.target.value)} required placeholder="Bagikan kesan pesan selama berada di PIK-R MANSEKU..." />
               </div>
 
-              <div className={styles.modalActions}>
+              </div>
+              <div className={`${styles.modalActions} modal-bar`}>
                 <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Batal</button>
                 <button type="submit" className="btn btn-primary">Simpan</button>
               </div>

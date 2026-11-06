@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser, getMembers, createMember, updateMember, deleteMember } from '@/api/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
-import { Plus, Edit2, Trash2, UserCheck, Shield, Loader2, User, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit2, Trash2, UserCheck, Shield, Loader2, User, Eye, EyeOff, Key } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 import toast from 'react-hot-toast';
 import styles from './AdminUsersPage.module.css';
@@ -324,12 +324,13 @@ export default function AdminUsersPage() {
       {/* ── Admin System Modal ── */}
       {adminModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setAdminModalOpen(false)}>
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+          <div className={`${styles.modalCard} modal-shell modal-padded`} onClick={(e) => e.stopPropagation()}>
             <button className={styles.modalCloseBtn} onClick={() => setAdminModalOpen(false)}>×</button>
             <h3 className={styles.modalTitle}>
               {editingId ? 'Edit Akun Admin' : 'Tambah Akun Admin Baru'}
             </h3>
-            <form onSubmit={handleAdminSubmit} className={styles.form}>
+            <form onSubmit={handleAdminSubmit} className="modal-form">
+              <div className={`${styles.form} modal-scroll`}>
               <div className="form-group">
                 <label className="form-label" htmlFor="user-username">Username</label>
                 <div className={styles.inputWrapper}>
@@ -379,7 +380,8 @@ export default function AdminUsersPage() {
                   ))}
                 </SelectField>
               </div>
-              <div className={styles.modalActions}>
+              </div>
+              <div className={`${styles.modalActions} modal-bar`}>
                 <button type="button" className="btn btn-ghost" onClick={() => setAdminModalOpen(false)}>Batal</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
                   {submitting && <span className="spinner" />}
@@ -394,12 +396,13 @@ export default function AdminUsersPage() {
       {/* ── Pembina Modal (TANPA NISN) ── */}
       {pembinaModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setPembinaModalOpen(false)}>
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+          <div className={`${styles.modalCard} modal-shell modal-padded`} onClick={(e) => e.stopPropagation()}>
             <button className={styles.modalCloseBtn} onClick={() => setPembinaModalOpen(false)}>×</button>
             <h3 className={styles.modalTitle}>
               {editingId ? 'Edit Akun Pembina' : 'Tambah Akun Pembina Baru (Tanpa NISN)'}
             </h3>
-            <form onSubmit={handlePembinaSubmit} className={styles.form}>
+            <form onSubmit={handlePembinaSubmit} className="modal-form">
+              <div className={`${styles.form} modal-scroll`}>
               <div className="form-group">
                 <label className="form-label" htmlFor="pembina-name">Nama Lengkap Pembina *</label>
                 <input
@@ -466,7 +469,9 @@ export default function AdminUsersPage() {
                 />
               </div>
 
-              <div className={styles.modalActions}>
+              </div>
+
+              <div className={`${styles.modalActions} modal-bar`}>
                 <button type="button" className="btn btn-ghost" onClick={() => setPembinaModalOpen(false)}>Batal</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
                   {submitting && <span className="spinner" />}

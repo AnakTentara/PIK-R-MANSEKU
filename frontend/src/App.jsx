@@ -72,6 +72,7 @@ import AdminAnggotaPage from '@/pages/admin/AdminAnggotaPage';
 import AdminBlogPage from '@/pages/admin/AdminBlogPage';
 import AdminBlogEditorPage from '@/pages/admin/AdminBlogEditorPage';
 import AdminSettingsPage from '@/pages/admin/AdminSettingsPage';
+import AdminBotPage from '@/pages/admin/AdminBotPage';
 import AdminDesignPage from '@/pages/admin/AdminDesignPage';
 import AdminOrgPage from '@/pages/admin/AdminOrgPage';
 import AdminTestimonialsPage from '@/pages/admin/AdminTestimonialsPage';
@@ -214,6 +215,14 @@ function App() {
                 <AdminSettingsPage />
               </RoleProtectedRoute>
             } 
+          />
+          <Route
+            path="settings/bot"
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER']}>
+                <AdminBotPage />
+              </RoleProtectedRoute>
+            }
           />
           <Route 
             path="org" 

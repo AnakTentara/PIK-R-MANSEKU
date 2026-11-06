@@ -549,7 +549,7 @@ export async function getRecordLogs(req, res) {
  *                   (kecuali akunnya dibuat setelah tanggal kegiatan).
  * Kegiatan TAMBAHAN: yang tidak tercatat dibiarkan kosong; Alfa diisi manual.
  */
-async function buildRecap(from, to) {
+export async function buildRecap(from, to) {
   // Kegiatan wajib bertanggal yang sudah lewat selalu punya sesi (supaya yang tidak hadir terhitung Alfa
   // walau tidak ada petugas yang membuka aplikasi di hari itu).
   const { kegiatanWajib } = await getAbsenSettings();

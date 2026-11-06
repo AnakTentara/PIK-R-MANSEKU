@@ -74,7 +74,7 @@ export default function MemberExcelModal({ open, onClose, onDone }) {
 
   return createPortal(
     <div className={styles.overlay} onMouseDown={(e) => e.target === e.currentTarget && !busy && close()}>
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-label="Impor anggota dari Excel">
+      <div className={`${styles.modal} modal-shell modal-padded`} style={{ '--modal-pad': '20px' }} role="dialog" aria-modal="true" aria-label="Impor anggota dari Excel">
         <div className={styles.head}>
           <h3><FileSpreadsheet size={18} /> Impor Anggota dari Excel</h3>
           <button className={styles.close} onClick={close} aria-label="Tutup"><X size={18} /></button>
@@ -153,7 +153,7 @@ export default function MemberExcelModal({ open, onClose, onDone }) {
               </div>
             )}
 
-            <div className={styles.actions}>
+            <div className={`${styles.actions} modal-bar`}>
               <button className={styles.ghost} onClick={reset} disabled={busy}>Pilih file lain</button>
               <button className={styles.primary} onClick={apply} disabled={busy || s.create + s.update === 0}>
                 {busy ? <Loader2 className={styles.spin} size={16} /> : null} Impor {s.create + s.update} baris

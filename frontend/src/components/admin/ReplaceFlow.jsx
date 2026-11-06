@@ -41,9 +41,10 @@ export default function ReplaceFlow({ open, jabatan, oldHolders = [], newPerson,
 
   return createPortal(
     <div className={styles.overlay} onMouseDown={(e) => e.target === e.currentTarget && (step === 2 ? setStep(1) : onCancel())}>
-      <div className={styles.dialog} role="alertdialog" aria-modal="true">
+      <div className={`${styles.dialog} modal-shell modal-padded`} role="alertdialog" aria-modal="true">
         {step === 1 ? (
           <>
+            <div className="modal-scroll">
             <h3 className={styles.title}>Yakin mengganti pejabat <span>{jabatan}</span>?</h3>
             <p className={styles.sub}>Jabatan ini hanya boleh dipegang satu orang.</p>
             <div className={styles.compare}>
@@ -57,13 +58,15 @@ export default function ReplaceFlow({ open, jabatan, oldHolders = [], newPerson,
                 <PersonCard person={newPerson} tone="new" />
               </div>
             </div>
-            <div className={styles.actions}>
+            </div>
+            <div className={`${styles.actions} modal-bar`}>
               <button type="button" className={styles.btnGhost} onClick={onCancel}>Batal</button>
               <button type="button" className={styles.btnPrimary} onClick={() => setStep(2)}>Ganti</button>
             </div>
           </>
         ) : (
           <>
+            <div className="modal-scroll">
             <h3 className={styles.title}><Archive size={20} /> Arsipkan jabatan {many ? 'pejabat lama' : 'lama'}?</h3>
             <p className={styles.sub}>
               Jika diarsipkan, jabatan <b>{jabatan}</b> {many ? 'mereka' : 'ini'} tercatat di Arsip Kepengurusan
@@ -72,7 +75,8 @@ export default function ReplaceFlow({ open, jabatan, oldHolders = [], newPerson,
             <div className={styles.single}>
               {oldHolders.map((h) => <PersonCard key={h.memberId || h.name} person={{ ...h, caption: jabatan }} tone="old" />)}
             </div>
-            <div className={styles.actions}>
+            </div>
+            <div className={`${styles.actions} modal-bar`}>
               <button type="button" className={styles.btnGhost} onClick={() => setStep(1)}>Batal</button>
               <button type="button" className={styles.btnSoft} onClick={() => onConfirm('remove')}>Tidak</button>
               <button type="button" className={styles.btnPrimary} onClick={() => onConfirm('archive')}>Arsipkan</button>

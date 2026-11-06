@@ -36,7 +36,7 @@ export default function Modal() {
   return (
     <div className={styles.overlay} onClick={closeConfirm} role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div
-        className={styles.panel}
+        className={`${styles.panel} modal-shell modal-padded`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.header}>
@@ -45,8 +45,8 @@ export default function Modal() {
             <X size={18} />
           </button>
         </div>
-        <p className={styles.message}>{message}</p>
-        <div className={styles.actions}>
+        <p className={`${styles.message} modal-scroll`}>{message}</p>
+        <div className={`${styles.actions} modal-bar`}>
           <button
             ref={cancelRef}
             className="btn btn-secondary"

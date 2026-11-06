@@ -18,3 +18,11 @@ dist/
 build/
 .env.local
 .env.*.local
+
+# Database & cadangan (data pribadi anggota) — jangan pernah ke GitHub
+*.db
+*.db.*
+local.db*
+pikr_manseku_backup*
+# Foto yang diunggah anggota (ikut cadangan ZIP, bukan git)
+public/uploads/
