@@ -9,6 +9,12 @@ Seluruh rilis, pembaruan fitur, dan perbaikan bug pada platform PIK-R MANSEKU di
 Rilis sosial & arsitektur performa: profil bergaya media sosial (Follow, Teman Dekat, Blokir, Lapor), login alumni, code splitting dengan SkeletonLoading, crawler preview WhatsApp, dan pengerasan keamanan SQLite & Upload.
 
 ### 🌟 Fitur Baru
+- **Ruang Cerita 24 Jam (Stories Tray)**: Bar tray stories horizontal bergaya Instagram di halaman `/blog`. Anggota dapat membagikan cerita foto atau teks warna gradien yang aktif selama 24 jam dengan penghitung tayangan.
+- **Story Viewer Modal**: Penampil cerita layar penuh dengan progress bar otomatis (5 detik/slide), pause saat ditahan (hold to pause), navigasi sentuh kanan/kiri, pintasan keyboard, dan tombol hapus untuk pemilik.
+- **Feed "Untuk Anda" vs "Mengikuti"**: Tab filter dinamis pada forum blog untuk menampilkan postingan komunitas umum atau khusus dari sahabat-sahabat yang diikuti.
+- **Interaksi Suka Instan (Heart Bounce Animation)**: Tombol suka langsung dari daftar feed dengan feedback optimistik dan animasi membal (@keyframes heartBounce).
+- **Tautan Profil Kreator**: Klik nama atau foto penulis di feed langsung mengarahkan ke profil sosial lengkap `/@slug`.
+- **Panel Moderasi Laporan (`/admin/moderasi`)**: Dashboard admin untuk meninjau laporan pengguna terhadap akun, postingan blog, atau komentar diskusi, dilengkapi tindakan sembunyikan konten atau suspend akun.
 - **Profil Anggota Sosial (`/@slug`)**: Tata letak ala Instagram (foto, bio, jumlah postingan/pengikut/mengikuti, tombol Ikuti/Mengikuti, dropdown aksi hubungan pribadi, dan tab grid postingan blog).
 - **Relasi & Privasi Anggota**: Model Prisma `Follow`, `MemberRelation` (Teman Dekat, Bisukan, Blokir), dan `Report` (Laporan konten/akun). Blokir bersifat dua arah dan menyembunyikan postingan/profil dari pihak yang diblokir.
 - **Login Alumni**: Anggota berstatus `ALUMNI` tidak lagi diblokir 403; kini dapat login untuk melihat profil, mengedit info, dan menulis artikel dengan banner status "Anda telah menjadi alumni".
