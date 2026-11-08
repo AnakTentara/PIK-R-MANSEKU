@@ -15,15 +15,18 @@ const siteHost = new URL(SITE_URL).hostname.replace(/^www\./, '');
 
 export const ABSEN_URL = clean(process.env.ABSEN_SITE_URL) || `https://absen.${siteHost}`;
 export const API_URL = clean(process.env.API_SITE_URL) || `https://d-base.${siteHost}`;
+export const CERITA_URL = clean(process.env.CERITA_SITE_URL) || `https://ruang-cerita.${siteHost}`;
 
 export const ALLOWED_ORIGINS = [...new Set([
   clean(process.env.FRONTEND_URL) || 'http://localhost:25551',
   'http://localhost:25551',
   'http://localhost:25554',
+  'http://localhost:25555',
   SITE_URL,
   `https://www.${siteHost}`,
   ABSEN_URL,
   API_URL,
+  CERITA_URL,
   ...list(process.env.CORS_ORIGINS),
   ...list(process.env.CORS_EXTRA_ORIGINS)
 ])];

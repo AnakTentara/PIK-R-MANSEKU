@@ -19,9 +19,11 @@ const path = require('path');
 
 const MAIN = __dirname;
 const ABSEN = path.resolve(MAIN, process.env.ABSEN_DIR || '../PIK-R-ABSEN/frontend');
+const CERITA = path.resolve(MAIN, process.env.CERITA_DIR || '../RUANG CERITA PIK-R/web');
 const API_PORT = process.env.API_PORT || 25552;
 const WEB_PORT = process.env.WEB_PORT || 25551;
 const ABSEN_PORT = process.env.ABSEN_PORT || 25554;
+const CERITA_PORT = process.env.CERITA_PORT || 25555;
 const API_ORIGIN = `http://127.0.0.1:${API_PORT}`;
 const SERVE = path.join(MAIN, 'scripts', 'serve-static.mjs');
 
@@ -66,6 +68,14 @@ module.exports = {
       cwd: MAIN,
       script: SERVE,
       args: `--dir ${path.join(ABSEN, 'dist')} --port ${ABSEN_PORT} --api ${API_ORIGIN} --https`,
+      max_memory_restart: '250M'
+    },
+    {
+      ...common,
+      name: 'pikr-cerita',
+      cwd: MAIN,
+      script: SERVE,
+      args: `--dir "${path.join(CERITA, 'dist')}" --port ${CERITA_PORT} --api ${API_ORIGIN}`,
       max_memory_restart: '250M'
     },
     {

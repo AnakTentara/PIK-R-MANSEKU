@@ -184,27 +184,22 @@ export default function ForumPage() {
             )}
           </div>
 
-          {/* Ruang Cerita 24 Jam (Stories Tray) */}
-          <StoriesTray />
-
-          {/* Feed Filter: Untuk Anda vs Mengikuti */}
-          <div className={styles.feedTypeBar}>
-            <button
-              type="button"
-              className={`${styles.feedTypeBtn} ${feedMode !== 'following' ? styles.feedTypeBtnActive : ''}`}
-              onClick={() => handleFeedChange('all')}
+          {/* Ruang Cerita Highlight Promo */}
+          <div className={styles.ruangCeritaPromo}>
+            <div className={styles.promoText}>
+              <span className={styles.promoBadge}>🌟 SOSIAL MEDIA PIK-R</span>
+              <h4>Ingin berbagi momen, cuplikan 24 jam & curhat sebaya?</h4>
+              <p>Buka <strong>Ruang Cerita</strong> untuk melihat update stories sahabat, feed visual Instagram-style, dan bilik konseling.</p>
+            </div>
+            <a
+              href="https://ruang-cerita.pikr-manseku.my.id"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.promoBtn}
             >
-              <Sparkles size={16} />
-              Untuk Anda
-            </button>
-            <button
-              type="button"
-              className={`${styles.feedTypeBtn} ${feedMode === 'following' ? styles.feedTypeBtnActive : ''}`}
-              onClick={() => handleFeedChange('following')}
-            >
-              <Users size={16} />
-              Mengikuti
-            </button>
+              Buka Ruang Cerita
+              <ArrowRight size={16} />
+            </a>
           </div>
 
           {/* Navigation Category Tabs */}

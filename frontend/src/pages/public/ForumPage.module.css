@@ -41,39 +41,62 @@
   display: none;
 }
 
-/* Feed Type Bar (Untuk Anda vs Mengikuti) */
-.feedTypeBar {
+/* Banner Menuju Ruang Cerita */
+.ruangCeritaPromo {
   display: flex;
-  gap: 8px;
-  margin-bottom: var(--space-md);
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);
+  border: 1px solid rgba(234, 88, 12, 0.2);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
 }
 
-.feedTypeBtn {
+.promoBadge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.promoText h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 4px 0;
+}
+
+.promoText p {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.promoBtn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
-  border: none;
-  font-size: 0.92rem;
+  background: var(--color-accent);
+  color: #fff !important;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
-  padding: 8px 18px;
+  padding: 10px 18px;
   border-radius: 99px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+  flex-shrink: 0;
 }
 
-.feedTypeBtn:hover {
-  color: var(--color-text-primary);
-  background: var(--color-surface-2);
-}
-
-.feedTypeBtnActive {
-  color: #ffffff !important;
-  background: var(--color-accent) !important;
-  box-shadow: 0 2px 10px rgba(234, 88, 12, 0.25);
+.promoBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.35);
 }
 
 .authorProfileLink {
