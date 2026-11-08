@@ -1,13 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { getBlogPosts } from '@/api/forum';
+import { getBlogPosts, toggleLikeBlogPost } from '@/api/forum';
 import { timeAgo } from '@/utils/formatDate';
 import { truncate, stripHtml } from '@/utils/truncate';
 import { getUploadUrl } from '@/api/axios';
-import { Search as SearchIcon, Heart, MessageSquare, Eye, Edit2, Bookmark, FolderOpen, ArrowRight } from 'lucide-react';
+import {
+  Search as SearchIcon,
+  Heart,
+  MessageSquare,
+  Eye,
+  Edit2,
+  Bookmark,
+  FolderOpen,
+  ArrowRight,
+  Sparkles,
+  Users
+} from 'lucide-react';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import SEO from '@/components/common/SEO';
 import { useAuthStore } from '@/stores/authStore';
+import { requireLogin } from '@/stores/quickLoginStore';
+import StoriesTray from '@/components/common/StoriesTray';
+import PhotoAvatar from '@/components/common/PhotoAvatar';
+import toast from 'react-hot-toast';
 import styles from './ForumPage.module.css';
 
 const CATEGORIES = [
@@ -26,6 +41,7 @@ export default function ForumPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   
+  const feedMode = searchParams.get('feed') || 'all';
   const activeCategory = searchParams.get('category') || 'Semua';
   const activeSort = searchParams.get('sort') || 'newest';
   const page = parseInt(searchParams.get('page') || '1');
@@ -37,7 +53,7 @@ export default function ForumPage() {
 
   useEffect(() => {
     fetchPosts();
-  }, [activeCategory, activeSort, page, searchParams]);
+  }, [activeCategory, activeSort, page, searchParams, feedMode]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -47,7 +63,8 @@ export default function ForumPage() {
         limit,
         category: activeCategory !== 'Semua' ? activeCategory : undefined,
         sort: activeSort,
-        search: searchParams.get('search') || undefined
+        search: searchParams.get('search') || undefined,
+        feed: feedMode === 'following' ? 'following' : undefined
       };
       const res = await getBlogPosts(params);
       setPosts(res.data?.posts || []);
@@ -56,6 +73,62 @@ export default function ForumPage() {
       setPosts([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFeedChange = (mode) => {
+    if (mode === 'following' && !isLogged) {
+      requireLogin(() => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('feed', 'following');
+        newParams.set('page', '1');
+        setSearchParams(newParams);
+      }, 'Masuk akun anggota untuk melihat postingan sahabat yang kamu ikuti.');
+      return;
+    }
+    const newParams = new URLSearchParams(searchParams);
+    if (mode === 'following') {
+      newParams.set('feed', 'following');
+    } else {
+      newParams.delete('feed');
+    }
+    newParams.set('page', '1');
+    setSearchParams(newParams);
+  };
+
+  const handleLikePost = async (e, postId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLogged) {
+      requireLogin(() => handleLikePost(e, postId), 'Masuk akun anggota untuk menyukai postingan.');
+      return;
+    }
+
+    // Optimistic UI update
+    setPosts(prev => prev.map(p => {
+      if (p.id !== postId) return p;
+      const willLike = !p.liked;
+      return {
+        ...p,
+        liked: willLike,
+        likeCount: willLike ? (p.likeCount || 0) + 1 : Math.max(0, (p.likeCount || 0) - 1)
+      };
+    }));
+
+    try {
+      const res = await toggleLikeBlogPost(postId);
+      if (res.data?.liked !== undefined) {
+        setPosts(prev => prev.map(p => {
+          if (p.id !== postId) return p;
+          return {
+            ...p,
+            liked: res.data.liked,
+            likeCount: res.data.likeCount
+          };
+        }));
+      }
+    } catch {
+      fetchPosts();
     }
   };
 
@@ -109,6 +182,29 @@ export default function ForumPage() {
                 Buat Postingan Baru
               </Link>
             )}
+          </div>
+
+          {/* Ruang Cerita 24 Jam (Stories Tray) */}
+          <StoriesTray />
+
+          {/* Feed Filter: Untuk Anda vs Mengikuti */}
+          <div className={styles.feedTypeBar}>
+            <button
+              type="button"
+              className={`${styles.feedTypeBtn} ${feedMode !== 'following' ? styles.feedTypeBtnActive : ''}`}
+              onClick={() => handleFeedChange('all')}
+            >
+              <Sparkles size={16} />
+              Untuk Anda
+            </button>
+            <button
+              type="button"
+              className={`${styles.feedTypeBtn} ${feedMode === 'following' ? styles.feedTypeBtnActive : ''}`}
+              onClick={() => handleFeedChange('following')}
+            >
+              <Users size={16} />
+              Mengikuti
+            </button>
           </div>
 
           {/* Navigation Category Tabs */}
@@ -173,9 +269,17 @@ export default function ForumPage() {
           ) : posts.length === 0 ? (
             <div className={styles.emptyState}>
               <FolderOpen size={48} className={styles.emptyIcon} />
-              <h3>Belum Ada Postingan</h3>
-              <p>Tidak ada artikel blog atau thread diskusi yang ditemukan pada kategori ini.</p>
-              {isLogged && (
+              <h3>{feedMode === 'following' ? 'Belum Ada Cerita Sahabat' : 'Belum Ada Postingan'}</h3>
+              <p>
+                {feedMode === 'following'
+                  ? 'Belum ada postingan dari akun yang kamu ikuti. Temukan dan ikuti teman seangkatan atau kakak alumni!'
+                  : 'Tidak ada artikel blog atau thread diskusi yang ditemukan pada kategori ini.'}
+              </p>
+              {feedMode === 'following' ? (
+                <Link to="/anggota" className="btn btn-primary" style={{ marginTop: '16px' }}>
+                  Jelajahi Anggota PIK-R
+                </Link>
+              ) : isLogged && (
                 <Link to="/blog/tulis" className="btn btn-primary" style={{ marginTop: '16px' }}>
                   Tulis Thread Pertama
                 </Link>
@@ -192,10 +296,22 @@ export default function ForumPage() {
                     <article key={post.id} className={styles.threadItem}>
                       {/* Left: Author Avatar */}
                       <div className={styles.threadAvatarWrap}>
-                        {post.authorPhoto ? (
-                          <img src={getUploadUrl(post.authorPhoto)} alt={post.authorName} className={styles.threadAvatar} />
+                        {post.authorSlug ? (
+                          <Link to={`/@${post.authorSlug}`} title={`Profil ${post.authorName}`}>
+                            <PhotoAvatar
+                              src={post.authorPhoto ? getUploadUrl(post.authorPhoto) : null}
+                              name={post.authorName}
+                              className={styles.threadAvatar}
+                              placeholderClassName={styles.threadAvatarText}
+                            />
+                          </Link>
                         ) : (
-                          <div className={styles.threadAvatarText}>{initials}</div>
+                          <PhotoAvatar
+                            src={post.authorPhoto ? getUploadUrl(post.authorPhoto) : null}
+                            name={post.authorName}
+                            className={styles.threadAvatar}
+                            placeholderClassName={styles.threadAvatarText}
+                          />
                         )}
                       </div>
 
@@ -213,7 +329,13 @@ export default function ForumPage() {
                             {post.category}
                           </span>
                           <span className={styles.threadMetaDivider}>•</span>
-                          <span className={styles.threadAuthor}>{post.authorName}</span>
+                          {post.authorSlug ? (
+                            <Link to={`/@${post.authorSlug}`} className={styles.authorProfileLink}>
+                              {post.authorName}
+                            </Link>
+                          ) : (
+                            <span className={styles.threadAuthor}>{post.authorName}</span>
+                          )}
                           <span className={styles.roleBadge}>{post.authorRole.toUpperCase()}</span>
                           <span className={styles.threadMetaDivider}>•</span>
                           <span className={styles.threadTime}>{timeAgo(post.createdAt)}</span>
@@ -238,10 +360,15 @@ export default function ForumPage() {
                       {/* Right: Stats and Arrow */}
                       <div className={styles.threadRight}>
                         <div className={styles.threadStats}>
-                          <div className={styles.statItem} title="Suka">
-                            <Heart size={14} />
+                          <button
+                            type="button"
+                            onClick={(e) => handleLikePost(e, post.id)}
+                            className={`${styles.likeBtnInteractive} ${post.liked ? styles.likeBtnActive : ''}`}
+                            title={post.liked ? 'Batal menyukai' : 'Suka postingan ini'}
+                          >
+                            <Heart size={15} fill={post.liked ? '#ef4444' : 'none'} color={post.liked ? '#ef4444' : 'currentColor'} />
                             <span>{post.likeCount || 0}</span>
-                          </div>
+                          </button>
                           <div className={styles.statItem} title="Komentar">
                             <MessageSquare size={14} />
                             <span>{post.commentCount || 0}</span>

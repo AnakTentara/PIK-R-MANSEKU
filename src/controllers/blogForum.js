@@ -53,7 +53,7 @@ function buildCommentTree(commentsList, maxDepth = 10) {
 
 // 1. Get Blog Posts (Public / Admin)
 export async function getBlogPosts(req, res) {
-  const { category, tag, sort, search, status, author, mine } = req.query;
+  const { category, tag, sort, search, status, author, mine, feed } = req.query;
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const take = Math.min(50, Math.max(1, parseInt(req.query.limit) || 9));
   const skip = (page - 1) * take;
@@ -67,6 +67,20 @@ export async function getBlogPosts(req, res) {
     where.memberId = req.candidate.id;
   } else {
     where.status = 'PUBLISHED';
+  }
+
+  // Feed "Mengikuti": hanya tampilkan postingan dari teman yang diikuti oleh anggota
+  if (feed === 'following') {
+    const vid = viewerMemberId(req);
+    if (!vid) {
+      return res.json({ posts: [], total: 0, needLogin: true });
+    }
+    const followRows = await prisma.follow.findMany({
+      where: { followerId: vid },
+      select: { followingId: true }
+    });
+    const followingIds = followRows.map((f) => f.followingId);
+    where.memberId = { in: followingIds };
   }
   // Postingan satu penulis (halaman profil /@slug)
   if (author) {

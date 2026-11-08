@@ -197,6 +197,7 @@ model Member {
   relationsOut    MemberRelation[] @relation("RelOwner")   // teman dekat / bisukan / blokir milik saya
   relationsIn     MemberRelation[] @relation("RelTarget")
   reportsMade     Report[]     @relation("Reporter")
+  stories         Story[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -365,3 +366,20 @@ model Report {
   @@unique([reporterId, targetType, targetId])
   @@index([status])
 }
+
+// Cerita 24 jam ala Instagram untuk anggota PIK-R
+model Story {
+  id        String   @id @default(uuid())
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  mediaUrl  String?
+  caption   String?
+  bgColor   String?  @default("#EA580C")
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([memberId])
+  @@index([expiresAt])
+}
+

@@ -1,0 +1,148 @@
+.trayContainer {
+  position: relative;
+  width: 100%;
+  margin-bottom: 24px;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 18px;
+  padding: 16px 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.scroller {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 2px 4px;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.storyItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+  width: 72px;
+  transition: transform 0.15s ease;
+}
+
+.storyItem:hover {
+  transform: translateY(-2px);
+}
+
+/* Avatar Ring container */
+.ringWrapper {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  padding: 2.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gradient ring for active stories */
+.ringActive {
+  background: linear-gradient(45deg, #EA580C, #F97316, #EC4899, #8B5CF6);
+  animation: pulseSubtle 3s infinite ease-in-out;
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.12); }
+}
+
+.ringSeen {
+  background: var(--color-border, #cbd5e1);
+}
+
+/* User's own story create button ring */
+.ringCreate {
+  border: 1.5px dashed var(--color-primary, #EA580C);
+  background: transparent;
+}
+
+.avatarInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ffffff;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-primary, #EA580C);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Plus badge for creation */
+.plusBadge {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary, #EA580C);
+  color: #fff;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Label below */
+.label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--color-text, #0f172a);
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.labelSelf {
+  font-weight: 600;
+  color: var(--color-primary, #EA580C);
+}
+
+/* Skeleton loader for stories */
+.skeletonCircle {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+}

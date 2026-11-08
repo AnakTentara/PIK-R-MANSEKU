@@ -188,4 +188,156 @@ export async function list(req, res) {
   }
 }
 
+// ── STORIES (Ruang Cerita 24 Jam) ──────────────────────────────────────────
+
+// GET /api/social/stories - Semua story aktif (24 jam terakhir)
+export async function getStories(req, res) {
+  try {
+    const now = new Date();
+    const activeStories = await prisma.story.findMany({
+      where: {
+        expiresAt: { gt: now }
+      },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        member: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            photoPath: true,
+            className: true,
+            status: true,
+            orgMember: { select: { role: true, isCurrent: true } }
+          }
+        }
+      }
+    });
+
+    const memberMap = new Map();
+    for (const story of activeStories) {
+      const mid = story.memberId;
+      if (!memberMap.has(mid)) {
+        memberMap.set(mid, {
+          member: {
+            ...story.member,
+            name: story.member.name.trim()
+          },
+          stories: []
+        });
+      }
+      memberMap.get(mid).stories.push({
+        id: story.id,
+        mediaUrl: story.mediaUrl,
+        caption: story.caption,
+        bgColor: story.bgColor,
+        views: story.views,
+        createdAt: story.createdAt,
+        expiresAt: story.expiresAt
+      });
+    }
+
+    const items = Array.from(memberMap.values());
+    return res.json({ items });
+  } catch (error) {
+    console.error('Error getStories:', error);
+    return res.status(500).json({ message: 'Gagal memuat cerita' });
+  }
+}
+
+// POST /api/social/stories - Buat story baru (foto / teks warna)
+export async function createStory(req, res) {
+  try {
+    const m = await me(req, res);
+    if (!m) return;
+
+    let mediaUrl = null;
+    if (req.file) {
+      mediaUrl = `/uploads/${req.file.filename}`;
+    } else if (req.body?.mediaUrl) {
+      mediaUrl = String(req.body.mediaUrl).trim();
+    }
+
+    const caption = req.body?.caption ? String(req.body.caption).trim().slice(0, 300) : null;
+    const bgColor = req.body?.bgColor ? String(req.body.bgColor).trim().slice(0, 25) : '#EA580C';
+
+    if (!mediaUrl && !caption) {
+      return res.status(400).json({ message: 'Story harus memiliki foto atau teks.' });
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    const story = await prisma.story.create({
+      data: {
+        memberId: m.id,
+        mediaUrl,
+        caption,
+        bgColor,
+        expiresAt
+      },
+      include: {
+        member: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            photoPath: true
+          }
+        }
+      }
+    });
+
+    return res.status(201).json({
+      message: 'Cerita berhasil diunggah! Aktif selama 24 jam.',
+      story
+    });
+  } catch (error) {
+    console.error('Error createStory:', error);
+    return res.status(500).json({ message: 'Gagal mengunggah cerita' });
+  }
+}
+
+// DELETE /api/social/stories/:id
+export async function deleteStory(req, res) {
+  try {
+    const m = await me(req, res);
+    if (!m) return;
+
+    const story = await prisma.story.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!story) {
+      return res.status(404).json({ message: 'Cerita tidak ditemukan.' });
+    }
+
+    if (story.memberId !== m.id && !req.admin) {
+      return res.status(403).json({ message: 'Tidak berhak menghapus cerita ini.' });
+    }
+
+    await prisma.story.delete({
+      where: { id: req.params.id }
+    });
+
+    return res.json({ message: 'Cerita berhasil dihapus.' });
+  } catch (error) {
+    console.error('Error deleteStory:', error);
+    return res.status(500).json({ message: 'Gagal menghapus cerita' });
+  }
+}
+
+// POST /api/social/stories/:id/view
+export async function viewStory(req, res) {
+  try {
+    await prisma.story.update({
+      where: { id: req.params.id },
+      data: { views: { increment: 1 } }
+    });
+    return res.json({ ok: true });
+  } catch {
+    return res.json({ ok: true });
+  }
+}
+
 export const REPORT_REASON_LIST = REPORT_REASONS;
