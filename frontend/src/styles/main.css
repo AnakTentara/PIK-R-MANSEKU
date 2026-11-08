@@ -367,7 +367,7 @@ ul, ol {
 /* ---------- Page Layout Utilities ---------- */
 .page-wrapper {
   min-height: calc(100vh - var(--navbar-height));
-  padding-top: var(--navbar-height);
+  padding-top: calc(var(--navbar-height) + var(--alumni-bar, 0px));
 }
 
 .section {

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 import Modal from '@/components/common/Modal';
+import { AdminPageSkeleton } from '@/components/common/SkeletonLoading';
 import { useUIStore } from '@/stores/uiStore';
 import styles from './AdminLayout.module.css';
 import { Menu } from 'lucide-react';
@@ -37,7 +38,9 @@ export default function AdminLayout() {
       />
 
       <main className={`${styles.main} ${sidebarCollapsed ? styles.mainExpanded : ''}`}>
-        <Outlet />
+        <Suspense fallback={<AdminPageSkeleton />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       <Modal />

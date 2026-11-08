@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { 
-  getBlogPostBySlug, 
-  toggleLikeBlogPost, 
-  createBlogComment, 
-  updateBlogComment, 
-  deleteBlogComment 
+import {
+  getBlogPostBySlug,
+  toggleLikeBlogPost,
+  createBlogComment,
+  updateBlogComment,
+  deleteBlogComment
 } from '@/api/forum';
 import { formatDate, timeAgo } from '@/utils/formatDate';
 import { getUploadUrl } from '@/api/axios';
 import { useAuthStore } from '@/stores/authStore';
+import { requireLogin } from '@/stores/quickLoginStore';
+import { reportContent } from '@/api/public';
 import SEO from '@/components/common/SEO';
 import toast from 'react-hot-toast';
 import {
@@ -24,7 +26,8 @@ import {
   Edit3,
   CornerDownRight,
   Eye,
-  Edit2
+  Edit2,
+  Flag
 } from 'lucide-react';
 import styles from './ForumPostPage.module.css';
 
@@ -56,8 +59,8 @@ function CommentNode({
   const initials = comment.username ? comment.username.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() : '?';
 
   // Check delete/edit permission
-  const hasModifyPermission = 
-    isAdminAuthenticated || 
+  const hasModifyPermission =
+    isAdminAuthenticated ||
     (isCandidateAuthenticated && comment.memberId === candidateUser?.id) ||
     myComments.includes(comment.id);
 
@@ -87,14 +90,14 @@ function CommentNode({
               onChange={(e) => setEditForm(e.target.value)}
             />
             <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-              <button 
-                onClick={() => onEditSubmit(comment.id)} 
+              <button
+                onClick={() => onEditSubmit(comment.id)}
                 className="btn btn-primary btn-sm"
               >
                 Simpan
               </button>
-              <button 
-                onClick={() => setEditingCommentId(null)} 
+              <button
+                onClick={() => setEditingCommentId(null)}
                 className="btn btn-secondary btn-sm"
               >
                 Batal
@@ -115,7 +118,7 @@ function CommentNode({
               <Heart size={12} fill={isLiked ? 'currentColor' : 'none'} />
               <span>{isLiked ? 'Suka' : 'Suka'}</span>
             </button>
-            
+
             <button
               onClick={() => {
                 setReplyingToId(isReplying ? null : comment.id);
@@ -177,15 +180,15 @@ function CommentNode({
             />
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button 
-              onClick={() => onReplySubmit(comment.id)} 
+            <button
+              onClick={() => onReplySubmit(comment.id)}
               className="btn btn-primary btn-sm"
               disabled={!replyForm.content.trim()}
             >
               Kirim Balasan
             </button>
-            <button 
-              onClick={() => setReplyingToId(null)} 
+            <button
+              onClick={() => setReplyingToId(null)}
               className="btn btn-secondary btn-sm"
             >
               Batal
@@ -240,9 +243,7 @@ export default function ForumPostPage() {
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  
-  // Likes local identification key (for guests)
-  const [guestId, setGuestId] = useState('');
+
 
   // Comment Actions State
   const [mainCommentForm, setMainCommentForm] = useState({ username: '', content: '' });
@@ -250,20 +251,12 @@ export default function ForumPostPage() {
   const [replyingToId, setReplyingToId] = useState(null);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editForm, setEditForm] = useState('');
-  
+
   // Local list trackers
   const [likedComments, setLikedComments] = useState([]);
   const [myComments, setMyComments] = useState([]);
 
-  // Generate or retrieve guestId on mount
   useEffect(() => {
-    let storedGuestId = localStorage.getItem('forum_guest_id');
-    if (!storedGuestId) {
-      storedGuestId = 'guest_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now();
-      localStorage.setItem('forum_guest_id', storedGuestId);
-    }
-    setGuestId(storedGuestId);
-
     // Retrieve local comment logs
     const savedLikedComments = localStorage.getItem(`forum_comment_likes_${userId}`);
     const savedMyComments = localStorage.getItem(`forum_my_comments_${userId}`);
@@ -278,17 +271,8 @@ export default function ForumPostPage() {
       const fetchedPost = res.data?.post || res.data;
       setPost(fetchedPost);
 
-      // Verify server-side likes
-      if (fetchedPost && fetchedPost.likes) {
-        const hasLiked = fetchedPost.likes.some((like) => {
-          if (isCandidateAuthenticated && candidateUser) {
-            return like.memberId === candidateUser.id;
-          }
-          let storedGuestId = localStorage.getItem('forum_guest_id') || guestId;
-          return like.guestId === storedGuestId;
-        });
-        setIsLiked(hasLiked);
-      }
+      // Status suka dihitung server untuk akun yang sedang login
+      setIsLiked(!!fetchedPost?.liked);
 
       // Verify bookmarked state
       if (fetchedPost) {
@@ -312,24 +296,22 @@ export default function ForumPostPage() {
   }, [slug, isCandidateAuthenticated, candidateUser]);
 
   // Post Actions (Likes / Bookmarks)
-  const handleLikePost = async () => {
+  // Suka: wajib akun anggota (login cepat bila belum). Tampilan langsung berubah, lalu dicocokkan dengan server.
+  const handleLikePost = () => requireLogin(async () => {
     if (!post) return;
+    const want = !isLiked;
+    setIsLiked(want);
+    setPost((prev) => ({ ...prev, likeCount: Math.max(0, (prev.likeCount || 0) + (want ? 1 : -1)) }));
     try {
-      const payload = {};
-      if (!isCandidateAuthenticated && !isAdminAuthenticated) {
-        payload.guestId = guestId;
-      }
-      const res = await toggleLikeBlogPost(post.id, payload);
+      const res = await toggleLikeBlogPost(post.id, { like: want });
       setIsLiked(res.data.liked);
       setPost((prev) => ({ ...prev, likeCount: res.data.likeCount }));
-      toast.success(res.data.liked ? 'Postingan disukai!' : 'Batal menyukai postingan.');
-      
-      // Update likes list cache locally if needed
-      fetchPost();
     } catch (err) {
-      toast.error('Gagal menyukai postingan.');
+      setIsLiked(!want);
+      setPost((prev) => ({ ...prev, likeCount: Math.max(0, (prev.likeCount || 0) + (want ? -1 : 1)) }));
+      toast.error(err.response?.data?.message || 'Gagal menyukai postingan.');
     }
-  };
+  }, 'Masuk untuk menyukai postingan ini.');
 
   const handleBookmarkPost = () => {
     if (!post) return;
@@ -339,7 +321,7 @@ export default function ForumPostPage() {
     }
     const bookmarksKey = `bookmarks_forum_${candidateUser.nisn}`;
     let savedBookmarks = JSON.parse(localStorage.getItem(bookmarksKey) || '[]');
-    
+
     if (isBookmarked) {
       savedBookmarks = savedBookmarks.filter((b) => b.id !== post.id);
       setIsBookmarked(false);
@@ -358,10 +340,24 @@ export default function ForumPostPage() {
     localStorage.setItem(bookmarksKey, JSON.stringify(savedBookmarks));
   };
 
-  const handleSharePost = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success('Tautan postingan berhasil disalin!');
+  const handleSharePost = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) { await navigator.share({ title: post?.title, url }); return; }
+      await navigator.clipboard.writeText(url);
+      toast.success('Tautan postingan berhasil disalin!');
+    } catch { /* dibatalkan */ }
   };
+
+  const handleReportPost = () => requireLogin(async () => {
+    if (!window.confirm('Laporkan postingan ini ke pengurus sebagai konten tidak pantas?')) return;
+    try {
+      await reportContent({ targetType: 'POST', target: post.id, reason: 'KONTEN_TIDAK_PANTAS' });
+      toast.success('Laporan terkirim. Terima kasih!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal mengirim laporan.');
+    }
+  }, 'Masuk untuk melaporkan postingan.');
 
   // Comments Actions (Create / Reply / Edit / Delete)
   const handleMainCommentSubmit = async (e) => {
@@ -371,15 +367,16 @@ export default function ForumPostPage() {
       return;
     }
 
-    const payload = {
-      content: mainCommentForm.content.trim(),
-      username: isCandidateAuthenticated ? candidateUser.name : (mainCommentForm.username.trim() || 'Tamu')
-    };
+    if (!isCandidateAuthenticated && !isAdminAuthenticated) {
+      requireLogin(() => {}, 'Masuk untuk ikut berdiskusi. Komentarmu tetap tersimpan di kolom.');
+      return;
+    }
+    const payload = { content: mainCommentForm.content.trim() };
 
     try {
       const res = await createBlogComment(post.id, payload);
       toast.success('Komentar berhasil ditambahkan!');
-      
+
       // Save ID to local comments
       const createdComment = res.data?.comment;
       if (createdComment) {
@@ -391,7 +388,7 @@ export default function ForumPostPage() {
       setMainCommentForm({ username: '', content: '' });
       fetchPost();
     } catch (err) {
-      toast.error('Gagal mengirim komentar.');
+      toast.error(err.response?.data?.message || 'Gagal mengirim komentar.');
     }
   };
 
@@ -401,11 +398,11 @@ export default function ForumPostPage() {
       return;
     }
 
-    const payload = {
-      content: replyForm.content.trim(),
-      parentId,
-      username: isCandidateAuthenticated ? candidateUser.name : (replyForm.username.trim() || 'Tamu')
-    };
+    if (!isCandidateAuthenticated && !isAdminAuthenticated) {
+      requireLogin(() => {}, 'Masuk untuk membalas komentar.');
+      return;
+    }
+    const payload = { content: replyForm.content.trim(), parentId };
 
     try {
       const res = await createBlogComment(post.id, payload);
@@ -422,7 +419,7 @@ export default function ForumPostPage() {
       setReplyForm({ username: '', content: '' });
       fetchPost();
     } catch (err) {
-      toast.error('Gagal mengirim balasan.');
+      toast.error(err.response?.data?.message || 'Gagal mengirim balasan.');
     }
   };
 
@@ -512,13 +509,13 @@ export default function ForumPostPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <SEO 
-        title={`${post.title} | Forum PIK-R`} 
-        description={post.content} 
+      <SEO
+        title={`${post.title} | Blog PIK-R`}
+        description={(post.content || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160)} 
         type="article"
       />
       <div className="container" style={{ maxWidth: '800px' }}>
-        
+
         {/* Back Link */}
         <Link to="/blog" className={styles.backLink}>
           <ArrowLeft size={16} />
@@ -529,7 +526,7 @@ export default function ForumPostPage() {
         <article style={{ marginBottom: '40px' }}>
           {/* Post Header */}
           <header className={styles.postHeader}>
-            <span 
+            <span
               className={styles.postCategory}
               style={{
                 backgroundColor: 'var(--color-accent-subtle)',
@@ -539,7 +536,7 @@ export default function ForumPostPage() {
               {post.category}
             </span>
             <h1 className={styles.postTitle}>{post.title}</h1>
-            
+
             {/* Meta */}
             <div className={styles.authorMeta}>
               <div className={styles.authorAvatarWrap}>
@@ -553,7 +550,9 @@ export default function ForumPostPage() {
               </div>
               <div className={styles.authorInfo}>
                 <div className={styles.authorNameRow}>
-                  <span className={styles.authorName}>{post.authorName}</span>
+                  {post.authorSlug
+                    ? <Link to={`/@${post.authorSlug}`} className={styles.authorName}>{post.authorName}</Link>
+                    : <span className={styles.authorName}>{post.authorName}</span>}
                   <span className={styles.roleBadge}>{post.authorRole.toUpperCase()}</span>
                 </div>
                 <span className={styles.postDate}>{formatDate(post.createdAt)}</span>
@@ -562,7 +561,7 @@ export default function ForumPostPage() {
                 <Eye size={14} />
                 <span>{post.views || 0} Kali Dilihat</span>
               </div>
-              
+
               {/* If this is candidate's own post, allow them to edit it */}
               {(isAdminAuthenticated || (isCandidateAuthenticated && post.memberId === candidateUser?.id)) && (
                 <Link to={`/blog/tulis?edit=${post.id}`} className="btn btn-ghost btn-sm" style={{ padding: '4px 8px', marginLeft: '8px' }}>
@@ -578,7 +577,7 @@ export default function ForumPostPage() {
           )}
 
           {/* Prose Content */}
-          <div 
+          <div
             className={styles.prose}
             dangerouslySetInnerHTML={{
               __html: (() => {
@@ -623,6 +622,12 @@ export default function ForumPostPage() {
               <Share2 size={18} />
               <span>Bagikan</span>
             </button>
+            {!post.isOwner && post.memberId && (
+              <button type="button" onClick={handleReportPost} className={styles.actionBtn} title="Laporkan postingan">
+                <Flag size={18} />
+                <span>Laporkan</span>
+              </button>
+            )}
           </div>
         </article>
 
@@ -640,16 +645,9 @@ export default function ForumPostPage() {
               <div className={styles.authenticatedUserCommentInfo}>
                 Berkomentar sebagai: <strong>{candidateUser.name}</strong>
               </div>
-            ) : (
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Nama Kamu</label>
-                <input
-                  type="text"
-                  className={styles.formInput}
-                  placeholder="Ketik namamu (Tamu)"
-                  value={mainCommentForm.username}
-                  onChange={(e) => setMainCommentForm(prev => ({ ...prev, username: e.target.value }))}
-                />
+            ) : !isAdminAuthenticated && (
+              <div className={styles.authenticatedUserCommentInfo}>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => requireLogin(() => {}, 'Masuk untuk ikut berdiskusi.')}>Masuk</button> untuk ikut berkomentar.
               </div>
             )}
             <div className={styles.formGroup}>
@@ -662,9 +660,9 @@ export default function ForumPostPage() {
                 rows={3}
               />
             </div>
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
+            <button
+              type="submit"
+              className="btn btn-primary"
               disabled={!mainCommentForm.content.trim()}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >

@@ -9,6 +9,7 @@ import { getDesign, sanitizeCardConfig } from '../utils/designConfig.js';
 import { buildRosterWorkbook, parseRosterSheet, planRosterImport, applyRosterImport } from '../utils/idcardExcel.js';
 import { OrgError } from '../utils/orgSync.js';
 import { SITE_URL } from '../config/site.js';
+import { socialSummary } from './social.js';
 
 const ACTIONS = ['IN', 'OUT', 'SAKIT', 'IZIN', 'ALFA'];
 // PERTEMUAN = rutin mingguan, WAJIB = kegiatan wajib bertanggal, TAMBAHAN = dibuat manual.
@@ -920,6 +921,7 @@ export async function getPublicProfile(req, res) {
     const m = await prisma.member.findUnique({
       where: { slug: where.slug },
       select: {
+        id: true, slug: true,
         name: true, className: true, photoPath: true, status: true, gender: true,
         asalSekolah: true, joinYear: true, bio: true, memberCode: true, cardConfig: true,
         orgMember: { select: { ...ORG_TITLE_SELECT, quote: true } }
@@ -931,7 +933,14 @@ export async function getPublicProfile(req, res) {
     const design = await getDesign();
     let card = {};
     try { card = sanitizeCardConfig(m.cardConfig ? JSON.parse(m.cardConfig) : {}); } catch { /* kartu rusak: pakai bawaan */ }
+    // Penonton yang login sebagai anggota (opsional, lewat authAny) mendapat status ikuti/teman dekat/bisukan/blokir
+    const viewerId = req.candidate?.isMember ? req.candidate.id : null;
+    const social = await socialSummary(m.id, viewerId);
+    // Yang diblokir pemilik profil hanya melihat "tidak tersedia"
+    if (social.blockedByTarget) return res.status(404).json({ message: 'Profil tidak tersedia' });
     return res.json({
+      slug: m.slug,
+      social,
       name: m.name.trim(),
       className: m.className,
       photoPath: m.photoPath,

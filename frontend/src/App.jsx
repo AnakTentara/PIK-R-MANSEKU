@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
+import AlumniBanner from '@/components/common/AlumniBanner';
+import QuickLogin from '@/components/common/QuickLogin';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
+import { PageSkeleton } from '@/components/common/SkeletonLoading';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -41,44 +44,44 @@ function ScrollToTop() {
   return null;
 }
 
-// Public Pages
+// Public Pages — LandingPage langsung diimpor untuk instant First Paint, sisanya lazy
 import LandingPage from '@/pages/public/LandingPage';
-import RegisterPage from '@/pages/public/RegisterPage';
-import CekKelulusanPage from '@/pages/public/CekKelulusanPage';
-import BeritaPage from '@/pages/public/BeritaPage';
-import BeritaPostPage from '@/pages/public/BeritaPostPage';
-import ForumPage from '@/pages/public/ForumPage';
-import ForumWritePage from '@/pages/public/ForumWritePage';
-import ForumPostPage from '@/pages/public/ForumPostPage';
-import CustomPage from '@/pages/public/CustomPage';
-import NotFoundPage from '@/pages/public/NotFoundPage';
+const RegisterPage = lazy(() => import('@/pages/public/RegisterPage'));
+const CekKelulusanPage = lazy(() => import('@/pages/public/CekKelulusanPage'));
+const BeritaPage = lazy(() => import('@/pages/public/BeritaPage'));
+const BeritaPostPage = lazy(() => import('@/pages/public/BeritaPostPage'));
+const ForumPage = lazy(() => import('@/pages/public/ForumPage'));
+const ForumWritePage = lazy(() => import('@/pages/public/ForumWritePage'));
+const ForumPostPage = lazy(() => import('@/pages/public/ForumPostPage'));
+const CustomPage = lazy(() => import('@/pages/public/CustomPage'));
+const NotFoundPage = lazy(() => import('@/pages/public/NotFoundPage'));
 
 // Auth & Profil (Candidates)
-import LoginPage from '@/pages/public/LoginPage';
-import ProfilePage from '@/pages/public/ProfilePage';
-import ResetSandiPage from '@/pages/public/ResetSandiPage';
-import KamiPage from '@/pages/public/KamiPage';
-import AnggotaPublikPage from '@/pages/public/AnggotaPublikPage';
-import AlumniPage from '@/pages/public/AlumniPage';
-import MemberProfilePage from '@/pages/public/MemberProfilePage';
+const LoginPage = lazy(() => import('@/pages/public/LoginPage'));
+const ProfilePage = lazy(() => import('@/pages/public/ProfilePage'));
+const ResetSandiPage = lazy(() => import('@/pages/public/ResetSandiPage'));
+const KamiPage = lazy(() => import('@/pages/public/KamiPage'));
+const AnggotaPublikPage = lazy(() => import('@/pages/public/AnggotaPublikPage'));
+const AlumniPage = lazy(() => import('@/pages/public/AlumniPage'));
+const MemberProfilePage = lazy(() => import('@/pages/public/MemberProfilePage'));
 
-
-// Admin Pages
-import AdminLoginPage from '@/pages/admin/AdminLoginPage';
-import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
-import AdminPendaftaranPage from '@/pages/admin/AdminPendaftaranPage';
-import AdminPengumumanPage from '@/pages/admin/AdminPengumumanPage';
-import AdminAnggotaPage from '@/pages/admin/AdminAnggotaPage';
-import AdminBlogPage from '@/pages/admin/AdminBlogPage';
-import AdminBlogEditorPage from '@/pages/admin/AdminBlogEditorPage';
-import AdminSettingsPage from '@/pages/admin/AdminSettingsPage';
-import AdminBotPage from '@/pages/admin/AdminBotPage';
-import AdminDesignPage from '@/pages/admin/AdminDesignPage';
-import AdminOrgPage from '@/pages/admin/AdminOrgPage';
-import AdminTestimonialsPage from '@/pages/admin/AdminTestimonialsPage';
-import AdminFileManagerPage from '@/pages/admin/AdminFileManagerPage';
-import AdminUsersPage from '@/pages/admin/AdminUsersPage';
-import AdminAbsensiPage from '@/pages/admin/AdminAbsensiPage';
+// Admin Pages (Semua di-load terpisah via lazy agar pengunjung publik tidak membebani kuota & memori)
+const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
+const AdminPendaftaranPage = lazy(() => import('@/pages/admin/AdminPendaftaranPage'));
+const AdminPengumumanPage = lazy(() => import('@/pages/admin/AdminPengumumanPage'));
+const AdminAnggotaPage = lazy(() => import('@/pages/admin/AdminAnggotaPage'));
+const AdminBlogPage = lazy(() => import('@/pages/admin/AdminBlogPage'));
+const AdminBlogEditorPage = lazy(() => import('@/pages/admin/AdminBlogEditorPage'));
+const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage'));
+const AdminBotPage = lazy(() => import('@/pages/admin/AdminBotPage'));
+const AdminDesignPage = lazy(() => import('@/pages/admin/AdminDesignPage'));
+const AdminOrgPage = lazy(() => import('@/pages/admin/AdminOrgPage'));
+const AdminTestimonialsPage = lazy(() => import('@/pages/admin/AdminTestimonialsPage'));
+const AdminFileManagerPage = lazy(() => import('@/pages/admin/AdminFileManagerPage'));
+const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'));
+const AdminAbsensiPage = lazy(() => import('@/pages/admin/AdminAbsensiPage'));
+const AdminReportsPage = lazy(() => import('@/pages/admin/AdminReportsPage'));
 import { useAuthStore } from '@/stores/authStore';
 
 // Admin Layout
@@ -88,8 +91,11 @@ import AdminLayout from '@/components/admin/AdminLayout';
 function PublicLayout() {
   return (
     <>
+      <AlumniBanner />
       <Navbar />
-      <Outlet />
+      <Suspense fallback={<PageSkeleton />}>
+        <Outlet />
+      </Suspense>
       <Footer />
     </>
   );
@@ -114,6 +120,7 @@ function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ScrollToTop />
+      <QuickLogin />
       <Routes>
         {/* ── Public Routes (with Navbar + Footer) ── */}
         <Route element={<PublicLayout />}>
@@ -182,6 +189,14 @@ function App() {
           <Route path="blog" element={<AdminBlogPage />} />
           <Route path="blog/new" element={<AdminBlogEditorPage />} />
           <Route path="blog/edit/:id" element={<AdminBlogEditorPage />} />
+          <Route 
+            path="moderasi" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM']}>
+                <AdminReportsPage />
+              </RoleProtectedRoute>
+            } 
+          />
           <Route
             path="desain"
             element={

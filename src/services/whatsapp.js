@@ -77,6 +77,65 @@ export function isWhatsAppReady() {
 }
 
 // Bawaan MATI: bot baru menyambung setelah dinyalakan dari dashboard (mencegah dua server berebut sesi)
+// ─── Kebijakan bot: grup, batas laju, allowlist /rekap (Setting `wa_policy`) ──
+/**
+ * groupMode : 'all'  semua grup boleh memakai perintah
+ *             'listed' hanya grup di allowedGroups (grup lain: bot diam)
+ *             'off'  perintah di grup dimatikan (bot hanya membalas japri)
+ * rekapAllow: nomor (62…) yang boleh memakai /rekap selain pengurus inti
+ * rekapCore : pengurus inti (Ketua/Wakil/Kabinet/Pembina) otomatis boleh /rekap
+ * rekapInGroups: /rekap boleh dipakai di grup (bawaan tidak: data kehadiran semua anggota)
+ */
+export const DEFAULT_POLICY = { groupMode: 'listed', allowedGroups: [], rekapAllow: [], rekapCore: true, rekapInGroups: false };
+let policyCache = null;
+export async function getPolicy() {
+  if (policyCache) return policyCache;
+  const row = await prisma.setting.findUnique({ where: { key: 'wa_policy' } }).catch(() => null);
+  let p = {};
+  try { p = row ? JSON.parse(row.value) : {}; } catch { /* rusak: pakai bawaan */ }
+  policyCache = sanitizePolicy(p);
+  return policyCache;
+}
+const normPhone = (v) => formatPhoneNumber(v).replace(/@.*/, '');
+export function sanitizePolicy(p = {}) {
+  const phones = Array.isArray(p.rekapAllow) ? p.rekapAllow : [];
+  const groups = Array.isArray(p.allowedGroups) ? p.allowedGroups : [];
+  return {
+    groupMode: ['all', 'listed', 'off'].includes(p.groupMode) ? p.groupMode : DEFAULT_POLICY.groupMode,
+    allowedGroups: [...new Set(groups.map(String).filter((j) => /^[\d-]+@g\.us$/.test(j)))].slice(0, 100),
+    rekapAllow: [...new Set(phones.map(normPhone).filter((n) => n.length >= 10 && n.length <= 15))].slice(0, 200),
+    rekapCore: p.rekapCore !== false,
+    rekapInGroups: p.rekapInGroups === true
+  };
+}
+export async function savePolicy(p) {
+  const clean = sanitizePolicy(p);
+  await prisma.setting.upsert({ where: { key: 'wa_policy' }, update: { value: JSON.stringify(clean) }, create: { key: 'wa_policy', value: JSON.stringify(clean) } });
+  policyCache = clean;
+  waLog('info', `Pengaturan bot disimpan: grup=${clean.groupMode}, ${clean.allowedGroups.length} grup diizinkan, ${clean.rekapAllow.length} nomor allowlist /rekap.`);
+  return clean;
+}
+
+// ─── Batas laju (anti-spam): per pengirim dan per grup ───────────────────────
+// Di grup publik siapa pun bisa mengetik perintah. Tanpa batas, satu orang bisa membuat bot membalas
+// puluhan kali per menit (akun bot dianggap spam dan diblokir WhatsApp).
+const hits = new Map();
+function limited(key, max, windowMs) {
+  const now = Date.now();
+  const arr = (hits.get(key) || []).filter((t) => now - t < windowMs);
+  arr.push(now);
+  hits.set(key, arr);
+  if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((t) => now - t < 10 * 60 * 1000)) hits.delete(k);
+  return arr.length > max;
+}
+const warned = new Map();
+function warnOnce(key, ms = 60 * 1000) {
+  const now = Date.now();
+  if (now - (warned.get(key) || 0) < ms) return false;
+  warned.set(key, now);
+  return true;
+}
+
 async function getEnabled() {
   const row = await prisma.setting.findUnique({ where: { key: 'wa_enabled' } }).catch(() => null);
   return row?.value === '1';
@@ -478,6 +537,8 @@ async function logGroupMessage(msg, jid, text) {
   return name;
 }
 
+const KNOWN_COMMANDS = new Set(['menu', 'help', 'bantuan', 'id', 'group', 'groupinfo', 'info', 'cek', 'sandi', 'absen', 'rekap']);
+
 async function onMessage(msg) {
   if (!msg.message || msg.key.fromMe) return;
   const jid = msg.key.remoteJid;
@@ -491,14 +552,39 @@ async function onMessage(msg) {
   const m = text.match(/^[/!]\s*([a-z]+)(?:\s+([\s\S]*))?$/i);
   if (!m) return;
   const cmd = m[1].toLowerCase();
+  if (!KNOWN_COMMANDS.has(cmd)) return; // perintah bot lain di grup yang sama: diam
   const arg = (m[2] || '').trim();
+  const sender = extractSenderPhone(msg) || msg.key.participant || jid;
   const who = msg.pushName || extractSenderPhone(msg) || 'pengguna';
+
+  if (isGroup) {
+    const policy = await getPolicy();
+    // !id selalu dijawab supaya admin bisa mendapatkan JID grup baru untuk didaftarkan
+    const isIdCmd = ['id', 'group', 'groupinfo', 'info'].includes(cmd);
+    if (!isIdCmd && (policy.groupMode === 'off' || (policy.groupMode === 'listed' && !policy.allowedGroups.includes(jid)))) {
+      waLog('info', `Perintah /${cmd} dari ${who} di ${groupName || 'grup'} diabaikan (grup tidak diizinkan).`);
+      return;
+    }
+    // Grup: maks. 12 perintah/menit untuk seluruh grup
+    if (limited(`g:${jid}`, 12, 60 * 1000)) {
+      if (warnOnce(`gw:${jid}`)) waLog('warn', `Batas perintah grup ${groupName || jid} tercapai; perintah berikutnya diabaikan sebentar.`);
+      return;
+    }
+  }
+  // Per orang: maks. 5 perintah/menit dan 30/jam (japri maupun grup)
+  if (limited(`u:${sender}`, 5, 60 * 1000) || limited(`uh:${sender}`, 30, 60 * 60 * 1000)) {
+    if (warnOnce(`uw:${sender}`, 5 * 60 * 1000)) {
+      waLog('warn', `${who} melewati batas perintah; diabaikan sementara.`);
+      if (!isGroup) await reply(msg, '⏳ Terlalu banyak perintah. Coba lagi beberapa menit lagi, ya.');
+    }
+    return;
+  }
   waLog('info', `Perintah /${cmd}${arg && cmd !== 'sandi' ? ` "${arg.slice(0, 40)}"` : ''} dari ${who}${isGroup ? ` di ${groupName || 'grup'}` : ''}.`);
 
   switch (cmd) {
     case 'menu': case 'help': case 'bantuan': return cmdMenu(msg, isGroup);
     case 'id': case 'group': case 'groupinfo': case 'info': return isGroup ? cmdGroupId(msg, jid, groupName) : undefined;
-    case 'cek': return cmdCek(msg, arg);
+    case 'cek': return cmdCek(msg, arg, isGroup);
     case 'sandi': return /^ganti\b/i.test(arg) ? cmdSandiGanti(msg, isGroup, arg.replace(/^ganti\s*/i, '')) : cmdSandi(msg, isGroup, arg, text);
     case 'absen': return cmdAbsen(msg, isGroup);
     case 'rekap': return cmdRekap(msg, isGroup);
@@ -536,7 +622,7 @@ async function cekCard(msg, person) {
   },`Halo *${person.name}*,\n\nHasil kelulusan pendaftaran PIK-R MANSEKU dapat dicek di:\n🔗 ${link}`);
 }
 
-async function cmdCek(msg, query) {
+async function cmdCek(msg, query, isGroup = false) {
   if (!query) return reply(msg, 'Format: */cek [Nama atau NISN]*\nContoh: `/cek Haikal Mabrur` atau `/cek 3102603365`');
   try {
     if (/^\d+$/.test(query)) {
@@ -554,6 +640,8 @@ async function cmdCek(msg, query) {
     const matches = findSimilarCandidates(query, people);
     if (!matches.length) return reply(msg, `Maaf, nama *"${query}"* tidak ditemukan. Pastikan ejaan sama dengan saat mendaftar.`);
     if (matches[0].exact || matches[0].score >= 0.65 || matches.length === 1) return cekCard(msg, matches[0].candidate);
+    // Di grup tidak menampilkan daftar banyak nama + kelas (privasi); minta cek lewat japri atau NISN
+    if (isGroup) return reply(msg, `Ada beberapa nama yang mirip dengan *"${query}"*. Ketik */cek NISN-kamu* atau kirim */cek nama lengkap* lewat japri ke bot ini.`);
     const top = matches.slice(0, 6).map((x) => x.candidate);
     return replyTable(msg, {
       title: 'Beberapa Nama Cocok', subtitle: `Pencarian: "${query}"`,
@@ -642,10 +730,20 @@ async function cmdAbsen(msg, isGroup) {
 /** Rekap kegiatan hari ini (hanya untuk pengurus inti yang nomornya terdaftar). */
 async function cmdRekap(msg, isGroup) {
   try {
-    const user = await findUserFromWA(msg);
-    const org = user && (await prisma.orgMember.findFirst({ where: { memberId: user.id, isCurrent: true } }));
-    if (!org || !['KETUA', 'WAKIL', 'KABINET', 'PEMBINA'].includes(org.role)) {
-      return isGroup ? undefined : reply(msg, '🔒 */rekap* hanya untuk pengurus inti (Ketua, Wakil, Kabinet, Pembina).');
+    const policy = await getPolicy();
+    if (isGroup && !policy.rekapInGroups) {
+      return reply(msg, '🔒 */rekap* berisi data kehadiran semua anggota, jadi hanya dikirim lewat japri ke bot ini.');
+    }
+    const phone = extractSenderPhone(msg);
+    let allowed = !!phone && policy.rekapAllow.includes(phone);
+    if (!allowed && policy.rekapCore) {
+      const user = await findUserFromWA(msg);
+      const org = user && (await prisma.orgMember.findFirst({ where: { memberId: user.id, isCurrent: true } }));
+      allowed = !!org && ['KETUA', 'WAKIL', 'KABINET', 'PEMBINA'].includes(org.role);
+    }
+    if (!allowed) {
+      waLog('warn', `/rekap ditolak untuk ${phone || 'nomor tidak dikenal'} (tidak ada di allowlist).`);
+      return isGroup ? undefined : reply(msg, '🔒 */rekap* hanya untuk nomor yang diizinkan pengurus. Hubungi admin bila kamu memerlukannya.');
     }
     const { buildRecap } = await import('../controllers/absen.js');
     const today = wibDate();

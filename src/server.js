@@ -13,6 +13,8 @@ import forumRoutes from './routes/forum.js';
 import publicRoutes from './routes/public.js';
 import absenRoutes from './routes/absen.js';
 import { getPublicProfile } from './controllers/absen.js';
+import socialRoutes from './routes/social.js';
+import { authAny } from './middlewares/auth.js';
 import { ensureAbsenAccount } from './middlewares/authAbsen.js';
 import { ensureMemberIdentity } from './utils/slug.js';
 import readline from 'readline';
@@ -69,7 +71,8 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/forum', forumRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/absen', absenRoutes);
-app.get('/api/public/profile/:slug', getPublicProfile);
+app.get('/api/public/profile/:slug', authAny, getPublicProfile);
+app.use('/api/social', socialRoutes);
 
 // SEO: Robots.txt
 app.get('/robots.txt', (req, res) => {

@@ -17,7 +17,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   CalendarCheck,
-  Palette
+  Palette,
+  ShieldAlert
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -37,6 +38,7 @@ export default function AdminSidebar({ isOpen = false, onClose }) {
     { to: '/admin/org', label: 'Struktur Org', icon: Network, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/testimoni', label: 'Testimoni Alumni', icon: MessageSquare, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/blog', label: 'Blog', icon: FileText, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
+    { to: '/admin/moderasi', label: 'Moderasi Laporan', icon: ShieldAlert, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/desain', label: 'Desain', icon: Palette, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/file-manager', label: 'File Manager', icon: FolderOpen, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/users', label: 'Akun', icon: Shield, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },

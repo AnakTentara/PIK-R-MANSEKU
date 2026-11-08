@@ -192,6 +192,11 @@ model Member {
   blogPosts       BlogPost[]   // written posts
   blogComments    BlogComment[] // posted comments
   blogLikes       BlogLike[]   // likes
+  following       Follow[]     @relation("Follower")   // akun yang saya ikuti
+  followers       Follow[]     @relation("Following")  // akun yang mengikuti saya
+  relationsOut    MemberRelation[] @relation("RelOwner")   // teman dekat / bisukan / blokir milik saya
+  relationsIn     MemberRelation[] @relation("RelTarget")
+  reportsMade     Report[]     @relation("Reporter")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -316,4 +321,47 @@ model AttendanceLog {
   detail       String?
   by           String
   createdAt    DateTime   @default(now())
+}
+
+// ─── Sosial: ikuti, teman dekat, bisukan, blokir, laporan ─────────────────────
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    Member   @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   Member   @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+}
+
+// Hubungan pribadi satu arah. type: CLOSE_FRIEND | MUTE | BLOCK (tidak terlihat oleh target)
+model MemberRelation {
+  id        String   @id @default(uuid())
+  ownerId   String
+  owner     Member   @relation("RelOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  targetId  String
+  target    Member   @relation("RelTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  type      String
+  createdAt DateTime @default(now())
+
+  @@unique([ownerId, targetId, type])
+  @@index([targetId, type])
+}
+
+// Laporan pengguna, ditinjau admin. targetType: MEMBER | POST | COMMENT
+model Report {
+  id          String   @id @default(uuid())
+  reporterId  String
+  reporter    Member   @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType  String
+  targetId    String
+  reason      String
+  note        String?
+  status      String   @default("OPEN") // OPEN | REVIEWED | DISMISSED
+  createdAt   DateTime @default(now())
+
+  @@unique([reporterId, targetType, targetId])
+  @@index([status])
 }

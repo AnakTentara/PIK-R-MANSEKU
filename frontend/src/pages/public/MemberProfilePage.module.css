@@ -2,10 +2,8 @@
 
 .page {
   min-height: 100vh;
-  padding: calc(var(--navbar-height) + 28px) 16px 64px;
-  background:
-    radial-gradient(1200px 500px at 50% -10%, var(--color-accent-subtle), transparent 70%),
-    var(--color-bg);
+  padding: calc(var(--navbar-height) + var(--alumni-bar, 0px)) 0 32px;
+  background: var(--color-bg);
 }
 
 .center {

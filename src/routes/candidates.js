@@ -15,18 +15,38 @@ import { getMyCard, updateMyCard } from '../controllers/design.js';
 
 const router = express.Router();
 
+// In-memory cache untuk pengaturan publik (TTL 60 detik) agar tidak membebani database di traffic tinggi
+let publicSettingsCache = null;
+let publicSettingsCachedAt = 0;
+const SETTINGS_CACHE_TTL = 60 * 1000;
+
+export function clearPublicSettingsCache() {
+  publicSettingsCache = null;
+  publicSettingsCachedAt = 0;
+}
+
 // Public Settings for Landing page & registration status
 router.get('/settings/public', async (req, res) => {
   try {
+    const now = Date.now();
+    if (publicSettingsCache && now - publicSettingsCachedAt < SETTINGS_CACHE_TTL) {
+      return res.json(publicSettingsCache);
+    }
+
     const sessionSetting = await prisma.setting.findUnique({ where: { key: 'REGISTRATION_SESSION' } });
     const landingSetting = await prisma.setting.findUnique({ where: { key: 'LANDING_PAGE_CONTENT' } });
     const webEditorSetting = await prisma.setting.findUnique({ where: { key: 'WEB_EDITOR_CONFIG' } });
 
-    return res.json({
+    const payload = {
       registrationSession: sessionSetting ? JSON.parse(sessionSetting.value) : { status: 'open' },
       landingPageContent: landingSetting ? JSON.parse(landingSetting.value) : null,
       webEditorConfig: webEditorSetting ? JSON.parse(webEditorSetting.value) : null
-    });
+    };
+
+    publicSettingsCache = payload;
+    publicSettingsCachedAt = now;
+
+    return res.json(payload);
   } catch (error) {
     console.error('Error fetching public settings:', error);
     return res.status(500).json({ message: 'Gagal memuat pengaturan publik' });

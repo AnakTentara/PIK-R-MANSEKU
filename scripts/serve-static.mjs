@@ -121,6 +121,48 @@ function serveFile(req, res, file, stat) {
   fs.createReadStream(file).pipe(res);
 }
 
+// ─── Social Media Crawler Detection (WhatsApp, FB, Telegram, etc) ────────
+const CRAWLER_RE = /facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|SkypeUriPreview/i;
+const escapeHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+async function serveCrawlerProfile(req, res, slug) {
+  try {
+    const rawIndex = fs.readFileSync(INDEX, 'utf8');
+    const apiRes = await fetch(`${API.origin}/api/public/profile/${encodeURIComponent(slug)}`);
+    if (!apiRes.ok) {
+      return send(res, 200, rawIndex, 'text/html; charset=utf-8');
+    }
+    const data = await apiRes.json();
+    const name = data.name || slug;
+    const title = `${name} (@${slug}) — PIK-R MANSEKU`;
+    const desc = data.bio || `${name}, ${data.jabatan || 'Anggota'} PIK-R MAN 1 Muara Enim, kelas ${data.className || ''}.`;
+    const photo = data.photoPath ? (data.photoPath.startsWith('http') ? data.photoPath : `https://pikr-manseku.my.id${data.photoPath}`) : 'https://pikr-manseku.my.id/media/logos/L_PIK-R_Title.png';
+    const profileUrl = `https://pikr-manseku.my.id/@${slug}`;
+
+    const tags = `
+  <title>${escapeHtml(title)}</title>
+  <meta name="description" content="${escapeHtml(desc)}" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:title" content="${escapeHtml(title)}" />
+  <meta property="og:description" content="${escapeHtml(desc)}" />
+  <meta property="og:image" content="${escapeHtml(photo)}" />
+  <meta property="og:url" content="${escapeHtml(profileUrl)}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${escapeHtml(title)}" />
+  <meta name="twitter:description" content="${escapeHtml(desc)}" />
+  <meta name="twitter:image" content="${escapeHtml(photo)}" />
+`;
+    const injected = rawIndex.replace(/<title>[\s\S]*?<\/title>/i, tags);
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store, must-revalidate'
+    });
+    return res.end(injected);
+  } catch {
+    return serveFile(req, res, INDEX, fs.statSync(INDEX));
+  }
+}
+
 function handle(req, res) {
   let pathname;
   try { pathname = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch { return send(res, 400, 'Permintaan tidak valid'); }
@@ -137,6 +179,11 @@ function handle(req, res) {
   if (!stat?.isFile()) {
     // Aset yang hilang jangan dijawab HTML (bisa merusak cache); path halaman SPA kembali ke index.html
     if (MIME[path.extname(pathname).toLowerCase()]) return send(res, 404, 'Tidak ditemukan');
+    // Jika perayap WhatsApp/FB/Telegram meminta halaman /@slug, injeksikan preview OpenGraph profil anggota
+    if (pathname.startsWith('/@') && CRAWLER_RE.test(req.headers['user-agent'] || '')) {
+      const slug = pathname.slice(2).split('/')[0];
+      if (slug) return serveCrawlerProfile(req, res, slug);
+    }
     file = INDEX;
     stat = fs.statSync(INDEX);
   }

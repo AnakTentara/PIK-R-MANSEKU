@@ -6,6 +6,7 @@ import {
   BadgeCheck, Smartphone, Loader2, Copy, ShieldAlert, Pause, Play, MessageCircle
 } from 'lucide-react';
 import AdminHeader from '@/components/admin/AdminHeader';
+import BotPolicyCard from '@/components/admin/BotPolicyCard';
 import { useUIStore } from '@/stores/uiStore';
 import {
   getWaStatus, startWaBot, stopWaBot, restartWaBot, logoutWaBot, updateWaProfile, updateWaPhoto, sendWaTest, waStreamUrl
@@ -297,7 +298,7 @@ export default function AdminBotPage() {
               <li><code>/menu</code> daftar perintah (kartu)</li>
               <li><code>/cek nama atau NISN</code> hasil seleksi (kartu)</li>
               <li><code>/absen</code> kehadiran pribadi 90 hari (kartu, japri)</li>
-              <li><code>/rekap</code> tabel kehadiran hari ini (pengurus inti)</li>
+              <li><code>/rekap</code> tabel kehadiran hari ini (allowlist, japri)</li>
               <li><code>/sandi</code>, <code>/sandi ganti</code> sandi akun & OTP (japri)</li>
               <li><code>!id</code> ID grup untuk pengumuman terjadwal</li>
             </ul>
@@ -307,6 +308,8 @@ export default function AdminBotPage() {
             </div>
           </section>
         </div>
+
+        <BotPolicyCard />
 
         {/* ── Terminal debug ── */}
         <section className={`${styles.card} ${styles.termCard}`}>

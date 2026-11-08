@@ -4,6 +4,34 @@ Seluruh rilis, pembaruan fitur, dan perbaikan bug pada platform PIK-R MANSEKU di
 
 ---
 
+## [v2.4.0] — 2026-11-08
+
+Rilis sosial & arsitektur performa: profil bergaya media sosial (Follow, Teman Dekat, Blokir, Lapor), login alumni, code splitting dengan SkeletonLoading, crawler preview WhatsApp, dan pengerasan keamanan SQLite & Upload.
+
+### 🌟 Fitur Baru
+- **Profil Anggota Sosial (`/@slug`)**: Tata letak ala Instagram (foto, bio, jumlah postingan/pengikut/mengikuti, tombol Ikuti/Mengikuti, dropdown aksi hubungan pribadi, dan tab grid postingan blog).
+- **Relasi & Privasi Anggota**: Model Prisma `Follow`, `MemberRelation` (Teman Dekat, Bisukan, Blokir), dan `Report` (Laporan konten/akun). Blokir bersifat dua arah dan menyembunyikan postingan/profil dari pihak yang diblokir.
+- **Login Alumni**: Anggota berstatus `ALUMNI` tidak lagi diblokir 403; kini dapat login untuk melihat profil, mengedit info, dan menulis artikel dengan banner status "Anda telah menjadi alumni".
+- **Quick Login**: Modal popup masuk instan saat pengunjung umum mencoba berinteraksi (like, follow, komentar, lapor) tanpa harus meninggalkan halaman yang sedang dilihat.
+- **Kebijakan Bot WhatsApp (`wa_policy`)**: Pengaturan mode grup (`all`, `listed`, `off`), allowlist nomor telepon berizin untuk perintah `/rekap`, dan anti-spam rate limiting (12 cmd/menit di grup, 5 cmd/menit per orang).
+- **Skeleton Shimmer Loading**: Komponen `PageSkeleton` dan `AdminPageSkeleton` dengan efek shimmer yang halus saat membuka atau berpindah rute halaman.
+- **OpenGraph WhatsApp Preview**: `scripts/serve-static.mjs` menginjeksikan metadata OpenGraph dinamis saat perayap (WhatsApp, Facebook, Twitter, Telegram, Discord) meminta link `/@slug`, sehingga kartu share menampilkan foto, nama, dan jabatan siswa.
+
+### ⚡ Peningkatan & Performa
+- **Code Splitting (`React.lazy` & `Suspense`)**: Seluruh 15 rute dashboard admin dan halaman editor TipTap dipisahkan ke chunk dinamis. Ukuran muatan JavaScript awal **turun 88%** (dari 528 KB menjadi 63 KB), CSS **turun 83%** (dari 303 KB menjadi 51 KB).
+- **SQLite WAL Mode**: Mengaktifkan `PRAGMA journal_mode = WAL;`, `busy_timeout = 5000;`, dan `synchronous = NORMAL;` di `src/config/db.js` untuk konkurensi tinggi tanpa lock-up antara absensi, bot WA, dan backup.
+- **In-Memory Cache Pengaturan Publik**: Cache 60 detik di backend untuk `GET /api/candidates/settings/public` guna meredam lonjakan trafik pendaftaran.
+- **Header Navbar Centering & UX Mobile**: Posisikan menu navigasi desktop tepat di tengah header, dan tambahkan penguncian scroll layar (`overflow: hidden`) saat drawer mobile dibuka.
+- **Optimasi Baterai Slider Beranda**: Slider banner kegiatan otomatis menjeda putaran saat tab browser disembunyikan.
+
+### 🔒 Keamanan & Sanitasi
+- **Pembersihan XSS Konten Blog**: Integrasi `sanitize-html` (`cleanBlogHtml` dan `plainText`) menyaring seluruh tag `<script>`, iframe tidak sah, dan event handler berbahaya.
+- **Sanitasi Kredensial Pengguna**: Fungsi `safeProfile()` memastikan hash sandi, plainPassword, dan metadata kartu internal tidak bocor ke browser atau localStorage.
+- **Pengerasan Upload File (`multerConfig.js`)**: Whitelist ketat ekstensi gambar (`.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`) dan dokumen (`.pdf`, `.doc`, `.docx`) untuk mencegah unggahan berkas eksekusi.
+- **Perlindungan Data Pribadi Siswa**: File Excel pendaftaran & presensi di-untrack dari Git dan ditambahkan ke `.gitignore`. File arsip besar (`.rar`, `.7z`) diabaikan otomatis.
+
+---
+
 ## [v2.3.0] — 2026-11-06
 
 Bot WhatsApp diatur dari dashboard dan membalas dengan kartu/tabel bergambar; semua popup dashboard punya bar tombol yang selalu terlihat.

@@ -257,3 +257,10 @@ export const sendWaTest = (to) => api.post('/admin/wa/test', { to }, { timeout: 
 /** Alamat SSE untuk status + log langsung (EventSource tidak bisa mengirim header, token lewat query). */
 export const waStreamUrl = (after = 0) =>
   `/api/admin/wa/stream?token=${encodeURIComponent(localStorage.getItem('admin_token') || '')}&after=${after}`;
+export const getWaPolicy = () => api.get('/admin/wa/policy');
+export const saveWaPolicy = (policy) => api.put('/admin/wa/policy', policy);
+
+// Moderasi & Laporan Pengguna
+export const getAdminReports = (params) => api.get('/admin/reports', { params });
+export const updateReportStatus = (id, status) => api.patch(`/admin/reports/${id}/status`, { status });
+export const takeReportAction = (id, action) => api.post(`/admin/reports/${id}/action`, { action });

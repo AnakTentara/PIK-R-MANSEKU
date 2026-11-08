@@ -147,12 +147,7 @@ export async function loginCandidate(req, res) {
       return res.status(401).json({ message: 'NISN atau password salah' });
     }
 
-    // 3. For Members, check if already alumni (admin-managed status only)
-    if (isMember && user.status === 'ALUMNI') {
-      return res.status(403).json({ 
-        message: 'Akun Anda telah dinonaktifkan karena Anda sudah berstatus Alumni.' 
-      });
-    }
+    // Alumni tetap bisa masuk (edit profil, menulis blog); situs menampilkan banner kecil "Anda telah menjadi alumni".
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -172,13 +167,31 @@ export async function loginCandidate(req, res) {
         id: user.id,
         nisn: user.nisn,
         name: user.name,
-        status: isMember ? 'MEMBER' : user.status
+        status: isMember ? (user.status === 'ALUMNI' ? 'ALUMNI' : 'MEMBER') : user.status,
+        isAlumni: isMember && user.status === 'ALUMNI',
+        slug: isMember ? user.slug : null
       }
     });
   } catch (error) {
     console.error('Error candidate login:', error);
     return res.status(500).json({ message: 'Terjadi kesalahan pada server' });
   }
+}
+
+/**
+ * Profil yang aman dikirim ke browser: tanpa hash sandi / sandi asli / data kartu internal.
+ * (Dulu seluruh baris database dikirim dan disimpan di localStorage, termasuk password & plainPassword.)
+ */
+function safeProfile(user, isMember) {
+  if (!user) return user;
+  const { password, plainPassword, cardConfig, ...rest } = user;
+  return {
+    ...rest,
+    isMember: !!isMember,
+    isAlumni: !!isMember && user.status === 'ALUMNI',
+    status: isMember ? (user.status === 'ALUMNI' ? 'ALUMNI' : 'MEMBER') : user.status,
+    memberStatus: isMember ? user.status : undefined
+  };
 }
 
 // 4. Get Current Logged-in Candidate Profile (Self)
@@ -188,17 +201,19 @@ export async function getProfile(req, res) {
       where: { id: req.candidate.id }
     });
 
+    let isMember = false;
     if (!user) {
       user = await prisma.member.findUnique({
         where: { id: req.candidate.id }
       });
+      isMember = !!user;
     }
 
     if (!user) {
       return res.status(404).json({ message: 'Profil anggota tidak ditemukan' });
     }
 
-    return res.json(user);
+    return res.json(safeProfile(user, isMember));
   } catch (error) {
     console.error('Error getting profile:', error);
     return res.status(500).json({ message: 'Gagal mengambil data profil' });
@@ -257,7 +272,7 @@ export async function updateProfile(req, res) {
 
       return res.json({
         message: 'Profil pendaftar berhasil diperbarui',
-        candidate: updated
+        candidate: safeProfile(updated, false)
       });
     } else {
       // Fallback: Update Member directly
@@ -285,7 +300,7 @@ export async function updateProfile(req, res) {
 
       return res.json({
         message: 'Profil anggota berhasil diperbarui',
-        candidate: updatedMember
+        candidate: safeProfile(updatedMember, true)
       });
     }
   } catch (error) {

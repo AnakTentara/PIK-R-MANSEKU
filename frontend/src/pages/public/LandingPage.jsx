@@ -65,7 +65,10 @@ export default function LandingPage() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+      // Jeda rotasi slide jika tab sedang di latar belakang (hemat baterai & CPU HP)
+      if (!document.hidden) {
+        setActiveSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+      }
     }, 5000);
     return () => clearInterval(timer);
   }, []);

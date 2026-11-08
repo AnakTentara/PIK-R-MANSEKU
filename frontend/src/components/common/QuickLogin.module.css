@@ -1,0 +1,14 @@
+.reason { margin: 0 0 16px; font-size: 0.9rem; line-height: 1.5; color: var(--color-text-secondary); }
+.form { display: flex; flex-direction: column; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span { font-size: 0.82rem; font-weight: 700; color: var(--color-text-secondary); }
+.field :global(.form-input) { font-size: 16px; }
+.pw { position: relative; }
+.pw :global(.form-input) { padding-right: 44px; }
+.pw button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 8px; background: none; color: var(--color-text-muted); cursor: pointer; }
+.error { margin: 0; padding: 9px 12px; border-radius: 10px; background: var(--color-error-bg); color: var(--color-error); font-size: 0.84rem; font-weight: 600; }
+.submit { width: 100%; justify-content: center; height: 46px; font-size: 0.95rem; margin-top: 4px; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.foot { margin: 14px 0 0; font-size: 0.8rem; line-height: 1.5; text-align: center; color: var(--color-text-muted); }
+.foot a { font-weight: 700; color: var(--color-accent-dark); }

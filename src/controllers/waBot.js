@@ -3,7 +3,7 @@ import prisma from '../config/db.js';
 import { JWT_SECRET } from '../config/secret.js';
 import {
   getWaStatus, getWaLogs, waEvents, startBot, stopBot, logoutBot, restartBot,
-  updateBotProfile, updateBotPicture, sendTestMessage
+  updateBotProfile, updateBotPicture, sendTestMessage, getPolicy, savePolicy
 } from '../services/whatsapp.js';
 
 const fail = (res, err, fallback) => res.status(err.status || 500).json({ message: err.status ? err.message : fallback });
@@ -103,4 +103,28 @@ export async function stream(req, res) {
     waEvents.off('log', onLog);
     waEvents.off('status', onStatus);
   });
+}
+
+// GET /api/admin/wa/policy — pengaturan grup & allowlist /rekap, plus grup yang pernah terlihat bot
+export async function getPolicyHandler(req, res) {
+  try {
+    const [policy, groups] = await Promise.all([
+      getPolicy(),
+      prisma.whatsAppGroup.findMany({ orderBy: { lastMsgAt: 'desc' }, take: 100, select: { jid: true, name: true, lastMsgAt: true } })
+    ]);
+    return res.json({ policy, groups });
+  } catch (err) {
+    console.error('[WA] policy:', err);
+    return res.status(500).json({ message: 'Gagal memuat pengaturan bot' });
+  }
+}
+
+// PUT /api/admin/wa/policy
+export async function savePolicyHandler(req, res) {
+  try {
+    return res.json({ policy: await savePolicy(req.body || {}) });
+  } catch (err) {
+    console.error('[WA] savePolicy:', err);
+    return res.status(500).json({ message: 'Gagal menyimpan pengaturan bot' });
+  }
 }

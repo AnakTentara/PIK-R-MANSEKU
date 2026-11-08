@@ -24,5 +24,12 @@ build/
 *.db.*
 local.db*
 pikr_manseku_backup*
+# Data spreadsheet pendaftar/presensi (data pribadi)
+rekap_kehadiran*.xlsx
+Daftar_ID_Card_*.xlsx
+*.xlsx
+*.xls
+!public/file/**/*.xlsx
+!public/file/**/*.xls
 # Foto yang diunggah anggota (ikut cadangan ZIP, bukan git)
 public/uploads/

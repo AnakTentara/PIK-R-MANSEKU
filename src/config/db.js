@@ -11,7 +11,11 @@ export async function initDatabase() {
 
   try {
     await prismaInstance.$queryRaw`SELECT 1`;
-    console.log('[Database] Koneksi SQLite BERHASIL! Database aktif: local.db.');
+    // Aktifkan mode WAL & busy_timeout untuk konkurensi produksi tinggi
+    await prismaInstance.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
+    await prismaInstance.$queryRawUnsafe('PRAGMA busy_timeout = 5000;');
+    await prismaInstance.$queryRawUnsafe('PRAGMA synchronous = NORMAL;');
+    console.log('[Database] Koneksi SQLite BERHASIL (WAL mode & busy_timeout=5000 aktif)! Database aktif: local.db.');
   } catch (error) {
     console.error('[Database] Gagal menginisialisasi SQLite:', error.message);
   }

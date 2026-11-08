@@ -23,6 +23,7 @@ const STATUS_MAP = {
   TIDAK_LULUS: { label: 'Tidak Lulus', cls: 'badge-error' },
   PENDING: { label: 'Pending (Calon Anggota)', cls: 'badge-pending' },
   ACTIVE: { label: 'Anggota Aktif', cls: 'badge-success' },
+  MEMBER: { label: 'Anggota Aktif', cls: 'badge-success' },
   ALUMNI: { label: 'Alumni', cls: 'badge-pending' }
 };
 

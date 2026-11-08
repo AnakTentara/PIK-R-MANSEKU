@@ -1,0 +1,183 @@
+.wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  animation: fadeIn 0.25s ease;
+}
+
+.adminWrapper {
+  width: 100%;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  animation: fadeIn 0.25s ease;
+}
+
+/* Base shimmer bar */
+.bar {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.7) 0%,
+    rgba(241, 245, 249, 0.9) 40%,
+    rgba(226, 232, 240, 0.7) 80%
+  );
+  background-size: 300% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm, 8px);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header skeleton */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: var(--space-md);
+}
+
+.title {
+  height: 36px;
+  width: 320px;
+  max-width: 80%;
+}
+
+.subtitle {
+  height: 18px;
+  width: 480px;
+  max-width: 95%;
+}
+
+/* Stat cards row (Admin) */
+.statRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
+.statCard {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border-strong, #e2e8f0);
+  border-radius: var(--radius-md, 12px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.statIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+}
+
+.statVal {
+  height: 28px;
+  width: 90px;
+}
+
+.statLbl {
+  height: 14px;
+  width: 140px;
+}
+
+/* Content cards grid (Blog / Member) */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-lg);
+}
+
+.card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border-strong, #e2e8f0);
+  border-radius: var(--radius-md, 12px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardThumb {
+  height: 160px;
+  width: 100%;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.cardLine {
+  height: 16px;
+  width: 85%;
+}
+
+.cardLineShort {
+  height: 14px;
+  width: 55%;
+}
+
+/* Table skeleton (Admin table) */
+.tableCard {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border-strong, #e2e8f0);
+  border-radius: var(--radius-md, 12px);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tableToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.searchBox {
+  height: 38px;
+  width: 260px;
+  max-width: 60%;
+}
+
+.btnBox {
+  height: 38px;
+  width: 110px;
+}
+
+.tableRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-subtle, #f1f5f9);
+}
+
+.avatarCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cellFlex {
+  flex: 1;
+  height: 16px;
+}
+
+.cellSm {
+  width: 80px;
+  height: 16px;
+}

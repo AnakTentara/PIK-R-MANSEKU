@@ -26,6 +26,7 @@
     "pino": "^10.3.1",
     "prisma": "^6.19.3",
     "qrcode": "^1.5.4",
+    "sanitize-html": "^2.18.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

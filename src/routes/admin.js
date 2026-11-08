@@ -81,6 +81,7 @@ import { getAdminDesign, saveAdminDesign, uploadDesignImage, adminUpdateMemberCa
 import { uploadDocs, uploadPhoto as upload, uploadBlog, uploadLogo, uploadExcel } from '../utils/multerConfig.js';
 import multer from 'multer';
 import * as waBot from '../controllers/waBot.js';
+import { getReports, updateReportStatus, takeReportAction } from '../controllers/reports.js';
 
 // Foto profil bot: disimpan di memori lalu langsung dikirim ke WhatsApp (tidak ditulis ke disk)
 const uploadBotPhoto = multer({
@@ -134,6 +135,8 @@ router.post('/wa/logout', ...dev, waBot.logout);
 router.put('/wa/profile', ...dev, waBot.profile);
 router.post('/wa/photo', ...dev, uploadBotPhoto.single('photo'), waBot.photo);
 router.post('/wa/test', ...dev, waBot.test);
+router.get('/wa/policy', ...dev, waBot.getPolicyHandler);
+router.put('/wa/policy', ...dev, waBot.savePolicyHandler);
 
 // Settings Management (DEVELOPER only)
 router.get('/settings', authAdmin, requireRole(['DEVELOPER']), getSettings);
@@ -145,6 +148,11 @@ router.get('/users', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getA
 router.post('/users', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), createAdminUser);
 router.put('/users/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateAdminUser);
 router.delete('/users/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteAdminUser);
+
+// Moderation & User Reports (DEVELOPER and KABINET_UMUM)
+router.get('/reports', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getReports);
+router.patch('/reports/:id/status', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), updateReportStatus);
+router.post('/reports/:id/action', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), takeReportAction);
 
 // File Manager (DEVELOPER and KABINET_UMUM only)
 router.get('/files', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getUploadedFiles);
