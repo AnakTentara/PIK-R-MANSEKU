@@ -55,6 +55,20 @@ export async function getReports(req, res) {
               where: { id: r.targetId },
               select: { id: true, content: true, username: true, post: { select: { id: true, title: true, slug: true } } }
             });
+          } else if (r.targetType === 'RC_POST') {
+            const p = await prisma.rcPost.findUnique({ where: { id: r.targetId }, include: { author: { select: { name: true, slug: true } }, media: { take: 1, orderBy: { order: 'asc' } } } });
+            if (p) targetData = { id: p.id, title: 'Postingan Ruang Cerita', contentSnippet: p.caption.slice(0, 150), status: p.removedAt ? 'DIHAPUS' : 'TAYANG', memberAuthor: p.author, thumb: p.media[0]?.thumbUrl || p.media[0]?.url || null };
+          } else if (r.targetType === 'RC_STORY') {
+            const st = await prisma.rcStory.findUnique({ where: { id: r.targetId }, include: { author: { select: { name: true, slug: true } } } });
+            if (st) targetData = { id: st.id, title: 'Cerita Ruang Cerita', contentSnippet: st.text || '(foto/video)', status: st.removedAt ? 'DIHAPUS' : 'TAYANG', memberAuthor: st.author, thumb: st.kind === 'IMAGE' ? st.url : null };
+          } else if (r.targetType === 'RC_COMMENT') {
+            const c = await prisma.rcComment.findUnique({ where: { id: r.targetId }, include: { author: { select: { name: true, slug: true } } } });
+            if (c) targetData = { id: c.id, content: c.content, username: c.author.name, memberAuthor: c.author };
+          } else if (r.targetType === 'RC_MESSAGE') {
+            // Pesan pribadi: admin hanya melihat pesan yang dilaporkan, bukan seluruh percakapan
+            const { open } = await import('../rc/crypto.js');
+            const m = await prisma.rcMessage.findUnique({ where: { id: r.targetId }, include: { sender: { select: { name: true, slug: true } } } });
+            if (m) targetData = { id: m.id, content: m.unsentAt ? '(pesan sudah ditarik)' : (open(m.text) || '(foto)'), username: m.sender.name, memberAuthor: m.sender };
           }
         } catch (e) {
           // target mungkin sudah dihapus sebelumnya
@@ -101,6 +115,21 @@ export async function updateReportStatus(req, res) {
   }
 }
 
+/** Pemilik konten yang dilaporkan (anggota). */
+async function reportedMemberId(report) {
+  const t = report.targetType;
+  if (t === 'MEMBER') return report.targetId;
+  const pick = {
+    POST: () => prisma.blogPost.findUnique({ where: { id: report.targetId }, select: { memberId: true } }).then((x) => x?.memberId),
+    COMMENT: () => prisma.blogComment.findUnique({ where: { id: report.targetId }, select: { memberId: true } }).then((x) => x?.memberId),
+    RC_POST: () => prisma.rcPost.findUnique({ where: { id: report.targetId }, select: { authorId: true } }).then((x) => x?.authorId),
+    RC_STORY: () => prisma.rcStory.findUnique({ where: { id: report.targetId }, select: { authorId: true } }).then((x) => x?.authorId),
+    RC_COMMENT: () => prisma.rcComment.findUnique({ where: { id: report.targetId }, select: { authorId: true } }).then((x) => x?.authorId),
+    RC_MESSAGE: () => prisma.rcMessage.findUnique({ where: { id: report.targetId }, select: { senderId: true } }).then((x) => x?.senderId)
+  }[t];
+  return pick ? pick() : null;
+}
+
 // POST /api/admin/reports/:id/action { action: 'DELETE_CONTENT' | 'DEACTIVATE_USER' }
 export async function takeReportAction(req, res) {
   const { id } = req.params;
@@ -115,19 +144,25 @@ export async function takeReportAction(req, res) {
         await prisma.blogPost.delete({ where: { id: report.targetId } }).catch(() => null);
       } else if (report.targetType === 'COMMENT') {
         await prisma.blogComment.delete({ where: { id: report.targetId } }).catch(() => null);
+      } else if (report.targetType === 'RC_POST') {
+        await prisma.rcPost.update({ where: { id: report.targetId }, data: { removedAt: new Date() } }).catch(() => null);
+      } else if (report.targetType === 'RC_STORY') {
+        await prisma.rcStory.update({ where: { id: report.targetId }, data: { removedAt: new Date() } }).catch(() => null);
+      } else if (report.targetType === 'RC_COMMENT') {
+        await prisma.rcComment.delete({ where: { id: report.targetId } }).catch(() => null);
+      } else if (report.targetType === 'RC_MESSAGE') {
+        await prisma.rcMessage.update({ where: { id: report.targetId }, data: { unsentAt: new Date(), text: null, url: null } }).catch(() => null);
       }
-    } else if (action === 'DEACTIVATE_USER') {
-      let memberId = report.targetId;
-      if (report.targetType === 'POST') {
-        const p = await prisma.blogPost.findUnique({ where: { id: report.targetId }, select: { memberId: true } });
-        if (p?.memberId) memberId = p.memberId;
-      } else if (report.targetType === 'COMMENT') {
-        const c = await prisma.blogComment.findUnique({ where: { id: report.targetId }, select: { memberId: true } });
-        if (c?.memberId) memberId = c.memberId;
-      }
-      if (memberId) {
-        await prisma.member.update({ where: { id: memberId }, data: { status: 'INACTIVE' } }).catch(() => null);
-      }
+    } else if (action === 'DEACTIVATE_USER' || action === 'FREEZE_USER') {
+      // Bekukan akun SOSIAL saja (Ruang Cerita & blog) selama N hari. Status anggota, absensi, dan ID Card tidak disentuh.
+      const memberId = await reportedMemberId(report);
+      if (!memberId) return res.status(400).json({ message: 'Pemilik konten tidak ditemukan.' });
+      const days = [1, 3, 7, 30].includes(Number(req.body.days)) ? Number(req.body.days) : 7;
+      await prisma.rcProfile.upsert({
+        where: { memberId },
+        update: { frozenUntil: new Date(Date.now() + days * 864e5), frozenReason: String(req.body.reason || 'Melanggar pedoman komunitas').slice(0, 200) },
+        create: { memberId, frozenUntil: new Date(Date.now() + days * 864e5), frozenReason: String(req.body.reason || 'Melanggar pedoman komunitas').slice(0, 200) }
+      });
     } else {
       return res.status(400).json({ message: 'Tindakan moderasi tidak dikenal.' });
     }

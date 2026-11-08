@@ -263,4 +263,4 @@ export const saveWaPolicy = (policy) => api.put('/admin/wa/policy', policy);
 // Moderasi & Laporan Pengguna
 export const getAdminReports = (params) => api.get('/admin/reports', { params });
 export const updateReportStatus = (id, status) => api.patch(`/admin/reports/${id}/status`, { status });
-export const takeReportAction = (id, action) => api.post(`/admin/reports/${id}/action`, { action });
+export const takeReportAction = (id, action, extra = {}) => api.post(`/admin/reports/${id}/action`, { action, ...extra });

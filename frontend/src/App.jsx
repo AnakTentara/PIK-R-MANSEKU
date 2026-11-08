@@ -47,6 +47,7 @@ function ScrollToTop() {
 // Public Pages — LandingPage langsung diimpor untuk instant First Paint, sisanya lazy
 import LandingPage from '@/pages/public/LandingPage';
 const RegisterPage = lazy(() => import('@/pages/public/RegisterPage'));
+const RuangCeritaPage = lazy(() => import('@/pages/public/RuangCeritaPage'));
 const CekKelulusanPage = lazy(() => import('@/pages/public/CekKelulusanPage'));
 const BeritaPage = lazy(() => import('@/pages/public/BeritaPage'));
 const BeritaPostPage = lazy(() => import('@/pages/public/BeritaPostPage'));
@@ -76,6 +77,7 @@ const AdminBlogEditorPage = lazy(() => import('@/pages/admin/AdminBlogEditorPage
 const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage'));
 const AdminBotPage = lazy(() => import('@/pages/admin/AdminBotPage'));
 const AdminDesignPage = lazy(() => import('@/pages/admin/AdminDesignPage'));
+const AdminPageBuilderPage = lazy(() => import('@/pages/admin/AdminPageBuilderPage'));
 const AdminOrgPage = lazy(() => import('@/pages/admin/AdminOrgPage'));
 const AdminTestimonialsPage = lazy(() => import('@/pages/admin/AdminTestimonialsPage'));
 const AdminFileManagerPage = lazy(() => import('@/pages/admin/AdminFileManagerPage'));
@@ -126,6 +128,7 @@ function App() {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/daftar" element={<RegisterPage />} />
+          <Route path="/ruang-cerita" element={<RuangCeritaPage />} />
           <Route path="/cek-kelulusan" element={<CekKelulusanPage />} />
           <Route path="/berita" element={<BeritaPage />} />
           <Route path="/berita/:slug" element={<BeritaPostPage />} />
@@ -144,6 +147,7 @@ function App() {
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/reset-sandi" element={<ResetSandiPage />} />
           <Route path="/kami" element={<KamiPage />} />
+          <Route path="/tentang" element={<Navigate to="/kami" replace />} />
           <Route path="/anggota" element={<AnggotaPublikPage />} />
           <Route path="/alumni" element={<AlumniPage />} />
           {/* Profil dari QR ID Card. React Router tidak mendukung prefix "@" di segmen, jadi dicek di halaman */}
@@ -202,6 +206,15 @@ function App() {
             element={
               <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']}>
                 <AdminDesignPage />
+              </RoleProtectedRoute>
+            }
+          />
+          {/* Page Builder: sub-route penuh untuk tiap halaman kustom */}
+          <Route
+            path="desain/halaman/:id"
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']}>
+                <AdminPageBuilderPage />
               </RoleProtectedRoute>
             }
           />

@@ -145,12 +145,12 @@ export default function RegisterPage() {
 
   return (
     <div className="page-wrapper">
-      <SEO title="Pendaftaran Anggota Baru" description="Formulir pendaftaran online calon anggota baru PIK-R MANSEKU MAN 1 Muara Enim. Daftarkan dirimu dan jadilah bagian dari konselor sebaya generasi selanjutnya!" />
+      <SEO title="Pendaftaran PIK-R" description="Formulir pendaftaran online calon anggota baru PIK-R MANSEKU MAN 1 Muara Enim. Daftarkan dirimu dan jadilah bagian dari konselor sebaya generasi selanjutnya!" keywords="Pendaftaran PIK-R, Daftar PIK-R, Registrasi Anggota PIK-R, MAN 1 Muara Enim, GenRe" />
       <section className="section">
         <div className={`container ${styles.grid}`}>
           {/* Form */}
           <div className={styles.formSide}>
-            <h1 className={styles.title}>Pendaftaran Anggota Baru</h1>
+            <h1 className={styles.title}>Pendaftaran PIK-R MANSEKU</h1>
             <p className={styles.subtitle}>
               Isi formulir di bawah untuk mendaftar sebagai calon anggota PIK-R MANSEKU.
             </p>

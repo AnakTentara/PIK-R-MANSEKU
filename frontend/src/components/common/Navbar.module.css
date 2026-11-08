@@ -29,7 +29,7 @@
 .logo {
   display: flex;
   align-items: center;
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
@@ -39,14 +39,16 @@
   object-fit: contain;
 }
 
-/* Desktop nav — Posisikan tepat di tengah navbar */
+/* Desktop nav — Selalu di tengah absolut navbar, tidak terpengaruh logo/actions */
 .desktopNav {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  flex: 2;
-  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
 
 .navLink {
@@ -79,8 +81,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 auto;
+  margin-left: auto;
   gap: var(--space-sm);
 }
 

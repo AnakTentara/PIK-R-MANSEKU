@@ -198,6 +198,30 @@ model Member {
   relationsIn     MemberRelation[] @relation("RelTarget")
   reportsMade     Report[]     @relation("Reporter")
   stories         Story[]
+  // Ruang Cerita
+  rcProfile        RcProfile?
+  rcReqFrom        RcFollowRequest[]  @relation("RcReqFrom")
+  rcReqTo          RcFollowRequest[]  @relation("RcReqTo")
+  rcPosts          RcPost[]           @relation("RcPostAuthor")
+  rcLikes          RcLike[]           @relation("RcLiker")
+  rcSaves          RcSave[]           @relation("RcSaver")
+  rcTagged         RcTag[]            @relation("RcTagged")
+  rcComments       RcComment[]        @relation("RcCommenter")
+  rcCommentLikes   RcCommentLike[]    @relation("RcCommentLiker")
+  rcStories        RcStory[]          @relation("RcStoryAuthor")
+  rcStoryViews     RcStoryView[]      @relation("RcStoryViewer")
+  rcStoryReacts    RcStoryReaction[]  @relation("RcStoryReactor")
+  rcHighlights     RcHighlight[]      @relation("RcHighlightOwner")
+  rcThreads        RcThreadMember[]   @relation("RcThreadMember")
+  rcMessages       RcMessage[]        @relation("RcSender")
+  rcMsgReactions   RcMessageReaction[] @relation("RcMsgReactor")
+  rcCounselAsked   RcCounselSession[] @relation("RcCounselStudent")
+  rcCounselTaken   RcCounselSession[] @relation("RcCounselCounselor")
+  rcCounselor      RcCounselor?       @relation("RcCounselorProfile")
+  rcNotifs         RcNotification[]   @relation("RcNotifUser")
+  rcNotifsActed    RcNotification[]   @relation("RcNotifActor")
+  rcRestricts      RcRestrict[]       @relation("RcRestrictOwner")
+  rcRestrictedBy   RcRestrict[]       @relation("RcRestrictTarget")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -383,3 +407,341 @@ model Story {
   @@index([expiresAt])
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// RUANG CERITA — media sosial anggota PIK-R (API /api/rc/*)
+// Akun = Member. Blog situs utama (BlogPost) tidak diubah.
+// ════════════════════════════════════════════════════════════════════════════
+
+// Pengaturan akun Ruang Cerita (1 per anggota, dibuat saat pertama dibuka)
+model RcProfile {
+  memberId      String   @id
+  member        Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  isPrivate     Boolean  @default(true)   // akun remaja: privat bawaan (pengikut harus disetujui)
+  dmPolicy      String   @default("FOLLOWING") // EVERYONE | FOLLOWING | NONE
+  showActivity  Boolean  @default(true)   // status "aktif" dan tanda dibaca
+  hiddenWords   String   @default("")     // kata yang disembunyikan dari komentar & pesan (dipisah koma)
+  quietStart    String?                    // mode tenang "22:00"
+  quietEnd      String?                    // "06:00"
+  note          String?                    // catatan singkat di atas inbox (Notes), 60 karakter
+  noteAt        DateTime?
+  frozenUntil   DateTime?                  // dibekukan moderator (akun anggota tetap aktif)
+  frozenReason  String?
+  lastSeenAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Permintaan mengikuti akun privat
+model RcFollowRequest {
+  id          String   @id @default(uuid())
+  requesterId String
+  requester   Member   @relation("RcReqFrom", fields: [requesterId], references: [id], onDelete: Cascade)
+  targetId    String
+  target      Member   @relation("RcReqTo", fields: [targetId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([requesterId, targetId])
+  @@index([targetId])
+}
+
+model RcPost {
+  id            String   @id @default(uuid())
+  authorId      String
+  author        Member   @relation("RcPostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  caption       String   @default("")
+  audience      String   @default("FOLLOWERS") // FOLLOWERS | CLOSE_FRIENDS (akun publik: FOLLOWERS = semua anggota)
+  commentsOff   Boolean  @default(false)
+  hideLikes     Boolean  @default(false)
+  pinned        Boolean  @default(false)
+  removedAt     DateTime?                // dihapus moderator (tidak tampil)
+  editedAt      DateTime?
+  media         RcMedia[]
+  likes         RcLike[]
+  comments      RcComment[]
+  saves         RcSave[]
+  tags          RcTag[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([authorId, createdAt])
+  @@index([createdAt])
+}
+
+model RcMedia {
+  id        String  @id @default(uuid())
+  postId    String
+  post      RcPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  kind      String  @default("IMAGE") // IMAGE | VIDEO
+  url       String                     // /uploads/rc/...
+  thumbUrl  String?                    // gambar kecil untuk grid
+  width     Int     @default(1080)
+  height    Int     @default(1350)
+  alt       String?
+  order     Int     @default(0)
+
+  @@index([postId])
+}
+
+model RcLike {
+  postId    String
+  post      RcPost   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member   @relation("RcLiker", fields: [memberId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([postId, memberId])
+  @@index([memberId])
+}
+
+model RcSave {
+  postId    String
+  post      RcPost   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member   @relation("RcSaver", fields: [memberId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([postId, memberId])
+  @@index([memberId, createdAt])
+}
+
+// Penandaan anggota di postingan
+model RcTag {
+  postId    String
+  post      RcPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member  @relation("RcTagged", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([postId, memberId])
+  @@index([memberId])
+}
+
+model RcComment {
+  id         String   @id @default(uuid())
+  postId     String
+  post       RcPost   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     Member   @relation("RcCommenter", fields: [authorId], references: [id], onDelete: Cascade)
+  parentId   String?
+  parent     RcComment? @relation("RcThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies    RcComment[] @relation("RcThread")
+  content    String
+  pinned     Boolean  @default(false)
+  hidden     Boolean  @default(false) // kata tersembunyi / disembunyikan pemilik postingan
+  likes      RcCommentLike[]
+  createdAt  DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
+
+model RcCommentLike {
+  commentId String
+  comment   RcComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member    @relation("RcCommentLiker", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, memberId])
+}
+
+// Cerita 24 jam
+model RcStory {
+  id         String   @id @default(uuid())
+  authorId   String
+  author     Member   @relation("RcStoryAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  kind       String   @default("IMAGE") // IMAGE | VIDEO | TEXT
+  url        String?
+  text       String?
+  bg         String?                     // latar cerita teks
+  audience   String   @default("FOLLOWERS") // FOLLOWERS | CLOSE_FRIENDS
+  sticker    String?                     // JSON stiker interaktif: { type:'poll'|'question', q, options[] }
+  removedAt  DateTime?
+  expiresAt  DateTime
+  views      RcStoryView[]
+  reactions  RcStoryReaction[]
+  highlights RcHighlightItem[]
+  createdAt  DateTime @default(now())
+
+  @@index([authorId, createdAt])
+  @@index([expiresAt])
+}
+
+model RcStoryView {
+  storyId   String
+  story     RcStory  @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewerId  String
+  viewer    Member   @relation("RcStoryViewer", fields: [viewerId], references: [id], onDelete: Cascade)
+  answer    String?                      // jawaban polling/pertanyaan
+  createdAt DateTime @default(now())
+
+  @@id([storyId, viewerId])
+}
+
+model RcStoryReaction {
+  id        String   @id @default(uuid())
+  storyId   String
+  story     RcStory  @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member   @relation("RcStoryReactor", fields: [memberId], references: [id], onDelete: Cascade)
+  emoji     String
+  createdAt DateTime @default(now())
+
+  @@unique([storyId, memberId])
+}
+
+// Sorotan di profil (cerita yang disimpan permanen)
+model RcHighlight {
+  id        String   @id @default(uuid())
+  ownerId   String
+  owner     Member   @relation("RcHighlightOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  title     String
+  coverUrl  String?
+  order     Int      @default(0)
+  items     RcHighlightItem[]
+  createdAt DateTime @default(now())
+
+  @@index([ownerId])
+}
+
+model RcHighlightItem {
+  highlightId String
+  highlight   RcHighlight @relation(fields: [highlightId], references: [id], onDelete: Cascade)
+  storyId     String
+  story       RcStory     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  order       Int         @default(0)
+
+  @@id([highlightId, storyId])
+}
+
+// ─── Pesan (DM) ─────────────────────────────────────────────────────────────
+model RcThread {
+  id            String   @id @default(uuid())
+  isGroup       Boolean  @default(false)
+  title         String?
+  createdById   String
+  lastMessageAt DateTime @default(now())
+  members       RcThreadMember[]
+  messages      RcMessage[]
+  createdAt     DateTime @default(now())
+
+  @@index([lastMessageAt])
+}
+
+model RcThreadMember {
+  threadId   String
+  thread     RcThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  memberId   String
+  member     Member   @relation("RcThreadMember", fields: [memberId], references: [id], onDelete: Cascade)
+  status     String   @default("ACCEPTED") // ACCEPTED | REQUEST (permintaan pesan) | LEFT
+  isAdmin    Boolean  @default(false)
+  muted      Boolean  @default(false)
+  lastReadAt DateTime?
+  joinedAt   DateTime @default(now())
+
+  @@id([threadId, memberId])
+  @@index([memberId, status])
+}
+
+model RcMessage {
+  id         String   @id @default(uuid())
+  threadId   String
+  thread     RcThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     Member   @relation("RcSender", fields: [senderId], references: [id], onDelete: Cascade)
+  kind       String   @default("TEXT") // TEXT | IMAGE | POST | STORY_REPLY | SYSTEM
+  text       String?
+  url        String?
+  refId      String?                  // postingan / cerita yang dibagikan atau dibalas
+  replyToId  String?
+  viewOnce   Boolean  @default(false)
+  openedAt   DateTime?                // foto sekali lihat sudah dibuka
+  editedAt   DateTime?
+  unsentAt   DateTime?                // ditarik
+  reactions  RcMessageReaction[]
+  createdAt  DateTime @default(now())
+
+  @@index([threadId, createdAt])
+}
+
+model RcMessageReaction {
+  messageId String
+  message   RcMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member    @relation("RcMsgReactor", fields: [memberId], references: [id], onDelete: Cascade)
+  emoji     String
+
+  @@id([messageId, memberId])
+}
+
+// ─── Bilik Konseling ────────────────────────────────────────────────────────
+// Berbeda dari DM: siswa membuka sesi (boleh anonim bagi konselor), konselor piket mengambil sesi.
+model RcCounselSession {
+  id           String   @id @default(uuid())
+  studentId    String
+  student      Member   @relation("RcCounselStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  counselorId  String?
+  counselor    Member?  @relation("RcCounselCounselor", fields: [counselorId], references: [id], onDelete: SetNull)
+  alias        String                     // nama samaran yang dilihat konselor bila anonim
+  anonymous    Boolean  @default(true)
+  topic        String   @default("LAINNYA") // PERTEMANAN | KELUARGA | BELAJAR | PERASAAN | KESEHATAN_REPRODUKSI | PERUNDUNGAN | LAINNYA
+  status       String   @default("WAITING") // WAITING | ACTIVE | CLOSED
+  urgent       Boolean  @default(false)     // terdeteksi kata darurat
+  escalatedAt  DateTime?                    // diteruskan ke pembina/BK
+  rating       Int?
+  messages     RcCounselMessage[]
+  lastAt       DateTime @default(now())
+  closedAt     DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([status, lastAt])
+  @@index([studentId])
+  @@index([counselorId])
+}
+
+model RcCounselMessage {
+  id         String   @id @default(uuid())
+  sessionId  String
+  session    RcCounselSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  fromRole   String   // STUDENT | COUNSELOR | SYSTEM
+  senderId   String?
+  text       String
+  createdAt  DateTime @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+// Konselor sebaya yang bertugas (diatur dari dashboard)
+model RcCounselor {
+  memberId  String   @id
+  member    Member   @relation("RcCounselorProfile", fields: [memberId], references: [id], onDelete: Cascade)
+  days      String   @default("1,2,3,4,5") // hari piket 0=Minggu..6
+  active    Boolean  @default(true)
+  bio       String?
+  createdAt DateTime @default(now())
+}
+
+// ─── Notifikasi ─────────────────────────────────────────────────────────────
+model RcNotification {
+  id         String   @id @default(uuid())
+  userId     String
+  user       Member   @relation("RcNotifUser", fields: [userId], references: [id], onDelete: Cascade)
+  actorId    String?
+  actor      Member?  @relation("RcNotifActor", fields: [actorId], references: [id], onDelete: Cascade)
+  type       String   // LIKE | COMMENT | REPLY | FOLLOW | FOLLOW_REQUEST | FOLLOW_ACCEPT | MENTION | TAG | STORY_REACT | COUNSEL
+  postId     String?
+  commentId  String?
+  text       String?
+  readAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// Akun yang dibatasi (Restrict): komentarnya hanya terlihat oleh dirinya sendiri, pesan masuk ke permintaan
+model RcRestrict {
+  ownerId   String
+  owner     Member  @relation("RcRestrictOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  targetId  String
+  target    Member  @relation("RcRestrictTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([ownerId, targetId])
+}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   Palette, IdCard, Home, Info, Target, FilePlus2, Navigation, Save, Loader2, Plus, Trash2, Upload, RotateCcw,
@@ -42,12 +43,97 @@ const DEFAULT_CONFIG = {
   customPages: []
 };
 
-const slugify = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'halaman';
+const slugify = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'halaman';
+
+/* Sub-komponen card halaman kustom (butuh hooks sendiri untuk menu & confirm) */
+function PageCard({ page: p, canEdit, slugify: sf, onUpdate, onDelete }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
+
+  return (
+    <div className={styles.page2} style={{ flexDirection: 'row', alignItems: 'stretch', gap: '12px' }}>
+      {/* Kiri: Judul + Slug (atas-bawah) */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', minWidth: 0 }}>
+        <input
+          value={p.title} disabled={!canEdit} placeholder="Judul halaman"
+          style={{ fontSize: '0.95rem', fontWeight: 600, padding: '8px 12px', border: '1px solid var(--color-border-strong)', borderRadius: '8px', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
+          onChange={(e) => onUpdate({ ...p, title: e.target.value, slug: p.slug === sf(p.title) || !p.slug ? sf(e.target.value) : p.slug })}
+        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>/p/</span>
+          <input
+            value={p.slug} disabled={!canEdit} placeholder="slug"
+            style={{ fontSize: '0.8rem', fontFamily: 'monospace', padding: '5px 8px', border: '1px solid var(--color-border-strong)', borderRadius: '6px', background: 'var(--color-surface-2)', color: 'var(--color-accent)', flex: 1, minWidth: 0 }}
+            onChange={(e) => onUpdate({ ...p, slug: sf(e.target.value) })}
+          />
+          <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>{(p.blocks || []).length} blok</span>
+        </div>
+      </div>
+      {/* Kanan: Tombol Edit (oranye) + Menu 3 titik */}
+      {canEdit && (
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'stretch', flexShrink: 0 }}>
+          <Link to={`/admin/desain/halaman/${p.id}`}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 20px', borderRadius: '8px', background: '#f97316', color: '#fff', fontSize: '0.82rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', transition: 'background 0.15s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#ea580c'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#f97316'; }}
+          >
+            <Navigation size={14} /> Edit
+          </Link>
+          <div style={{ position: 'relative' }}>
+            <button type="button" onClick={() => setMenuOpen((v) => !v)}
+              style={{ width: '38px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--color-border-strong)', borderRadius: '8px', background: 'var(--color-surface)', cursor: 'pointer', color: 'var(--color-text-secondary)' }}
+              title="Opsi lainnya"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.5" /><circle cx="8" cy="8" r="1.5" /><circle cx="8" cy="13" r="1.5" /></svg>
+            </button>
+            {menuOpen && (
+              <>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setMenuOpen(false)} />
+                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', background: 'var(--color-surface)', border: '1px solid var(--color-border-strong)', borderRadius: '8px', boxShadow: '0 4px 16px rgba(0,0,0,.12)', zIndex: 100, minWidth: '150px', overflow: 'hidden' }}>
+                  <button type="button"
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '10px 14px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '0.84rem', fontWeight: 500, color: '#dc2626', textAlign: 'left' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#fef2f2'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; }}
+                    onClick={() => { setMenuOpen(false); setShowConfirm(true); setConfirmText(''); }}
+                  >
+                    <Trash2 size={14} /> Hapus halaman
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+      {/* Modal konfirmasi hapus — ketik "HAPUS" */}
+      {showConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowConfirm(false)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--color-surface)', borderRadius: '12px', padding: '24px', width: '380px', maxWidth: '90vw', boxShadow: '0 16px 48px rgba(0,0,0,.2)' }}>
+            <h4 style={{ margin: '0 0 8px', fontSize: '1rem' }}>Hapus halaman &ldquo;{p.title}&rdquo;?</h4>
+            <p style={{ margin: '0 0 16px', fontSize: '0.84rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+              Tindakan ini tidak dapat dibatalkan. Ketik <b style={{ color: '#dc2626' }}>HAPUS</b> untuk mengonfirmasi.
+            </p>
+            <input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="Ketik HAPUS" autoFocus
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-strong)', borderRadius: '8px', fontSize: '0.9rem', marginBottom: '14px', boxSizing: 'border-box', background: 'var(--color-surface-2)', color: 'var(--color-text-primary)' }} />
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowConfirm(false)}>Batal</button>
+              <button type="button" disabled={confirmText !== 'HAPUS'}
+                style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: confirmText === 'HAPUS' ? '#dc2626' : '#e5e7eb', color: confirmText === 'HAPUS' ? '#fff' : '#9ca3af', fontWeight: 700, fontSize: '0.84rem', cursor: confirmText === 'HAPUS' ? 'pointer' : 'not-allowed' }}
+                onClick={() => { if (confirmText !== 'HAPUS') return; onDelete(); setShowConfirm(false); }}
+              >Hapus Permanen</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminDesignPage() {
   const role = useAuthStore((s) => s.adminUser?.role);
   const canEdit = role === 'DEVELOPER' || role === 'KABINET_UMUM';
-  const [tab, setTab] = useState('tema');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(searchParams.get('tab') || 'tema');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [design, setDesign] = useState(null);
@@ -334,19 +420,18 @@ export default function AdminDesignPage() {
         {tab === 'halaman' && (
           <section className={`${styles.card} ${styles.wide}`}>
             <div className={styles.rowBetween}>
-              <h3>Halaman baru</h3>
-              {canEdit && <button type="button" className="btn btn-secondary btn-sm" onClick={() => setConfig((c) => ({ ...c, customPages: [...(c.customPages || []), { id: String(Date.now()), title: 'Halaman Baru', slug: 'halaman-baru', html: '<h1>Halo Dunia</h1>' }] }))}><Plus size={14} /> Tambah halaman</button>}
+              <h3>Halaman Kustom</h3>
+              {canEdit && <button type="button" className="btn btn-secondary btn-sm" onClick={() => {
+                const newId = String(Date.now());
+                setConfig((c) => ({ ...c, customPages: [...(c.customPages || []), { id: newId, title: 'Halaman Baru', slug: 'halaman-baru', blocks: [], html: '', navPosition: { placement: 'hidden' } }] }));
+              }}><Plus size={14} /> Tambah halaman</button>}
             </div>
-            <p className={styles.hint}>Halaman tambahan yang muncul di menu dan bisa dibuka di <code>/p/slug</code>.</p>
+            <p className={styles.hint}>Buat halaman kustom dengan Page Builder visual. Dapat diakses di <code>/p/slug</code>.</p>
             {(config.customPages || []).length === 0 ? <p className={styles.empty}>Belum ada halaman.</p> : config.customPages.map((p) => (
-              <div key={p.id} className={styles.page2}>
-                <div className={styles.grid2}>
-                  <label className={styles.field}>Judul (muncul di menu)<input value={p.title} disabled={!canEdit} onChange={(e) => setConfig((c) => ({ ...c, customPages: c.customPages.map((x) => (x.id === p.id ? { ...x, title: e.target.value, slug: x.slug === slugify(x.title) || !x.slug ? slugify(e.target.value) : x.slug } : x)) }))} /></label>
-                  <label className={styles.field}>Alamat (slug)<input value={p.slug} disabled={!canEdit} onChange={(e) => setConfig((c) => ({ ...c, customPages: c.customPages.map((x) => (x.id === p.id ? { ...x, slug: slugify(e.target.value) } : x)) }))} /></label>
-                </div>
-                <label className={styles.field}>Isi (HTML)<textarea className={styles.mono} rows={7} value={p.html} disabled={!canEdit} onChange={(e) => setConfig((c) => ({ ...c, customPages: c.customPages.map((x) => (x.id === p.id ? { ...x, html: e.target.value } : x)) }))} /></label>
-                {canEdit && <button type="button" className={styles.linkBtn} onClick={() => setConfig((c) => ({ ...c, customPages: c.customPages.filter((x) => x.id !== p.id) }))}><Trash2 size={13} /> Hapus halaman ini</button>}
-              </div>
+              <PageCard key={p.id} page={p} canEdit={canEdit} slugify={slugify}
+                onUpdate={(updated) => setConfig((c) => ({ ...c, customPages: c.customPages.map((x) => (x.id === p.id ? updated : x)) }))}
+                onDelete={() => { setConfig((c) => ({ ...c, customPages: c.customPages.filter((x) => x.id !== p.id) })); toast.success('Halaman dihapus'); }}
+              />
             ))}
           </section>
         )}

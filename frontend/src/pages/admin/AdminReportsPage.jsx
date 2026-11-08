@@ -24,8 +24,15 @@ const REASON_LABELS = {
   PELECEHAN: 'Perundungan / Pelecehan',
   KONTEN_TIDAK_PANTAS: 'Konten Tidak Pantas',
   AKUN_PALSU: 'Akun Palsu / Menyamar',
+  MENYAKITI_DIRI: 'Tanda menyakiti diri (prioritas)',
   LAINNYA: 'Lainnya'
 };
+
+const TYPE_LABELS = {
+  POST: 'Postingan blog', COMMENT: 'Komentar blog', MEMBER: 'Akun anggota',
+  RC_POST: 'Postingan Ruang Cerita', RC_STORY: 'Cerita Ruang Cerita', RC_COMMENT: 'Komentar Ruang Cerita', RC_MESSAGE: 'Pesan pribadi (yang dilaporkan saja)'
+};
+const DELETABLE = new Set(['POST', 'COMMENT', 'RC_POST', 'RC_STORY', 'RC_COMMENT', 'RC_MESSAGE']);
 
 export default function AdminReportsPage() {
   const [reports, setReports] = useState([]);
@@ -60,6 +67,24 @@ export default function AdminReportsPage() {
       fetchReports();
     } catch {
       toast.error('Gagal memperbarui status laporan.');
+    } finally {
+      setActionBusy(null);
+    }
+  };
+
+  // Bekukan akun sosial N hari (status anggota, absensi, ID Card tetap)
+  const handleFreeze = async (id) => {
+    const days = window.prompt('Bekukan akun sosial (Ruang Cerita & blog) selama berapa hari? Pilih 1, 3, 7, atau 30.\nStatus anggota, absensi, dan ID Card TIDAK berubah.', '7');
+    if (days === null) return;
+    if (![1, 3, 7, 30].includes(Number(days))) { toast.error('Pilih 1, 3, 7, atau 30 hari.'); return; }
+    const reason = window.prompt('Alasan (ditampilkan ke pemilik akun):', 'Melanggar pedoman komunitas Ruang Cerita') || '';
+    setActionBusy(id);
+    try {
+      await takeReportAction(id, 'FREEZE_USER', { days: Number(days), reason });
+      toast.success(`Akun sosial dibekukan ${days} hari.`);
+      fetchReports();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal membekukan akun.');
     } finally {
       setActionBusy(null);
     }
@@ -177,7 +202,7 @@ export default function AdminReportsPage() {
                 {/* Target Information */}
                 <div className={styles.targetBox}>
                   <div className={styles.targetLabel}>
-                    Objek yang Dilaporkan: {report.targetType}
+                    Objek yang Dilaporkan: {TYPE_LABELS[report.targetType] || report.targetType}
                   </div>
                   {report.targetType === 'POST' && (
                     <div className={styles.targetContent}>
@@ -218,6 +243,28 @@ export default function AdminReportsPage() {
                     </div>
                   )}
 
+                  {['RC_POST', 'RC_STORY', 'RC_COMMENT', 'RC_MESSAGE'].includes(report.targetType) && (
+                    <div className={styles.targetContent}>
+                      {report.targetData ? (
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                          {report.targetData.thumb && (
+                            <img src={getUploadUrl(report.targetData.thumb)} alt="" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 10, flexShrink: 0 }} />
+                          )}
+                          <div>
+                            <div style={{ fontWeight: 600 }}>"{report.targetData.contentSnippet || report.targetData.content || '-'}"</div>
+                            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.82rem', marginTop: '4px' }}>
+                              Oleh: <strong>{report.targetData.memberAuthor?.name || report.targetData.username || 'Anggota'}</strong>
+                              {report.targetData.memberAuthor?.slug ? ` (@${report.targetData.memberAuthor.slug})` : ''}
+                              {report.targetData.status ? ` · ${report.targetData.status}` : ''}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--color-text-muted)' }}>[Konten sudah dihapus]</span>
+                      )}
+                    </div>
+                  )}
+
                   {report.targetType === 'MEMBER' && (
                     <div className={styles.targetContent}>
                       {report.targetData ? (
@@ -236,7 +283,7 @@ export default function AdminReportsPage() {
 
                 {/* Actions Bar */}
                 <div className={styles.cardActions}>
-                  {report.targetData && (report.targetType === 'POST' || report.targetType === 'COMMENT') && (
+                  {report.targetData && DELETABLE.has(report.targetType) && (
                     <button
                       type="button"
                       className="btn btn-danger btn-sm"
@@ -252,10 +299,11 @@ export default function AdminReportsPage() {
                       type="button"
                       className="btn btn-secondary btn-sm"
                       style={{ color: '#dc2626', borderColor: '#fca5a5' }}
-                      onClick={() => handleAction(report.id, 'DEACTIVATE_USER', 'Nonaktifkan status akun anggota ini (INACTIVE)?')}
+                      onClick={() => handleFreeze(report.id)}
                       disabled={actionBusy === report.id}
+                      title="Membekukan akun sosial (Ruang Cerita & blog). Status anggota, absensi, dan ID Card tidak berubah."
                     >
-                      <UserX size={14} /> Nonaktifkan Akun
+                      <UserX size={14} /> Bekukan Akun Sosial
                     </button>
                   )}
 

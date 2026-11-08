@@ -93,8 +93,9 @@ export default function KamiPage() {
   return (
     <div className="page-wrapper">
       <SEO 
-        title="Tentang Kami" 
-        description="Profil lengkap PIK-R MANSEKU MAN 1 Muara Enim. Ketahui visi, misi, struktur pimpinan aktif, badan pengurus harian (kabinet), dan arsip sejarah organisasi kami." 
+        title="Tentang PIK-R" 
+        description="Profil lengkap PIK-R MANSEKU (Pusat Informasi & Konseling Remaja) MAN 1 Muara Enim. Ketahui visi, misi, struktur pimpinan aktif, badan pengurus harian (kabinet), dan arsip sejarah organisasi kami." 
+        keywords="Tentang PIK-R, Profil PIK-R MANSEKU, PIK Remaja MAN 1 Muara Enim, Visi Misi PIK-R, BKKBN Muara Enim"
       />
       {/* 1. Hero Section */}
       <section className={styles.hero}>

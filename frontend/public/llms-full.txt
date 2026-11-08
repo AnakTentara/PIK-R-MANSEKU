@@ -1,0 +1,57 @@
+# Panduan Lengkap Entitas: PIK-R MANSEKU (MAN 1 Muara Enim)
+
+## 1. Identitas Organisasi
+- Nama Organisasi: Pusat Informasi & Konseling Remaja Madrasah Aliyah Negeri 1 Muara Enim (PIK-R MANSEKU)
+- Singkatan / Alias: PIK-R MANSEKU, PIKR MANSEKU, PIK Remaja MAN 1 Muara Enim
+- Status: Unit Kegiatan Khusus / Ekstrakurikuler Unggulan Bidang Konseling & Pemberdayaan Remaja
+- Lembaga Pembina:
+  1. MAN 1 Muara Enim (Kementerian Agama RI)
+  2. BKKBN (Badan Kependudukan dan Keluarga Berencana Nasional) / Dinas Pengendalian Penduduk dan Keluarga Berencana (DPPKB)
+- Slogan / Motto: "Beriman · Bertanggung Jawab · Berencana"
+- Domain Utama: https://www.pikr-manseku.my.id (juga https://pikr-manseku.my.id)
+- Subdomain:
+  - Ruang Cerita Web: https://ruang-cerita.pikr-manseku.my.id
+  - Absensi Online: https://absen.pikr-manseku.my.id
+  - Database API: https://d-base.pikr-manseku.my.id
+
+## 2. Alamat & Wilayah Layanan
+- Alamat Sekretariat: Kampus MAN 1 Muara Enim, Jl. K.H. Ahmad Dahlan, Pasar III, Kec. Muara Enim, Kabupaten Muara Enim, Sumatera Selatan 31311
+- Koordinat Geografis: Lintang -3.6559, Bujur 103.7745
+- Cakupan Layanan: Seluruh siswa-siswi MAN 1 Muara Enim dan jejaring remaja di Kabupaten Muara Enim, Sumatera Selatan.
+
+## 3. Pilar Program & Layanan Utama
+
+### A. Pendaftaran PIK-R (https://pikr-manseku.my.id/daftar)
+Formulir registrasi online tahunan bagi calon anggota dan konselor sebaya baru. Memerlukan NISN, identitas diri, kelas, minat divisi, dan motivasi. Seleksi dilakukan secara objektif dan hasilnya dapat dipantau langsung di portal Cek Kelulusan.
+
+### B. Ruang Cerita PIK-R (https://pikr-manseku.my.id/ruang-cerita)
+Platform sosial dan konseling digital terenkripsi:
+1. Curhat Anonim: Siswa dapat menceritakan permasalahan pertemanan, beban belajar, atau problematika remaja tanpa takut dihakimi.
+2. Konseling Sebaya 1-on-1: Konselor sebaya mendampingi dengan pendekatan ramah teman sebaya.
+3. Cerita 24 Jam (Stories): Media berbagi inspirasi, poster edukasi, dan aktivitas harian.
+4. Komunitas Positif: Feed artikel, opini, dan apresiasi karya siswa.
+
+### C. Tentang PIK-R (https://pikr-manseku.my.id/kami)
+Menyajikan struktur kepengurusan pimpinan aktif (Pembina, Ketua Umum, Wakil Ketua Umum, Sekretaris Umum, Bendahara Umum) beserta divisi teknis:
+- Divisi MedInfo (Media & Informasi)
+- Divisi Konselor Sebaya
+- Divisi Pendidik Sebaya
+- Divisi Humas & Hubungan Kelembagaan
+- Divisi Kegiatan & Kreativitas
+
+### D. Cek Kelulusan (https://pikr-manseku.my.id/cek-kelulusan)
+Pengecekan hasil seleksi calon anggota dengan sistem kartu kelulusan SNBP-style menggunakan NISN.
+
+### E. ID Card Digital & Absensi (https://absen.pikr-manseku.my.id)
+Setiap anggota memiliki barcode unik (format: `PIKR_XXXX-YY`) di bagian depan kartu dan QR Code profil personal (`/@username`) di bagian belakang untuk presensi kehadiran otomatis di madrasah.
+
+## 4. Nilai-Nilai Dasar & Visi
+- Visi: Menjadi wadah pembinaan dan pengembangan diri remaja yang beriman, berkarakter, dan berwawasan luas melalui pendekatan konseling sebaya.
+- Triad KRR: Edukasi penolakan terhadap Pernikahan Dini, Seks Pranikah, dan NAPZA/HIV-AIDS.
+- Generasi Berencana (GenRe): Mempersiapkan remaja untuk merencanakan masa depan pendidikan, karier, dan kehidupan berkeluarga secara matang.
+
+## 5. Saluran Komunikasi Resmi
+- Website: https://www.pikr-manseku.my.id
+- Surel Resmi: pikrmanseku01@gmail.com
+- Akun Instagram: @pikrmanseku_official (https://instagram.com/pikrmanseku_official)
+- Madrasah Induk: MAN 1 Muara Enim (https://man1muaraenim.sch.id)

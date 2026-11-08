@@ -18,7 +18,15 @@ import styles from './Navbar.module.css';
  */
 const NAV = [
   { to: '/', label: 'Beranda', end: true },
-  { to: '/kami', label: 'Tentang Kami', key: 'tentangKami' },
+  { to: '/kami', label: 'Tentang PIK-R', key: 'tentangKami' },
+  { to: '/ruang-cerita', label: 'Ruang Cerita' },
+  {
+    label: 'Pendaftaran', id: 'daftar',
+    items: [
+      { to: '/daftar', label: 'Pendaftaran PIK-R', icon: ClipboardList, desc: 'Isi formulir pendaftaran calon anggota baru PIK-R MANSEKU. Hanya butuh beberapa menit.' },
+      { to: '/cek-kelulusan', label: 'Cek Kelulusan', icon: SearchCheck, desc: 'Lihat hasil seleksi dengan NISN atau nama lengkap.' }
+    ]
+  },
   {
     label: 'Anggota', id: 'anggota',
     items: [
@@ -31,13 +39,6 @@ const NAV = [
     items: [
       { to: '/berita', label: 'Berita', key: 'berita', icon: Newspaper, desc: 'Kabar resmi kegiatan, pengumuman, dan informasi kesehatan remaja dari pengurus.' },
       { to: '/blog', label: 'Blog Anggota', key: 'blog', icon: PenSquare, desc: 'Tulisan, cerita, dan opini dari anggota. Baca, beri suka, komentari, dan ikuti penulisnya.' }
-    ]
-  },
-  {
-    label: 'Pendaftaran', id: 'daftar',
-    items: [
-      { to: '/daftar', label: 'Daftar Anggota Baru', icon: ClipboardList, desc: 'Isi formulir pendaftaran calon anggota. Hanya butuh beberapa menit.' },
-      { to: '/cek-kelulusan', label: 'Cek Kelulusan', icon: SearchCheck, desc: 'Lihat hasil seleksi dengan NISN atau nama lengkap.' }
     ]
   }
 ];
@@ -77,10 +78,37 @@ export default function Navbar() {
   const customPages = webEditorConfig?.customPages || [];
   const nav = NAV.map((n) => (n.items ? { ...n, items: n.items.filter(visible) } : n))
     .filter((n) => (n.items ? n.items.length > 0 : visible(n)));
-  if (customPages.length) {
+
+  // ── Navbar dinamis dari custom pages berdasarkan navPosition ──
+  // Halaman kustom bisa: hidden (default), root (item utama), category (dalam dropdown)
+  const catMap = {}; // categoryName -> [items]
+  customPages.forEach((p) => {
+    const np = p.navPosition || {};
+    if (np.placement === 'root') {
+      // Tambah sebagai item utama langsung di navbar
+      nav.push({ to: `/p/${p.slug}`, label: np.label || p.title });
+    } else if (np.placement === 'category' && np.categoryName) {
+      // Kelompokkan per kategori
+      const catKey = np.categoryName.trim().toLowerCase();
+      if (!catMap[catKey]) catMap[catKey] = { label: np.categoryName.trim(), id: `custom_${catKey}`, items: [] };
+      catMap[catKey].items.push({
+        to: `/p/${p.slug}`,
+        label: np.label || p.title,
+        icon: LayoutGrid,
+        desc: p.description || `Halaman ${p.title}.`
+      });
+    }
+    // placement === 'hidden' → tidak ditambahkan ke nav
+  });
+  // Tambahkan kategori-kategori kustom ke navbar
+  Object.values(catMap).forEach((cat) => { if (cat.items.length > 0) nav.push(cat); });
+
+  // Fallback lama: halaman kustom tanpa navPosition masuk ke grup "Lainnya"
+  const unmapped = customPages.filter((p) => !p.navPosition || !p.navPosition.placement);
+  if (unmapped.length) {
     nav.push({
       label: 'Lainnya', id: 'lainnya',
-      items: customPages.map((p) => ({ to: `/p/${p.slug}`, label: p.title, icon: LayoutGrid, desc: p.description || `Halaman ${p.title}.` }))
+      items: unmapped.map((p) => ({ to: `/p/${p.slug}`, label: p.title, icon: LayoutGrid, desc: p.description || `Halaman ${p.title}.` }))
     });
   }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Users, Calendar, BookOpen } from 'lucide-react';
+import { ArrowRight, Users, Calendar, BookOpen, MessageCircle, Sparkles } from 'lucide-react';
 import { getPublicSettings } from '@/api/candidates';
 import { getPublicTestimonials } from '@/api/public';
 import SEO from '@/components/common/SEO';
@@ -263,7 +263,7 @@ export default function LandingPage() {
           <ScrollReveal>
             <div className={styles.aboutText}>
               <h2 className={styles.sectionTitle}>
-                Tentang Kami
+                Tentang PIK-R
                 <span className={styles.titleBar} />
               </h2>
               <p className={styles.aboutDesc}>{aboutText1}</p>
@@ -344,6 +344,55 @@ export default function LandingPage() {
               </div>
             </ScrollReveal>
           </div>
+        </div>
+      </section>
+
+      {/* ── Ruang Cerita PIK-R ── */}
+      <section className="section" style={{ background: '#ffffff', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
+        <div className="container">
+          <ScrollReveal>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '2rem', padding: '1rem 0' }}>
+              <div style={{ maxWidth: '580px' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.3rem 0.85rem', borderRadius: '9999px', background: 'rgba(234, 88, 12, 0.1)', color: '#ea580c', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+                  <Sparkles size={14} /> Ruang Konseling Sebaya &amp; Media Sosial Siswa
+                </span>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: '0.75rem' }}>
+                  Ruang Cerita PIK-R
+                </h2>
+                <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: '1.5rem', fontSize: '1.05rem' }}>
+                  Wadah konseling sebaya yang aman dan bebas penghakiman bagi siswa MAN 1 Muara Enim. Bagikan cerita 24 jam, curhat anonim dengan konselor sebaya terpercaya, dan temukan sahabat seangkatan.
+                </p>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <Link to="/ruang-cerita" className="btn btn-primary">
+                    <MessageCircle size={17} />
+                    Jelajahi Ruang Cerita
+                  </Link>
+                  <a href="https://ruang-cerita.pikr-manseku.my.id" target="_blank" rel="noopener noreferrer" className="btn btn-outline">
+                    Buka Aplikasi Web
+                  </a>
+                </div>
+              </div>
+              <div style={{ flex: '1', minWidth: '280px', maxWidth: '420px', background: 'var(--color-bg)', padding: '1.75rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--color-text-primary)' }}>
+                  Kenapa Ruang Cerita?
+                </h3>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.92rem', color: 'var(--color-text-secondary)' }}>
+                    <span style={{ color: '#ea580c', fontWeight: 700 }}>✓</span>
+                    <span><strong>100% Rahasia:</strong> Mode curhat anonim terlindungi.</span>
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.92rem', color: 'var(--color-text-secondary)' }}>
+                    <span style={{ color: '#ea580c', fontWeight: 700 }}>✓</span>
+                    <span><strong>Konselor Sebaya:</strong> Didampingi teman sebaya terlatih.</span>
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.92rem', color: 'var(--color-text-secondary)' }}>
+                    <span style={{ color: '#ea580c', fontWeight: 700 }}>✓</span>
+                    <span><strong>Stories 24 Jam:</strong> Bagikan inspirasi dan momen harian.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 

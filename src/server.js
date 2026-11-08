@@ -14,6 +14,8 @@ import publicRoutes from './routes/public.js';
 import absenRoutes from './routes/absen.js';
 import { getPublicProfile } from './controllers/absen.js';
 import socialRoutes from './routes/social.js';
+import rcRoutes from './rc/router.js';
+import { checkMessageKey } from './rc/crypto.js';
 import { authAny } from './middlewares/auth.js';
 import { ensureAbsenAccount } from './middlewares/authAbsen.js';
 import { ensureMemberIdentity } from './utils/slug.js';
@@ -73,6 +75,7 @@ app.use('/api/public', publicRoutes);
 app.use('/api/absen', absenRoutes);
 app.get('/api/public/profile/:slug', authAny, getPublicProfile);
 app.use('/api/social', socialRoutes);
+app.use('/api/rc', rcRoutes); // Ruang Cerita
 
 // SEO: Robots.txt
 app.get('/robots.txt', (req, res) => {
@@ -80,19 +83,59 @@ app.get('/robots.txt', (req, res) => {
   res.send(`User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /admin
 Disallow: /api/
+
+# AI Search & Grounding Bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
 
 Sitemap: ${SITE_URL}/sitemap.xml`);
 });
 
+// AI Grounding LLMs.txt
+app.get('/llms.txt', (req, res) => {
+  const p = path.join(__dirname, '../frontend/public/llms.txt');
+  if (fs.existsSync(p)) return res.sendFile(p);
+  res.status(404).send('Not found');
+});
+
+app.get('/llms-full.txt', (req, res) => {
+  const p = path.join(__dirname, '../frontend/public/llms-full.txt');
+  if (fs.existsSync(p)) return res.sendFile(p);
+  res.status(404).send('Not found');
+});
+
 // SEO: Dynamic Sitemap.xml
 app.get('/sitemap.xml', async (req, res) => {
-  res.header('Content-Type', 'application/xml');
+  res.header('Content-Type', 'application/xml; charset=utf-8');
   const baseUrl = SITE_URL;
   const staticPages = [
     '',
-    '/kami',
     '/daftar',
+    '/ruang-cerita',
+    '/kami',
     '/cek-kelulusan',
     '/berita',
     '/blog',
@@ -101,6 +144,7 @@ app.get('/sitemap.xml', async (req, res) => {
   ];
   
   try {
+    const today = new Date().toISOString().split('T')[0];
     const posts = await prisma.post.findMany({
       select: { slug: true, updatedAt: true }
     });
@@ -114,10 +158,13 @@ app.get('/sitemap.xml', async (req, res) => {
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
     
     staticPages.forEach(page => {
+      const loc = page === '' ? `${baseUrl}/` : `${baseUrl}${page}`;
+      const priority = page === '' ? '1.0' : (page === '/daftar' || page === '/ruang-cerita' || page === '/kami' ? '0.9' : '0.8');
       xml += `  <url>\n`;
-      xml += `    <loc>${baseUrl}${page}</loc>\n`;
-      xml += `    <changefreq>daily</changefreq>\n`;
-      xml += `    <priority>${page === '' ? '1.0' : '0.8'}</priority>\n`;
+      xml += `    <loc>${loc}</loc>\n`;
+      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += `    <changefreq>${page === '' ? 'daily' : 'weekly'}</changefreq>\n`;
+      xml += `    <priority>${priority}</priority>\n`;
       xml += `  </url>\n`;
     });
     
@@ -265,7 +312,7 @@ if (fs.existsSync(distPath)) {
   }));
 
   app.get(/^.*$/, (req, res, next) => {
-    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots')) {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots') || req.path.startsWith('/llms')) {
       return next();
     }
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');

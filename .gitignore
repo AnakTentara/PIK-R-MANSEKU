@@ -33,3 +33,6 @@ Daftar_ID_Card_*.xlsx
 !public/file/**/*.xls
 # Foto yang diunggah anggota (ikut cadangan ZIP, bukan git)
 public/uploads/
+
+# Foto pesan Ruang Cerita (terenkripsi, privat)
+private/

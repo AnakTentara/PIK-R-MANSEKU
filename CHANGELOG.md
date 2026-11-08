@@ -4,6 +4,39 @@ Seluruh rilis, pembaruan fitur, dan perbaikan bug pada platform PIK-R MANSEKU di
 
 ---
 
+## [v2.5.0] — 2026-11-08
+
+Ruang Cerita dibangun ulang dari nol sebagai media sosial anggota PIK-R yang aman untuk remaja, dengan API sendiri (`/api/rc`), Pesan terenkripsi, dan Bilik Konseling yang sungguhan.
+
+### 🚨 Perbaikan darurat
+- **Form curhat palsu dimatikan.** Versi Ruang Cerita sebelumnya menampilkan "curhat terkirim, konselor akan membalas" padahal pesan tidak terkirim ke mana pun, serta memuat postingan & akun karangan (foto stok, angka suka palsu). Diganti halaman sementara berisi nomor layanan resmi, lalu versi baru di bawah.
+- **Moderasi tidak lagi merusak data anggota.** "Nonaktifkan akun" (mengubah status anggota menjadi `INACTIVE` sehingga hilang dari absensi & ID Card) diganti **"Bekukan akun sosial"** 1–30 hari lewat `RcProfile.frozenUntil`; status anggota, absensi, dan ID Card tidak disentuh.
+
+### 🌟 API Ruang Cerita (`src/rc/`, 24 tabel `Rc*` baru)
+- **Akun remaja:** privat secara bawaan (pengikut harus disetujui), permintaan mengikuti, hapus pengikut, Teman Dekat, Bisukan, **Batasi** (komentarnya hanya terlihat olehnya, pesannya masuk Permintaan), Blokir dua arah, kata tersembunyi + daftar kata kasar bawaan, mode tenang, status aktivitas yang bisa dimatikan.
+- **Postingan:** carousel 1–10 foto/video, foto diperkecil ke WebP dan **metadata lokasi GPS dibuang**, tandai teman, @sebutan & #tagar, audiens Teman Dekat, sembunyikan jumlah suka, matikan komentar, sematkan (maks. 3), edit keterangan, simpan.
+- **Komentar:** berutas satu tingkat, suka komentar, sematkan, pemilik postingan boleh menghapus, anti-XSS (teks polos, maks. 1000 karakter).
+- **Cerita 24 jam:** foto/video/teks, Teman Dekat, stiker polling & pertanyaan, reaksi emoji, balas cerita (masuk Pesan), daftar penonton, arsip, **Sorotan**.
+- **Pesan (DM):** 1-on-1 & grup, kotak Permintaan, balas, reaksi, edit 15 menit, tarik pesan, **foto sekali lihat**, sedang mengetik, tanda dibaca, Notes 24 jam, bagikan postingan.
+  - **Isi pesan dienkripsi saat disimpan** (AES-256-GCM, kunci `RC_MESSAGE_KEY` di `.env`, tidak ikut cadangan ZIP). Foto pesan disimpan terenkripsi di `private/rc-dm/` (di luar folder publik) dan hanya bisa diambil anggota percakapan lewat API.
+- **Bilik Konseling:** sesi dengan topik, **anonim untuk konselor** (nama samaran), antrean, konselor bertugas per hari, deteksi kata darurat → tanda MENDESAK + nomor SEJIWA 119 ext. 8 / SAPA 129 / 112, "minta pendampingan pembina", penilaian sesi, isi dienkripsi.
+- **Realtime (SSE)** untuk pesan, notifikasi, dan antrean konseling; notifikasi aktivitas; lapor postingan/cerita/komentar/pesan/akun.
+- **Batas laju** 40 aksi/menit dan 60 unggahan/jam per anggota; semua respons `X-Robots-Tag: noindex`.
+- Dashboard **Laporan** menampilkan konten Ruang Cerita (pesan pribadi: hanya pesan yang dilaporkan, bukan seluruh percakapan).
+
+### 🔧 Perubahan
+- Dependensi baru: `sharp` (pengolahan gambar).
+- `.gitignore`: folder `private/` (foto pesan terenkripsi).
+
+### ✅ Diuji
+- 34 uji keamanan & privasi (token palsu/kedaluwarsa, pendaftar ditolak, akun privat terkunci termasuk akses langsung lewat id, isolasi Pesan & Konseling, kepemilikan konten, XSS, batas laju) dan 17 uji antarmuka di HP & desktop: semua lulus.
+
+### ⚠️ Belum
+- End-to-end encryption untuk Pesan (rencana bersama aplikasi Flutter: butuh kunci per perangkat).
+- Sandi bawaan akun developer dashboard & akun bersama absen **masih aktif** dan tertulis di repo publik. Segera ganti.
+
+---
+
 ## [v2.4.0] — 2026-11-08
 
 Rilis sosial & arsitektur performa: profil bergaya media sosial (Follow, Teman Dekat, Blokir, Lapor), login alumni, code splitting dengan SkeletonLoading, crawler preview WhatsApp, dan pengerasan keamanan SQLite & Upload.

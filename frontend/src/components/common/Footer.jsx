@@ -35,14 +35,15 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Navigasi */}
+        {/* Navigasi Utama */}
         <div className={styles.linkGroup}>
-          <h3 className={styles.groupTitle}>Navigasi</h3>
+          <h3 className={styles.groupTitle}>Layanan Utama</h3>
           <ul className={styles.linkList}>
-            <li><Link to="/" className={styles.link}>Beranda</Link></li>
-            <li><Link to="/blog" className={styles.link}>Blog & Artikel</Link></li>
-            <li><Link to="/daftar" className={styles.link}>Pendaftaran Anggota</Link></li>
+            <li><Link to="/daftar" className={styles.link}>Pendaftaran PIK-R</Link></li>
+            <li><Link to="/ruang-cerita" className={styles.link}>Ruang Cerita</Link></li>
+            <li><Link to="/kami" className={styles.link}>Tentang PIK-R</Link></li>
             <li><Link to="/cek-kelulusan" className={styles.link}>Cek Kelulusan</Link></li>
+            <li><Link to="/blog" className={styles.link}>Blog & Artikel</Link></li>
           </ul>
         </div>
 
