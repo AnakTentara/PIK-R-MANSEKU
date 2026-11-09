@@ -416,8 +416,8 @@ model Story {
 model RcProfile {
   memberId      String   @id
   member        Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  isPrivate     Boolean  @default(true)   // akun remaja: privat bawaan (pengikut harus disetujui)
-  dmPolicy      String   @default("FOLLOWING") // EVERYONE | FOLLOWING | NONE
+  isPrivate     Boolean  @default(false)  // bawaan publik (khusus anggota yang login); bisa dijadikan privat di Pengaturan
+  dmPolicy      String   @default("EVERYONE") // EVERYONE | FOLLOWING | NONE
   showActivity  Boolean  @default(true)   // status "aktif" dan tanda dibaca
   hiddenWords   String   @default("")     // kata yang disembunyikan dari komentar & pesan (dipisah koma)
   quietStart    String?                    // mode tenang "22:00"
@@ -570,6 +570,7 @@ model RcStoryView {
   viewerId  String
   viewer    Member   @relation("RcStoryViewer", fields: [viewerId], references: [id], onDelete: Cascade)
   answer    String?                      // jawaban polling/pertanyaan
+  liked     Boolean  @default(false)       // suka cerita (hanya pemilik cerita yang melihat)
   createdAt DateTime @default(now())
 
   @@id([storyId, viewerId])
@@ -725,7 +726,7 @@ model RcNotification {
   user       Member   @relation("RcNotifUser", fields: [userId], references: [id], onDelete: Cascade)
   actorId    String?
   actor      Member?  @relation("RcNotifActor", fields: [actorId], references: [id], onDelete: Cascade)
-  type       String   // LIKE | COMMENT | REPLY | FOLLOW | FOLLOW_REQUEST | FOLLOW_ACCEPT | MENTION | TAG | STORY_REACT | COUNSEL
+  type       String   // LIKE | COMMENT | REPLY | FOLLOW | FOLLOW_REQUEST | FOLLOW_ACCEPT | MENTION | TAG | STORY_REACT | STORY_LIKE (text = id cerita) | COUNSEL
   postId     String?
   commentId  String?
   text       String?

@@ -74,6 +74,7 @@ router.post('/stories', uploadLimiter, storyUpload.single('media'), S.createStor
 router.delete('/stories/:id', S.deleteStory);
 router.post('/stories/:id/view', S.viewStory);
 router.get('/stories/:id/viewers', S.viewers);
+router.post('/stories/:id/like', S.likeStory);
 router.post('/stories/:id/react', S.reactStory);
 router.post('/stories/:id/reply', S.replyStory);
 router.get('/highlights/:id', S.highlight);

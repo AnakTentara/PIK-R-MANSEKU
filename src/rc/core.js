@@ -48,7 +48,8 @@ export function shapeUser(m) {
 
 /** Profil Ruang Cerita milik anggota; dibuat otomatis saat pertama dipakai. */
 export async function ensureProfile(memberId) {
-  return prisma.rcProfile.upsert({ where: { memberId }, update: {}, create: { memberId } });
+  // Bawaan akun baru: publik + pesan dari semua anggota (keputusan pengurus, 2026-11-09)
+  return prisma.rcProfile.upsert({ where: { memberId }, update: {}, create: { memberId, isPrivate: false, dmPolicy: 'EVERYONE' } });
 }
 
 /** Anggota yang sedang login (wajib). Melempar 401/403. */

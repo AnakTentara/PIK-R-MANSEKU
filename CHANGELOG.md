@@ -4,6 +4,21 @@ Seluruh rilis, pembaruan fitur, dan perbaikan bug pada platform PIK-R MANSEKU di
 
 ---
 
+## [v2.6.0] — 2026-11-09
+
+Ruang Cerita 2.1: kamera, penyunting foto/video, suka cerita, dan bawaan akun baru.
+
+### 🌟 Ruang Cerita (`src/rc/`)
+- **Suka cerita**: `POST /api/rc/stories/:id/like { like }`. Disimpan di `RcStoryView.liked`; pemilik tidak bisa menyukai ceritanya sendiri. Notifikasi `STORY_LIKE` dikirim sekali per cerita (suka-batal-suka tidak menumpuk).
+- **Insight pemilik**: `GET /api/rc/stories/:id/viewers` kini mengembalikan `viewCount`, `likeCount`, dan tanda `liked` per penonton (yang menyukai diurutkan di atas). Hanya pemilik.
+- `GET /api/rc/users/:username/stories`: `liked` (milik penonton) dan `likeCount` (hanya pemilik).
+
+### 🔧 Perubahan
+- **Bawaan akun Ruang Cerita: publik + pesan dari semua anggota** (`RcProfile.isPrivate` = false, `dmPolicy` = EVERYONE), atas keputusan pengurus. Akun yang masih memakai bawaan lama (privat + FOLLOWING) diubah; permintaan ikuti yang tertunda diterima otomatis. Daftar akun yang diubah disimpan di `PIK-R-BACKUP/rc-privat-sebelum-2026-11-09.json`.
+- Skema: `RcStoryView.liked Boolean @default(false)`; nilai bawaan `RcProfile` diganti (`db push` membangun ulang tabel, data tetap ada; cadangan diambil sebelumnya).
+
+---
+
 ## [v2.5.0] — 2026-11-08
 
 Ruang Cerita dibangun ulang dari nol sebagai media sosial anggota PIK-R yang aman untuk remaja, dengan API sendiri (`/api/rc`), Pesan terenkripsi, dan Bilik Konseling yang sungguhan.

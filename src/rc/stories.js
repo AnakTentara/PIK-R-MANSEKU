@@ -76,6 +76,9 @@ export const userStories = handle(async (req) => {
     include: { _count: { select: { views: true } } }
   });
   const mine = u.id === v.id;
+  const likeCounts = mine && rows.length
+    ? new Map((await prisma.rcStoryView.groupBy({ by: ['storyId'], where: { storyId: { in: rows.map((r) => r.id) }, liked: true }, _count: { _all: true } })).map((x) => [x.storyId, x._count._all]))
+    : new Map();
   const views = await prisma.rcStoryView.findMany({ where: { viewerId: v.id, storyId: { in: rows.map((r) => r.id) } } });
   const vmap = new Map(views.map((x) => [x.storyId, x]));
   const reacts = await prisma.rcStoryReaction.findMany({ where: { memberId: v.id, storyId: { in: rows.map((r) => r.id) } } });
@@ -95,7 +98,9 @@ export const userStories = handle(async (req) => {
       myAnswer: vmap.get(r.id)?.answer || null,
       myReaction: rmap.get(r.id) || null,
       seen: vmap.has(r.id),
+      liked: !!vmap.get(r.id)?.liked,
       viewCount: mine ? r._count.views : undefined,
+      likeCount: mine ? likeCounts.get(r.id) || 0 : undefined,
       createdAt: r.createdAt, expiresAt: r.expiresAt
     }))
   };
@@ -173,7 +178,29 @@ export const viewers = handle(async (req) => {
     prisma.rcStoryReaction.findMany({ where: { storyId: s.id } })
   ]);
   const rm = new Map(reacts.map((r) => [r.memberId, r.emoji]));
-  return { items: rows.map((r) => ({ user: shapeUser(r.viewer), answer: r.answer, reaction: rm.get(r.viewerId) || null, at: r.createdAt })) };
+  const items = rows.map((r) => ({ user: shapeUser(r.viewer), liked: r.liked, answer: r.answer, reaction: rm.get(r.viewerId) || null, at: r.createdAt }));
+  items.sort((a, b) => (b.liked - a.liked) || (b.at - a.at));
+  return { items, viewCount: items.length, likeCount: items.filter((x) => x.liked).length };
+});
+
+/**
+ * Suka cerita (seperti Instagram): hanya pemilik cerita yang melihat siapa yang menyukai.
+ * Disimpan di baris penonton; menyukai sekaligus menandai ditonton.
+ */
+export const likeStory = handle(async (req) => {
+  const v = await requireViewer(req);
+  const s = await visibleStoryOr404(v.id, req.params.id);
+  if (s.authorId === v.id) fail(400, 'Tidak bisa menyukai cerita sendiri.');
+  const liked = req.body?.like !== false;
+  const key = { storyId_viewerId: { storyId: s.id, viewerId: v.id } };
+  const prev = await prisma.rcStoryView.findUnique({ where: key, select: { liked: true } });
+  await prisma.rcStoryView.upsert({ where: key, update: { liked }, create: { storyId: s.id, viewerId: v.id, liked } });
+  // Notifikasi sekali per cerita (suka-batal-suka tidak menumpuk)
+  if (liked && !prev?.liked) {
+    const dup = await prisma.rcNotification.findFirst({ where: { userId: s.authorId, actorId: v.id, type: 'STORY_LIKE', text: s.id }, select: { id: true } });
+    if (!dup) await notify(s.authorId, v.id, 'STORY_LIKE', { text: s.id });
+  }
+  return { liked };
 });
 
 /** Reaksi cepat emoji: tersimpan + dikirim sebagai pesan ke pemilik cerita. */
