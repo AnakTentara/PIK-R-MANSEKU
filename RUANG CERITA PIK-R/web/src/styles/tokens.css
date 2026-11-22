@@ -1,0 +1,77 @@
+/* ============================================================
+   Ruang Cerita — token desain
+   Sama dengan web absen PIK-R (Claymorphism 2.0, putih hangat + oranye PIK-R),
+   dipadukan dengan tata letak Instagram. Aturan 60-30-10:
+   60% latar hangat, 30% permukaan kartu, 10% aksen oranye (aksi & status).
+   ============================================================ */
+:root {
+  --bg: #f4f1ee;
+  --bg-2: #ede7e1;
+  --surface: #fcf9f6;
+  --surface-2: #efe9e3;
+  --surface-3: #e6ded6;
+  --text: #2a1f17;
+  --text-2: #62523f;
+  --muted: #8a7a6b;
+  --line: rgba(98, 82, 63, .14);
+  --accent: #f97316;
+  --accent-2: #ea580c;
+  --accent-ink: #b8430a;
+  --accent-soft: #ffe6d3;
+  --accent-soft-ink: #8a4410;
+  --green: #16a34a; --green-2: #15803d; --green-soft: #dcfce7;
+  --red: #dc2626; --red-2: #b91c1c; --red-soft: #fee2e2;
+  --blue: #2563eb;
+  --yellow: #eab308;
+  --cf: #1fa04f;                       /* cincin & lencana Teman Dekat */
+  --ring: conic-gradient(from 210deg, #f97316, #fbbf24, #fb7185, #f97316); /* cincin cerita belum ditonton */
+
+  --g-accent: linear-gradient(160deg, #f97316 0%, #c2480a 100%);
+  --g-green: linear-gradient(160deg, #1fa04f 0%, #15803d 100%);
+  --g-red: linear-gradient(160deg, #ee4747 0%, #c92a2a 100%);
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 28px;
+  --r-sm: 12px; --r-md: 18px; --r-lg: 24px; --r-xl: 32px;
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-d: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --spring: linear(0, 0.1174, 0.3743, 0.6559, 0.8911, 1.0493, 1.1293, 1.1473, 1.126, 1.0867, 1.0456, 1.0122, 0.9905, 0.9801, 0.9784, 0.9821, 0.988, 0.994, 0.9987, 1.0017, 1.003, 1.0032, 1.0025, 1.0016, 1.0008, 1.0001, 0.9997, 0.9995, 1);
+  --spring-soft: linear(0, 0.0863, 0.2736, 0.4845, 0.6748, 0.8248, 0.9304, 0.9964, 1.0314, 1.0448, 1.0448, 1.0378, 1.0283, 1.0189, 1.0111, 1.0053, 1.0014, 0.9992, 0.9981, 0.9979, 0.9981, 0.9985, 0.9989, 0.9993, 0.9996, 0.9999, 1, 1.0001, 1);
+
+  --sh: 150, 120, 95;
+  --hi: 255, 255, 255;
+  --clay: 0 2px 3px rgba(var(--sh), .12), 8px 10px 22px rgba(var(--sh), .2), -7px -7px 16px rgba(var(--hi), .9),
+          inset 2px 2px 4px rgba(var(--hi), .8), inset -3px -3px 6px rgba(var(--sh), .1);
+  --clay-sm: 0 1px 2px rgba(var(--sh), .14), 4px 5px 11px rgba(var(--sh), .18), -4px -4px 9px rgba(var(--hi), .9),
+             inset 1px 1px 2px rgba(var(--hi), .8), inset -1px -2px 3px rgba(var(--sh), .08);
+  --clay-in: inset 3px 4px 8px rgba(var(--sh), .2), inset -3px -3px 7px rgba(var(--hi), .9);
+  --clay-btn: 0 8px 16px var(--btn-shadow, rgba(0, 0, 0, .18)), 0 2px 3px rgba(0, 0, 0, .1),
+              inset 0 -4px 0 rgba(0, 0, 0, .15), inset 0 3px 3px rgba(255, 255, 255, .4);
+  --clay-btn-down: 0 2px 5px var(--btn-shadow, rgba(0, 0, 0, .2)), inset 0 -2px 0 rgba(0, 0, 0, .15), inset 0 3px 6px rgba(0, 0, 0, .15);
+  /* Kartu feed: bayangan ringan (banyak kartu = harus murah digambar) */
+  --card-shadow: 0 1px 2px rgba(var(--sh), .1), 0 6px 18px rgba(var(--sh), .1);
+
+  --nav-w: 76px;          /* sidebar ringkas */
+  --nav-w-open: 248px;    /* sidebar saat disorot */
+  --feed-w: 470px;        /* lebar feed (Instagram) */
+  --bottom-h: 64px;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #1b1714; --bg-2: #14110f; --surface: #26201c; --surface-2: #302924; --surface-3: #3a322c;
+  --text: #f6eee7; --text-2: #cdbdaf; --muted: #a2917f; --line: rgba(246, 238, 231, .1);
+  --accent-ink: #fb923c; --accent-soft: #432716; --accent-soft-ink: #fdba74;
+  --green-soft: #12351f; --red-soft: #3d1717;
+  --sh: 0, 0, 0; --hi: 255, 255, 255;
+  --clay: 0 2px 3px rgba(0, 0, 0, .4), 8px 10px 22px rgba(0, 0, 0, .45), -5px -5px 14px rgba(var(--hi), .03),
+          inset 2px 2px 4px rgba(var(--hi), .05), inset -3px -3px 6px rgba(0, 0, 0, .3);
+  --clay-sm: 0 1px 2px rgba(0, 0, 0, .4), 4px 5px 11px rgba(0, 0, 0, .4), -3px -3px 8px rgba(var(--hi), .03),
+             inset 1px 1px 2px rgba(var(--hi), .05), inset -1px -2px 3px rgba(0, 0, 0, .25);
+  --clay-in: inset 4px 5px 10px rgba(0, 0, 0, .45), inset -3px -3px 8px rgba(var(--hi), .035);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 18px rgba(0, 0, 0, .3);
+  color-scheme: dark;
+}

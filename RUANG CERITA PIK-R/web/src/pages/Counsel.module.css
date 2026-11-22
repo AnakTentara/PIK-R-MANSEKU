@@ -1,0 +1,375 @@
+/* Bilik Konseling: suasana tenang. Warna lebih lembut, tanpa angka sosial, nomor bantuan selalu ada. */
+.page { max-width: 640px; margin: 0 auto; padding: 16px 14px calc(var(--bottom-h) + var(--safe-b) + 24px); display: flex; flex-direction: column; gap: 16px; animation: rise .3s var(--ease-out); }
+.hero { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 26px 20px; border-radius: var(--r-xl); text-align: center;
+  background: linear-gradient(160deg, var(--accent-soft), var(--surface)); box-shadow: var(--clay-sm); }
+.hero h1 { font-family: var(--font-d); font-size: 1.5rem; font-weight: 800; }
+.hero p { max-width: 42ch; color: var(--text-2); font-size: 14px; line-height: 1.55; }
+.heroIcon { width: 62px; height: 62px; display: grid; place-items: center; border-radius: 20px; background: var(--g-accent); color: #fff; box-shadow: var(--clay-btn); --btn-shadow: rgba(194, 72, 10, .35); animation: breathe 4s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: scale(1.06); } }
+.how { display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--accent-ink); }
+
+.block { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--card-shadow); }
+.block h2 { display: flex; align-items: center; gap: 8px; font-family: var(--font-d); font-size: 1.08rem; font-weight: 800; }
+.sub { font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 4px; }
+.muted { color: var(--muted); font-size: 14px; line-height: 1.5; }
+.topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.topics button { padding: 8px 14px; border-radius: 99px; background: var(--surface-2); font-size: 13px; font-weight: 600; color: var(--text-2); transition: background .15s, color .15s, transform .3s var(--spring); }
+.topics button:active { transform: scale(.95); }
+.topics .topicOn { background: var(--g-accent); color: #fff; }
+.anon { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); cursor: pointer; }
+.anon input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.anon span { display: flex; flex-direction: column; gap: 2px; }
+.anon b { font-size: 14px; }
+.anon small { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+.queueRow, .sessionRow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); text-align: left; }
+.urgentRow { box-shadow: inset 4px 0 0 var(--red); background: var(--red-soft); }
+.queueAv { flex: none; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--surface); color: var(--text-2); }
+.urgentRow .queueAv { color: var(--red); }
+.queueText { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.queueText b { font-size: 14px; }
+.queueText small { font-size: 12px; color: var(--muted); }
+.status { flex: none; padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 800; background: var(--surface); color: var(--text-2); }
+.status[data-s='WAITING'] { background: #fef3c7; color: #92400e; }
+.status[data-s='ACTIVE'] { background: var(--green-soft); color: var(--green-2); }
+.duty { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+.duty div { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.duty b { font-size: 13px; }
+.duty small { font-size: 11px; color: var(--muted); line-height: 1.35; }
+
+.help { display: flex; flex-direction: column; gap: 8px; padding: 16px 18px; border-radius: var(--r-lg); background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; }
+:root[data-theme='dark'] .help { background: #2a1a0e; border-color: #5a3519; color: #fed7aa; }
+.help > b { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+.helpRow { display: flex; flex-direction: column; gap: 1px; padding: 8px 10px; border-radius: 12px; background: rgba(255, 255, 255, .6); }
+:root[data-theme='dark'] .helpRow { background: rgba(255, 255, 255, .05); }
+.helpRow span { font-weight: 800; font-size: 14px; }
+.helpRow small { font-size: 12px; line-height: 1.4; }
+.helpFoot { font-size: 12px; opacity: .85; }
+.helpCompact { margin: 8px 12px 0; padding: 12px 14px; }
+.privacy { list-style: none; display: flex; flex-direction: column; gap: 12px; padding: 16px 18px 20px; }
+.privacy li { display: flex; gap: 10px; font-size: 14px; line-height: 1.5; color: var(--text-2); }
+.privacy svg { flex: none; margin-top: 2px; color: var(--accent-ink); }
+
+/* Percakapan sesi */
+.chat { display: flex; flex-direction: column; height: 100dvh; max-width: 760px; margin: 0 auto; }
+.chatHead { flex: none; display: flex; align-items: center; gap: 8px; padding: calc(8px + var(--safe-t)) 10px 8px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.chatWho { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chatWho b { font-size: 15px; }
+.chatWho small { font-size: 12px; color: var(--muted); }
+.counselorAlert { margin: 8px 12px 0; padding: 10px 12px; border-radius: 12px; background: var(--red-soft); color: var(--red-2); font-size: 13px; line-height: 1.5; }
+.counselorAlert svg { vertical-align: -3px; margin-right: 4px; }
+.counselorAlert button { font-weight: 800; text-decoration: underline; color: inherit; margin: 0 4px; }
+.msgs { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 8px; }
+.sys { align-self: center; max-width: 88%; padding: 8px 14px; border-radius: 14px; background: var(--accent-soft); color: var(--accent-soft-ink); font-size: 13px; line-height: 1.5; text-align: center; }
+.msg { align-self: flex-start; max-width: 78%; padding: 10px 14px; border-radius: 20px 20px 20px 6px; background: var(--surface); box-shadow: var(--card-shadow); animation: rise .25s var(--ease-out); }
+.msg p { white-space: pre-wrap; word-break: break-word; font-size: 15px; line-height: 1.5; }
+.msg small { display: block; margin-top: 3px; font-size: 10px; color: var(--muted); text-align: right; }
+.mineMsg { align-self: flex-end; border-radius: 20px 20px 6px 20px; background: var(--g-accent); color: #fff; }
+.mineMsg small { color: rgba(255, 255, 255, .8); }
+.compose { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px calc(12px + var(--safe-b)); background: var(--bg); }
+.compose textarea { flex: 1; min-width: 0; max-height: 140px; padding: 11px 16px; border: 0; outline: 0; resize: none; border-radius: 22px; background: var(--surface); box-shadow: var(--clay-sm); font-size: 16px; line-height: 1.4; field-sizing: content; }
+.compose button { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--g-accent); color: #fff; }
+.compose button:disabled { opacity: .35; }
+.escalateBtn { background: var(--red-soft) !important; color: var(--red) !important; }
+.closed { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 16px 16px calc(16px + var(--safe-b)); font-size: 14px; color: var(--text-2); border-top: 1px solid var(--line); }
+.closed a { font-weight: 800; color: var(--accent-ink); }
+.stars { display: flex; gap: 6px; color: var(--yellow); }
+
+/* Kartu Promo Sahabat AI PIK-R */
+.aiCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--r-xl);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(219, 39, 119, 0.08) 100%), var(--surface);
+  border: 1.5px solid rgba(249, 115, 22, 0.25);
+  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.08);
+}
+.aiCardLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.aiCardIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #db2777 100%);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.35);
+}
+.aiCardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+.aiCardTitleRow h3 {
+  font-family: var(--font-d);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+.aiBadge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #10b981;
+  color: #fff;
+  letter-spacing: 0.4px;
+}
+.aiCardLeft p {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--muted);
+  max-width: 40ch;
+}
+.aiCardBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--g-accent, #f97316);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+  transition: transform 0.15s;
+}
+.aiCardBtn:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 540px) {
+  .aiCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .aiCardBtn {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* ── Hybrid AI Styles ── */
+.aiMsg {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(219, 39, 119, 0.05)), var(--surface) !important;
+  border: 1px solid rgba(249, 115, 22, 0.25) !important;
+}
+
+.aiMsgBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent, #ea580c);
+  margin-bottom: 4px;
+}
+
+.aiActiveBtn {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #059669 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.aiOffBtn {
+  background: var(--surface-2) !important;
+  color: var(--muted) !important;
+  border: 1px solid var(--surface-3) !important;
+}
+
+.hybridBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(249, 115, 22, 0.09);
+  border-bottom: 1px solid rgba(249, 115, 22, 0.2);
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.hybridBanner b {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent, #ea580c);
+}
+
+/* ── Tombol & Indikator Ergonomis Berbasis Matematika (Fibonacci & Thumb Theory) ── */
+.breatheBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 99px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  font-size: 12px;
+  font-weight: 700;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.breatheBtn:active {
+  transform: scale(0.94);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.statusAi {
+  background: rgba(249, 115, 22, 0.12);
+  color: var(--accent, #ea580c);
+}
+
+.statusHuman {
+  background: rgba(16, 185, 129, 0.14);
+  color: #059669;
+}
+
+.statusWaiting {
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+}
+
+.summaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+
+.summaryBtn:hover {
+  background: var(--surface-3);
+}
+
+.summaryCard {
+  margin: 8px 12px 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  animation: fadeIn 0.2s ease;
+}
+
+.summaryHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.summaryHead b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--accent, #ea580c);
+}
+
+.summaryHead button {
+  color: var(--muted);
+  padding: 2px;
+}
+
+.summaryCard p {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  white-space: pre-wrap;
+}
+
+/* Tombol Panggil Konselor (Sisi Siswa) */
+.requestHumanBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--surface-3);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.requestHumanBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: transform 0.12s;
+}
+
+.requestHumanBtn:active {
+  transform: scale(0.95);
+}
+
+/* Affirmation Card (Penutup Sesi) */
+.closedCard {
+  margin: 24px auto;
+  max-width: 480px;
+  padding: 28px 20px;
+  background: var(--surface);
+  border-radius: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.closedIcon {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.closedCard h3 {
+  font-family: var(--font-d);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.closedCard p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 42ch;
+  margin-bottom: 8px;
+}

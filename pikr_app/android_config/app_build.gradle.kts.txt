@@ -1,0 +1,74 @@
+// android/app/build.gradle (Kotlin DSL - modern)
+// Config untuk Play Store
+
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("com.google.gms.google-services") // Firebase - aktifkan setelah google-services.json tersedia
+    id("dev.flutter.flutter-gradle-plugin")
+}
+
+android {
+    namespace = "id.my.manseku.pikr"
+    compileSdk = 35
+    ndkVersion = "27.0.12077973"
+
+    defaultConfig {
+        applicationId = "id.my.manseku.pikr"
+        minSdk = 24       // Android 7.0
+        targetSdk = 35    // Android 15
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+
+        multiDexEnabled = true
+    }
+
+    signingConfigs {
+        create("release") {
+            // Isi dari environment variable atau keystore.properties
+            storeFile = file(System.getenv("KEY_STORE") ?: "keystore.jks")
+            storePassword = System.getenv("KEY_STORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("KEY_ALIAS") ?: ""
+            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    implementation("androidx.multidex:multidex:2.0.1")
+}

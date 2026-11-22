@@ -1,0 +1,83 @@
+.app { min-height: 100dvh; }
+.main { min-height: 100dvh; padding-bottom: calc(var(--bottom-h) + var(--safe-b) + 8px); }
+.mainFull { padding-bottom: 0; }
+
+/* ── Sidebar desktop: ringkas 76 px, melebar saat disorot ──
+   Label muncul dengan pudar + geser; lebar dianimasikan lewat transform-friendly width pada 1 elemen saja. */
+.side {
+  position: fixed; inset: 0 auto 0 0; z-index: 250;
+  width: var(--nav-w); display: none; flex-direction: column; gap: 6px;
+  padding: 18px 12px 16px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+  transition: width .32s var(--ease-out), box-shadow .32s var(--ease-out);
+}
+.side:hover, .side:has(:focus-visible) {
+  width: var(--nav-w-open);
+  box-shadow: 18px 0 40px -18px rgba(var(--sh), .35);
+}
+.brand { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 9px; margin-bottom: 14px; flex: none; }
+.brand img { flex: none; width: 34px; height: 34px; }
+.brandText { display: flex; flex-direction: column; line-height: 1.05; white-space: nowrap; opacity: 0; transform: translateX(-6px); transition: opacity .2s, transform .3s var(--ease-out); }
+.brandText b { font-family: var(--font-d); font-size: 1.22rem; font-weight: 800; background: var(--g-accent); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brandText small { font-size: .66rem; font-weight: 700; letter-spacing: .14em; color: var(--muted); }
+.sideNav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.sideItem {
+  position: relative; display: flex; align-items: center; gap: 16px;
+  height: 50px; padding: 0 13px; border-radius: 16px; width: 100%;
+  color: var(--text); text-align: left; white-space: nowrap;
+  transition: background .18s, transform .35s var(--spring);
+}
+.sideItem:hover { background: var(--surface-2); }
+.sideItem:active { transform: scale(.96); }
+.sideItem.on { background: var(--surface); box-shadow: var(--clay-sm); }
+.sideItem.on .sideLabel { font-weight: 800; }
+.sideItem.on .sideIcon { color: var(--accent-ink); }
+.sideIcon { position: relative; flex: none; display: grid; place-items: center; width: 26px; height: 26px; transition: transform .35s var(--spring); }
+.sideItem:hover .sideIcon { transform: scale(1.08); }
+.sideLabel { font-size: 15px; font-weight: 500; opacity: 0; transform: translateX(-6px); transition: opacity .18s, transform .3s var(--ease-out); }
+.side:hover .sideLabel, .side:has(:focus-visible) .sideLabel, .side:hover .brandText, .side:has(:focus-visible) .brandText { opacity: 1; transform: none; transition-delay: .06s; }
+.sideMore { flex: none; }
+.badge {
+  position: absolute; top: -6px; right: -9px; min-width: 18px; height: 18px; padding: 0 5px;
+  display: grid; place-items: center; border-radius: 99px; border: 2px solid var(--surface);
+  background: var(--red); color: #fff; font-style: normal; font-size: 10px; font-weight: 800;
+  animation: pop .35s var(--spring);
+}
+.dot { position: absolute; top: -1px; right: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--red); border: 2px solid var(--surface); animation: pop .35s var(--spring); }
+
+/* ── Bar atas HP ── */
+.top {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between;
+  height: calc(56px + var(--safe-t)); padding: var(--safe-t) 8px 0 14px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.topBrand { display: flex; align-items: center; gap: 9px; }
+.topBrand span { font-family: var(--font-d); font-size: 1.32rem; font-weight: 800; background: var(--g-accent); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.topActions { display: flex; gap: 2px; }
+
+/* ── Bar bawah HP ── */
+.bottom {
+  position: fixed; inset: auto 0 0 0; z-index: 40;
+  height: calc(var(--bottom-h) + var(--safe-b)); padding-bottom: var(--safe-b);
+  display: grid; grid-template-columns: repeat(5, 1fr); align-items: center;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--line);
+}
+.tab { display: grid; place-items: center; height: 100%; color: var(--text-2); transition: color .2s, transform .35s var(--spring); }
+.tab:active { transform: scale(.86); }
+.tabOn { color: var(--text); }
+.tabOn svg { stroke-width: 2.6; }
+.create { color: var(--accent-ink); }
+
+@media (min-width: 900px) {
+  .side { display: flex; }
+  .top, .bottom { display: none; }
+  .main { margin-left: var(--nav-w); padding-bottom: 0; }
+}

@@ -1,0 +1,141 @@
+.toastCard {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  max-width: 380px;
+  padding: 10px 13px;
+  background: var(--surface);
+  border: 1px solid var(--surface-3, rgba(0, 0, 0, 0.08));
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+  user-select: none;
+  animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toastCard:hover {
+  background: var(--surface-2);
+  transform: translateY(1px);
+}
+
+.toastCard:active {
+  transform: scale(0.98);
+}
+
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-2);
+  display: block;
+}
+
+.avatarFallback {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.badgeIcon {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent, #f97316);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--surface);
+  font-size: 9px;
+}
+
+.badgeFollow {
+  background: #3b82f6;
+}
+
+.badgeDm {
+  background: #10b981;
+}
+
+.contentWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.senderName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.timeTag {
+  font-size: 10px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.messageSnippet {
+  font-size: 12px;
+  color: var(--text-2, #6b645c);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.closeBtn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--muted);
+  opacity: 0.6;
+  flex-shrink: 0;
+  margin-left: 2px;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.closeBtn:hover {
+  opacity: 1;
+  background: var(--surface-2);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

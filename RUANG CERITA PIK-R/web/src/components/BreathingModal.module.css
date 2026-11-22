@@ -1,0 +1,219 @@
+/* ══════════════════════════════════════════════
+   BreathingModal — Napas Tenang 4-7-8
+   Rings dan teks TERPISAH agar teks tidak scale
+   ══════════════════════════════════════════════ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 8, 6, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: overlayIn .25s ease-out;
+}
+@keyframes overlayIn { from { opacity: 0; } }
+
+.modal {
+  width: min(100%, 360px);
+  padding: 20px 20px 24px;
+  background: var(--surface, #fcf9f6);
+  border-radius: 28px;
+  border: 1px solid var(--line, rgba(0,0,0,.08));
+  box-shadow: 0 24px 60px rgba(0,0,0,.22);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  animation: modalIn .32s cubic-bezier(.16, 1, .3, 1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(.92) translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+:root[data-theme='dark'] .modal {
+  background: #1e1814;
+  box-shadow: 0 24px 60px rgba(0,0,0,.55);
+}
+
+/* ── Header ── */
+.head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.headLeft {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.headIcon { color: var(--accent, #f97316); }
+.headTitle {
+  font-family: var(--font-d, inherit);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text, #2a1f17);
+}
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--muted, #8a7a6b);
+  transition: background .15s;
+}
+.closeBtn:hover { background: var(--surface-2, rgba(0,0,0,.06)); }
+
+/* ══════════════════════════════════════
+   Visual area — 200×200, rings absolute
+   ══════════════════════════════════════ */
+.visual {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+}
+
+/* ── Rings: position absolute, scale independent dari teks ── */
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /* --c diisi inline dari JS sesuai fase */
+  border: 2px solid color-mix(in srgb, var(--c, #f97316) 40%, transparent);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--c, #f97316) 18%, transparent) 0%,
+    transparent 70%
+  );
+  transition:
+    transform 4s cubic-bezier(.4, 0, .2, 1),
+    opacity   4s cubic-bezier(.4, 0, .2, 1),
+    border-color .8s ease,
+    background .8s ease;
+}
+
+/* Ring luar — skala paling besar, paling transparan */
+.ringOuter { transform: scale(.55); opacity: .3; }
+.ringOuter.inhale  { transform: scale(1);   opacity: .4;  transition-duration: 4s, 4s, .8s, .8s; }
+.ringOuter.hold    { transform: scale(1);   opacity: .35; transition-duration: .6s, .6s, .6s, .6s; }
+.ringOuter.exhale  { transform: scale(.55); opacity: .15; transition-duration: 8s, 8s, .8s, .8s; }
+
+/* Ring tengah */
+.ringMid {
+  inset: 20px;
+  transition-delay: .15s, .15s, 0s, 0s;
+  transform: scale(.55); opacity: .5;
+}
+.ringMid.inhale  { transform: scale(1);   opacity: .65; transition-duration: 4s, 4s, .8s, .8s; }
+.ringMid.hold    { transform: scale(1);   opacity: .55; transition-duration: .6s, .6s, .6s, .6s; }
+.ringMid.exhale  { transform: scale(.55); opacity: .3;  transition-duration: 8s, 8s, .8s, .8s; }
+
+/* Ring inti — solid, skala terkecil */
+.ringCore {
+  inset: 44px;
+  border-width: 1.5px;
+  border-color: color-mix(in srgb, var(--c, #f97316) 60%, transparent);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--c, #f97316) 28%, transparent) 0%,
+    color-mix(in srgb, var(--c, #f97316) 8%, transparent) 70%
+  );
+  transition-delay: .3s, .3s, 0s, 0s;
+  transform: scale(.55); opacity: .7;
+}
+.ringCore.inhale  { transform: scale(1);   opacity: .9;  transition-duration: 4s, 4s, .8s, .8s; }
+.ringCore.hold    { transform: scale(1);   opacity: .85; transition-duration: .6s, .6s, .6s, .6s; animation: holdPulse 2.8s ease-in-out infinite; }
+.ringCore.exhale  { transform: scale(.55); opacity: .4;  transition-duration: 8s, 8s, .8s, .8s; animation: none; }
+
+@keyframes holdPulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c, #10b981) 25%, transparent); }
+  50%      { box-shadow: 0 0 0 10px transparent; }
+}
+
+/* ── Center — TIDAK terpengaruh scale ring ── */
+.center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.countNum {
+  font-family: var(--font-d, sans-serif);
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.02em;
+  /* color & opacity dikontrol inline dari JSX */
+  transition: opacity .2s ease, transform .2s ease, color .6s ease;
+}
+
+.phaseLabel {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted, #8a7a6b);
+  transition: color .6s ease;
+}
+
+/* ── Hint teks — fade saat fase berganti ── */
+.hint {
+  font-size: 13.5px;
+  color: var(--text-2, #62523f);
+  line-height: 1.55;
+  text-align: center;
+  min-height: 42px;
+  margin-bottom: 16px;
+  animation: hintFade .5s ease-out;
+  max-width: 26ch;
+}
+@keyframes hintFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Progress dots ── */
+.dots {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--surface-3, #e6ded6);
+  transition: background .4s ease, transform .3s ease;
+}
+.dotOn {
+  transform: scale(1.3);
+  /* background dari inline style JSX */
+}
+
+/* ── Done button ── */
+.doneBtn {
+  width: 100%;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--surface-2, rgba(0,0,0,.06));
+  color: var(--text, #2a1f17);
+  font-weight: 700;
+  font-size: 14px;
+  transition: background .15s, transform .12s;
+}
+.doneBtn:hover { background: var(--surface-3, rgba(0,0,0,.1)); }
+.doneBtn:active { transform: scale(.98); }

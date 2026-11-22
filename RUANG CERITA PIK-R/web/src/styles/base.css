@@ -1,0 +1,91 @@
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scrollbar-gutter: stable; }
+body {
+  min-height: 100dvh;
+  font-family: var(--font); font-size: 15px; line-height: 1.45;
+  color: var(--text); background: var(--bg);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(55% 35% at 12% 0%, rgba(249, 115, 22, .1), transparent 70%),
+    radial-gradient(45% 30% at 100% 100%, rgba(249, 115, 22, .07), transparent 70%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
+input, textarea, select { font: inherit; color: inherit; }
+img, video { display: block; max-width: 100%; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
+
+/* ── Scrollbar khas Ruang Cerita (bukan bawaan browser) ── */
+* { scrollbar-width: thin; scrollbar-color: rgba(184, 67, 10, .35) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(249, 115, 22, .45), rgba(194, 72, 10, .45)) padding-box;
+  border: 3px solid transparent; border-radius: 99px;
+}
+*::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #f97316, #c2480a) padding-box; border: 3px solid transparent; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Utilitas ── */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.muted { color: var(--muted); }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+@keyframes pop { from { opacity: 0; transform: scale(.85); } }
+
+/* Skeleton berkilau */
+.sk { position: relative; overflow: hidden; background: var(--surface-2); border-radius: 10px; }
+.sk::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, rgba(var(--hi), .5) 50%, transparent 80%); animation: shimmer 1.3s infinite; }
+:root[data-theme='dark'] .sk::after { background: linear-gradient(100deg, transparent 20%, rgba(var(--hi), .06) 50%, transparent 80%); }
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* ── Tombol ── */
+.btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 40px; padding: 0 18px; border-radius: var(--r-sm);
+  font-weight: 700; font-size: 14px; white-space: nowrap; user-select: none;
+  transition: transform .45s var(--spring), box-shadow .2s, background .2s, opacity .2s;
+}
+.btn:active:not(:disabled) { transform: translateY(2px) scale(.97); transition-duration: .09s; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary { background: var(--g-accent); color: #fff; --btn-shadow: rgba(194, 72, 10, .35); box-shadow: var(--clay-btn); }
+.btn-primary:active:not(:disabled) { box-shadow: var(--clay-btn-down); }
+.btn-soft { background: var(--surface-2); color: var(--text); }
+.btn-soft:hover:not(:disabled) { background: var(--surface-3); }
+.btn-ghost { color: var(--accent-ink); }
+.btn-danger { background: var(--g-red); color: #fff; --btn-shadow: rgba(201, 42, 42, .35); box-shadow: var(--clay-btn); }
+.btn-block { width: 100%; height: 46px; font-size: 15px; }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 10px; }
+.icon-btn { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--text); transition: background .15s, transform .4s var(--spring); }
+.icon-btn:hover { background: var(--surface-2); }
+.icon-btn:active { transform: scale(.88); }
+
+/* ── Kolom isian clay ── */
+.field {
+  width: 100%; min-height: 44px; padding: 10px 14px; border: 0; outline: 0;
+  border-radius: var(--r-sm); background: var(--surface-2); box-shadow: var(--clay-in);
+  font-size: 16px; transition: box-shadow .2s;
+}
+.field::placeholder { color: var(--muted); }
+.field:focus { box-shadow: var(--clay-in), 0 0 0 3px rgba(249, 115, 22, .45); }
+textarea.field { resize: none; line-height: 1.5; }
+
+/* ── Avatar & cincin cerita ── */
+.avatar { display: block; flex: none; border-radius: 50%; object-fit: cover; background: linear-gradient(150deg, #fff1e4, var(--accent-soft)); color: var(--accent-soft-ink); }
+.avatar-initials { display: grid; place-items: center; font-family: var(--font-d); font-weight: 800; }
+:root[data-theme='dark'] .avatar { background: linear-gradient(150deg, #5a3519, var(--accent-soft)); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

@@ -1,0 +1,124 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.valueRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.valueBadge {
+  font-family: var(--font-d, sans-serif);
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 2px 14px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  min-width: 58px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.stepBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.stepBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.rulerContainer {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  overflow: hidden;
+  cursor: ew-resize;
+  mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
+}
+
+.centerNeedle {
+  position: absolute;
+  top: 0;
+  bottom: 14px;
+  left: 50%;
+  width: 2.5px;
+  transform: translateX(-50%);
+  background: var(--accent, #f97316);
+  border-radius: 2px;
+  z-index: 5;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.7);
+}
+
+.ticksTrack {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: flex-start;
+  will-change: transform;
+}
+
+.tick {
+  position: relative;
+  flex: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tickLine {
+  width: 1px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 1px;
+}
+
+.tickMajor .tickLine {
+  width: 2px;
+  height: 20px;
+  background: #ffffff;
+}
+
+.tickCenter .tickLine {
+  background: var(--accent, #f97316);
+  height: 22px;
+  width: 2px;
+}
+
+.tickLabel {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+}

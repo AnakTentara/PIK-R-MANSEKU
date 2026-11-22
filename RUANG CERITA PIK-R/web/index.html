@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f4f1ee" />
+    <!-- Ruang Cerita berisi akun anggota di bawah umur: hanya halaman depan yang boleh diindeks -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Ruang Cerita — ruang berbagi cerita dan konseling sebaya khusus anggota PIK-R MAN 1 Muara Enim." />
+    <link rel="icon" href="/logo-96.png" />
+    <link rel="apple-touch-icon" href="/logo-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Ruang Cerita" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" />
+    <style>
+      html { background: #f4f1ee; }
+      html[data-theme='dark'] { background: #1b1714; }
+      /* Layar pembuka: tampil seketika sebelum JS selesai dimuat */
+      #boot { position: fixed; inset: 0; display: grid; place-items: center; }
+      #boot img { width: 72px; height: 72px; animation: boot 1.4s ease-in-out infinite; }
+      @keyframes boot { 50% { transform: scale(1.06); opacity: .8; } }
+    </style>
+    <title>Ruang Cerita · PIK-R MANSEKU</title>
+  </head>
+  <body>
+    <div id="root"><div id="boot"><img src="/logo-192.png" alt="" /></div></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

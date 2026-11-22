@@ -1,0 +1,149 @@
+.banner {
+  position: fixed;
+  bottom: calc(var(--safe-b, 0px) + 68px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100vw - 32px), 520px);
+  z-index: 9999;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 768px) {
+  .banner {
+    bottom: 24px;
+    right: 24px;
+    left: auto;
+    transform: none;
+  }
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--surface, #ffffff);
+  border: 1.5px solid rgba(239, 68, 68, 0.25);
+  border-radius: 18px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(239, 68, 68, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+:root[data-theme='dark'] .content {
+  background: #231d19;
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
+}
+
+.iconWrap {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.icon {
+  stroke-width: 2.2;
+}
+
+.textWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-d, inherit);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text, #1e1b18);
+  margin-bottom: 2px;
+}
+
+.desc {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--muted, #7c7267);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.retryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--accent, #f97316);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.retryBtn:active {
+  transform: scale(0.96);
+}
+
+.retryBtn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.closeBtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--muted, #7c7267);
+  transition: background 0.15s, color 0.15s;
+}
+
+.closeBtn:hover {
+  background: var(--surface-2, rgba(0, 0, 0, 0.05));
+  color: var(--text, #1e1b18);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (min-width: 768px) {
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

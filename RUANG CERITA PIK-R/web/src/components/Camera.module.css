@@ -1,0 +1,304 @@
+/*
+  Kamera layar penuh — Claymorphism Orange PIK-R. Ritme jarak Fibonacci: 5 · 8 · 13 · 21 · 34 · 55. Kontrol di zona jempol.
+
+  Semua komponen DITURUNKAN ke dasar layar (tidak ada ruang kosong besar di bawah):
+    dasar layar ─ Cerita/Postingan + Galeri ─ shutter (+ deretan filter di baris yang sama) ─ preview
+  Posisi bawah dipatok dari dasar layar, jadi saat rasio berubah hanya preview yang memanjang ke atas.
+    3:4  → preview berakhir 13px di atas shutter; bar mode (10 mnt … TEKS) ada di dalam preview
+    9:16 → preview memanjang sampai di belakang shutter; bar mode di atas shutter
+*/
+@property --cam-a { syntax: '<number>'; inherits: true; initial-value: 0.75; }
+@property --pBot { syntax: '<length>'; inherits: true; initial-value: 600px; }
+
+.cam {
+  --cam-a: 0.75;
+  --r: 13px;
+  --pBot: calc(100dvh - var(--safe-b) - 173px);                /* tepi bawah preview (3:4) */
+  --availH: calc(var(--pBot) - var(--safe-t) - 70px);
+  --availT: calc(100dvh - var(--safe-b) - 66px - var(--safe-t) - 70px);   /* tinggi maksimum saat 9:16 */
+  --uiw: 100vw;
+  --fw: min(var(--uiw), calc(var(--availH) * var(--cam-a)));
+  --fh: calc(var(--fw) / var(--cam-a));
+  --top: calc(var(--pBot) - var(--fh));                         /* tepi atas preview */
+  --railTop: max(calc(var(--safe-t) + 66px), calc(var(--top) + 13px));    /* sidebar & Musik: di bawah tombol X / Selesai */
+  position: fixed; inset: 0; z-index: 1200; background: #000; color: #fff; overflow: hidden;
+  touch-action: none; user-select: none; -webkit-user-select: none;
+  transition: --cam-a .7s cubic-bezier(.22, 1, .36, 1), --pBot .7s cubic-bezier(.22, 1, .36, 1);   /* rasio memanjang halus (cubic) */
+  animation: cam-in .28s var(--ease-out);
+}
+.camTall { --pBot: calc(100dvh - var(--safe-b) - 66px); }
+@keyframes cam-in { from { opacity: 0; transform: scale(1.03); } }
+@media (min-width: 720px) { .cam { --uiw: min(480px, calc(var(--availT) * .5625)); } }
+
+/* Halaman kamera; bergeser keluar ke kiri saat TEKS dipilih */
+.ui { position: absolute; z-index: 2; inset: 0; margin: 0 auto; width: var(--uiw); transition: transform .5s cubic-bezier(.22, 1, .36, 1), opacity .4s ease; }
+.uiAway { transform: translateX(-100vw); opacity: 0; pointer-events: none; }
+
+/* ── Preview: sudut membulat ── */
+.frame {
+  position: absolute; top: var(--top); left: 0; right: 0; margin: 0 auto;
+  width: var(--fw); height: var(--fh);
+  overflow: hidden; background: #111; border-radius: 21px;
+  box-shadow: 0 13px 34px rgba(0, 0, 0, .45);
+  transition: background .3s;
+}
+.frame::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 120px; z-index: 2; pointer-events: none; background: linear-gradient(transparent, rgba(0, 0, 0, .42)); }
+.frameCollage { background: #fff; }                               /* sama dengan latar kolase hasil akhir */
+.frameCollage::after { display: none; }
+.frameSwap { animation: frame-swap 1.3s cubic-bezier(.22, 1, .36, 1); }
+@keyframes frame-swap { 0% { filter: brightness(1); } 25% { filter: brightness(.45) saturate(.6); transform: scale(.975); } 100% { filter: brightness(1); transform: none; } }
+.video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: center; transition: transform .08s linear, filter .25s; }
+.videoHidden { opacity: 0; pointer-events: none; }                /* tetap berjalan: sumber potret untuk sel kolase */
+.center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; font-size: 14px; line-height: 1.5; color: rgba(255, 255, 255, .9); }
+.errBtns { display: flex; gap: 8px; }
+.flash { position: absolute; inset: 0; background: #fff; animation: flash .26s ease-out forwards; pointer-events: none; z-index: 5; }
+@keyframes flash { from { opacity: .85; } to { opacity: 0; } }
+/* Lampu layar: kamera depan tidak punya torch */
+.screenLight { position: absolute; inset: 0; z-index: 1; background: #fffaf3; pointer-events: none; animation: light-in .2s ease-out; }
+@keyframes light-in { from { opacity: 0; } }
+
+.zoomTag, .micOff, .filterName { position: absolute; left: 50%; transform: translateX(-50%); padding: 5px 13px; border-radius: 99px; background: rgba(38, 24, 17, .6); border: 1px solid rgba(255, 255, 255, .16); font-size: 12px; font-weight: 800; backdrop-filter: blur(10px); white-space: nowrap; z-index: 6; font-variant-numeric: tabular-nums; }
+.zoomTag { bottom: calc(var(--safe-b) + 284px); }
+.filterName { bottom: calc(var(--safe-b) + 240px); font-size: 13px; padding: 6px 16px; animation: name-in 1.1s ease forwards; }
+@keyframes name-in { 0% { opacity: 0; transform: translate(-50%, 6px); } 14% { opacity: 1; transform: translate(-50%, 0); } 78% { opacity: 1; } 100% { opacity: 0; } }
+.micOff { top: calc(var(--railTop) + 52px); display: inline-flex; align-items: center; gap: 6px; }
+
+/* Hitung mundur: angka di tengah preview, BATAL tepat di bawahnya */
+.countBox { position: absolute; z-index: 7; top: var(--top); left: 0; right: 0; height: var(--fh); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; pointer-events: none; }
+.countdown { color: #fff; font-size: clamp(89px, 28vw, 168px); line-height: 1; font-weight: 900; letter-spacing: -.08em; text-shadow: 0 8px 34px rgba(0, 0, 0, .55); animation: countdown-in .9s var(--ease-out); }
+@keyframes countdown-in { from { opacity: .2; transform: scale(1.3); } to { opacity: 1; transform: scale(1); } }
+.cancelCount { pointer-events: auto; padding: 9px 26px; border-radius: var(--r); color: #fff; font-size: 14px; font-weight: 900; letter-spacing: .14em; background: rgba(38, 24, 17, .55); border: 1px solid rgba(255, 255, 255, .3); backdrop-filter: blur(12px); box-shadow: 0 8px 13px rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255, 255, 255, .16); transition: transform .2s var(--spring); }
+.cancelCount:active { transform: scale(.93); }
+
+/* ── Tombol clay: kotak 48px, dipakai close, sidebar, galeri ── */
+.railBtn {
+  position: relative; display: inline-grid; place-items: center; flex: none;
+  width: 48px; height: 48px; padding: 0; border-radius: var(--r); color: #fff;
+  background: rgba(38, 24, 17, .5); border: 1px solid rgba(255, 244, 235, .2);
+  box-shadow: 0 8px 13px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255, 255, 255, .16);
+  backdrop-filter: blur(13px); text-shadow: 0 1px 5px rgba(0, 0, 0, .55);
+  transition: transform .2s var(--spring), background .2s, color .2s, opacity .2s;
+}
+.railBtn:active { transform: scale(.9); }
+.railBtn:disabled { opacity: .45; }
+/* Label: teks polos (tanpa kotak) di kiri ikon, seperti referensi; hanya terlihat saat expanded */
+.railBtn small { position: absolute; right: calc(100% + 10px); top: 50%; transform: translate(8px, -50%); white-space: nowrap; pointer-events: none; opacity: 0; font-size: 12.5px; font-weight: 800; letter-spacing: .01em; color: #fff; text-shadow: 0 1px 7px rgba(0, 0, 0, .8), 0 0 2px rgba(0, 0, 0, .6); transition: opacity .35s ease, transform .5s cubic-bezier(.16, 1, .3, 1); }
+.railBtnOn { color: #fff7ed; background: linear-gradient(145deg, rgba(249, 115, 22, .92), rgba(194, 72, 10, .92)); border-color: rgba(255, 255, 255, .6); box-shadow: 0 8px 13px rgba(194, 72, 10, .35), inset 0 1px 0 rgba(255, 255, 255, .3); }
+.railBtnLight { color: #2a1f17; background: rgba(255, 255, 255, .5); border-color: rgba(255, 255, 255, .7); text-shadow: none; }
+.badge { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; display: grid; place-items: center; border-radius: 99px; background: #fff; color: #9a3412; font-size: 10px; font-style: normal; font-weight: 900; box-shadow: 0 2px 6px rgba(0, 0, 0, .35); text-shadow: none; }
+.flashIcon { position: relative; display: inline-flex; }
+.flashIcon b { position: absolute; right: -7px; bottom: -5px; display: grid; place-items: center; width: 13px; height: 13px; border-radius: 50%; background: #fff; color: #9a3412; font-size: 9px; font-weight: 900; text-shadow: none; }
+
+/* Atas: X (kiri) dan Selesai (kanan, kecil) sejajar; keduanya menempel di atas preview */
+.closeBtn { position: absolute; z-index: 9; left: 12px; top: max(calc(var(--safe-t) + 10px), calc(var(--top) - 57px)); }
+.doneBtn { position: absolute; z-index: 9; right: 12px; top: max(calc(var(--safe-t) + 18px), calc(var(--top) - 49px)); height: 36px; padding: 0 14px 0 10px; display: inline-flex; align-items: center; gap: 6px; border-radius: 11px; color: #fff; font-size: 12.5px; font-weight: 800; background: linear-gradient(145deg, #f97316, #c2480a); border: 1px solid rgba(255, 255, 255, .5); box-shadow: 0 6px 11px rgba(194, 72, 10, .4), inset 0 1px 0 rgba(255, 255, 255, .32); animation: done-in .35s var(--ease-out); transition: transform .2s var(--spring); }
+.doneBtn:active { transform: scale(.94); }
+@keyframes done-in { from { opacity: 0; transform: translateY(-8px) scale(.9); } }
+
+/* Tambahkan Musik: semi transparan, sejajar dengan tombol pertama sidebar */
+.soundPill { position: absolute; z-index: 8; top: calc(var(--railTop) + 6px); left: 50%; transform: translateX(-50%); max-width: calc(100% - 160px); display: inline-flex; align-items: center; height: 36px; border-radius: var(--r); color: rgba(255, 247, 237, .95); background: rgba(38, 24, 17, .34); border: 1px solid rgba(255, 244, 235, .2); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12); backdrop-filter: blur(10px); transition: left .45s cubic-bezier(.16, 1, .3, 1), transform .45s cubic-bezier(.16, 1, .3, 1), opacity .25s; }
+.camExpanded .soundPill { left: 12px; transform: translateX(0); max-width: calc(100% - 172px); }
+.camExpanded .micOff { opacity: 0; }
+.soundOff { opacity: .45; }
+.soundMain { height: 100%; min-width: 0; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; color: inherit; font-size: 13px; font-weight: 800; white-space: nowrap; }
+.soundMain span { overflow: hidden; text-overflow: ellipsis; }
+.soundMain svg { flex: none; }
+.soundX { flex: none; width: 30px; height: 100%; display: grid; place-items: center; border-left: 1px solid rgba(255, 255, 255, .16); color: rgba(255, 247, 237, .8); }
+
+/* ── Sidebar kanan ── */
+.toolRail { position: absolute; z-index: 8; top: var(--railTop); right: max(12px, env(safe-area-inset-right)); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; transition: gap .4s cubic-bezier(.16, 1, .3, 1); }
+.toolRailExpanded { gap: 13px; }
+.toolRailExpanded .railBtn small { opacity: 1; transform: translate(0, -50%); }
+.railItem:has(.flyout) > .railBtn small { opacity: 0; }          /* daftar pilihan menggantikan label sementara */
+/* Vignette hanya saat expanded, redup */
+.toolRail::before { content: ''; position: absolute; z-index: -1; top: -34px; bottom: -34px; right: -12px; width: 250px; pointer-events: none; opacity: 0; background: linear-gradient(90deg, transparent, rgba(10, 8, 7, .36)); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent); transition: opacity .45s cubic-bezier(.16, 1, .3, 1); }
+.toolRailExpanded::before { opacity: 1; }
+/* Garis pemisah: pendek saat collapsed, memanjang saat expanded */
+.railDivider { align-self: flex-end; width: 24px; height: 1.5px; margin-right: 12px; border-radius: 2px; background: rgba(255, 255, 255, .55); transition: width .5s cubic-bezier(.16, 1, .3, 1), margin .5s cubic-bezier(.16, 1, .3, 1); }
+.toolRailExpanded .railDivider { width: 190px; margin-right: 0; background: linear-gradient(270deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, 0)); }
+.railItem { position: relative; display: flex; justify-content: flex-end; }
+.railMore { display: none; }
+.toolRailExpanded .railMore { display: inline-grid; animation: rail-pop .3s var(--ease-out); }
+.chev { transition: transform .45s cubic-bezier(.16, 1, .3, 1); }
+.toolRailExpanded .chev { transform: rotate(180deg); }          /* panah bawah → berputar jadi panah atas */
+
+/* Daftar pilihan muncul ke kiri ikon */
+.flyout { position: absolute; z-index: 9; right: calc(100% + 8px); top: 50%; transform: translateY(-50%); display: flex; gap: 5px; padding: 5px; border-radius: 16px; background: rgba(20, 13, 9, .78); border: 1px solid rgba(255, 244, 235, .18); box-shadow: 0 13px 21px rgba(0, 0, 0, .3), inset 0 1px 0 rgba(255, 255, 255, .12); backdrop-filter: blur(16px); animation: fly-in .22s var(--ease-out); }
+.flyGrid { display: grid; grid-template-columns: repeat(3, 40px); }
+.flyout button { min-width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 1px; border-radius: 10px; color: rgba(255, 255, 255, .85); font-size: 14px; font-weight: 900; transition: background .2s, color .2s, transform .2s var(--spring); }
+.flyout button small { position: static; opacity: .8; font-size: 9px; font-weight: 700; transform: none; text-shadow: none; max-width: none; }
+.flyout button:active { transform: scale(.9); }
+.flyout .flyOn { color: #fff7ed; background: linear-gradient(145deg, #f97316, #c2480a); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3); }
+@keyframes fly-in { from { opacity: 0; transform: translateY(-50%) translateX(8px) scale(.96); } }
+@keyframes rail-pop { from { opacity: 0; transform: translateX(8px) scale(.94); } }
+@media (max-height: 700px) { .railBtn { width: 44px; height: 44px; } .toolRail { gap: 5px; } .toolRailExpanded { gap: 8px; } }
+
+/* ── Kolase: bingkai terbagi sesuai tata letak ── */
+.cells { position: absolute; inset: 0; z-index: 3; }
+.cell { position: absolute; padding: calc(var(--fw) * .006); box-sizing: border-box; }   /* 2 × .006 = GAP .012 */
+.cellIn { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: calc(var(--fw) * .016); background: #1a1411; touch-action: none; cursor: pointer; transition: box-shadow .25s, transform .25s var(--spring); }
+.cellIn > img, .cellVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+.cellIn > img { cursor: grab; }
+.cellVideo { transform-origin: center; transition: opacity .25s; }
+.cellIn:not(.cellActive) > .cellVideo { opacity: .5; }          /* hanya sel aktif yang "hidup" penuh */
+.cellActive { box-shadow: inset 0 0 0 3px var(--accent); animation: cell-pulse 1.4s ease-in-out infinite; }
+@keyframes cell-pulse { 50% { box-shadow: inset 0 0 0 3px #fdba74; } }
+.cellDrag { z-index: 4; }
+.cellDrag .cellIn { cursor: grabbing; box-shadow: 0 0 0 2px #fff, 0 13px 34px rgba(0, 0, 0, .5); transform: scale(1.01); }
+/* Bayangan foto asli saat digeser: terlihat utuh (samar) di luar bingkai sel */
+.ghost { position: absolute; z-index: 3; opacity: .4; pointer-events: none; max-width: none; outline: 1px dashed rgba(255, 255, 255, .7); outline-offset: -1px; }
+.cellMenuBack { position: absolute; inset: 0; z-index: 5; }
+.cellMenu { position: absolute; z-index: 6; transform: translate(-50%, -50%); display: flex; gap: 5px; padding: 5px; border-radius: 16px; background: rgba(20, 13, 9, .86); border: 1px solid rgba(255, 244, 235, .2); box-shadow: 0 13px 21px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .12); backdrop-filter: blur(16px); animation: menu-pop .2s var(--ease-out); }
+.cellMenu button { height: 40px; padding: 0 13px; display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 800; }
+.cellMenu button:active { background: linear-gradient(145deg, #f97316, #c2480a); }
+@keyframes menu-pop { from { opacity: 0; transform: translate(-50%, -46%) scale(.94); } }
+
+/* ── Pemilih bergulir (mode pengambilan & Cerita/Postingan): teks saja, yang di tengah aktif ── */
+.modes {
+  position: absolute; z-index: 6; left: 0; right: 0; bottom: calc(var(--safe-b) + 185px); height: 40px;
+  display: flex; align-items: center; gap: 5px; padding: 0;
+  overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; touch-action: pan-x; overscroll-behavior-x: contain;
+  -webkit-mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, .3) 12%, #000 32%, #000 68%, rgba(0, 0, 0, .3) 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, .3) 12%, #000 32%, #000 68%, rgba(0, 0, 0, .3) 88%, transparent);   /* yang tidak aktif memudar ke transparan */
+  transition: opacity .3s;
+}
+.modes::-webkit-scrollbar { display: none; }
+.modes::before, .modes::after { content: ''; flex: 0 0 50%; }
+.modes button { position: relative; flex: none; scroll-snap-align: center; min-width: 64px; height: 36px; padding: 0 13px; color: rgba(255, 255, 255, .62); font-size: 14px; font-weight: 800; letter-spacing: .01em; white-space: nowrap; text-shadow: 0 1px 8px rgba(0, 0, 0, .75); transition: color .3s, transform .4s cubic-bezier(.16, 1, .3, 1); }
+.modes button:disabled { opacity: .45; }
+.modes .modeOn { color: #fff; transform: scale(1.1); }
+.modes .modeOn::after { content: ''; position: absolute; left: 50%; bottom: 1px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px rgba(249, 115, 22, .9); }
+.modesText { bottom: calc(var(--safe-b) + 21px); }
+.hideCount { opacity: 0; pointer-events: none; }                 /* hitung mundur berjalan: pilihan disembunyikan */
+
+/* Cerita ⇄ Postingan: baris paling bawah, di antara Galeri (kiri) dan Ulangi (kanan) */
+.kinds { bottom: calc(var(--safe-b) + 17px); height: 40px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 12%, rgba(0, 0, 0, .55) 24%, #000 38%, #000 66%, rgba(0, 0, 0, .55) 86%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 12%, rgba(0, 0, 0, .55) 24%, #000 38%, #000 66%, rgba(0, 0, 0, .55) 86%, transparent 100%); }
+.kinds button { min-width: 82px; font-size: 14px; font-weight: 900; letter-spacing: .02em; }
+.kindsOff { opacity: .3; pointer-events: none; }
+
+/* Status rekaman (menggantikan bar mode saat merekam / dijeda) */
+.status { position: absolute; z-index: 6; left: 0; right: 0; bottom: calc(var(--safe-b) + 185px); height: 40px; display: flex; align-items: center; justify-content: center; gap: 9px; pointer-events: none; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: 0 1px 9px rgba(0, 0, 0, .85); }
+.status i { width: 10px; height: 10px; border-radius: 50%; background: #ef2b3f; box-shadow: 0 0 10px rgba(239, 43, 63, .8); animation: rec-blink 1s infinite; }
+.status i.paused { background: #fdba74; box-shadow: none; animation: none; }
+.status b { font-weight: 900; }
+.status span { opacity: .92; }
+.status em { font-style: normal; font-size: 12px; font-weight: 800; padding: 2px 9px; border-radius: 99px; background: rgba(255, 255, 255, .16); }
+@keyframes rec-blink { 50% { opacity: .3; } }
+
+/* ── Filter: deretan lingkaran sebaris dengan shutter; geser shutter atau deretan ini ── */
+.filters { position: absolute; z-index: 5; left: 0; right: 0; bottom: calc(var(--safe-b) + 92px); height: 52px; pointer-events: none; transition: opacity .3s;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
+.filtersOff { opacity: 0; }
+.filtersOff * { pointer-events: none !important; }
+.filterTrack { position: absolute; left: calc(50% - 39px); top: 0; display: flex; transition: transform .35s cubic-bezier(.22, 1, .36, 1); }
+.fcircle { pointer-events: auto; flex: 0 0 78px; height: 52px; display: grid; place-items: center; touch-action: none; }
+.fcircle i { width: 46px; height: 46px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, .92); background: linear-gradient(135deg, #fde68a, #f97316 45%, #7c3aed); box-shadow: 0 4px 11px rgba(0, 0, 0, .35); transition: transform .35s var(--spring), opacity .25s; }
+.fcircle:active i { transform: scale(.9); }
+.fOn i { opacity: 0; transform: scale(.4); }                       /* yang aktif = tombol shutter itu sendiri */
+
+/* ── Shutter: dipatok dari dasar layar ── */
+.shutterRow { position: absolute; z-index: 6; left: 0; right: 0; bottom: calc(var(--safe-b) + 76px); display: flex; justify-content: center; pointer-events: none; }
+.shutter { pointer-events: auto; position: relative; width: 84px; height: 84px; display: grid; place-items: center; border-radius: 50%; touch-action: none; transition: transform .35s var(--spring); }
+.shutter:active { transform: scale(.94); }
+.shutter svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }      /* mulai dari atas, searah jarum jam */
+.track { fill: none; stroke: #fff; stroke-width: 6; }
+.progress { fill: none; stroke: #ef2b3f; stroke-width: 6; stroke-linecap: round; transition: stroke-dasharray .12s linear; }   /* tiap klip = satu busur merah berujung bulat */
+.core { width: 66px; height: 66px; border-radius: 50%; background: #fff; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .1); transition: all .3s var(--spring); }
+.coreVideo { background: #ef2b3f; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .18); }   /* mode video: inti merah, cincin luar putih */
+.recording { transform: scale(1.12); }
+.recording .core { width: 30px; height: 30px; border-radius: 8px; background: #ef2b3f; }   /* sedang merekam: kotak = ketuk untuk jeda */
+
+/* Lanjutkan: menggantikan shutter saat semua sel kolase terisi */
+.continueBtn { pointer-events: auto; width: 84px; height: 84px; display: grid; place-items: center; border-radius: 50%; color: #fff; border: 5px solid #fff; background: linear-gradient(145deg, #f97316, #c2480a); box-shadow: 0 13px 21px rgba(194, 72, 10, .4), inset 0 2px 0 rgba(255, 255, 255, .3); animation: menu-pop .3s var(--ease-out); transition: transform .3s var(--spring); }
+.continueBtn:active { transform: scale(.93); }
+.continueBtn:disabled { opacity: .7; }
+
+/* Undo klip: di kanan shutter (setelah rekaman dijeda) */
+.segUndo { position: absolute; z-index: 7; left: calc(50% + 63px); bottom: calc(var(--safe-b) + 94px); width: 48px; height: 48px; display: grid; place-items: center; border-radius: var(--r); color: #fff; background: rgba(38, 24, 17, .6); border: 1px solid rgba(255, 255, 255, .22); box-shadow: 0 8px 13px rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255, 255, 255, .16); backdrop-filter: blur(13px); animation: seg-in .3s var(--ease-out); transition: transform .2s var(--spring); }
+.segUndo:active { transform: scale(.88); }
+@keyframes seg-in { from { opacity: 0; transform: translateX(-12px) scale(.8); } }
+
+/* Galeri (kiri) & Ulangi kolase (kanan): persegi membulat, baris paling bawah */
+.galleryFloat, .undoFloat { position: absolute; z-index: 8; bottom: calc(var(--safe-b) + 13px); width: 48px; height: 48px; display: grid; place-items: center; border-radius: var(--r); color: #fff; background: rgba(38, 24, 17, .54); border: 1px solid rgba(255, 255, 255, .2); box-shadow: 0 8px 13px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255, 255, 255, .16); backdrop-filter: blur(13px); transition: transform .2s var(--spring); }
+.galleryFloat { left: 16px; }
+.undoFloat { right: 16px; animation: menu-pop .25s var(--ease-out); }
+.galleryFloat:active, .undoFloat:active { transform: scale(.9); }
+
+/* ── Transisi besar Cerita ⇄ Postingan: loading → kartu berisi teks yang melayang lalu memudar ── */
+.kindFx { position: absolute; z-index: 20; inset: 0; display: grid; place-items: center; pointer-events: none; animation: fx-wrap 1.4s ease forwards; }
+@keyframes fx-wrap { 0% { background: rgba(0, 0, 0, 0); } 14% { background: rgba(0, 0, 0, .55); } 78% { background: rgba(0, 0, 0, .5); } 100% { background: rgba(0, 0, 0, 0); } }
+.fxCard { position: relative; width: min(78vw, 300px); padding: 28px 21px 24px; display: grid; justify-items: center; gap: 8px; text-align: center; border-radius: 26px; color: #fff; border: 1px solid rgba(255, 255, 255, .45); box-shadow: 0 21px 55px rgba(0, 0, 0, .5), inset 0 3px 0 rgba(255, 255, 255, .35), inset 0 -8px 0 rgba(0, 0, 0, .16); animation: fx-card 1.4s cubic-bezier(.22, 1, .36, 1) forwards; }
+.fxStory .fxCard { background: linear-gradient(150deg, #fb923c, #e11d48); }
+.fxPost .fxCard { background: linear-gradient(150deg, #38bdf8, #6366f1); }
+@keyframes fx-card { 0% { opacity: 0; transform: scale(.78) translateY(21px); } 16% { opacity: 1; transform: none; } 70% { opacity: 1; transform: translateY(-3px); } 100% { opacity: 0; transform: translateY(-34px) scale(1.04); } }   /* melayang naik sambil memudar */
+.fxSpin, .fxIcon { grid-area: 1 / 1; }
+.fxCard { grid-template-rows: auto; }
+.fxSpin { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 20px; background: rgba(255, 255, 255, .22); animation: fx-out .9s ease forwards; }
+.fxIcon { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 20px; background: rgba(255, 255, 255, .26); opacity: 0; animation: fx-in .9s ease .35s forwards; }
+.fxCard b { font-family: var(--font-d); font-size: 1.45rem; line-height: 1.15; text-shadow: 0 2px 10px rgba(0, 0, 0, .25); opacity: 0; transform: translateY(8px); animation: fx-text .8s ease .5s forwards; }
+.fxCard small { font-size: 12.5px; font-weight: 700; opacity: 0; animation: fx-text .8s ease .62s forwards; }
+@keyframes fx-out { 0% { opacity: 1; } 45% { opacity: 1; } 100% { opacity: 0; transform: scale(.7); } }
+@keyframes fx-in { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes fx-text { to { opacity: .95; transform: none; } }
+.fxCard { grid-template-areas: 'ic' 't' 's'; }
+.fxSpin, .fxIcon { grid-area: ic; }
+.fxCard b { grid-area: t; }
+.fxCard small { grid-area: s; }
+
+/* Penggabungan klip (cadangan bila tidak bisa digabung tanpa encode ulang) */
+.mergeLayer { position: absolute; z-index: 40; inset: 0; display: grid; place-items: center; background: rgba(8, 5, 3, .72); backdrop-filter: blur(6px); animation: fade .2s ease; }
+@keyframes fade { from { opacity: 0; } }
+.mergeCard { width: min(80vw, 300px); padding: 24px 21px; display: grid; justify-items: center; gap: 13px; border-radius: 21px; background: linear-gradient(160deg, #2a1e17, #150f0c); border: 1px solid rgba(255, 244, 235, .16); box-shadow: 0 21px 55px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .1); text-align: center; }
+.mergeCard b { font-family: var(--font-d); font-size: 1.05rem; }
+.mergeCard small { font-size: 12px; color: rgba(255, 255, 255, .6); }
+.mergeCard i { display: block; width: 100%; height: 8px; border-radius: 99px; background: rgba(255, 255, 255, .14); overflow: hidden; }
+.mergeCard u { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #f97316, #ef2b3f); transition: width .15s linear; }
+
+/* ── Halaman TEKS: layar penuh di sebelah kamera ── */
+.textPage { position: absolute; z-index: 12; inset: 0; display: flex; flex-direction: column; transform: translateX(100%); visibility: hidden; transition: transform .5s cubic-bezier(.22, 1, .36, 1), visibility 0s linear .5s; }
+.textPageOn { transform: none; visibility: visible; transition-delay: 0s; }
+.textHead { display: flex; align-items: center; justify-content: space-between; padding: calc(var(--safe-t) + 10px) 12px 8px; }
+.textDone { height: 48px; padding: 0 21px; border-radius: var(--r); color: #fff; font-weight: 800; font-size: 14px; background: linear-gradient(145deg, #f97316, #c2480a); box-shadow: 0 8px 13px rgba(194, 72, 10, .35), inset 0 1px 0 rgba(255, 255, 255, .3); transition: opacity .2s, transform .2s var(--spring); }
+.textDone:active { transform: scale(.94); }
+.textDone:disabled { opacity: .45; }
+.textBody { flex: 1; min-height: 0; display: grid; place-items: center; padding: 0 21px; }
+.textArea { width: 100%; max-width: 560px; border: 0; outline: 0; resize: none; background: transparent; text-align: center; color: #fff; font: 800 clamp(24px, 7vw, 34px)/1.3 var(--font-d); text-shadow: 0 2px 14px rgba(0, 0, 0, .25); touch-action: auto; user-select: text; -webkit-user-select: text; }
+.textArea::placeholder { color: rgba(255, 255, 255, .6); }
+.textAreaDark { color: #2a1f17; text-shadow: none; }
+.textAreaDark::placeholder { color: rgba(42, 31, 23, .45); }
+.swatches { position: absolute; left: 0; right: 0; bottom: calc(var(--safe-b) + 84px); display: flex; justify-content: center; gap: 13px; }
+.swatches button { width: 29px; height: 29px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, .85); box-shadow: 0 4px 8px rgba(0, 0, 0, .22); transition: transform .3s var(--spring); }
+.swatches .swatchOn { transform: scale(1.25); box-shadow: 0 0 0 2px #fff, 0 6px 13px rgba(0, 0, 0, .3); }
+
+/* ── Teleprompter ── */
+.teleprompter { position: absolute; z-index: 10; border-radius: 13px; color: #fff; background: rgba(25, 18, 14, .62); border: 1px solid rgba(255, 255, 255, .24); box-shadow: 0 13px 21px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .17); backdrop-filter: blur(13px); touch-action: none; cursor: move; }
+.teleView { position: absolute; inset: 8px 36px 8px 13px; overflow: hidden; -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
+.teleInner { padding: 10px 0; font-weight: 800; line-height: 1.38; text-align: center; text-wrap: balance; overflow-wrap: anywhere; will-change: transform; }
+.teleClose, .telePref { position: absolute; right: 5px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 9px; color: #fff; background: rgba(0, 0, 0, .38); }
+.teleClose { top: 5px; }
+.telePref { top: 50%; margin-top: -13px; }                          /* ujung kanan, tengah */
+.telePrefOn { background: linear-gradient(145deg, #f97316, #c2480a); }
+.teleHandle { position: absolute; right: 5px; bottom: 3px; width: 28px; height: 28px; display: grid; place-items: center; font-size: 18px; color: #fdba74; cursor: nwse-resize; touch-action: none; }
+.telePop { position: absolute; z-index: 3; left: 0; top: calc(100% + 8px); width: min(268px, 86vw); padding: 13px; display: grid; gap: 8px; text-align: left; border-radius: 16px; background: rgba(20, 13, 9, .92); border: 1px solid rgba(255, 244, 235, .18); box-shadow: 0 13px 28px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .12); backdrop-filter: blur(16px); cursor: default; animation: menu-pop2 .2s var(--ease-out); }
+.popUp { top: auto; bottom: calc(100% + 8px); }
+@keyframes menu-pop2 { from { opacity: 0; transform: translateY(6px) scale(.97); } }
+.telePop b { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: rgba(255, 255, 255, .6); }
+.teleDemo { height: 64px; overflow: hidden; border-radius: 11px; background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .1); -webkit-mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent); mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent); }
+.teleDemoText { padding: 14px 13px 40px; font-weight: 800; line-height: 1.38; text-align: center; animation: tele-scroll linear infinite; }
+@keyframes tele-scroll { from { transform: translateY(0); } to { transform: translateY(var(--dist, -110px)); } }
+.teleSpeeds, .teleSizes { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 5px; }
+.teleSpeeds button, .teleSizes button { height: 34px; border-radius: 10px; color: rgba(255, 255, 255, .8); font-size: 13px; font-weight: 800; background: rgba(255, 255, 255, .08); transition: background .2s, color .2s, transform .2s var(--spring); }
+.teleSpeeds button:active, .teleSizes button:active { transform: scale(.92); }
+.telePop .teleOn { color: #fff; background: linear-gradient(145deg, #f97316, #c2480a); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3); }
+.teleSpeedName { margin: -2px 0 3px; font-size: 12.5px; font-weight: 700; color: #fdba74; text-align: center; }
+
+/* Editor skrip: naik dari bawah, layar penuh */
+.scriptLayer { position: absolute; z-index: 30; inset: 0; display: flex; align-items: center; justify-content: center; padding: calc(80px + var(--safe-t)) 21px calc(21px + var(--safe-b)); background: rgba(12, 8, 6, .96); backdrop-filter: blur(18px); animation: sheet-up .38s cubic-bezier(.16, 1, .3, 1); }
+@keyframes sheet-up { from { transform: translateY(100%); } }
+.scriptLayer textarea { width: min(100%, 720px); height: min(72vh, 620px); padding: 21px; resize: none; border: 1px solid rgba(255, 255, 255, .16); border-radius: 20px; outline: none; background: rgba(255, 255, 255, .08); color: #fff; font: 700 22px/1.5 var(--font-d); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12); }
+.scriptLayer textarea::placeholder { color: rgba(255, 255, 255, .45); }
+.scriptClose, .scriptDone { position: absolute; top: calc(13px + var(--safe-t)); width: 48px; height: 48px; display: grid; place-items: center; border-radius: var(--r); color: #fff; background: rgba(255, 255, 255, .1); }
+.scriptClose { left: 13px; }
+.scriptDone { right: 13px; color: #fff7ed; background: linear-gradient(145deg, #f97316, #c2480a); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3); }

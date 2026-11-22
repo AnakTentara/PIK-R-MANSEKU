@@ -1,0 +1,190 @@
+/* Modal Backdrop with 50% transparency + blur of the feed, excluding sidebar */
+.backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s var(--ease-out);
+}
+
+@media (min-width: 900px) {
+  .backdrop {
+    left: var(--nav-w); /* SIDEBAR DIKECUALIKAN! */
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Close button 'X' positioned inside content area after sidebar */
+.closeBtn {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 220;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1a1a1a;
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  transition: transform 0.18s var(--spring), background 0.15s;
+}
+
+@media (min-width: 900px) {
+  .closeBtn {
+    left: calc(var(--nav-w) + 24px); /* Posisinya setelah sidebar! */
+  }
+}
+
+.closeBtn:hover {
+  transform: scale(1.08);
+  background: #ffffff;
+}
+.closeBtn:active {
+  transform: scale(0.92);
+}
+
+.dialog {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* ── PostDesktop View ── */
+.postDesktop {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: var(--surface);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  /* HEIGHT DIKUNCI: Tidak akan memanjang saat komentar di-expand */
+  height: var(--modal-h);
+  max-height: min(88vh, 680px);
+  max-width: calc(100vw - var(--nav-w, 72px) - 48px);
+}
+
+/* Landscape: foto 16:9 → tampilkan dalam container 4:3 (lebih tinggi → komentar tidak sempit)
+   Foto TIDAK dipotong kiri-kanan: letterbox hitam atas-bawah (object-fit: contain) */
+.landscape {
+  --modal-h: clamp(430px, 66vh, 560px);
+}
+.landscape .postMedia {
+  /* Lebar = tinggi × (4/3) agar container 4:3 cukup proporsional */
+  flex: 0 0 calc(var(--modal-h) * (4 / 3));
+  max-width: min(54vw, 740px);
+  height: 100%;
+}
+.landscape .postSide {
+  width: clamp(310px, 30vw, 380px);
+}
+
+/* Portrait / Square: ikuti rasio asli */
+.portrait {
+  --modal-h: clamp(480px, 76vh, 640px);
+}
+.portrait .postMedia {
+  flex: 0 0 calc(var(--modal-h) * var(--post-ratio, 1));
+  max-width: min(55vw, 680px);
+  height: 100%;
+}
+.portrait .postSide {
+  width: clamp(310px, 30vw, 360px);
+}
+
+.postMedia {
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  overflow: hidden;
+}
+
+/* Semua inner div carousel mengisi container penuh */
+.postMedia > div {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: unset !important;
+  background: #000;
+}
+
+.postMedia [class*="slide"] {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #000 !important;
+}
+
+.postMedia [class*="strip"] {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* object-fit: contain → foto tidak terpotong, letterbox hitam atas-bawah otomatis */
+.postMedia img,
+.postMedia video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background: #000;
+  display: block;
+}
+
+.postSide {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.postHead {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 54px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.postComments {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
