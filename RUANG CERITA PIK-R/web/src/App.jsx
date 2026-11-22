@@ -5,6 +5,7 @@ import { Snowflake } from 'lucide-react';
 import { rc, errMsg } from '@/lib/api.js';
 import { useSession } from '@/lib/session.js';
 import { connectLive, disconnectLive, useLive } from '@/lib/live.js';
+import { initPushSubscription } from '@/lib/pushSubscription.js';
 import Shell from '@/components/Shell.jsx';
 import { Spinner } from '@/components/ui.jsx';
 import OfflineIndicator from '@/components/OfflineIndicator.jsx';
@@ -71,6 +72,14 @@ export default function App() {
   }, [token, setMe, logout]);
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   useQuietHours(me?.settings);
+
+  // Minta izin notifikasi & daftarkan perangkat ke server secara otomatis
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initPushSubscription(token);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [token]);
 
   // Dismiss custom toast via event (dari InAppToast close button)
   useEffect(() => {

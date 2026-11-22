@@ -10,11 +10,14 @@ Rilis Aplikasi Android Mobile (Flutter Release APK), Pusat Unduhan `/downloads`,
 
 ### 📱 Aplikasi Mobile Flutter & Pusat Unduhan (`pikr_app` & `/downloads`)
 - **Package Name Resmi**: Diperbarui menjadi `org.pikrmanseku.app` (sebelumnya `id.my.manseku.pikr_app`).
-- **Rilis APK Mandiri (`ruang-cerita.apk`)**: Dikompilasi menggunakan Flutter release mode (~19.2 MB) dan disajikan secara statis pada rute `https://pikr-manseku.my.id/downloads/ruang-cerita.apk` dengan MIME type resmi `application/vnd.android.package-archive` dan header auto-download (`Content-Disposition: attachment`).
+- **Ikon Launcher Resmi & Splash**: Integrasi logo resmi PIK-R beresolusi tinggi di seluruh level densitas Android mipmap (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`), round icon, serta centered splash screen (`launch_background.xml`).
+- **Izin Sistem Android Mandatori**: Integrasi `permission_handler` pada saat aplikasi dibuka untuk meminta izin Notifikasi (`POST_NOTIFICATIONS`), Kamera, Mikrofon, dan Akses Galeri/Media, serta delegasi izin otomatis ke komponen WebView (`setOnPlatformPermissionRequest`).
+- **Rilis APK Mandiri (`ruang-cerita.apk`)**: Dikompilasi menggunakan Flutter release mode (~19.4 MB) dan disajikan secara statis pada rute `https://pikr-manseku.my.id/downloads/ruang-cerita.apk` dengan MIME type resmi `application/vnd.android.package-archive` dan header auto-download (`Content-Disposition: attachment`).
 - **Pusat Unduhan Resmi (`/downloads`)**: Halaman khusus unduhan aplikasi mobile dengan tata letak minimalis dan bersih (anti-AI slop), kartu unduhan Android APK, serta panduan pemasangan Web App di Safari iPhone/iOS.
 - **Accordion Panduan Eksklusif**: Membuka panduan instalasi salah satu platform (Android atau iOS) otomatis menutup panduan platform lainnya secara mutual-exclusive.
 
 ### 🔔 Notifikasi Massal & Web Push (`/admin/notifikasi`, `/push/pertemuan`, `/push/:id`)
+- **Auto-Prompt Pendaftaran Web Push**: Modul pendaftaran otomatis token subscription Web Push (`pushSubscription.js`) aktif saat pengguna membuka web `PIK-R-MANSEKU` maupun `RUANG CERITA`, menyelesaikan masalah hitungan subscriber `(0)` di dashboard admin.
 - **Panel Siaran Notifikasi Massal**: Pengiriman pesan Web Push interaktif real-time ke seluruh subscriber perangkat terdaftar dengan banner gambar, ikon resmi, dan 2 tombol tindakan kustom.
 - **Integrasi Jadwal Pertemuan Rutin (`/push/pertemuan`)**: Halaman hitung mundur live jadwal pertemuan yang dapat langsung diimpor ke form siaran notifikasi massal dengan 1 klik.
 - **Riwayat Siaran & Pengujian Mandiri**: Fitur uji coba notifikasi di perangkat lokal serta log riwayat pengiriman notifikasi dengan opsi hapus.

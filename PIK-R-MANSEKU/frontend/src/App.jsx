@@ -8,6 +8,17 @@ import AlumniBanner from '@/components/common/AlumniBanner';
 import QuickLogin from '@/components/common/QuickLogin';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import { PageSkeleton } from '@/components/common/SkeletonLoading';
+import { initPushSubscription } from '@/utils/pushSubscription';
+
+function PushNotificationManager() {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initPushSubscription();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+  return null;
+}
 
 function SmoothScroll() {
   const { pathname } = useLocation();
@@ -173,6 +184,7 @@ function App() {
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ScrollToTop />
       <SmoothScroll />
+      <PushNotificationManager />
       <QuickLogin />
       <Routes>
         {/* ── Public Routes (with Navbar + Footer) ── */}

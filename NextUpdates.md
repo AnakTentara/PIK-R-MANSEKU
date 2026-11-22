@@ -26,17 +26,20 @@ Dokumen ini memuat roadmap pengembangan fitur, integrasi sistem, dan persiapan a
 
 ---
 
-### 3. 🎨 Penambahan Logo & Aset Visual pada Ruang Cerita Flutter App
-- **Branding Dinamis di Mobile App**:
-  - Penambahan logo resmi PIK-R dan logo instansi sekolah pada Splash Screen, AppBar, Drawer, dan Login Page aplikasi mobile Flutter (`org.pikrmanseku.app`).
-  - Dukungan Adaptive Icon resmi untuk Android 13+ (Monochrome & Themed Icons) dan iOS App Iconset (1024×1024).
+### 3. 🎨 Penambahan Logo & Aset Visual pada Ruang Cerita Flutter App [SELESAI DITERAPKAN]
+- **Launcher Icon & Splash Resmi**:
+  - Ikon aplikasi resmi PIK-R beresolusi tinggi (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) dan round icon telah diintegrasikan.
+  - Splash screen dengan logo terpusat (`launch_background.xml`).
 - **White-label Support**: Arsitektur aset yang memungkinkan penggantian logo dan skema warna aplikasi secara dinamis dari remote config backend tanpa harus mengompilasi ulang seluruh aplikasi.
 
 ---
 
 ### 4. ⚡ Peningkatan Konektivitas, Push Notification & Stabilitas Ruang Cerita App
-- **Sinkronisasi Web Push & Mobile Push FCM**:
-  - Integrasi Firebase Cloud Messaging (FCM) penuh di Flutter App yang terhubung paralel dengan Web Push API backend.
+- **Sinkronisasi Web Push & Auto-Prompt Device Registration [SELESAI DITERAPKAN]**:
+  - Auto-request permission Web Push di kedua client web (`RUANG CERITA` & `PIK-R MANSEKU`).
+  - Runtime permission dialog di Flutter Mobile App (Notifikasi, Kamera, Mikrofon, Galeri Foto & Video).
+  - Pendaftaran otomatis subscription ke backend `POST /api/push/subscribe` sehingga jumlah subscriber aktif terdeteksi di dashboard Admin.
+- **Integrasi Firebase Cloud Messaging (FCM) Lanjutan**:
   - Notifikasi instan saat ada pesan masuk (DM), panggilan curhat konselor, interaksi komentar, suka cerita, dan pengumuman massal sekolah.
 - **Optimasi Realtime SSE (Server-Sent Events)**:
   - Mekanisme auto-reconnect cerdas dengan exponential backoff dan heartbeat keep-alive ketika aplikasi berpindah background/foreground atau saat koneksi internet tidak stabil.

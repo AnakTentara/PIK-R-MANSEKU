@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 const String webUrl = 'https://ruang-cerita.pikr-manseku.my.id/';
 
@@ -56,6 +58,8 @@ class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
   @override
   void initState() {
     super.initState();
+    _requestPermissions();
+
     final customUserAgent =
         'Mozilla/5.0 (Linux; Android 14; Mobile; PIKR-App/1.0; Platform/$platformName) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36';
 
@@ -99,14 +103,38 @@ class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
             });
           }
         },
-      ))
-      ..loadRequest(
-        Uri.parse(webUrl),
-        headers: {
-          'X-PIKR-App': '1',
-          'X-PIKR-Platform': platformName,
+      ));
+
+    // Izinkan akses kamera, mic, & notifikasi otomatis di dalam WebView Android
+    if (controller.platform is AndroidWebViewController) {
+      (controller.platform as AndroidWebViewController).setOnPlatformPermissionRequest(
+        (PlatformWebViewPermissionRequest request) {
+          request.grant();
         },
       );
+    }
+
+    controller.loadRequest(
+      Uri.parse(webUrl),
+      headers: {
+        'X-PIKR-App': '1',
+        'X-PIKR-Platform': platformName,
+      },
+    );
+  }
+
+  Future<void> _requestPermissions() async {
+    try {
+      await [
+        Permission.notification,
+        Permission.camera,
+        Permission.microphone,
+        Permission.photos,
+        Permission.storage,
+      ].request();
+    } catch (e) {
+      debugPrint('[Permissions] Error requesting permissions: $e');
+    }
   }
 
   Future<bool> handleBack() async {

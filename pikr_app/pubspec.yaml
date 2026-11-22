@@ -29,9 +29,10 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_svg: ^2.0.10+1
 
-  # Push Notifications
+  # Push & Permissions
   firebase_core: ^3.4.0
   firebase_messaging: ^15.1.4
+  permission_handler: ^11.3.1
 
   # Media
   image_picker: ^1.1.2
