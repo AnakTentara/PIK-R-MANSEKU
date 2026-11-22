@@ -4,6 +4,7 @@ import { registerCandidate, getPublicSettings } from '@/api/candidates';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SEO from '@/components/common/SEO';
+import ScrollReveal from '@/components/common/ScrollReveal';
 import styles from './RegisterPage.module.css';
 
 const KELAS_OPTIONS = [];
@@ -147,7 +148,8 @@ export default function RegisterPage() {
     <div className="page-wrapper">
       <SEO title="Pendaftaran PIK-R" description="Formulir pendaftaran online calon anggota baru PIK-R MANSEKU MAN 1 Muara Enim. Daftarkan dirimu dan jadilah bagian dari konselor sebaya generasi selanjutnya!" keywords="Pendaftaran PIK-R, Daftar PIK-R, Registrasi Anggota PIK-R, MAN 1 Muara Enim, GenRe" />
       <section className="section">
-        <div className={`container ${styles.grid}`}>
+        <ScrollReveal>
+          <div className={`container ${styles.grid}`}>
           {/* Form */}
           <div className={styles.formSide}>
             <h1 className={styles.title}>Pendaftaran PIK-R MANSEKU</h1>
@@ -342,6 +344,7 @@ export default function RegisterPage() {
             </div>
           </div>
         </div>
+        </ScrollReveal>
       </section>
     </div>
   );

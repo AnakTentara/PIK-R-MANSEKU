@@ -20,12 +20,15 @@
 .modal {
   position: relative;
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
+  max-height: 92vh;
   background: var(--color-surface, #ffffff);
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
+  overflow-y: auto;
   border: 1px solid var(--color-border, #e2e8f0);
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -34,6 +37,7 @@
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid var(--color-border, #e2e8f0);
+  flex-shrink: 0;
 }
 
 .title {
@@ -53,7 +57,6 @@
   align-items: center;
   justify-content: center;
 }
-
 .closeBtn:hover {
   background: var(--color-surface-hover, #f1f5f9);
   color: var(--color-text, #0f172a);
@@ -65,6 +68,7 @@
   padding: 6px;
   border-bottom: 1px solid var(--color-border, #e2e8f0);
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .modeTab {
@@ -83,7 +87,6 @@
   justify-content: center;
   gap: 6px;
 }
-
 .modeTabActive {
   background: #ffffff;
   color: var(--color-primary, #EA580C);
@@ -91,10 +94,310 @@
 }
 
 .body {
-  padding: 20px;
+  padding: 16px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-/* Photo upload area */
+/* ── Photo editor ── */
+.photoEditorWrap {
+  width: 100%;
+}
+
+.photoCanvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: 340px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+/* Blurred background tone foto */
+.photoBgBlur {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(22px) brightness(0.5) saturate(1.5);
+  transform: scale(1.12);
+  z-index: 0;
+}
+
+/* Foto utama */
+.photoMain {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  cursor: pointer;
+}
+
+/* Tombol tambah teks — pojok kiri atas canvas */
+.addTextBtn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.addTextBtn:hover {
+  background: rgba(234, 88, 12, 0.8);
+}
+
+/* Tombol ganti foto */
+.changePhotoBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.changePhotoBtn:hover {
+  background: rgba(0,0,0,0.75);
+}
+
+/* Text overlay wrapper */
+.textOverlay {
+  position: absolute;
+  z-index: 5;
+  cursor: move;
+  transform-origin: center center;
+  display: inline-block;
+}
+.textOverlaySelected {
+  outline: 1.5px dashed rgba(255,255,255,0.7);
+  outline-offset: 4px;
+}
+
+/* Text edit textarea overlay */
+.textEditWrap {
+  position: absolute;
+  z-index: 8;
+  transform-origin: center center;
+}
+.textEditInput {
+  background: rgba(0,0,0,0.5);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 6px 10px;
+  resize: none;
+  min-width: 120px;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.4;
+  text-shadow: none;
+}
+
+/* Handles */
+.handleRotate {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: grab;
+  color: #0f172a;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  user-select: none;
+}
+.handleScale {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 22px;
+  height: 22px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: se-resize;
+  color: #0f172a;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  user-select: none;
+}
+.handleDelete {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* ── Text Toolbar ── */
+.textToolbar {
+  margin-top: 10px;
+  background: var(--color-surface-subtle, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toolbarRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.colorDot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.12s;
+  flex-shrink: 0;
+}
+.colorDot:hover { transform: scale(1.2); }
+.colorDotActive {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 2.5px var(--color-primary, #EA580C);
+}
+
+.toolBtn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--color-text-secondary, #64748b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all 0.1s;
+}
+.toolBtn:hover { background: var(--color-surface-hover, #f1f5f9); }
+.toolBtnOn {
+  background: var(--color-primary, #EA580C);
+  color: #fff;
+  border-color: var(--color-primary, #EA580C);
+}
+
+.toolSep {
+  width: 1px;
+  height: 22px;
+  background: var(--color-border, #e2e8f0);
+  margin: 0 2px;
+}
+
+.bgStyleBtn {
+  padding: 4px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: #fff;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #64748b);
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.bgStyleBtn:hover { background: #f1f5f9; }
+.bgStyleBtnOn {
+  background: var(--color-primary, #EA580C);
+  color: #fff;
+  border-color: var(--color-primary, #EA580C);
+}
+
+.toolLabel {
+  font-size: 11.5px;
+  color: var(--color-text-secondary, #64748b);
+  white-space: nowrap;
+}
+.toolRange {
+  flex: 1;
+  accent-color: var(--color-primary, #EA580C);
+}
+.toolValue {
+  font-size: 11px;
+  color: var(--color-text-secondary, #64748b);
+  min-width: 30px;
+  text-align: right;
+}
+
+.editTextBtn {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-primary, #EA580C);
+  background: transparent;
+  color: var(--color-primary, #EA580C);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.editTextBtn:hover { background: rgba(234,88,12,0.08); }
+.deleteTextBtn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  background: transparent;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.deleteTextBtn:hover { background: #fef2f2; }
+
+/* Upload dropzone */
 .uploadDropzone {
   border: 2px dashed var(--color-border, #cbd5e1);
   border-radius: 14px;
@@ -109,44 +412,23 @@
   overflow: hidden;
   position: relative;
 }
-
 .uploadDropzone:hover {
   border-color: var(--color-primary, #EA580C);
   background: rgba(234, 88, 12, 0.04);
 }
-
 .dropzoneText {
   font-size: 13.5px;
   font-weight: 600;
   color: var(--color-text-secondary, #64748b);
   margin-top: 8px;
 }
-
 .dropzoneHint {
   font-size: 11.5px;
   color: #94a3b8;
   margin-top: 2px;
 }
 
-.previewImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.changePhotoBadge {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  background: rgba(0,0,0,0.65);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-/* Text / Quote mode preview */
+/* Text mode preview card */
 .textPreviewCard {
   height: 240px;
   border-radius: 14px;
@@ -157,7 +439,6 @@
   text-align: center;
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15);
 }
-
 .quoteText {
   color: #ffffff;
   font-size: 18px;
@@ -167,6 +448,7 @@
   word-break: break-word;
 }
 
+/* Color picker tray */
 .colorPickerTray {
   display: flex;
   gap: 10px;
@@ -174,7 +456,6 @@
   align-items: center;
   justify-content: center;
 }
-
 .colorBubble {
   width: 28px;
   height: 28px;
@@ -184,21 +465,14 @@
   cursor: pointer;
   transition: transform 0.15s ease;
 }
-
-.colorBubble:hover {
-  transform: scale(1.15);
-}
-
+.colorBubble:hover { transform: scale(1.15); }
 .colorBubbleActive {
   transform: scale(1.2);
   box-shadow: 0 0 0 2.5px var(--color-primary, #EA580C);
 }
 
-/* Caption input */
-.captionGroup {
-  margin-top: 16px;
-}
-
+/* Caption */
+.captionGroup { margin-top: 12px; }
 .captionInput {
   width: 100%;
   border: 1px solid var(--color-border, #cbd5e1);
@@ -211,13 +485,13 @@
   font-family: inherit;
   transition: border-color 0.15s ease;
 }
-
 .captionInput:focus {
   outline: none;
   border-color: var(--color-primary, #EA580C);
   box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
 }
 
+/* Footer */
 .footer {
   display: flex;
   align-items: center;
@@ -226,8 +500,8 @@
   padding: 14px 20px;
   border-top: 1px solid var(--color-border, #e2e8f0);
   background: var(--color-surface-subtle, #f8fafc);
+  flex-shrink: 0;
 }
-
 .submitBtn {
   background: var(--color-primary, #EA580C);
   color: #fff;
@@ -242,7 +516,6 @@
   gap: 6px;
   transition: opacity 0.15s ease;
 }
-
 .submitBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;

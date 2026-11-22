@@ -2,6 +2,7 @@
  * Ruang Cerita — cerita 24 jam, penonton, reaksi, stiker polling/pertanyaan, sorotan.
  */
 import prisma from '../config/db.js';
+import { sendPushToMember } from '../services/webPush.js';
 import {
   handle, fail, requireViewer, findUserByUsername, relationTo, shapeUser, PUBLIC_MEMBER,
   blockedIds, mutedIds, followingIds, closeFriendOf, notify, cleanText, saveUpload, removeFiles, HOURS
@@ -126,6 +127,29 @@ export const createStory = handle(async (req) => {
       expiresAt: new Date(Date.now() + HOURS(24))
     }
   });
+
+  // Beritahu teman / pengikut (followers) tentang cerita baru
+  prisma.follow.findMany({
+    where: { followingId: v.id },
+    select: { followerId: true }
+  }).then((followers) => {
+    for (const f of followers) {
+      if (f.followerId !== v.id) {
+        sendPushToMember(f.followerId, {
+          title: `⏱️ Cerita Baru dari ${v.name || v.slug}`,
+          body: text ? `${text.slice(0, 80)}` : 'Baru saja membagikan cerita baru di Ruang Cerita',
+          icon: v.photoPath || '/media/logos/logo_pik-r.png',
+          badge: '/media/logos/logo_pik-r.png',
+          data: {
+            url: `/${v.slug}`,
+            category: 'RUANG_CERITA',
+            type: 'NEW_STORY'
+          }
+        }).catch(() => {});
+      }
+    }
+  }).catch(() => {});
+
   return { story: { id: story.id } };
 });
 

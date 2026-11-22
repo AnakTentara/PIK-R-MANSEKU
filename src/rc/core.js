@@ -15,6 +15,7 @@ import { EventEmitter } from 'events';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 import prisma from '../config/db.js';
+import { sendPushToMember } from '../services/webPush.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const RC_UPLOAD_DIR = path.join(__dirname, '../../public/uploads/rc');
@@ -222,7 +223,122 @@ export async function notify(userId, actorId, type, extra = {}) {
     if (dup) return;
   }
   const n = await prisma.rcNotification.create({ data: { userId, actorId, type, ...extra } });
-  pushTo(userId, 'notification', { id: n.id, type });
+
+  let actor = null;
+  if (actorId) {
+    const a = await prisma.member.findUnique({ where: { id: actorId }, select: PUBLIC_MEMBER });
+    if (a) actor = shapeUser(a);
+  }
+
+  pushTo(userId, 'notification', {
+    id: n.id,
+    type,
+    text: extra.text || null,
+    actor,
+    postId: extra.postId || null,
+    commentId: extra.commentId || null,
+    createdAt: n.createdAt
+  });
+
+  // Kirim Web Push ke background / offline devices milik user
+  try {
+    let pushTitle = 'PIK-R MANSEKU';
+    let pushBody = '';
+    let targetUrl = '/aktivitas';
+    const actorName = actor?.name || 'Seseorang';
+
+    switch (type) {
+      case 'LIKE':
+        pushTitle = '❤️ Suka Baru di Ruang Cerita';
+        pushBody = `${actorName} menyukai postinganmu.`;
+        targetUrl = extra.postId ? `/p/${extra.postId}` : '/aktivitas';
+        break;
+      case 'COMMENT':
+        pushTitle = '💬 Komentar Baru di Ruang Cerita';
+        pushBody = extra.text ? `${actorName}: "${extra.text}"` : `${actorName} mengomentari postinganmu.`;
+        targetUrl = extra.postId ? `/p/${extra.postId}` : '/aktivitas';
+        break;
+      case 'REPLY':
+        pushTitle = '💬 Balasan Komentar Baru';
+        pushBody = extra.text ? `${actorName}: "${extra.text}"` : `${actorName} membalas komentarmu.`;
+        targetUrl = extra.postId ? `/p/${extra.postId}` : '/aktivitas';
+        break;
+      case 'STORY_LIKE':
+        pushTitle = '❤️ Suka Cerita';
+        pushBody = `${actorName} menyukai ceritamu.`;
+        targetUrl = actor?.username ? `/${actor.username}` : '/';
+        break;
+      case 'STORY_REACT':
+        pushTitle = '✨ Reaksi Cerita';
+        pushBody = `${actorName} bereaksi ${extra.text || '🙌'} pada ceritamu.`;
+        targetUrl = actor?.username ? `/${actor.username}` : '/';
+        break;
+      case 'FOLLOW':
+        pushTitle = '👥 Pengikut Baru';
+        pushBody = `${actorName} mulai mengikutimu di Ruang Cerita.`;
+        targetUrl = actor?.username ? `/${actor.username}` : '/aktivitas';
+        break;
+      case 'FOLLOW_REQUEST':
+        pushTitle = '🔒 Permintaan Mengikuti';
+        pushBody = `${actorName} meminta untuk mengikutimu.`;
+        targetUrl = '/aktivitas';
+        break;
+      case 'FOLLOW_ACCEPT':
+        pushTitle = '🎉 Permintaan Diterima';
+        pushBody = `${actorName} menerima permintaan pertemananmu.`;
+        targetUrl = actor?.username ? `/${actor.username}` : '/aktivitas';
+        break;
+      case 'TAG':
+        pushTitle = '🏷️ Ditandai dalam Postingan';
+        pushBody = `${actorName} menandaimu dalam sebuah postingan.`;
+        targetUrl = extra.postId ? `/p/${extra.postId}` : '/aktivitas';
+        break;
+      case 'MENTION':
+        pushTitle = '📢 Disebutkan dalam Konten';
+        pushBody = `${actorName} menyebutmu: "${extra.text || ''}"`;
+        targetUrl = extra.postId ? `/p/${extra.postId}` : '/aktivitas';
+        break;
+      case 'MESSAGE':
+        pushTitle = `✉️ Pesan Baru dari ${actorName}`;
+        pushBody = extra.text || 'Mengirim pesan baru kepadamu.';
+        targetUrl = extra.threadId ? `/pesan/${extra.threadId}` : '/pesan';
+        break;
+      case 'NEW_POST':
+        pushTitle = `📸 Postingan Baru dari ${actorName}`;
+        pushBody = extra.text ? `${actorName}: "${extra.text}"` : `${actorName} membagikan postingan baru.`;
+        targetUrl = extra.postId ? `/p/${extra.postId}` : '/';
+        break;
+      case 'NEW_STORY':
+        pushTitle = `⏱️ Cerita Baru dari ${actorName}`;
+        pushBody = `${actorName} baru saja membagikan cerita baru.`;
+        targetUrl = actor?.username ? `/${actor.username}` : '/';
+        break;
+      case 'COUNSEL':
+        pushTitle = '🤝 Bilik Konseling PIK-R';
+        pushBody = extra.text || 'Pemberitahuan konseling sebaya baru.';
+        targetUrl = '/konseling';
+        break;
+      default:
+        pushTitle = '🔔 Notifikasi Ruang Cerita';
+        pushBody = extra.text || `${actorName} berinteraksi denganmu.`;
+        targetUrl = '/aktivitas';
+        break;
+    }
+
+    sendPushToMember(userId, {
+      title: pushTitle,
+      body: pushBody,
+      icon: actor?.photo || '/media/logos/logo_pik-r.png',
+      badge: '/media/logos/logo_pik-r.png',
+      data: {
+        url: targetUrl,
+        category: 'RUANG_CERITA',
+        type
+      }
+    }).catch((err) => console.error('[WebPush] Error pushToMember:', err.message));
+  } catch (err) {
+    console.error('[WebPush] notify push error:', err);
+  }
 }
 
 export const now = () => new Date();

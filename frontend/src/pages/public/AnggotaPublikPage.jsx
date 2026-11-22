@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getPublicOrg, getPublicMembers, getOrgStructure } from '@/api/public';
 import OrgTreeDynamic from '@/components/common/OrgTreeDynamic';
 import SEO from '@/components/common/SEO';
+import PhotoAvatar from '@/components/common/PhotoAvatar';
+import ScrollReveal from '@/components/common/ScrollReveal';
 import { getUploadUrl } from '@/api/axios';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ExternalLink } from 'lucide-react';
 import styles from './AnggotaPublikPage.module.css';
 
 // Utility helper to format names: Title Case, space after dot (e.g. M. Vanholen, Haikal Mabrur)
@@ -141,20 +144,23 @@ export default function AnggotaPublikPage() {
         description="Bagan organisasi, jajaran pengurus aktif (BPH), pembina, serta daftar lengkap anggota aktif PIK-R MANSEKU MAN 1 Muara Enim." 
       />
       {/* Header */}
-      <section className={styles.header}>
-        <div className="container">
-          <h1 className={styles.title}>Anggota PIK-R MANSEKU</h1>
-          <p className={styles.subtitle}>
-            Struktur kepengurusan aktif dan seluruh anggota resmi PIK-R MAN 1 Muara Enim.
-          </p>
-          <span className={styles.countBadge}>{members.length} Anggota Aktif</span>
-        </div>
-      </section>
+      <ScrollReveal>
+        <section className={styles.header}>
+          <div className="container">
+            <h1 className={styles.title}>Anggota PIK-R MANSEKU</h1>
+            <p className={styles.subtitle}>
+              Struktur kepengurusan aktif dan seluruh anggota resmi PIK-R MAN 1 Muara Enim.
+            </p>
+            <span className={styles.countBadge}>{members.length} Anggota Aktif</span>
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* 2. Org Tree (Pengurus) */}
-      <section className={`section ${styles.treeSection}`}>
-        <div className="container">
-          <h2 className={styles.sectionTitle}>Bagan Kepengurusan Tahun Ini</h2>
+      <ScrollReveal delay={100}>
+        <section className={`section ${styles.treeSection}`}>
+          <div className="container">
+            <h2 className={styles.sectionTitle}>Bagan Kepengurusan Tahun Ini</h2>
           
           {loading ? (
             <div className="spinner" style={{ margin: '40px auto' }} />
@@ -386,10 +392,12 @@ export default function AnggotaPublikPage() {
           )}
         </div>
       </section>
+      </ScrollReveal>
 
       {/* 3. Daftar Anggota Aktif (Hanya anggota biasa yang tidak ada di struktur organisasi) */}
-      <section className={`section ${styles.membersSection}`}>
-        <div className="container">
+      <ScrollReveal>
+        <section className={`section ${styles.membersSection}`}>
+          <div className="container">
           <h2 className={styles.sectionTitle}>Daftar Anggota Aktif</h2>
           
           {loading ? (
@@ -410,23 +418,37 @@ export default function AnggotaPublikPage() {
               <div className={styles.membersGrid}>
                 {ordinaryMembers.map(m => {
                   const jabatan = getMemberJabatan(m.name);
+                  const CardWrapper = m.slug ? Link : 'div';
+                  const wrapperProps = m.slug
+                    ? {
+                        to: `/@${m.slug}`,
+                        className: `${styles.memberCard} ${styles.memberCardLink}`,
+                        title: `Lihat profil @${m.slug}`
+                      }
+                    : {
+                        className: styles.memberCard
+                      };
+
                   return (
-                    <div key={m.id} className={styles.memberCard}>
+                    <CardWrapper key={m.id} {...wrapperProps}>
                       <div className={styles.memberAvatar}>
-                        {m.photoPath ? (
-                          <img src={getUploadUrl(m.photoPath)} alt={m.name} className={styles.memberAvatarImg} />
-                        ) : (
-                          <div className={styles.avatarInitials}>
-                            {m.name[0]}
-                          </div>
-                        )}
+                        <PhotoAvatar
+                          src={m.photoPath ? getUploadUrl(m.photoPath) : ''}
+                          name={m.name}
+                          className={styles.memberAvatarImg}
+                          placeholderClassName={styles.avatarInitials}
+                          size={46}
+                        />
                       </div>
                       <div className={styles.memberInfo}>
-                        <h4>{formatName(m.name)}</h4>
+                        <div className={styles.nameRow}>
+                          <h4>{formatName(m.name)}</h4>
+                          {m.slug && <ExternalLink size={12} className={styles.linkIcon} />}
+                        </div>
                         <p>Kelas {m.className} • <span className={styles.memberJabatan}>{jabatan}</span></p>
                         <span className={styles.joinYear}>Angkatan {m.joinYear}</span>
                       </div>
-                    </div>
+                    </CardWrapper>
                   );
                 })}
               </div>
@@ -434,6 +456,7 @@ export default function AnggotaPublikPage() {
           })()}
         </div>
       </section>
+      </ScrollReveal>
     </div>
   );
 }

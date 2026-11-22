@@ -8,6 +8,7 @@ import { getUploadUrl } from '@/api/axios';
 import { Search as SearchIcon, Clock, Eye, Edit2 } from 'lucide-react';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import SEO from '@/components/common/SEO';
+import ScrollReveal from '@/components/common/ScrollReveal';
 import styles from './BeritaPage.module.css';
 
 export default function BeritaPage() {
@@ -56,7 +57,8 @@ export default function BeritaPage() {
         description="Ikuti perkembangan berita terbaru, rilis pers resmi, dan pengumuman dari Pusat Informasi &amp; Konseling Remaja MAN 1 Muara Enim." 
       />
       <section className="section">
-        <div className="container">
+        <ScrollReveal>
+          <div className="container">
           {/* Newspaper Header */}
           <div className={styles.newspaperHeader}>
             <div className={styles.newspaperHeaderTop}>
@@ -164,6 +166,7 @@ export default function BeritaPage() {
             </>
           )}
         </div>
+        </ScrollReveal>
       </section>
     </div>
   );

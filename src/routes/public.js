@@ -12,7 +12,7 @@ router.get('/members', async (req, res) => {
     const members = await prisma.member.findMany({
       where: { status: 'ACTIVE' },
       orderBy: { joinYear: 'asc' },
-      select: { id: true, name: true, className: true, gender: true, joinYear: true, role: true, photoPath: true }
+      select: { id: true, name: true, className: true, gender: true, joinYear: true, role: true, photoPath: true, slug: true }
     });
     return res.json(members);
   } catch (error) {

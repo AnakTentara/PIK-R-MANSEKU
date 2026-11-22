@@ -1,4 +1,5 @@
-import express from 'express';
+﻿import express from 'express';
+import prisma from '../config/db.js';
 import {
   loginAdmin,
   getCandidates,
@@ -124,7 +125,7 @@ router.put('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM
 router.delete('/candidates/:id', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), deleteCandidate);
 router.post('/candidates/:id/promote-to-member', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), promoteCandidateToMember);
 
-// Bot WhatsApp (DEVELOPER only) — halaman Pengaturan → Atur Bot WhatsApp
+// Bot WhatsApp (DEVELOPER only) â€” halaman Pengaturan â†’ Atur Bot WhatsApp
 const dev = [authAdmin, requireRole(['DEVELOPER'])];
 router.get('/wa/stream', waBot.stream); // SSE; token di query, diperiksa di controller
 router.get('/wa/status', ...dev, waBot.status);
@@ -142,6 +143,47 @@ router.put('/wa/policy', ...dev, waBot.savePolicyHandler);
 router.get('/settings', authAdmin, requireRole(['DEVELOPER']), getSettings);
 router.put('/settings', authAdmin, requireRole(['DEVELOPER']), saveSettings);
 router.get('/settings/backup-db', authAdmin, requireRole(['DEVELOPER']), downloadBackupDb);
+
+// Bot Leveling Settings (DEVELOPER only)
+const DEFAULT_LEVELING = {
+  enabled: true,
+  trackedGroups: [],
+  levelUpDm: true,
+  levelUpMessage: '\uD83C\uDF89 Selamat *{name}*, kamu naik ke *Level {level}* di grup ini! Terus aktif ya! \uD83D\uDCAA',
+  xpPerMessage: 1,
+  levels: [0, 100, 300, 600, 1000, 1500, 2500, 4000, 6000, 10000]
+};
+
+router.get('/settings/bot-leveling', authAdmin, requireRole(['DEVELOPER']), async (req, res) => {
+  try {
+    const s = await prisma.setting.findUnique({ where: { key: 'bot_leveling' } });
+    const config = s ? JSON.parse(s.value) : DEFAULT_LEVELING;
+    const groups = await prisma.whatsAppGroup.findMany({
+      select: { jid: true, name: true, memberCount: true },
+      orderBy: { name: 'asc' }
+    }).catch(() => []);
+    res.json({ config, groups });
+  } catch (err) {
+    console.error('[bot-leveling GET]', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put('/settings/bot-leveling', authAdmin, requireRole(['DEVELOPER']), async (req, res) => {
+  try {
+    const { enabled, trackedGroups, levelUpDm, levelUpMessage, xpPerMessage, levels } = req.body;
+    const config = { enabled, trackedGroups, levelUpDm, levelUpMessage, xpPerMessage, levels };
+    await prisma.setting.upsert({
+      where: { key: 'bot_leveling' },
+      create: { key: 'bot_leveling', value: JSON.stringify(config) },
+      update: { value: JSON.stringify(config) }
+    });
+    res.json({ success: true, config });
+  } catch (err) {
+    console.error('[bot-leveling PUT]', err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // Admin User Accounts CRUD (DEVELOPER and KABINET_UMUM)
 router.get('/users', authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM']), getAdminUsers);

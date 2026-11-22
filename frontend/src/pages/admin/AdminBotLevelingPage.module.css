@@ -1,0 +1,193 @@
+/* AdminBotLevelingPage — Pengaturan Leveling Bot WA */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.body {
+  padding: var(--admin-page-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  animation: fadeInUp 0.4s ease both;
+  max-width: 760px;
+}
+
+.back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.back:hover { color: var(--color-accent); }
+
+/* ── Card ── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--admin-card-radius);
+  box-shadow: var(--admin-card-shadow);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: box-shadow 0.2s ease;
+}
+.card:hover { box-shadow: var(--admin-card-shadow-hover); }
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cardIcon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-accent-subtle), rgba(249,115,22,0.15));
+  color: var(--color-accent);
+  border-radius: var(--radius-md);
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 3px;
+}
+
+.cardSubtitle {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ── Toggle button ── */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-bg-alt, #f8fafc);
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+}
+.toggle:hover { border-color: var(--color-border-active, #94a3b8); }
+.toggleOn {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+.toggleOn:hover { background: #dcfce7; border-color: #4ade80; }
+
+/* ── XP row ── */
+.xpRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.xpInput {
+  width: 100px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.xpLabel {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* ── Group list ── */
+.groupList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.groupItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.groupItem:hover { background: var(--color-bg-alt, #f8fafc); }
+.checkbox { width: 16px; height: 16px; accent-color: var(--color-accent); flex-shrink: 0; cursor: pointer; }
+.groupInfo { display: flex; flex-direction: column; gap: 2px; }
+.groupName { font-size: 0.9rem; font-weight: 600; color: var(--color-text-primary); }
+.groupMeta { font-size: 0.75rem; color: var(--color-text-muted); }
+
+/* ── Levels grid ── */
+.levelsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.levelRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.levelLabel {
+  width: 36px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+.levelInput { flex: 1; text-align: right; }
+.xpSuffix { font-size: 0.75rem; color: var(--color-text-muted); flex-shrink: 0; }
+
+/* ── Helpers ── */
+.hint { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; }
+.code { background: var(--color-bg-alt, #f1f5f9); border-radius: 4px; padding: 1px 5px; font-family: monospace; font-size: 0.82em; }
+.empty { font-size: 0.875rem; color: var(--color-text-muted); font-style: italic; }
+
+/* ── Actions bar ── */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Spinner ── */
+.spinnerWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--color-text-muted);
+}
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 600px) {
+  .body { padding: var(--space-md); }
+  .levelsGrid { grid-template-columns: 1fr 1fr; }
+  .actions { flex-direction: column-reverse; }
+  .actions .btn { width: 100%; justify-content: center; }
+}

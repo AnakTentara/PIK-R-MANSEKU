@@ -2,6 +2,7 @@
  * Ruang Cerita — postingan: beranda, jelajah, carousel, suka, simpan, komentar, tandai.
  */
 import prisma from '../config/db.js';
+import { sendPushToMember } from '../services/webPush.js';
 import {
   handle, fail, requireViewer, findUserByUsername, relationTo, shapeUser, PUBLIC_MEMBER,
   blockedIds, mutedIds, followingIds, closeFriendOf, notify, cleanText, mentionsIn, hasHiddenWord,
@@ -174,6 +175,28 @@ export const createPost = handle(async (req) => {
   for (const t of tagged) await notify(t.id, v.id, 'TAG', { postId: post.id });
   const mentioned = await prisma.member.findMany({ where: { slug: { in: mentionsIn(caption) } }, select: { id: true } });
   for (const m of mentioned) await notify(m.id, v.id, 'MENTION', { postId: post.id });
+
+  // Beritahu teman / pengikut (followers) tentang postingan baru
+  prisma.follow.findMany({
+    where: { followingId: v.id },
+    select: { followerId: true }
+  }).then((followers) => {
+    for (const f of followers) {
+      if (f.followerId !== v.id) {
+        sendPushToMember(f.followerId, {
+          title: `📸 Postingan Baru dari ${v.name || v.slug}`,
+          body: caption ? `${caption.slice(0, 100)}` : 'Membagikan postingan baru di Ruang Cerita',
+          icon: v.photoPath || '/media/logos/logo_pik-r.png',
+          badge: '/media/logos/logo_pik-r.png',
+          data: {
+            url: `/p/${post.id}`,
+            category: 'RUANG_CERITA',
+            type: 'NEW_POST'
+          }
+        }).catch(() => {});
+      }
+    }
+  }).catch(() => {});
   return { post: (await shapePosts([post], v.id))[0] };
 });
 

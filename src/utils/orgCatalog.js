@@ -56,6 +56,14 @@ function cleanPosition(p, i) {
   };
   if (p.parent) out.parent = String(p.parent).trim();
   out.group = p.group || groupFor(out);
+  if (p.description) out.description = String(p.description).trim();
+  if (p.tags) {
+    if (Array.isArray(p.tags)) {
+      out.tags = p.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean);
+    } else if (typeof p.tags === 'string') {
+      out.tags = p.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    }
+  }
   return out;
 }
 

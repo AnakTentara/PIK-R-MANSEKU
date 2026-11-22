@@ -127,3 +127,36 @@
   .line { grid-template-columns: auto 1fr; }
   .line .lvl { display: none; }
 }
+
+/* ── Kartu link Pengaturan Leveling XP ── */
+.levelingCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: var(--admin-card-radius);
+  background: linear-gradient(120deg, #eff6ff 0%, var(--color-surface) 60%);
+  border: 1px solid #bfdbfe;
+  box-shadow: var(--admin-card-shadow);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+.levelingCard:hover { box-shadow: var(--admin-card-shadow-hover); transform: translateY(-1px); border-color: #93c5fd; }
+.levelingCard:active { transform: translateY(0); }
+.levelingIcon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 6px 14px -6px rgba(29, 78, 216, 0.5);
+}
+.levelingText { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.levelingText b { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+.levelingText small { font-size: 0.8rem; color: var(--color-text-secondary); line-height: 1.4; }
+.levelingChevron { flex-shrink: 0; color: #1d4ed8; transition: transform 0.2s ease; }
+.levelingCard:hover .levelingChevron { transform: translateX(3px); }

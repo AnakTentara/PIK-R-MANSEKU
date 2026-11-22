@@ -1,0 +1,325 @@
+.pageContainer {
+  min-height: 100vh;
+  padding-top: calc(var(--navbar-height, 70px) + var(--alumni-bar, 0px) + 2.5rem);
+  padding-bottom: 80px;
+  padding-left: 16px;
+  padding-right: 16px;
+  background: var(--bg-primary, #fbf9f6);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.contentWrapper {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* ─── Header ─── */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.subtleCategory {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #64748b;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+  font-weight: 800;
+  color: #1e1b18;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.titleHighlight {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #635347;
+  max-width: 660px;
+  margin: 0 auto;
+}
+
+/* ─── Cards Grid ─── */
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 32px 28px;
+  border: 1px solid rgba(230, 220, 210, 0.75);
+  box-shadow: 
+    12px 16px 36px rgba(180, 150, 130, 0.1),
+    -6px -6px 20px rgba(255, 255, 255, 0.95),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    16px 20px 42px rgba(180, 150, 130, 0.14),
+    -8px -8px 24px rgba(255, 255, 255, 0.95);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.platformIconBoxAndroid {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #1e1b18;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.platformIconBoxIos {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+  flex-shrink: 0;
+}
+
+.platformBadge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.platformBadgeIos {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #0369a1;
+  background: #e0f2fe;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.cardTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1e1b18;
+  line-height: 1.2;
+}
+
+.cardDesc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #635347;
+  margin-bottom: 18px;
+  flex-grow: 1;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.metaPill {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #78716c;
+  background: #f5f0ea;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.cardActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btnDownloadAndroid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 16px;
+  background: #1e1b18;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.98rem;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btnDownloadAndroid:hover {
+  background: #2b2622;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.btnOpenIos {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.98rem;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.25);
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btnOpenIos:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.35);
+}
+
+.guideToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #78716c;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.guideToggleBtn:hover {
+  color: #292524;
+}
+
+.guideBox {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fdfaf7;
+  border: 1px solid rgba(230, 220, 210, 0.8);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #57534e;
+}
+
+.guideTitle {
+  font-weight: 700;
+  color: #292524;
+  margin-bottom: 8px;
+}
+
+.guideList {
+  padding-left: 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.guideList code {
+  background: #f5f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+  color: #ea580c;
+}
+
+/* ─── Footer Notice Area ─── */
+.footerNoticeArea {
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.subtleNotice {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: 0.01em;
+}
+
+/* ─── Mobile Responsiveness ─── */
+@media (max-width: 640px) {
+  .pageContainer {
+    padding-top: calc(var(--navbar-height, 70px) + var(--alumni-bar, 0px) + 1.25rem);
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-bottom: 60px;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .title {
+    font-size: 1.85rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .card {
+    padding: 24px 18px;
+    border-radius: 22px;
+  }
+}

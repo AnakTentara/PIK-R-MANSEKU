@@ -1,7 +1,7 @@
 import prisma from '../config/db.js';
 import path from 'path';
 import fs from 'fs';
-import { processScheduledAnnouncements } from '../services/announcementScheduler.js';
+import { processScheduledAnnouncements, getGlobalTemplateVariables } from '../services/announcementScheduler.js';
 import { sendWhatsAppGroupBroadcast } from '../services/whatsapp.js';
 
 // 1. Get All Announcements & Stats
@@ -15,9 +15,18 @@ export async function getAnnouncements(req, res) {
     const sentCount = list.filter(a => a.status === 'SENT').length;
     const failedCount = list.filter(a => a.status === 'FAILED').length;
 
+    const globalVars = await getGlobalTemplateVariables();
+    const variables = {
+      '{nama}': 'Ahmad Maulana (Contoh)',
+      '{kelas}': 'X.1 (Contoh)',
+      '{nisn}': '0071234567 (Contoh)',
+      ...globalVars
+    };
+
     res.json({
       success: true,
       announcements: list,
+      variables,
       stats: {
         total: list.length,
         scheduled: scheduledCount,

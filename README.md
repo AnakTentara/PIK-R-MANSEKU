@@ -23,6 +23,11 @@
 - **🧭 Struktur Organisasi Dinamis** — Hierarki jabatan bisa diatur (seret-lepas), sinkron otomatis dengan peran anggota, arsip kepengurusan, dan label alumni tim inti.
 - **📊 Excel Anggota** — Ekspor dan impor dengan pratinjau per baris.
 - **📝 Blog & Forum Diskusi** — Postingan jurnalisme dan ruang diskusi anggota.
+- **📱 Aplikasi Mobile Resmi & Pusat Unduhan (`/downloads`)** — Aplikasi Android Flutter mandiri (`ruang-cerita.apk`, package `org.pikrmanseku.app`), web hosting APK terpusat, dan panduan instalasi web app di iPhone / iOS.
+- **🔔 Notifikasi Massal & Web Push (`/admin/notifikasi`)** — Panel siaran pengumuman Web Push resmi ke seluruh perangkat anggota & pengunjung, dilengkapi halaman hitung mundur jadwal pertemuan (`/push/pertemuan`) dan riwayat siaran.
+- **🌊 Smooth Inertia Scroll & ScrollReveal** — Sensasi pengguliran berbobot halus (Lenis) dan transisi animasi fade-in/out di seluruh rute halaman publik.
+- **💬 Ruang Cerita 2.5** — Platform media sosial & konseling sebaya siswa: Bilik Konseling terenkripsi, tata letak card adaptif, CTA desktop/mobile cerdas, dan QnA butter-smooth collapsible.
+- **👥 Bagan Kepengurusan Dinamis (`/kami`)** — Tata letak responsif dinamis pimpinan & pengurus inti (3 card melebar proporsional tanpa grid kosong).
 
 ---
 
@@ -30,12 +35,13 @@
 
 | Layer | Teknologi |
 |---|---|
-| **Frontend** | React 18, Vite, React Router DOM, CSS Modules, Lucide Icons, React Hot Toast |
-| **Backend** | Node.js, Express.js |
+| **Frontend Web** | React 18, Vite, React Router DOM, Lenis (Smooth Scroll), CSS Modules, Lucide Icons, React Hot Toast |
+| **Mobile App** | Flutter (Dart 3.6), Riverpod, GoRouter, Dio, Secure Storage, InAppWebView (Android & iOS) |
+| **Backend** | Node.js, Express.js, Web Push API (VAPID) |
 | **Database** | Prisma ORM (MySQL / SQLite Fallback) |
 | **Autentikasi** | JWT (jsonwebtoken), bcryptjs, OTP verification |
-| **Integrasi WA** | `@whiskeysockets/baileys` (WhatsApp Web API) |
-| **Utilities** | Multer (Upload foto), Nodemailer (Email SMTP), xlsx (Excel Export) |
+| **Integrasi WA** | `@whiskeysockets/baileys` (WhatsApp Web API) + Game & Leveling System |
+| **Utilities** | Multer (Upload foto), Sharp (Kompresi WebP), Nodemailer (Email SMTP), xlsx (Excel Export) |
 
 ---
 
@@ -74,11 +80,14 @@ npm run dev
 
 ## 🤖 WhatsApp Bot Commands
 
-| Perintah | Fungsi |
-|---|---|
-| `/cek [Nama / NISN]` | Mencari hasil seleksi pendaftar berdasarkan Nama atau NISN. |
-| `/sandi` | Memeriksa NISN & kata sandi terdaftar untuk nomor WhatsApp pengirim. |
-| `/sandi ganti` | Mengirimkan 6-digit kode OTP verifikasi & tautan reset kata sandi ke WhatsApp pengguna. |
+| Perintah | Kategori | Fungsi |
+|---|---|---|
+| `/cek [Nama / NISN]` | Administrasi | Mencari hasil seleksi pendaftar berdasarkan Nama atau NISN. |
+| `/sandi` | Keamanan | Memeriksa NISN & kata sandi terdaftar untuk nomor WhatsApp pengirim. |
+| `/sandi ganti` | Keamanan | Mengirimkan 6-digit kode OTP verifikasi & tautan reset kata sandi ke WhatsApp pengguna. |
+| `/profil` | Komunitas | Melihat kartu profil digital anggota, poin XP, dan level aktif. |
+| `/leaderboard` | Interaktif | Menampilkan peringkat klasemen keaktifan dan level anggota di grup. |
+| `/kuis` / `/tebak` | Game & Edukasi | Menjalankan kuis seputar kesehatan reproduksi remaja (GenRe) & game tebak kata. |
 
 ---
 

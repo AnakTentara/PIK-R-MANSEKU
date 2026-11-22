@@ -8,6 +8,9 @@
 
 .body {
   padding: var(--admin-page-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
   animation: fadeInUp 0.4s ease both;
 }
 

@@ -4,6 +4,39 @@ Seluruh rilis, pembaruan fitur, dan perbaikan bug pada platform PIK-R MANSEKU di
 
 ---
 
+## [v2.7.0] — 2026-11-22
+
+Rilis Aplikasi Android Mobile (Flutter Release APK), Pusat Unduhan `/downloads`, Sistem Siaran Notifikasi Massal & Web Push, Smooth Inertia Scroll (Lenis), Animasi Transisi ScrollReveal Publik, serta Penyempurnaan Tata Letak Responsif `/ruang-cerita`, `/kami`, dan `/admin/notifikasi`.
+
+### 📱 Aplikasi Mobile Flutter & Pusat Unduhan (`pikr_app` & `/downloads`)
+- **Package Name Resmi**: Diperbarui menjadi `org.pikrmanseku.app` (sebelumnya `id.my.manseku.pikr_app`).
+- **Rilis APK Mandiri (`ruang-cerita.apk`)**: Dikompilasi menggunakan Flutter release mode (~19.2 MB) dan disajikan secara statis pada rute `https://pikr-manseku.my.id/downloads/ruang-cerita.apk` dengan MIME type resmi `application/vnd.android.package-archive` dan header auto-download (`Content-Disposition: attachment`).
+- **Pusat Unduhan Resmi (`/downloads`)**: Halaman khusus unduhan aplikasi mobile dengan tata letak minimalis dan bersih (anti-AI slop), kartu unduhan Android APK, serta panduan pemasangan Web App di Safari iPhone/iOS.
+- **Accordion Panduan Eksklusif**: Membuka panduan instalasi salah satu platform (Android atau iOS) otomatis menutup panduan platform lainnya secara mutual-exclusive.
+
+### 🔔 Notifikasi Massal & Web Push (`/admin/notifikasi`, `/push/pertemuan`, `/push/:id`)
+- **Panel Siaran Notifikasi Massal**: Pengiriman pesan Web Push interaktif real-time ke seluruh subscriber perangkat terdaftar dengan banner gambar, ikon resmi, dan 2 tombol tindakan kustom.
+- **Integrasi Jadwal Pertemuan Rutin (`/push/pertemuan`)**: Halaman hitung mundur live jadwal pertemuan yang dapat langsung diimpor ke form siaran notifikasi massal dengan 1 klik.
+- **Riwayat Siaran & Pengujian Mandiri**: Fitur uji coba notifikasi di perangkat lokal serta log riwayat pengiriman notifikasi dengan opsi hapus.
+- **Perombakan UI Admin Notifikasi**: Tata letak responsif penuh di mobile, pemangkasan tombol raksasa (oversized buttons) menjadi ukuran proporsional, serta perbaikan clipping teks pada tautan statistik `/push/pertemuan`.
+
+### 🌊 Pengalaman Pengguna (UX), Smooth Scroll & Animasi
+- **Smooth "Slow Weight" Momentum Scroll (Lenis)**: Implementasi global momentum scrolling di seluruh halaman publik dengan inertia decay lembut (`duration: 1.35s`, `wheelMultiplier: 0.9`), memberikan sensasi pengguliran yang mewah dan berbobot tanpa konflik native scroll.
+- **ScrollReveal Universal**: Efek transisi fade-in dan fade-out saat digulir diterapkan seragam di semua rute halaman publik: `/kami`, `/ruang-cerita`, `/daftar`, `/cek-kelulusan`, `/anggota`, `/alumni`, `/berita`, `/blog`, dan `/downloads`.
+- **Penyempurnaan `/ruang-cerita`**:
+  - Penghapusan tray cerita 24 jam untuk menjaga fokus platform.
+  - Penataan ulang 4 kartu fitur: 3 kartu di baris atas dan kartu ke-4 (*"Terverifikasi & Khusus Siswa"*) melebar horizontal di baris bawah.
+  - CTA showcase adaptif: menampilkan *"Buka Ruang Cerita Sekarang"* pada desktop dan tombol *"Unduh Ruang Cerita"* (smooth scroll ke `#download-app`) pada mobile.
+  - QnA / FAQ Akordeon: Transisi buka-tutup tinggi *butter-smooth* menggunakan CSS Grid (`grid-template-rows: 0fr -> 1fr`, `min-height: 0`) dengan pratinjau 1 baris saat tertutup.
+- **Tata Letak Dinamis Jajaran Pengurus (`/kami`)**: Menggunakan selector `:last-child:nth-child(odd)` sehingga ketika ada 3 pengurus inti (misal Ketua + 2 Wakil, atau 2 Sekretaris + 1 Bendahara), kartu ke-3 otomatis melebar horizontal penuh di baris bawah dengan avatar di kiri dan teks di kanan, tanpa celah kosong pada grid 2x2.
+
+### 🤖 WhatsApp Bot — Game, Kuis & Leveling System
+- **Sistem Leveling & XP**: Anggota mendapatkan poin aktivitas dan level interaktif di grup WhatsApp.
+- **Kuis & Game Edukasi**: Mini-game kuis seputar kesehatan reproduksi remaja (GenRe), tebak kata, dan ranking klasemen (`/leaderboard`).
+- **Dashboard Admin Pengaturan Bot**: Panel manajemen kebijakan bot dan leveling di `/admin/bot` dan `/admin/bot-leveling`.
+
+---
+
 ## [v2.6.0] — 2026-11-09
 
 Ruang Cerita 2.1: kamera, penyunting foto/video, suka cerita, dan bawaan akun baru.

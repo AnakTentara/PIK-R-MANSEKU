@@ -180,22 +180,28 @@
 
 .coreGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
-  max-width: 800px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg, 24px);
+  max-width: 840px;
   margin: 0 auto var(--space-3xl) auto;
 }
 
 .coreCard {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg, 20px);
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.coreCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
 }
 
 .coreImgWrap {
@@ -205,12 +211,21 @@
   overflow: hidden;
   margin-bottom: var(--space-sm);
   background-color: var(--color-surface-2);
+  flex-shrink: 0;
 }
 
 .coreImgWrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.coreCardContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
 }
 
 .coreCard h4 {
@@ -225,6 +240,36 @@
   color: var(--color-text-secondary);
   font-style: italic;
   margin: var(--space-xs) 0 0 0;
+}
+
+/* ── Dynamics: jika hanya 1 card, letakkan di tengah ── */
+.coreGrid > .coreCard:only-child {
+  grid-column: 1 / -1;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+/* ── Dynamics: jika 3 card (atau item ganjil terakhir), card ke-3 memanjang ke ujung tipis/horizontal ── */
+.coreGrid > .coreCard:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  gap: var(--space-xl, 28px);
+  padding: 1.25rem 2rem;
+}
+
+.coreGrid > .coreCard:last-child:nth-child(odd) .coreImgWrap {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 0;
+}
+
+.coreGrid > .coreCard:last-child:nth-child(odd) .coreCardContent {
+  align-items: flex-start;
+  text-align: left;
 }
 
 .kabinetSection {
@@ -498,6 +543,18 @@
   }
   .coreGrid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .coreGrid > .coreCard:last-child:nth-child(odd) {
+    grid-column: 1;
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-lg);
+    gap: var(--space-sm);
+  }
+  .coreGrid > .coreCard:last-child:nth-child(odd) .coreCardContent {
+    align-items: center;
+    text-align: center;
   }
   .heroTitle {
     font-size: 2rem;

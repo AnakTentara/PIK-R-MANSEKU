@@ -15,6 +15,7 @@ import absenRoutes from './routes/absen.js';
 import { getPublicProfile } from './controllers/absen.js';
 import socialRoutes from './routes/social.js';
 import rcRoutes from './rc/router.js';
+import pushRoutes from './routes/push.js';
 import { checkMessageKey } from './rc/crypto.js';
 import { authAny } from './middlewares/auth.js';
 import { ensureAbsenAccount } from './middlewares/authAbsen.js';
@@ -76,6 +77,7 @@ app.use('/api/absen', absenRoutes);
 app.get('/api/public/profile/:slug', authAny, getPublicProfile);
 app.use('/api/social', socialRoutes);
 app.use('/api/rc', rcRoutes); // Ruang Cerita
+app.use('/api/push', pushRoutes);
 
 // SEO: Robots.txt
 app.get('/robots.txt', (req, res) => {
@@ -311,13 +313,128 @@ if (fs.existsSync(distPath)) {
     }
   }));
 
-  app.get(/^.*$/, (req, res, next) => {
+  const CRAWLER_RE = /facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|SkypeUriPreview|Slackbot|Pinterest|Googlebot|bingbot/i;
+  const escapeHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  function injectMetaTags(rawIndex, { title, description, image, url, type = 'website', siteName = 'PIK-R MANSEKU' }) {
+    let img = image || 'https://pikr-manseku.my.id/media/logos/L_PIK-R_Title.png';
+    if (img.startsWith('/')) img = `https://pikr-manseku.my.id${img}`;
+    let desc = String(description || '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&[a-z0-9#]+;/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (desc.length > 200) desc = desc.slice(0, 197) + '...';
+    if (!desc) desc = 'Pusat Informasi & Konseling Remaja MAN 1 Muara Enim';
+    const cleanTitle = String(title || siteName).replace(/\s+/g, ' ').trim();
+    const fullTitle = cleanTitle.includes(siteName) ? cleanTitle : `${cleanTitle} — ${siteName}`;
+
+    const tags = `
+    <title>${escapeHtml(fullTitle)}</title>
+    <meta name="description" content="${escapeHtml(desc)}" />
+    <link rel="canonical" href="${escapeHtml(url)}" />
+
+    <!-- Open Graph / WhatsApp / Facebook / Telegram -->
+    <meta property="og:type" content="${escapeHtml(type)}" />
+    <meta property="og:site_name" content="${escapeHtml(siteName)}" />
+    <meta property="og:title" content="${escapeHtml(cleanTitle)}" />
+    <meta property="og:description" content="${escapeHtml(desc)}" />
+    <meta property="og:image" content="${escapeHtml(img)}" />
+    <meta property="og:image:secure_url" content="${escapeHtml(img)}" />
+    <meta property="og:image:alt" content="${escapeHtml(cleanTitle)}" />
+    <meta property="og:url" content="${escapeHtml(url)}" />
+    <meta property="og:locale" content="id_ID" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(cleanTitle)}" />
+    <meta name="twitter:description" content="${escapeHtml(desc)}" />
+    <meta name="twitter:image" content="${escapeHtml(img)}" />
+`;
+
+    let cleaned = rawIndex
+      .replace(/<title>[\s\S]*?<\/title>/gi, '')
+      .replace(/<meta\s+name=["'](description|title|twitter:[^"']+)["'][^>]*>/gi, '')
+      .replace(/<meta\s+property=["'](og:[^"']+)["'][^>]*>/gi, '');
+
+    return cleaned.replace(/<head>/i, `<head>${tags}`);
+  }
+
+  app.get(/^.*$/, async (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots') || req.path.startsWith('/llms')) {
       return next();
     }
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
+
+    // Crawler dynamic OpenGraph injection
+    if (CRAWLER_RE.test(req.headers['user-agent'] || '')) {
+      try {
+        const indexPath = path.join(distPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          const rawIndex = fs.readFileSync(indexPath, 'utf8');
+
+          // 1. Blog / Berita
+          if (req.path.startsWith('/blog/') || req.path.startsWith('/berita/')) {
+            const slug = req.path.replace(/^\/(blog|berita)\//, '').split('/')[0];
+            if (slug) {
+              let post = await prisma.blogPost.findUnique({ where: { slug } });
+              if (!post) {
+                post = await prisma.post.findUnique({ where: { slug } });
+              }
+              if (post) {
+                let featuredImg = post.featuredImg || null;
+                if (!featuredImg && post.content) {
+                  const m = post.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+                  if (m && m[1]) featuredImg = m[1];
+                }
+                const injected = injectMetaTags(rawIndex, {
+                  title: post.title,
+                  description: post.content,
+                  image: featuredImg,
+                  url: `https://pikr-manseku.my.id${req.path}`,
+                  type: 'article',
+                  siteName: 'PIK-R MANSEKU'
+                });
+                return res.send(injected);
+              }
+            }
+          }
+
+          // 2. Profil
+          if (req.path.startsWith('/@') || req.path.startsWith('/ruang-cerita/@')) {
+            const slug = req.path.replace(/^(\/ruang-cerita)?\/@/, '').split('/')[0];
+            if (slug) {
+              const m = await prisma.member.findUnique({
+                where: { slug },
+                include: { orgMember: true }
+              });
+              if (m) {
+                const descParts = [];
+                if (m.bio) descParts.push(m.bio);
+                if (m.className) descParts.push(`Kelas ${m.className}`);
+                if (m.asalSekolah) descParts.push(m.asalSekolah);
+                descParts.push('PIK-R MAN 1 Muara Enim');
+                const injected = injectMetaTags(rawIndex, {
+                  title: `${m.name.trim()} (@${slug})`,
+                  description: descParts.join(' • '),
+                  image: m.photoPath,
+                  url: `https://pikr-manseku.my.id/@${slug}`,
+                  type: 'profile',
+                  siteName: 'PIK-R MANSEKU'
+                });
+                return res.send(injected);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[server] Crawler error:', err.message);
+      }
+    }
+
     return res.sendFile(path.join(distPath, 'index.html'));
   });
 }

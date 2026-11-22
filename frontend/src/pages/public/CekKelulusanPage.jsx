@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { checkStatus } from '@/api/candidates';
 import { Search } from 'lucide-react';
 import SEO from '@/components/common/SEO';
+import ScrollReveal from '@/components/common/ScrollReveal';
 import styles from './CekKelulusanPage.module.css';
 
 const STAGES = { SEARCH: 'search', LOADING: 'loading', RESULT: 'result' };
@@ -64,7 +65,8 @@ export default function CekKelulusanPage() {
     return (
       <div className={`page-wrapper ${styles.searchWrapper}`}>
         <SEO title="Cek Kelulusan Seleksi" description="Halaman pengumuman resmi hasil seleksi penerimaan anggota baru PIK-R MANSEKU MAN 1 Muara Enim. Masukkan NISN Anda untuk melihat status kelulusan." />
-        <div className={styles.searchCenter}>
+        <ScrollReveal>
+          <div className={styles.searchCenter}>
           <img
             src="/media/logos/logo_pik-r.png"
             alt="PIK-R MANSEKU"
@@ -95,6 +97,7 @@ export default function CekKelulusanPage() {
 
           {error && <p className={styles.errorMsg}>{error}</p>}
         </div>
+        </ScrollReveal>
       </div>
     );
   }

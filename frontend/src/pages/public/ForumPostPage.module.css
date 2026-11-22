@@ -208,7 +208,8 @@
 /* Actions panel */
 .actionPanel {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
   border-top: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
   padding: 12px 0;

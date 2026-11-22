@@ -221,20 +221,29 @@ export default function StoryViewerModal({
         {/* Content Area */}
         <div className={styles.contentArea}>
           {currentStory.mediaUrl ? (
-            <img
-              src={getUploadUrl(currentStory.mediaUrl)}
-              alt="Story"
-              className={styles.storyImage}
-            />
+            <>
+              {/* Blurred background — tone warna foto, seperti Instagram */}
+              <div
+                className={styles.storyBgBlur}
+                style={{ backgroundImage: `url(${getUploadUrl(currentStory.mediaUrl)})` }}
+              />
+              {/* Foto utama centered */}
+              <img
+                src={getUploadUrl(currentStory.mediaUrl)}
+                alt="Story"
+                className={styles.storyImageCentered}
+              />
+            </>
           ) : (
             <div
               className={styles.storyTextCard}
               style={{
                 background: currentStory.bgColor
-                  ? `linear-gradient(135deg, ${currentStory.bgColor}, #0F172A)`
+                  ? currentStory.bgGradient
+                    ? `linear-gradient(135deg, ${currentStory.bgColor}, ${currentStory.bgGradient})`
+                    : currentStory.bgColor
                   : 'linear-gradient(135deg, #EA580C, #9333EA)'
-              }}
-            >
+              }}            >
               <div className={styles.storyTextContent}>
                 {currentStory.caption}
               </div>

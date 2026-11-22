@@ -34,5 +34,11 @@ Daftar_ID_Card_*.xlsx
 # Foto yang diunggah anggota (ikut cadangan ZIP, bukan git)
 public/uploads/
 
+# Sesi percakapan curhat & file temporary
+.curhat_sessions/
+scratch/
+*.tmp
+*.bak
+
 # Foto pesan Ruang Cerita (terenkripsi, privat)
 private/

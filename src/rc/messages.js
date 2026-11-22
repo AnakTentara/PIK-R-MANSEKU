@@ -18,7 +18,7 @@ import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 import {
   handle, fail, requireViewer, findUserByUsername, shapeUser, PUBLIC_MEMBER, blockedIds,
-  cleanText, pushTo, hasHiddenWord, ensureProfile
+  cleanText, pushTo, hasHiddenWord, ensureProfile, notify
 } from './core.js';
 import { seal, open, sealBuffer, openBuffer } from './crypto.js';
 
@@ -283,6 +283,27 @@ export const send = handle(async (req) => {
   await enrich([msg]);
   const shaped = shapeMessage(msg, v.id);
   await broadcast(t, v.id, 'message', { threadId: t.id, message: { ...shaped, mine: false } });
+
+  // Kirim notifikasi in-app & push untuk DM 1-on-1 dan grup
+  if (!t.isGroup) {
+    const other = t.members.find((m) => m.memberId !== v.id);
+    if (other && other.status === 'ACCEPTED') {
+      await notify(other.memberId, v.id, 'MESSAGE', {
+        text: text ? text.slice(0, 80) : (url ? '📷 Foto' : null),
+        threadId: t.id,
+      }).catch(() => {}); // jangan gagalkan request jika notifikasi error
+    }
+  } else {
+    for (const m of t.members) {
+      if (m.memberId !== v.id && m.status === 'ACCEPTED') {
+        notify(m.memberId, v.id, 'MESSAGE', {
+          text: `${t.title || 'Grup'}: ${text ? text.slice(0, 60) : (url ? '📷 Foto' : 'Pesan baru')}`,
+          threadId: t.id,
+        }).catch(() => {});
+      }
+    }
+  }
+
   return { message: shaped };
 });
 
@@ -294,6 +315,10 @@ export async function sendSystemShare(fromId, toId, { kind, text, refId }) {
   await prisma.rcThread.update({ where: { id: t.id }, data: { lastMessageAt: msg.createdAt } });
   await enrich([msg]);
   pushTo(toId, 'message', { threadId: t.id, message: { ...shapeMessage(msg, toId), mine: false } });
+  notify(toId, fromId, 'MESSAGE', {
+    text: text ? text.slice(0, 80) : 'Membagikan konten kepadamu',
+    threadId: t.id
+  }).catch(() => {});
   return t;
 }
 

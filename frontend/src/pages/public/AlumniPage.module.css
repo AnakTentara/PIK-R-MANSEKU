@@ -1,186 +1,371 @@
+/* AlumniPage — Modern Redesign */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .header {
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  padding: 100px 0 40px 0;
+  background: linear-gradient(180deg, rgba(249, 115, 22, 0.05) 0%, var(--color-bg) 100%);
+  padding: 80px 0 32px 0;
   text-align: center;
   border-bottom: 1px solid var(--color-border);
 }
 
-.title {
-  font-family: var(--font-display);
-  font-size: 2.25rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-  margin-bottom: var(--space-xs);
-}
-
-.subtitle {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-md);
+.badgeRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-sm);
 }
 
 .countBadge {
-  display: inline-block;
-  background-color: var(--color-accent-subtle);
-  color: var(--color-accent);
-  padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--color-accent-subtle, rgba(249, 115, 22, 0.1));
+  color: var(--color-accent, #ea580c);
+  padding: 5px 14px;
   border-radius: 9999px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.825rem;
+  font-weight: 700;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 /* Content */
 .contentSection {
   background-color: var(--color-bg);
+  padding-top: var(--space-xl);
+  padding-bottom: var(--space-3xl);
+  animation: fadeInUp 0.35s ease both;
 }
 
-.filterRow {
+/* Controls Bar */
+.controlsBar {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-md);
   margin-bottom: var(--space-xl);
-  border-bottom: 1px solid var(--color-border-strong);
-  padding-bottom: var(--space-md);
 }
 
-.filterLabel {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 480px;
+  width: 100%;
 }
 
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 36px 10px 40px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-xs);
+}
+
+.searchInput:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-subtle);
+}
+
+.clearBtn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 4px;
+}
+.clearBtn:hover {
+  color: var(--color-text-primary);
+}
+
+/* Year Filter Pills */
 .filterBtns {
   display: flex;
-  gap: var(--space-sm);
+  gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .filterBtn {
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 9999px;
   border: 1px solid var(--color-border-strong);
   background-color: var(--color-surface);
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.825rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-xs);
 }
 
 .filterBtn:hover {
   border-color: var(--color-accent);
   color: var(--color-accent);
+  transform: translateY(-1px);
 }
 
 .filterBtn.active {
   background-color: var(--color-accent);
   border-color: var(--color-accent);
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.25);
 }
 
+/* Cards Grid */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: var(--space-md);
 }
 
-.gridSkeleton {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-md);
-}
-
+/* Alumni Card */
 .card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg, 14px);
+  padding: 18px;
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  text-align: left;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 16px;
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+
+.cardLink {
+  cursor: pointer;
 }
 
 .card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.cardInti {
+  background: linear-gradient(135deg, var(--color-surface) 0%, rgba(254, 243, 199, 0.25) 100%);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.cardInti:hover {
+  border-color: #f59e0b;
+}
+
+/* Avatar Wrap */
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background-color: var(--color-accent-subtle);
+  object-fit: cover;
+  border: 2px solid var(--color-border-strong);
+  box-shadow: var(--shadow-xs);
+}
+
+.avatarPlaceholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-accent-subtle) 0%, rgba(249, 115, 22, 0.15) 100%);
   color: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 1.15rem;
+  border: 2px solid rgba(249, 115, 22, 0.2);
 }
 
-.initials {
-  font-size: 1.2rem;
-  font-weight: 700;
+.intiStar {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  border: 2px solid var(--color-surface);
 }
 
-.info h4 {
+/* Info */
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alumniName {
   font-family: var(--font-display);
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-text-primary);
-  margin: 0 0 2px 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.info p {
-  font-size: 0.8rem;
+.linkIcon {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  flex-shrink: 0;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.card:hover .linkIcon {
+  opacity: 1;
+  color: var(--color-accent);
+  transform: translateX(1px);
+}
+
+.classText {
+  font-size: 0.78rem;
   color: var(--color-text-secondary);
-  margin: 0 0 4px 0;
+  margin: 0 0 4px;
+}
+
+.classText strong {
+  color: var(--color-text-primary);
+}
+
+/* Badges */
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.intiBadge {
+  display: inline-block;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #fde68a;
+  white-space: nowrap;
 }
 
 .yearBadge {
   display: inline-block;
-  font-size: 0.75rem;
-  color: var(--color-accent);
-  background-color: var(--color-accent-subtle);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.intiBadge {
-  display: block;
-  width: fit-content;
-  max-width: 100%;
-  margin-bottom: 6px;
+  background-color: var(--color-surface-2, #f1f5f9);
+  color: var(--color-text-secondary);
   font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: #fff;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
-  padding: 3px 8px;
+  font-weight: 600;
+  padding: 2px 8px;
   border-radius: 6px;
+  border: 1px solid var(--color-border-strong);
+  white-space: nowrap;
 }
 
-.cardInti {
-  border-color: var(--color-accent-border);
-  box-shadow: 0 0 0 1px var(--color-accent-border), var(--shadow-sm);
+/* Skeleton & Empty */
+.cardSkeleton {
+  pointer-events: none;
+}
+
+.skelAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skelContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.skelLine {
+  height: 14px;
+  border-radius: 4px;
 }
 
 .empty {
   text-align: center;
-  padding: var(--space-3xl) var(--space-md);
-  color: var(--color-text-secondary);
+  padding: 64px 20px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
-@media (max-width: 768px) {
-  .filterRow {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-xs);
+.emptyIcon {
+  color: var(--color-border-strong);
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 60px 0 24px 0;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .controlsBar {
+    gap: var(--space-sm);
+  }
+  .searchBox {
+    max-width: 100%;
   }
 }

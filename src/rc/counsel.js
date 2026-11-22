@@ -14,6 +14,8 @@ import crypto from 'crypto';
 import prisma from '../config/db.js';
 import { handle, fail, requireViewer, shapeUser, PUBLIC_MEMBER, cleanText, pushTo, notify } from './core.js';
 import { seal, open } from './crypto.js';
+import { callGemini } from './aiRotator.js';
+import { SYSTEM_INSTRUCTION, getOrCreateLimit, DAILY_LIMIT } from './aiCounsel.js';
 
 export const TOPICS = {
   PERTEMANAN: 'Pertemanan',
@@ -65,6 +67,7 @@ function shapeSession(s, viewerId) {
     status: s.status,
     urgent: s.urgent,
     anonymous: s.anonymous,
+    aiActive: s.aiActive !== false,
     rating: s.rating,
     // Konselor melihat nama samaran bila anonim; siswa selalu melihat dirinya sendiri
     student: asStudent ? { self: true } : (s.anonymous ? { alias: s.alias } : { ...shapeUser(s.student), alias: s.alias }),
@@ -121,21 +124,44 @@ export const open_ = handle(async (req) => {
       anonymous: req.body?.anonymous !== false,
       topic,
       urgent,
+      aiActive: true,
       messages: {
         create: [
-          { fromRole: 'STUDENT', senderId: v.id, text: seal(text) },
-          { fromRole: 'SYSTEM', text: seal(urgent
-            ? 'Terima kasih sudah berani bercerita. Kamu tidak sendirian. Konselor akan segera membalas. Bila kamu merasa tidak aman sekarang, hubungi layanan bantuan di atas atau temui guru BK.'
-            : 'Terima kasih sudah bercerita. Pesanmu sudah masuk antrean dan akan dibalas konselor sebaya yang bertugas.') }
+          { fromRole: 'STUDENT', senderId: v.id, text: seal(text) }
         ]
       }
     },
     include: sessionInclude
   });
+
+  // SISTEM HYBRID: Sahabat AI merespons duluan
+  const lim = await getOrCreateLimit(v.id);
+  if (lim.usedToday >= DAILY_LIMIT) {
+    const limitReply = 'Mohon maaf ya! Limit mu sudah terpakai semua, akan aku alihkan kamu ke konselor ya! Mohon tunggu sebentar hingga konselor menjawab. 🧡';
+    await prisma.rcCounselMessage.create({
+      data: { sessionId: s.id, fromRole: 'AI', text: seal(limitReply) }
+    });
+    await prisma.rcCounselSession.update({ where: { id: s.id }, data: { aiActive: false } });
+  } else {
+    try {
+      const contents = [{ role: 'user', parts: [{ text }] }];
+      let aiReply = await callGemini(contents, SYSTEM_INSTRUCTION);
+      if (urgent) {
+        aiReply += `\n\n---\n💙 **Kamu tidak sendirian.** Hubungi SEJIWA di 119 (tekan 8) atau temui langsung guru BK / Pembina PIK-R-mu.`;
+      }
+      await prisma.rcCounselMessage.create({
+        data: { sessionId: s.id, fromRole: 'AI', text: seal(aiReply) }
+      });
+      await prisma.rcAiLimit.update({ where: { memberId: v.id }, data: { usedToday: { increment: 1 } } });
+    } catch (err) {
+      console.error('[Counsel Hybrid] Galat AI open_:', err.message);
+    }
+  }
+
   // Beri tahu konselor bertugas (tanpa isi pesan & tanpa identitas)
   for (const c of await onDuty()) {
-    pushTo(c.memberId, 'counsel', { type: 'NEW', urgent });
-    await notify(c.memberId, null, 'COUNSEL', { text: urgent ? 'Sesi MENDESAK menunggu di antrean' : 'Sesi baru menunggu di antrean' });
+    pushTo(c.memberId, 'counsel', { type: 'NEW', urgent, sessionId: s.id });
+    await notify(c.memberId, null, 'COUNSEL', { text: urgent ? 'Sesi MENDESAK menunggu di antrean' : 'Sesi konseling baru dibuka (didampingi AI)' });
   }
   return { session: shapeSession(s, v.id), helplines: urgent ? HELPLINES : undefined };
 });
@@ -145,8 +171,13 @@ async function sessionFor(viewerId, id) {
   if (!s) fail(404, 'Sesi tidak ditemukan.');
   const asStudent = s.studentId === viewerId;
   const asCounselor = s.counselorId === viewerId;
-  // Konselor lain boleh melihat ringkasan sesi MENUNGGU (untuk mengambil), tapi tidak isinya
-  if (!asStudent && !asCounselor) fail(404, 'Sesi tidak ditemukan.');
+  // Konselor lain TIDAK BISA membuka sesi yang sudah di-claim oleh konselor 1
+  if (!asStudent && !asCounselor) {
+    if (s.counselorId && s.counselorId !== viewerId) {
+      fail(403, 'Sesi ini sudah diambil dan ditangani oleh konselor lain.');
+    }
+    fail(404, 'Sesi tidak ditemukan.');
+  }
   return s;
 }
 
@@ -178,9 +209,85 @@ export const send = handle(async (req) => {
   const m = await prisma.rcCounselMessage.create({ data: { sessionId: s.id, fromRole: asStudent ? 'STUDENT' : 'COUNSELOR', senderId: v.id, text: seal(text) } });
   await prisma.rcCounselSession.update({ where: { id: s.id }, data: { lastAt: m.createdAt, ...(urgentNow ? { urgent: true } : {}) } });
   const other = asStudent ? s.counselorId : s.studentId;
-  if (other) pushTo(other, 'counsel', { type: 'MESSAGE', sessionId: s.id });
+  if (other) {
+    pushTo(other, 'counsel', { type: 'MESSAGE', sessionId: s.id });
+    if (!asStudent) {
+      await notify(s.studentId, null, 'COUNSEL', { text: 'Konselor sebaya membalas ceritamu.' });
+    } else {
+      await notify(s.counselorId, null, 'COUNSEL', { text: `Pesan baru dari siswa (${s.alias})` });
+    }
+  }
   if (urgentNow) for (const c of await onDuty()) pushTo(c.memberId, 'counsel', { type: 'URGENT', sessionId: s.id });
-  return { message: { id: m.id, fromRole: m.fromRole, mine: true, text, createdAt: m.createdAt }, helplines: urgentNow ? HELPLINES : undefined };
+
+  let aiMessage = null;
+
+  // SISTEM HYBRID: Jika pesan dari siswa dan AI masih aktif
+  if (asStudent && s.aiActive) {
+    const lim = await getOrCreateLimit(v.id);
+    if (lim.usedToday >= DAILY_LIMIT) {
+      // Limit habis: beritahu siswa dan alihkan ke konselor
+      const limitReply = 'Mohon maaf ya! Limit mu sudah terpakai semua, akan aku alihkan kamu ke konselor ya! Mohon tunggu sebentar hingga konselor menjawab. 🧡';
+      const aiMsg = await prisma.rcCounselMessage.create({
+        data: { sessionId: s.id, fromRole: 'AI', text: seal(limitReply) }
+      });
+      await prisma.rcCounselSession.update({
+        where: { id: s.id },
+        data: { aiActive: false, lastAt: aiMsg.createdAt }
+      });
+      for (const c of await onDuty()) {
+        pushTo(c.memberId, 'counsel', { type: 'LIMIT_FALLBACK', sessionId: s.id });
+        await notify(c.memberId, null, 'COUNSEL', { text: 'Sesi konseling dialihkan ke konselor (kuota AI siswa habis).' });
+      }
+      aiMessage = { id: aiMsg.id, fromRole: 'AI', mine: false, text: limitReply, createdAt: aiMsg.createdAt };
+    } else {
+      // Limit masih ada: AI menjawab otomatis
+      try {
+        const historyMsgs = await prisma.rcCounselMessage.findMany({
+          where: { sessionId: s.id },
+          orderBy: { createdAt: 'asc' },
+          take: 20
+        });
+
+        const contents = historyMsgs
+          .filter((h) => h.fromRole === 'STUDENT' || h.fromRole === 'AI' || h.fromRole === 'COUNSELOR')
+          .map((h) => ({
+            role: h.fromRole === 'STUDENT' ? 'user' : 'model',
+            parts: [{ text: open(h.text) }]
+          }));
+
+        let aiReply = await callGemini(contents, SYSTEM_INSTRUCTION);
+        if (urgentNow || isUrgent(text)) {
+          aiReply += `\n\n---\n💙 **Kamu tidak sendirian.** Hubungi SEJIWA di 119 (tekan 8) atau temui langsung guru BK / Pembina PIK-R-mu.`;
+        }
+
+        const aiMsg = await prisma.rcCounselMessage.create({
+          data: { sessionId: s.id, fromRole: 'AI', text: seal(aiReply) }
+        });
+
+        await prisma.rcAiLimit.update({
+          where: { memberId: v.id },
+          data: { usedToday: { increment: 1 } }
+        });
+
+        await prisma.rcCounselSession.update({
+          where: { id: s.id },
+          data: { lastAt: aiMsg.createdAt }
+        });
+
+        if (s.counselorId) pushTo(s.counselorId, 'counsel', { type: 'MESSAGE', sessionId: s.id });
+
+        aiMessage = { id: aiMsg.id, fromRole: 'AI', mine: false, text: aiReply, createdAt: aiMsg.createdAt };
+      } catch (err) {
+        console.error('[Counsel Hybrid] Galat panggil AI:', err.message);
+      }
+    }
+  }
+
+  return {
+    message: { id: m.id, fromRole: m.fromRole, mine: true, text, createdAt: m.createdAt },
+    aiReply: aiMessage,
+    helplines: urgentNow ? HELPLINES : undefined
+  };
 });
 
 /** Konselor mengambil sesi dari antrean. */
@@ -194,6 +301,7 @@ export const claim = handle(async (req) => {
   if (!r.count) fail(409, 'Sesi ini sudah diambil konselor lain.');
   await prisma.rcCounselMessage.create({ data: { sessionId: s.id, fromRole: 'SYSTEM', text: seal('Konselor sebaya sudah bergabung. Silakan lanjutkan ceritamu.') } });
   pushTo(s.studentId, 'counsel', { type: 'CLAIMED', sessionId: s.id });
+  await notify(s.studentId, null, 'COUNSEL', { text: 'Konselor sebaya telah bergabung ke sesimu.' });
   return { ok: true };
 });
 
@@ -205,7 +313,10 @@ export const close = handle(async (req) => {
   await prisma.rcCounselSession.update({ where: { id: s.id }, data: { status: 'CLOSED', closedAt: new Date(), ...(rating ? { rating } : {}) } });
   await prisma.rcCounselMessage.create({ data: { sessionId: s.id, fromRole: 'SYSTEM', text: seal('Sesi diselesaikan. Terima kasih sudah bercerita — kamu boleh membuka sesi baru kapan saja.') } });
   const other = s.studentId === v.id ? s.counselorId : s.studentId;
-  if (other) pushTo(other, 'counsel', { type: 'CLOSED', sessionId: s.id });
+  if (other) {
+    pushTo(other, 'counsel', { type: 'CLOSED', sessionId: s.id });
+    await notify(other, null, 'COUNSEL', { text: 'Sesi konseling telah diselesaikan.' });
+  }
   return { ok: true };
 });
 
@@ -217,6 +328,104 @@ export const escalate = handle(async (req) => {
   await prisma.rcCounselSession.update({ where: { id: s.id }, data: { escalatedAt: new Date(), urgent: true } });
   await prisma.rcCounselMessage.create({ data: { sessionId: s.id, fromRole: 'SYSTEM', text: seal('Konselor meminta pendampingan pembina PIK-R / guru BK untuk membantumu lebih jauh.') } });
   return { ok: true };
+});
+
+/** Konselor mematikan atau menyalakan AI untuk mengambil alih sesi secara manual. */
+export const toggleAi = handle(async (req) => {
+  const v = await requireViewer(req);
+  const s = await prisma.rcCounselSession.findUnique({ where: { id: req.params.id } });
+  if (!s) fail(404, 'Sesi tidak ditemukan.');
+
+  const asCounselor = s.counselorId === v.id;
+  if (!asCounselor) {
+    fail(403, 'Hanya konselor yang menangani sesi ini yang dapat mengatur status AI.');
+  }
+
+  const aiActive = req.body?.aiActive === true;
+  await prisma.rcCounselSession.update({
+    where: { id: s.id },
+    data: { aiActive }
+  });
+
+  const noticeText = aiActive
+    ? 'Konselor telah mengaktifkan kembali Sahabat AI untuk mendampingi sesi ini.'
+    : 'Konselor telah mengambil alih percakapan. Sahabat AI dinonaktifkan.';
+
+  const sysMsg = await prisma.rcCounselMessage.create({
+    data: { sessionId: s.id, fromRole: 'SYSTEM', text: seal(noticeText) }
+  });
+
+  pushTo(s.studentId, 'counsel', { type: 'AI_TOGGLED', sessionId: s.id, aiActive });
+
+  return { ok: true, aiActive, message: { id: sysMsg.id, fromRole: 'SYSTEM', text: noticeText, createdAt: sysMsg.createdAt } };
+});
+
+/** Ringkasan konseling otomatis via AI untuk konselor penangan */
+export const summarize = handle(async (req) => {
+  const v = await requireViewer(req);
+  const s = await sessionFor(v.id, req.params.id);
+
+  const msgs = await prisma.rcCounselMessage.findMany({
+    where: { sessionId: s.id },
+    orderBy: { createdAt: 'asc' },
+    take: 30
+  });
+
+  if (msgs.length === 0) return { summary: 'Belum ada pesan dalam sesi ini.' };
+
+  const transcript = msgs
+    .map((m) => `${m.fromRole}: ${open(m.text)}`)
+    .join('\n');
+
+  const prompt = [
+    {
+      role: 'user',
+      parts: [
+        {
+          text: `Analisis transkrip konseling sebaya berikut dan buat ringkasan profesional untuk konselor penangan.
+Format WAJIB 3 baris:
+1. Masalah Utama: (ringkas padat)
+2. Emosi Terdeteksi: (mis. cemas, lelah, kecewa)
+3. Rekomendasi Awal: (poin bantuan konselor)
+
+Transkrip:
+${transcript}`
+        }
+      ]
+    }
+  ];
+
+  const summary = await callGemini(
+    prompt,
+    'Kamu adalah asisten analis konseling sebaya profesional. Tulis ringkasan sangat padat, lugas, tanpa basa-basi.'
+  );
+
+  return { summary };
+});
+
+/** Siswa meminta pengalihan langsung ke konselor manusia */
+export const requestHuman = handle(async (req) => {
+  const v = await requireViewer(req);
+  const s = await sessionFor(v.id, req.params.id);
+  if (s.studentId !== v.id) fail(403, 'Hanya siswa yang dapat meminta pengalihan konselor.');
+
+  await prisma.rcCounselSession.update({
+    where: { id: s.id },
+    data: { aiActive: false, lastAt: new Date() }
+  });
+
+  const noticeText = 'Siswa meminta pendampingan langsung dari konselor sebaya. Sahabat AI dinonaktifkan.';
+  const sysMsg = await prisma.rcCounselMessage.create({
+    data: { sessionId: s.id, fromRole: 'SYSTEM', text: seal(noticeText) }
+  });
+
+  // Beri tahu konselor
+  for (const c of await onDuty()) {
+    pushTo(c.memberId, 'counsel', { type: 'HUMAN_REQUESTED', sessionId: s.id });
+    await notify(c.memberId, null, 'COUNSEL', { text: 'Siswa meminta berbicara langsung dengan konselor sebaya' });
+  }
+
+  return { ok: true, aiActive: false, message: { id: sysMsg.id, fromRole: 'SYSTEM', text: noticeText, createdAt: sysMsg.createdAt } };
 });
 
 // ─── Admin dashboard ────────────────────────────────────────────────────────

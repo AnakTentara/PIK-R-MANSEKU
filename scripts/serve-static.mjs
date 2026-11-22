@@ -43,7 +43,8 @@ const MIME = {
   '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
   '.gif': 'image/gif', '.ico': 'image/x-icon', '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf',
   '.otf': 'font/otf', '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml', '.map': 'application/json',
-  '.wasm': 'application/wasm', '.mp3': 'audio/mpeg', '.pdf': 'application/pdf'
+  '.wasm': 'application/wasm', '.mp3': 'audio/mpeg', '.pdf': 'application/pdf',
+  '.apk': 'application/vnd.android.package-archive'
 };
 const COMPRESSIBLE = new Set(['.html', '.js', '.mjs', '.css', '.json', '.webmanifest', '.svg', '.txt', '.xml', '.map']);
 
@@ -106,6 +107,9 @@ function serveFile(req, res, file, stat) {
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     Vary: 'Accept-Encoding'
   };
+  if (ext === '.apk') {
+    headers['Content-Disposition'] = `attachment; filename="${path.basename(file)}"`;
+  }
   if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers); return res.end(); }
 
   const ae = String(req.headers['accept-encoding'] || '');
@@ -122,43 +126,183 @@ function serveFile(req, res, file, stat) {
 }
 
 // ─── Social Media Crawler Detection (WhatsApp, FB, Telegram, etc) ────────
-const CRAWLER_RE = /facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|SkypeUriPreview/i;
+const CRAWLER_RE = /facebookexternalhit|Facebot|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|SkypeUriPreview|Slackbot|Pinterest|Googlebot|bingbot/i;
 const escapeHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-async function serveCrawlerProfile(req, res, slug) {
+const CERITA_RESERVED = new Set([
+  'cari', 'jelajah', 'aktivitas', 'pesan', 'konseling', 'p', 'disimpan', 'arsip',
+  'pengaturan', 'profil', 'login', 'manifest.webmanifest', 'sw.js', 'robots.txt',
+  'sitemap.xml', 'assets', 'media', 'uploads', 'api', 'healthz', 'favicon.ico'
+]);
+
+function injectMetaTags(rawIndex, { title, description, image, url, type = 'website', siteName = 'PIK-R MANSEKU' }) {
+  let img = image || 'https://pikr-manseku.my.id/media/logos/L_PIK-R_Title.png';
+  if (img.startsWith('/')) {
+    img = `https://pikr-manseku.my.id${img}`;
+  }
+  
+  let desc = String(description || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&[a-z0-9#]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (desc.length > 200) desc = desc.slice(0, 197) + '...';
+  if (!desc) desc = 'Pusat Informasi & Konseling Remaja MAN 1 Muara Enim';
+
+  const cleanTitle = String(title || siteName).replace(/\s+/g, ' ').trim();
+  const fullTitle = cleanTitle.includes(siteName) ? cleanTitle : `${cleanTitle} — ${siteName}`;
+
+  const tags = `
+    <title>${escapeHtml(fullTitle)}</title>
+    <meta name="description" content="${escapeHtml(desc)}" />
+    <link rel="canonical" href="${escapeHtml(url)}" />
+
+    <!-- Open Graph / WhatsApp / Facebook / Telegram -->
+    <meta property="og:type" content="${escapeHtml(type)}" />
+    <meta property="og:site_name" content="${escapeHtml(siteName)}" />
+    <meta property="og:title" content="${escapeHtml(cleanTitle)}" />
+    <meta property="og:description" content="${escapeHtml(desc)}" />
+    <meta property="og:image" content="${escapeHtml(img)}" />
+    <meta property="og:image:secure_url" content="${escapeHtml(img)}" />
+    <meta property="og:image:alt" content="${escapeHtml(cleanTitle)}" />
+    <meta property="og:url" content="${escapeHtml(url)}" />
+    <meta property="og:locale" content="id_ID" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(cleanTitle)}" />
+    <meta name="twitter:description" content="${escapeHtml(desc)}" />
+    <meta name="twitter:image" content="${escapeHtml(img)}" />
+`;
+
+  // Strip existing <title>, <meta description>, <meta property="og:...">, <meta name="twitter:...">
+  let cleaned = rawIndex
+    .replace(/<title>[\s\S]*?<\/title>/gi, '')
+    .replace(/<meta\s+name=["'](description|title|twitter:[^"']+)["'][^>]*>/gi, '')
+    .replace(/<meta\s+property=["'](og:[^"']+)["'][^>]*>/gi, '');
+
+  return cleaned.replace(/<head>/i, `<head>${tags}`);
+}
+
+async function serveCrawlerBlog(req, res, slug, pathname) {
   try {
     const rawIndex = fs.readFileSync(INDEX, 'utf8');
-    const apiRes = await fetch(`${API.origin}/api/public/profile/${encodeURIComponent(slug)}`);
-    if (!apiRes.ok) {
+    let post = null;
+
+    // 1. Coba ambil dari Forum / Blog posts
+    try {
+      const resForum = await fetch(`${API.origin}/api/forum/posts/${encodeURIComponent(slug)}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (resForum.ok) {
+        const json = await resForum.json();
+        post = json.post || json;
+      }
+    } catch { /* abaikan */ }
+
+    // 2. Fallback ambil dari Berita posts
+    if (!post || !post.title) {
+      try {
+        const resNews = await fetch(`${API.origin}/api/blog/posts/${encodeURIComponent(slug)}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (resNews.ok) {
+          post = await resNews.json();
+        }
+      } catch { /* abaikan */ }
+    }
+
+    if (!post || !post.title) {
       return send(res, 200, rawIndex, 'text/html; charset=utf-8');
     }
-    const data = await apiRes.json();
-    const name = data.name || slug;
-    const title = `${name} (@${slug}) — PIK-R MANSEKU`;
-    const desc = data.bio || `${name}, ${data.jabatan || 'Anggota'} PIK-R MAN 1 Muara Enim, kelas ${data.className || ''}.`;
-    const photo = data.photoPath ? (data.photoPath.startsWith('http') ? data.photoPath : `https://pikr-manseku.my.id${data.photoPath}`) : 'https://pikr-manseku.my.id/media/logos/L_PIK-R_Title.png';
-    const profileUrl = `https://pikr-manseku.my.id/@${slug}`;
 
-    const tags = `
-  <title>${escapeHtml(title)}</title>
-  <meta name="description" content="${escapeHtml(desc)}" />
-  <meta property="og:type" content="profile" />
-  <meta property="og:title" content="${escapeHtml(title)}" />
-  <meta property="og:description" content="${escapeHtml(desc)}" />
-  <meta property="og:image" content="${escapeHtml(photo)}" />
-  <meta property="og:url" content="${escapeHtml(profileUrl)}" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="${escapeHtml(title)}" />
-  <meta name="twitter:description" content="${escapeHtml(desc)}" />
-  <meta name="twitter:image" content="${escapeHtml(photo)}" />
-`;
-    const injected = rawIndex.replace(/<title>[\s\S]*?<\/title>/i, tags);
+    let featuredImg = post.featuredImg || null;
+    if (!featuredImg && post.content) {
+      const match = post.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+      if (match && match[1]) {
+        featuredImg = match[1];
+      }
+    }
+    if (!featuredImg) {
+      featuredImg = 'https://pikr-manseku.my.id/media/logos/L_PIK-R_Title.png';
+    } else if (featuredImg.startsWith('/')) {
+      featuredImg = `https://pikr-manseku.my.id${featuredImg}`;
+    }
+
+    const title = post.title;
+    const desc = post.content || 'Berita dan informasi kegiatan Pusat Informasi dan Konseling Remaja MAN 1 Muara Enim.';
+    const canonicalUrl = `https://pikr-manseku.my.id${pathname}`;
+
+    const injected = injectMetaTags(rawIndex, {
+      title,
+      description: desc,
+      image: featuredImg,
+      url: canonicalUrl,
+      type: 'article',
+      siteName: 'PIK-R MANSEKU'
+    });
+
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'no-cache, no-store, must-revalidate'
     });
     return res.end(injected);
-  } catch {
+  } catch (err) {
+    console.error('[serve] error serveCrawlerBlog:', err.message);
+    return serveFile(req, res, INDEX, fs.statSync(INDEX));
+  }
+}
+
+async function serveCrawlerProfile(req, res, slug, fromCerita = false) {
+  try {
+    const rawIndex = fs.readFileSync(INDEX, 'utf8');
+    const apiRes = await fetch(`${API.origin}/api/public/profile/${encodeURIComponent(slug)}`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!apiRes.ok) {
+      return send(res, 200, rawIndex, 'text/html; charset=utf-8');
+    }
+    const data = await apiRes.json();
+    const name = data.name || slug;
+    const siteName = fromCerita ? 'Ruang Cerita · PIK-R MANSEKU' : 'PIK-R MANSEKU';
+    const title = `${name} (@${slug})`;
+
+    const descParts = [];
+    if (data.bio) descParts.push(data.bio);
+    if (data.jabatan) descParts.push(data.jabatan);
+    if (data.className) descParts.push(`Kelas ${data.className}`);
+    if (data.asalSekolah) descParts.push(data.asalSekolah);
+    descParts.push('PIK-R MAN 1 Muara Enim');
+    const desc = descParts.join(' • ');
+
+    let photo = data.photoPath;
+    if (photo && photo.startsWith('/')) {
+      photo = `https://pikr-manseku.my.id${photo}`;
+    } else if (!photo || !photo.startsWith('http')) {
+      photo = 'https://pikr-manseku.my.id/media/logos/logo_pik-r.png';
+    }
+
+    const canonicalUrl = fromCerita
+      ? `https://cerita.pikr-manseku.my.id/${slug}`
+      : `https://pikr-manseku.my.id/@${slug}`;
+
+    const injected = injectMetaTags(rawIndex, {
+      title,
+      description: desc,
+      image: photo,
+      url: canonicalUrl,
+      type: 'profile',
+      siteName
+    });
+
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store, must-revalidate'
+    });
+    return res.end(injected);
+  } catch (err) {
+    console.error('[serve] error serveCrawlerProfile:', err.message);
     return serveFile(req, res, INDEX, fs.statSync(INDEX));
   }
 }
@@ -179,11 +323,42 @@ function handle(req, res) {
   if (!stat?.isFile()) {
     // Aset yang hilang jangan dijawab HTML (bisa merusak cache); path halaman SPA kembali ke index.html
     if (MIME[path.extname(pathname).toLowerCase()]) return send(res, 404, 'Tidak ditemukan');
-    // Jika perayap WhatsApp/FB/Telegram meminta halaman /@slug, injeksikan preview OpenGraph profil anggota
-    if (pathname.startsWith('/@') && CRAWLER_RE.test(req.headers['user-agent'] || '')) {
-      const slug = pathname.slice(2).split('/')[0];
-      if (slug) return serveCrawlerProfile(req, res, slug);
+
+    // Jika perayap sosial media (WhatsApp, FB, Telegram, Twitter, Discord, dll)
+    if (CRAWLER_RE.test(req.headers['user-agent'] || '')) {
+      // 1. Blog atau Berita: /blog/:slug atau /berita/:slug
+      if (pathname.startsWith('/blog/')) {
+        const slug = pathname.slice(6).split('/')[0].split('?')[0];
+        if (slug) return serveCrawlerBlog(req, res, slug, pathname);
+      }
+      if (pathname.startsWith('/berita/')) {
+        const slug = pathname.slice(8).split('/')[0].split('?')[0];
+        if (slug) return serveCrawlerBlog(req, res, slug, pathname);
+      }
+
+      // 2. Profil pengguna: /@slug atau /ruang-cerita/@slug atau /ruang-cerita/:username
+      if (pathname.startsWith('/@')) {
+        const slug = pathname.slice(2).split('/')[0].split('?')[0];
+        if (slug) return serveCrawlerProfile(req, res, slug, false);
+      }
+      if (pathname.startsWith('/ruang-cerita/')) {
+        const sub = pathname.slice(14).replace(/^@/, '').split('/')[0].split('?')[0];
+        if (sub && !CERITA_RESERVED.has(sub.toLowerCase())) {
+          return serveCrawlerProfile(req, res, sub, true);
+        }
+      }
+
+      // 3. Khusus server Ruang Cerita (pikr-cerita): /:username atau /@:username
+      const isCerita = ROOT.toLowerCase().includes('cerita');
+      if (isCerita) {
+        const seg = pathname.replace(/^\/+/, '').split('/')[0].split('?')[0];
+        const userSlug = seg.replace(/^@/, '');
+        if (userSlug && !CERITA_RESERVED.has(userSlug.toLowerCase())) {
+          return serveCrawlerProfile(req, res, userSlug, true);
+        }
+      }
     }
+
     file = INDEX;
     stat = fs.statSync(INDEX);
   }

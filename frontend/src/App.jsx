@@ -1,11 +1,56 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
 import AlumniBanner from '@/components/common/AlumniBanner';
 import QuickLogin from '@/components/common/QuickLogin';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import { PageSkeleton } from '@/components/common/SkeletonLoading';
+
+function SmoothScroll() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const lenis = new Lenis({
+      duration: 1.35,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -7 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.2,
+      infinite: false,
+    });
+
+    window.lenis = lenis;
+
+    let rafId;
+    function raf(time) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+      window.lenis = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (window.lenis) {
+      window.lenis.scrollTo(0, { immediate: true });
+    }
+  }, [pathname]);
+
+  return null;
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -55,6 +100,9 @@ const ForumPage = lazy(() => import('@/pages/public/ForumPage'));
 const ForumWritePage = lazy(() => import('@/pages/public/ForumWritePage'));
 const ForumPostPage = lazy(() => import('@/pages/public/ForumPostPage'));
 const CustomPage = lazy(() => import('@/pages/public/CustomPage'));
+const PushDetailViewPage = lazy(() => import('@/pages/public/PushDetailViewPage'));
+const PushPertemuanPage = lazy(() => import('@/pages/public/PushPertemuanPage'));
+const DownloadPage = lazy(() => import('@/pages/public/DownloadPage'));
 const NotFoundPage = lazy(() => import('@/pages/public/NotFoundPage'));
 
 // Auth & Profil (Candidates)
@@ -76,6 +124,7 @@ const AdminBlogPage = lazy(() => import('@/pages/admin/AdminBlogPage'));
 const AdminBlogEditorPage = lazy(() => import('@/pages/admin/AdminBlogEditorPage'));
 const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage'));
 const AdminBotPage = lazy(() => import('@/pages/admin/AdminBotPage'));
+const AdminBotLevelingPage = lazy(() => import('@/pages/admin/AdminBotLevelingPage'));
 const AdminDesignPage = lazy(() => import('@/pages/admin/AdminDesignPage'));
 const AdminPageBuilderPage = lazy(() => import('@/pages/admin/AdminPageBuilderPage'));
 const AdminOrgPage = lazy(() => import('@/pages/admin/AdminOrgPage'));
@@ -84,6 +133,7 @@ const AdminFileManagerPage = lazy(() => import('@/pages/admin/AdminFileManagerPa
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'));
 const AdminAbsensiPage = lazy(() => import('@/pages/admin/AdminAbsensiPage'));
 const AdminReportsPage = lazy(() => import('@/pages/admin/AdminReportsPage'));
+const AdminNotifikasiPage = lazy(() => import('@/pages/admin/AdminNotifikasiPage'));
 import { useAuthStore } from '@/stores/authStore';
 
 // Admin Layout
@@ -122,6 +172,7 @@ function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ScrollToTop />
+      <SmoothScroll />
       <QuickLogin />
       <Routes>
         {/* ── Public Routes (with Navbar + Footer) ── */}
@@ -150,6 +201,13 @@ function App() {
           <Route path="/tentang" element={<Navigate to="/kami" replace />} />
           <Route path="/anggota" element={<AnggotaPublikPage />} />
           <Route path="/alumni" element={<AlumniPage />} />
+          {/* Pusat Unduhan Resmi Aplikasi */}
+          <Route path="/downloads" element={<DownloadPage />} />
+          <Route path="/download" element={<Navigate to="/downloads" replace />} />
+          <Route path="/downloads/*" element={<DownloadPage />} />
+          {/* Halaman khusus Notifikasi & Jadwal (di-hide dari navbar) */}
+          <Route path="/push/pertemuan" element={<PushPertemuanPage />} />
+          <Route path="/push/:id" element={<PushDetailViewPage />} />
           {/* Profil dari QR ID Card. React Router tidak mendukung prefix "@" di segmen, jadi dicek di halaman */}
           <Route path="/:handle" element={<MemberProfileGate />} />
           <Route
@@ -172,6 +230,14 @@ function App() {
           }
         >
           <Route index element={<AdminDashboardPage />} />
+          <Route 
+            path="notifikasi" 
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER', 'KABINET_UMUM', 'MEDINFO']}>
+                <AdminNotifikasiPage />
+              </RoleProtectedRoute>
+            } 
+          />
           <Route 
             path="pendaftaran" 
             element={
@@ -249,6 +315,14 @@ function App() {
             element={
               <RoleProtectedRoute allowedRoles={['DEVELOPER']}>
                 <AdminBotPage />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="settings/bot-leveling"
+            element={
+              <RoleProtectedRoute allowedRoles={['DEVELOPER']}>
+                <AdminBotLevelingPage />
               </RoleProtectedRoute>
             }
           />

@@ -12,6 +12,7 @@ import * as S from './stories.js';
 import * as M from './messages.js';
 import * as C from './counsel.js';
 import * as N from './notifications.js';
+import * as AI from './aiCounsel.js';
 
 const router = express.Router();
 
@@ -109,6 +110,18 @@ router.post('/counsel/:id/messages', C.send);
 router.post('/counsel/:id/claim', C.claim);
 router.post('/counsel/:id/close', C.close);
 router.post('/counsel/:id/escalate', C.escalate);
+router.post('/counsel/:id/toggle-ai', C.toggleAi);
+router.post('/counsel/:id/summary', C.summarize);
+router.post('/counsel/:id/request-human', C.requestHuman);
+
+// Sahabat AI (AI Konseling 24/7)
+router.get('/ai/limit', AI.getLimit);
+router.get('/ai/sessions', AI.listSessions);
+router.post('/ai/sessions', AI.createSession);
+router.get('/ai/sessions/:id', AI.getSession);
+router.post('/ai/sessions/:id/chat', AI.chat);
+router.post('/ai/sessions/:id/tone', AI.updateTone);
+router.delete('/ai/sessions/:id', AI.deleteSession);
 
 // Aktivitas & laporan
 router.get('/notifications', N.list);

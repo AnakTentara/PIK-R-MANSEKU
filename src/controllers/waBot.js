@@ -56,12 +56,13 @@ export async function photo(req, res) {
   }
 }
 
-// POST /api/admin/wa/test { to }
+// POST /api/admin/wa/test { to, message? }
 export async function test(req, res) {
   const to = String(req.body?.to || '').replace(/\D/g, '');
+  const message = typeof req.body?.message === 'string' ? req.body.message : '';
   if (to.length < 9) return res.status(400).json({ message: 'Nomor tujuan tidak valid.' });
   try {
-    await sendTestMessage(to);
+    await sendTestMessage(to, message);
     return res.json({ message: 'Pesan uji terkirim.' });
   } catch (err) {
     return fail(res, err, 'Gagal mengirim pesan uji');

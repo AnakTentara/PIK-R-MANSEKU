@@ -18,7 +18,8 @@ import {
   PanelLeftOpen,
   CalendarCheck,
   Palette,
-  ShieldAlert
+  ShieldAlert,
+  Bell
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -31,6 +32,7 @@ export default function AdminSidebar({ isOpen = false, onClose }) {
 
   const navItems = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
+    { to: '/admin/notifikasi', label: 'Notifikasi Massal', icon: Bell, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/pendaftaran', label: 'Pendaftaran', icon: ClipboardList, allowedRoles: ['DEVELOPER', 'KABINET_UMUM'] },
     { to: '/admin/pengumuman', label: 'Pengumuman Scheduled', icon: Megaphone, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },
     { to: '/admin/anggota', label: 'Anggota PIK-R', icon: Users, allowedRoles: ['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'] },

@@ -533,13 +533,38 @@
   gap: var(--space-md);
   text-align: left;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.memberCardLink {
+  cursor: pointer;
 }
 
 .memberCard:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-  border-color: var(--color-accent-subtle);
+  border-color: var(--color-accent);
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.linkIcon {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  flex-shrink: 0;
+  transition: opacity 0.15s, color 0.15s, transform 0.15s;
+}
+
+.memberCard:hover .linkIcon {
+  opacity: 1;
+  color: var(--color-accent);
+  transform: translateX(1px);
 }
 
 .memberAvatar {

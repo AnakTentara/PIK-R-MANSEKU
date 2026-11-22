@@ -22,6 +22,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { requireLogin } from '@/stores/quickLoginStore';
 import StoriesTray from '@/components/common/StoriesTray';
 import PhotoAvatar from '@/components/common/PhotoAvatar';
+import ScrollReveal from '@/components/common/ScrollReveal';
 import toast from 'react-hot-toast';
 import styles from './ForumPage.module.css';
 
@@ -169,86 +170,95 @@ export default function ForumPage() {
         <div className="container" style={{ maxWidth: '1040px' }}>
           
           {/* Header Section */}
-          <div className={styles.forumHeader}>
-            <div>
-              <span className={styles.kicker}>RUANG BERBAGI & DISKUSI</span>
-              <h1 className={styles.title}>Blog Komunitas Remaja</h1>
-              <p className={styles.subtitle}>Tulis ceritamu, bagikan tips edukasi, dan mulailah berdiskusi secara sehat bersama konselor PIK-R.</p>
+          <ScrollReveal>
+            <div className={styles.forumHeader}>
+              <div>
+                <span className={styles.kicker}>RUANG BERBAGI & DISKUSI</span>
+                <h1 className={styles.title}>Blog Komunitas Remaja</h1>
+                <p className={styles.subtitle}>Tulis ceritamu, bagikan tips edukasi, dan mulailah berdiskusi secara sehat bersama konselor PIK-R.</p>
+              </div>
+              
+              {isLogged && (
+                <Link to="/blog/tulis" className="btn btn-primary" style={{ gap: '8px' }}>
+                  <Edit2 size={16} />
+                  Buat Postingan Baru
+                </Link>
+              )}
             </div>
-            
-            {isLogged && (
-              <Link to="/blog/tulis" className="btn btn-primary" style={{ gap: '8px' }}>
-                <Edit2 size={16} />
-                Buat Postingan Baru
-              </Link>
-            )}
-          </div>
+          </ScrollReveal>
 
           {/* Ruang Cerita Highlight Promo */}
-          <div className={styles.ruangCeritaPromo}>
-            <div className={styles.promoText}>
-              <span className={styles.promoBadge}>🌟 SOSIAL MEDIA PIK-R</span>
-              <h4>Ingin berbagi momen, cuplikan 24 jam & curhat sebaya?</h4>
-              <p>Buka <strong>Ruang Cerita</strong> untuk melihat update stories sahabat, feed visual Instagram-style, dan bilik konseling.</p>
+          <ScrollReveal delay={50}>
+            <div className={styles.ruangCeritaPromo}>
+              <div className={styles.promoText}>
+                <span className={styles.promoBadge}>🌟 SOSIAL MEDIA PIK-R</span>
+                <h4>Ingin berbagi momen, cuplikan 24 jam & curhat sebaya?</h4>
+                <p>Buka <strong>Ruang Cerita</strong> untuk melihat update stories sahabat, feed visual Instagram-style, dan bilik konseling.</p>
+              </div>
+              <a
+                href="https://ruang-cerita.pikr-manseku.my.id"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.promoBtn}
+              >
+                Buka Ruang Cerita
+                <ArrowRight size={16} />
+              </a>
             </div>
-            <a
-              href="https://ruang-cerita.pikr-manseku.my.id"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.promoBtn}
-            >
-              Buka Ruang Cerita
-              <ArrowRight size={16} />
-            </a>
-          </div>
+          </ScrollReveal>
 
           {/* Navigation Category Tabs */}
-          <div className={styles.categoryScroller}>
-            <div className={styles.categoryTabs}>
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.value}
-                  onClick={() => handleCategoryChange(cat.value)}
-                  className={`${styles.categoryTab} ${activeCategory === cat.value ? styles.categoryTabActive : ''}`}
-                >
-                  {cat.value !== 'Semua' && (
-                    <span className={styles.dotIndicator} style={{ backgroundColor: cat.color }} />
-                  )}
-                  {cat.label}
-                </button>
-              ))}
+          <ScrollReveal delay={100}>
+            <div className={styles.categoryScroller}>
+              <div className={styles.categoryTabs}>
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.value}
+                    onClick={() => handleCategoryChange(cat.value)}
+                    className={`${styles.categoryTab} ${activeCategory === cat.value ? styles.categoryTabActive : ''}`}
+                  >
+                    {cat.value !== 'Semua' && (
+                      <span className={styles.dotIndicator} style={{ backgroundColor: cat.color }} />
+                    )}
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Search and Sort Toolbar */}
-          <div className={styles.toolbar}>
-            <form onSubmit={handleSearchSubmit} className={styles.searchBar}>
-              <SearchIcon size={16} className={styles.searchIcon} />
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Cari thread diskus atau artikel blog..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </form>
+          <ScrollReveal delay={150}>
+            <div className={styles.toolbar}>
+              <form onSubmit={handleSearchSubmit} className={styles.searchBar}>
+                <SearchIcon size={16} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  className={styles.searchInput}
+                  placeholder="Cari thread diskus atau artikel blog..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </form>
 
-            <div className={styles.sortSelector}>
-              <span className={styles.sortLabel}>Urutkan:</span>
-              <select
-                className={styles.sortSelect}
-                value={activeSort}
-                onChange={(e) => handleSortChange(e.target.value)}
-              >
-                <option value="newest">Terbaru</option>
-                <option value="popular">Terpopuler (Views)</option>
-                <option value="likes">Paling Disukai</option>
-                <option value="comments">Banyak Komentar</option>
-              </select>
+              <div className={styles.sortSelector}>
+                <span className={styles.sortLabel}>Urutkan:</span>
+                <select
+                  className={styles.sortSelect}
+                  value={activeSort}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                >
+                  <option value="newest">Terbaru</option>
+                  <option value="popular">Terpopuler (Views)</option>
+                  <option value="likes">Paling Disukai</option>
+                  <option value="comments">Banyak Komentar</option>
+                </select>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Content Listing */}
+          <ScrollReveal delay={200}>
           {loading ? (
             <div className={styles.threadsList}>
               {Array.from({ length: 4 }, (_, i) => (
@@ -415,6 +425,7 @@ export default function ForumPage() {
               )}
             </>
           )}
+          </ScrollReveal>
 
           {/* Floating Action Button for Mobile */}
           {isLogged && (

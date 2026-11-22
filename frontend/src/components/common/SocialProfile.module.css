@@ -27,6 +27,21 @@
 .bio { margin: 4px 0 0; white-space: pre-line; font-size: 0.92rem; line-height: 1.55; color: var(--color-text-primary); max-width: 60ch; }
 .followsYou { margin-top: 4px; padding: 2px 8px; border-radius: 6px; background: var(--color-surface-2); font-size: 0.74rem; font-weight: 600; color: var(--color-text-secondary); }
 
+/* Info card — inline di profil, bukan tab */
+.infoCard { background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.infoRow { display: flex; flex-direction: column; gap: 6px; margin: 0; }
+.infoFact { display: grid; grid-template-columns: 20px auto 1fr; align-items: center; gap: 8px; }
+.infoIcon { color: var(--color-accent); display: flex; align-items: center; justify-content: center; }
+.infoLabel { font-size: 0.8rem; color: var(--color-text-muted); white-space: nowrap; }
+.infoVal { font-size: 0.88rem; font-weight: 600; color: var(--color-text-primary); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.infoToggle { background: none; border: none; color: var(--color-accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; padding: 2px 0; text-align: left; }
+.infoToggle:hover { text-decoration: underline; }
+.infoGrid { display: flex; flex-direction: column; gap: 6px; padding-top: 6px; border-top: 1px solid var(--color-border-strong); }
+.infoGridItem { display: flex; gap: 10px; align-items: center; }
+.infoGridItem span { flex-shrink: 0; color: var(--color-accent); }
+.infoGridItem small { display: block; font-size: 0.72rem; color: var(--color-text-muted); }
+.infoGridItem b { font-size: 0.88rem; color: var(--color-text-primary); }
+
 /* Tombol */
 .actions { display: flex; gap: 8px; }
 .btn {
@@ -68,20 +83,15 @@
 .empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px 16px; text-align: center; color: var(--color-text-primary); }
 .emptyIcon { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--color-text-primary); }
 
-/* Tentang */
-.about { display: flex; flex-direction: column; gap: 14px; }
-.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
-.facts > div { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--color-surface); border: 1px solid var(--color-border-strong); }
-.facts span { grid-row: 1 / 3; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: var(--color-accent-subtle); color: var(--color-accent); }
-.facts dt { font-size: 0.74rem; color: var(--color-text-muted); }
-.facts dd { margin: 0; font-size: 0.92rem; font-weight: 600; color: var(--color-text-primary); }
-.mono { font-family: ui-monospace, Consolas, monospace; }
-.infoGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.infoGrid > div { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--color-surface); border: 1px solid var(--color-border-strong); }
-.infoGrid span { flex-shrink: 0; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: var(--color-surface-2); color: var(--color-accent); }
-.infoGrid small { display: block; font-size: 0.74rem; color: var(--color-text-muted); }
-.infoGrid b { font-size: 0.92rem; color: var(--color-text-primary); }
-.muted { margin: 0; color: var(--color-text-muted); font-size: 0.88rem; line-height: 1.5; }
+/* Disimpan tab */
+.savedSection { width: 100%; }
+.savedList { display: flex; flex-direction: column; gap: 2px; }
+.savedItem { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 10px; background: var(--color-surface); border: 1px solid var(--color-border-strong); text-decoration: none; color: var(--color-text-primary); transition: background-color 0.15s; margin-bottom: 2px; }
+.savedItem:hover { background: var(--color-surface-2); }
+.savedItemBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.savedItemCategory { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-accent); }
+.savedItemTitle { font-size: 0.95rem; font-weight: 600; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.savedItemIcon { flex-shrink: 0; color: var(--color-accent); }
 
 /* Menu */
 .menu { display: flex; flex-direction: column; }
@@ -111,6 +121,8 @@
 .people b { font-size: 0.9rem; color: var(--color-text-primary); }
 .people small { font-size: 0.8rem; color: var(--color-text-muted); }
 .personPhoto { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--color-surface-2); font-size: 1rem; }
+.mono { font-family: ui-monospace, Consolas, monospace; }
+.muted { margin: 0; color: var(--color-text-muted); font-size: 0.88rem; line-height: 1.5; }
 
 @media (max-width: 640px) {
   .profile { padding: 18px 14px 40px; gap: 14px; }
@@ -120,13 +132,13 @@
   .stats > div, .stats > button { flex-direction: column-reverse; align-items: center; gap: 0; }
   .stats dt { font-size: 0.8rem; }
   .stats dd { font-size: 1.05rem; }
-  .facts, .infoGrid { grid-template-columns: 1fr; }
   .tabs { gap: 0; }
   .tabs button { flex: 1; justify-content: center; }
   .grid { gap: 2px; }
   .tileText { padding: 10px; }
   .tileText b { font-size: 0.82rem; }
   .tileText small { display: none; }
+  .infoFact { grid-template-columns: 18px auto 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   .profile, .followed, .tile img { animation: none; transition: none; }

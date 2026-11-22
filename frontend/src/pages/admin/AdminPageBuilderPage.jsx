@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, Fragment } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragOverlay
@@ -9,7 +9,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import toast from 'react-hot-toast';
 import {
-  ArrowLeft, Save, Eye, Loader2, Trash2, GripVertical, Copy,
+  ArrowLeft, Save, Eye, Loader2, Trash2, GripVertical, Copy, Plus,
   Type, AlignLeft, ImageIcon, RectangleHorizontal, Minus, MoveVertical, Columns3, Code2,
   MousePointer, X, Upload
 } from 'lucide-react';
@@ -197,11 +197,13 @@ function SortableBlock({ block, selected, onSelect, onDelete, onDuplicate }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.25 : 1 };
 
+  const typeLabel = { heading: 'Heading', paragraph: 'Paragraf', image: 'Gambar', button: 'Tombol', divider: 'Garis', spacer: 'Spacer', columns: 'Kolom', html: 'HTML' };
   return (
     <div ref={setNodeRef} style={style}
       className={`${styles.block} ${selected ? styles.blockSelected : ''}`}
       onClick={(e) => { e.stopPropagation(); onSelect(block.id); }}
     >
+      <span className={styles.blockBadge}>{typeLabel[block.type] || block.type}</span>
       <span className={styles.dragHandle} {...attributes} {...listeners}><GripVertical size={14} /></span>
       {selected && (
         <div className={styles.blockToolbar} onClick={(e) => e.stopPropagation()}>
@@ -229,9 +231,48 @@ function AlignButtons({ value, onChange }) {
 }
 
 /* ═══════════════════════════════════════
+   InsertButton — sisipkan blok di posisi tertentu
+   ═══════════════════════════════════════ */
+function InsertButton({ index, onInsert }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [open]);
+
+  return (
+    <div className={styles.insertPoint} ref={ref}>
+      <div className={styles.insertLine} />
+      <button type="button" className={styles.insertBtn} onClick={() => setOpen(!open)} title="Sisipkan blok">
+        <Plus size={12} />
+      </button>
+      {open && (
+        <div className={styles.insertMenu}>
+          {BLOCK_TYPES.flatMap((g) => g.items).map((item) => {
+            const Icon = item.icon;
+            return (
+              <button key={item.type} type="button" className={styles.insertMenuItem}
+                onClick={() => { onInsert(item, index); setOpen(false); }}>
+                <Icon size={13} /> {item.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
    StyleEditor — right panel
    ═══════════════════════════════════════ */
 function StyleEditor({ block, onChange, onImageUpload }) {
+  const fileRef = useRef(null);
+
   if (!block) {
     return (
       <div className={styles.stylePanelEmpty}>
@@ -243,7 +284,6 @@ function StyleEditor({ block, onChange, onImageUpload }) {
 
   const p = block.props;
   const up = (key, val) => onChange({ ...block, props: { ...p, [key]: val } });
-  const fileRef = useRef(null);
 
   return (
     <>
@@ -523,6 +563,7 @@ export default function AdminPageBuilderPage() {
   const [blocks, setBlocks] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [activeId, setActiveId] = useState(null);
+  const [dirty, setDirty] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -557,6 +598,7 @@ export default function AdminPageBuilderPage() {
       if (!pages.find((p) => p.id === id)) pages.push(newPage);
       await saveSettings({ key: 'WEB_EDITOR_CONFIG', value: JSON.stringify({ ...cfg, customPages: pages }) });
       toast.success('Tersimpan');
+      setDirty(false);
     } catch { toast.error('Gagal menyimpan'); }
     finally { setSaving(false); }
   }, [id, page, blocks]);
@@ -577,19 +619,29 @@ export default function AdminPageBuilderPage() {
     }
   }, []);
 
-  const addBlock = useCallback((typeObj) => {
+  const addBlock = useCallback((typeObj, index) => {
     const newBlock = { id: uid(), type: typeObj.type, props: { ...typeObj.defaultProps } };
-    setBlocks((prev) => [...prev, newBlock]);
+    setBlocks((prev) => {
+      if (index != null && index >= 0 && index <= prev.length) {
+        const next = [...prev];
+        next.splice(index, 0, newBlock);
+        return next;
+      }
+      return [...prev, newBlock];
+    });
     setSelectedId(newBlock.id);
+    setDirty(true);
   }, []);
 
   const updateBlock = useCallback((updated) => {
     setBlocks((prev) => prev.map((b) => b.id === updated.id ? updated : b));
+    setDirty(true);
   }, []);
 
   const deleteBlock = useCallback((blockId) => {
     setBlocks((prev) => prev.filter((b) => b.id !== blockId));
     setSelectedId(null);
+    setDirty(true);
   }, []);
 
   const duplicateBlock = useCallback((blockId) => {
@@ -601,6 +653,7 @@ export default function AdminPageBuilderPage() {
       next.splice(idx + 1, 0, clone);
       return next;
     });
+    setDirty(true);
   }, []);
 
   const handleDragEnd = ({ active, over }) => {
@@ -611,8 +664,32 @@ export default function AdminPageBuilderPage() {
         const newIndex = items.findIndex((i) => i.id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
+      setDirty(true);
     }
   };
+
+  /* Keyboard: Ctrl+S simpan, Delete hapus blok, Esc deselect/tutup preview */
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); handleSave(); return; }
+      if (e.key === 'Escape') { setSelectedId(null); setPreviewing(false); return; }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId
+        && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)
+        && !document.activeElement?.isContentEditable) {
+        e.preventDefault(); deleteBlock(selectedId);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [handleSave, selectedId, deleteBlock]);
+
+  /* Peringatan saat menutup tab dengan perubahan belum disimpan */
+  useEffect(() => {
+    if (!dirty) return;
+    const h = (e) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', h);
+    return () => window.removeEventListener('beforeunload', h);
+  }, [dirty]);
 
   const selectedBlock = blocks.find((b) => b.id === selectedId) || null;
   const dragBlock = blocks.find((b) => b.id === activeId);
@@ -635,8 +712,8 @@ export default function AdminPageBuilderPage() {
           <button className="btn btn-ghost btn-sm" onClick={() => setPreviewing(true)} style={{ gap: 5, fontSize: '0.78rem' }}>
             <Eye size={14} /> Pratinjau
           </button>
-          <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving} style={{ gap: 5, fontSize: '0.78rem' }}>
-            {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />} Simpan
+          <button className={`btn btn-sm ${dirty ? 'btn-primary' : 'btn-ghost'}`} onClick={handleSave} disabled={saving} style={{ gap: 5, fontSize: '0.78rem' }} title="Ctrl+S">
+            {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />} {dirty ? 'Simpan*' : 'Tersimpan'}
           </button>
         </div>
       </div>
@@ -668,13 +745,23 @@ export default function AdminPageBuilderPage() {
               <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                 {blocks.length === 0 ? (
                   <div className={styles.canvasEmpty}>
-                    <Type size={28} />
-                    <span>Klik elemen di kiri untuk menambahkan</span>
+                    <Type size={32} style={{ opacity: 0.15 }} />
+                    <span style={{ fontWeight: 500 }}>Halaman masih kosong</span>
+                    <span style={{ fontSize: '0.76rem', color: '#c0c0c0' }}>Klik elemen di panel kiri, atau tekan + di bawah</span>
+                    <InsertButton index={0} onInsert={addBlock} />
                   </div>
-                ) : blocks.map((block) => (
-                  <SortableBlock key={block.id} block={block} selected={selectedId === block.id}
-                    onSelect={setSelectedId} onDelete={deleteBlock} onDuplicate={duplicateBlock} />
-                ))}
+                ) : (
+                  <>
+                    <InsertButton index={0} onInsert={addBlock} />
+                    {blocks.map((block, i) => (
+                      <Fragment key={block.id}>
+                        <SortableBlock block={block} selected={selectedId === block.id}
+                          onSelect={setSelectedId} onDelete={deleteBlock} onDuplicate={duplicateBlock} />
+                        <InsertButton index={i + 1} onInsert={addBlock} />
+                      </Fragment>
+                    ))}
+                  </>
+                )}
               </SortableContext>
               <DragOverlay>
                 {dragBlock && (
@@ -697,21 +784,21 @@ export default function AdminPageBuilderPage() {
             <div className={styles.metaSection}>
               <div className={styles.metaField}>
                 <label>Judul</label>
-                <input value={page.title} onChange={(e) => setPage((prev) => ({ ...prev, title: e.target.value, slug: prev.slug || slugify(e.target.value) }))} />
+                <input value={page.title} onChange={(e) => { const t = e.target.value; setPage((prev) => ({ ...prev, title: t, slug: prev.slug === slugify(prev.title) ? slugify(t) : prev.slug })); setDirty(true); }} />
               </div>
               <div className={styles.metaField}>
                 <label>Slug</label>
-                <input className={styles.metaSlug} value={page.slug} onChange={(e) => setPage((prev) => ({ ...prev, slug: slugify(e.target.value) }))} />
+                <input className={styles.metaSlug} value={page.slug} onChange={(e) => { setPage((prev) => ({ ...prev, slug: slugify(e.target.value) })); setDirty(true); }} />
                 <small style={{ fontSize: '0.65rem', color: '#d1d5db' }}>/p/{page.slug || '...'}</small>
               </div>
               <div className={styles.metaField}>
                 <label>Deskripsi</label>
-                <textarea rows={2} value={page.description} onChange={(e) => setPage((prev) => ({ ...prev, description: e.target.value }))} placeholder="Deskripsi SEO..." />
+                <textarea rows={2} value={page.description} onChange={(e) => { setPage((prev) => ({ ...prev, description: e.target.value })); setDirty(true); }} placeholder="Deskripsi SEO..." />
               </div>
             </div>
           )}
 
-          {!selectedBlock && <NavbarPositionEditor page={page} onChange={setPage} />}
+          {!selectedBlock && <NavbarPositionEditor page={page} onChange={(p) => { setPage(p); setDirty(true); }} />}
 
           <StyleEditor block={selectedBlock} onChange={updateBlock} onImageUpload={handleImageUpload} />
         </div>

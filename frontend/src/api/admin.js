@@ -253,12 +253,16 @@ export const updateWaPhoto = (file) => {
   fd.append('photo', file);
   return api.post('/admin/wa/photo', fd, { timeout: 60000 });
 };
-export const sendWaTest = (to) => api.post('/admin/wa/test', { to }, { timeout: 60000 });
+export const sendWaTest = (to, message = '') => api.post('/admin/wa/test', { to, message }, { timeout: 60000 });
 /** Alamat SSE untuk status + log langsung (EventSource tidak bisa mengirim header, token lewat query). */
 export const waStreamUrl = (after = 0) =>
   `/api/admin/wa/stream?token=${encodeURIComponent(localStorage.getItem('admin_token') || '')}&after=${after}`;
 export const getWaPolicy = () => api.get('/admin/wa/policy');
 export const saveWaPolicy = (policy) => api.put('/admin/wa/policy', policy);
+
+// Bot Leveling Settings
+export const getBotLeveling = () => api.get('/admin/settings/bot-leveling');
+export const saveBotLeveling = (config) => api.put('/admin/settings/bot-leveling', config);
 
 // Moderasi & Laporan Pengguna
 export const getAdminReports = (params) => api.get('/admin/reports', { params });

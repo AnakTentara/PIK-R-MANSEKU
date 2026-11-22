@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   ArrowLeft, Power, RotateCw, LogOut, QrCode, KeyRound, Send, Camera, Save, Terminal, Trash2,
-  BadgeCheck, Smartphone, Loader2, Copy, ShieldAlert, Pause, Play, MessageCircle
+  BadgeCheck, Smartphone, Loader2, Copy, ShieldAlert, Pause, Play, MessageCircle, TrendingUp, ChevronRight
 } from 'lucide-react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import BotPolicyCard from '@/components/admin/BotPolicyCard';
@@ -42,6 +42,7 @@ export default function AdminBotPage() {
   const [pairPhone, setPairPhone] = useState('');
   const [profile, setProfile] = useState({ name: '', about: '' });
   const [testTo, setTestTo] = useState('');
+  const [testMsg, setTestMsg] = useState('');
   const [follow, setFollow] = useState(true);
   const [filter, setFilter] = useState('all');
   const termRef = useRef(null);
@@ -140,7 +141,7 @@ export default function AdminBotPage() {
   };
   const sendTest = (e) => {
     e.preventDefault();
-    run('test', () => sendWaTest(testTo), 'Pesan uji terkirim, cek WhatsApp tujuan');
+    run('test', () => sendWaTest(testTo, testMsg), 'Pesan uji terkirim, cek WhatsApp tujuan');
   };
 
   const shownLogs = useMemo(() => (filter === 'all' ? logs : logs.filter((l) => (filter === 'error' ? l.level === 'error' || l.level === 'warn' : l.level === filter))), [logs, filter]);
@@ -286,13 +287,62 @@ export default function AdminBotPage() {
           {/* ── Uji kirim + perintah bot ── */}
           <section className={styles.card}>
             <h2 className={styles.cardTitle}><Send size={18} /> Uji Kirim</h2>
-            <form onSubmit={sendTest} className={styles.inline}>
-              <input className="form-input" inputMode="tel" placeholder="Nomor tujuan, mis. 0812…" value={testTo} onChange={(e) => setTestTo(e.target.value)} disabled={!connected} />
-              <button type="submit" className="btn btn-primary" disabled={!connected || !!busy || testTo.replace(/\D/g, '').length < 9}>
-                {busy === 'test' ? <Loader2 size={15} className={styles.spin} /> : <Send size={15} />} Kirim
-              </button>
+            <form onSubmit={sendTest} className={styles.form}>
+              <div className="form-group">
+                <label className="form-label" htmlFor="test-phone">Nomor Tujuan WhatsApp</label>
+                <input
+                  id="test-phone"
+                  className="form-input"
+                  inputMode="tel"
+                  placeholder="Nomor tujuan, mis. 0812 3456 7890"
+                  value={testTo}
+                  onChange={(e) => setTestTo(e.target.value)}
+                  disabled={!connected}
+                />
+              </div>
+
+              <div className="form-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <label className="form-label" htmlFor="test-msg" style={{ margin: 0 }}>Pesan Uji (Opsional)</label>
+                  {testMsg && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      style={{ padding: '2px 8px', fontSize: '0.72rem', height: 'auto' }}
+                      onClick={() => setTestMsg('')}
+                    >
+                      Kosongkan (Kirim Kartu Bawaan)
+                    </button>
+                  )}
+                </div>
+                <textarea
+                  id="test-msg"
+                  className="form-input"
+                  rows={3}
+                  placeholder="Ketik isi pesan uji custom di sini... (jika dikosongkan, bot akan mengirim kartu gambar status bot bawaan)"
+                  value={testMsg}
+                  onChange={(e) => setTestMsg(e.target.value)}
+                  disabled={!connected}
+                  style={{ resize: 'vertical' }}
+                />
+              </div>
+
+              <div className={styles.formActions} style={{ justifyContent: 'flex-end', marginTop: -4 }}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={!connected || !!busy || testTo.replace(/\D/g, '').length < 9}
+                >
+                  {busy === 'test' ? <Loader2 size={15} className={styles.spin} /> : <Send size={15} />}{' '}
+                  {testMsg.trim() ? 'Kirim Pesan Custom' : 'Kirim Kartu Uji'}
+                </button>
+              </div>
             </form>
-            <p className={styles.muted}>Mengirim kartu contoh bergambar ke nomor tujuan untuk memastikan bot benar-benar bisa mengirim.</p>
+            <p className={styles.muted}>
+              {testMsg.trim()
+                ? 'Pesan teks custom di atas akan dikirim langsung ke WhatsApp tujuan.'
+                : 'Mengirim kartu contoh bergambar ke nomor tujuan untuk memastikan bot benar-benar bisa mengirim.'}
+            </p>
             <h3 className={styles.subTitle}>Perintah yang dikenali bot</h3>
             <ul className={styles.cmds}>
               <li><code>/menu</code> daftar perintah (kartu)</li>
@@ -310,6 +360,16 @@ export default function AdminBotPage() {
         </div>
 
         <BotPolicyCard />
+
+        {/* ── Link ke Pengaturan Leveling ── */}
+        <Link to="/admin/settings/bot-leveling" className={styles.levelingCard}>
+          <span className={styles.levelingIcon}><TrendingUp size={20} /></span>
+          <span className={styles.levelingText}>
+            <b>Pengaturan Leveling XP</b>
+            <small>Atur sistem XP, ambang batas level, grup yang dilacak, dan notifikasi naik level</small>
+          </span>
+          <ChevronRight size={18} className={styles.levelingChevron} />
+        </Link>
 
         {/* ── Terminal debug ── */}
         <section className={`${styles.card} ${styles.termCard}`}>

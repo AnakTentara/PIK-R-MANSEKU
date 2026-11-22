@@ -222,6 +222,8 @@ model Member {
   rcNotifsActed    RcNotification[]   @relation("RcNotifActor")
   rcRestricts      RcRestrict[]       @relation("RcRestrictOwner")
   rcRestrictedBy   RcRestrict[]       @relation("RcRestrictTarget")
+  rcAiSessions     RcAiSession[]      @relation("RcAiSessionOwner")
+  rcAiLimit        RcAiLimit?         @relation("RcAiLimitOwner")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -685,6 +687,7 @@ model RcCounselSession {
   topic        String   @default("LAINNYA") // PERTEMANAN | KELUARGA | BELAJAR | PERASAAN | KESEHATAN_REPRODUKSI | PERUNDUNGAN | LAINNYA
   status       String   @default("WAITING") // WAITING | ACTIVE | CLOSED
   urgent       Boolean  @default(false)     // terdeteksi kata darurat
+  aiActive     Boolean  @default(true)      // Mode Hybrid: AI menjawab otomatis sebelum/selama konselor mengambil alih
   escalatedAt  DateTime?                    // diteruskan ke pembina/BK
   rating       Int?
   messages     RcCounselMessage[]
@@ -746,3 +749,99 @@ model RcRestrict {
 
   @@id([ownerId, targetId])
 }
+
+// ─── Sahabat AI (AI Konseling) ───────────────────────────────────────────────
+model RcAiSession {
+  id        String        @id @default(uuid())
+  memberId  String
+  member    Member        @relation("RcAiSessionOwner", fields: [memberId], references: [id], onDelete: Cascade)
+  title     String?       // Auto-generated from first user message (max 60 chars)
+  tone      String?       @default("listen") // listen | solve | comfort
+  messages  RcAiMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([memberId, updatedAt])
+}
+
+model RcAiMessage {
+  id        String      @id @default(uuid())
+  sessionId String
+  session   RcAiSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String      // "user" | "model"
+  content   String      // encrypted with seal()
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+model RcAiLimit {
+  memberId   String   @id
+  member     Member   @relation("RcAiLimitOwner", fields: [memberId], references: [id], onDelete: Cascade)
+  usedToday  Int      @default(0)
+  resetAt    DateTime // Next midnight WIB (UTC+7 = UTC+7h)
+}
+
+model UserXP {
+  id            String   @id @default(uuid())
+  phone         String   // nomor WA tanpa @s.whatsapp.net
+  groupJid      String   // JID grup (xxx@g.us) atau "dm" untuk japri
+  xp            Int      @default(0)
+  level         Int      @default(0)
+  messageCount  Int      @default(0)
+  lastActivity  DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([phone, groupJid])
+  @@index([groupJid, xp])
+}
+
+model GameScore {
+  id        String   @id @default(uuid())
+  phone     String   // nomor WA
+  name      String   // pushName saat bermain
+  gameType  String   // "trivia" | "singkatan" | "tebakkata" | "acak" | "sambung"
+  score     Int      @default(0)
+  groupJid  String?  // null = japri
+  playedAt  DateTime @default(now())
+
+  @@index([gameType, score])
+  @@index([phone, gameType])
+}
+
+// ─── Web Push Notifications ─────────────────────────────────────────────────
+model PushSubscription {
+  id         String   @id @default(uuid())
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  memberId   String?  // ID anggota jika login
+  role       String?  // GUEST | MEMBER | ADMIN
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([role])
+}
+
+model PushNotificationHistory {
+  id         String   @id @default(uuid())
+  code       String?  @unique  // Kode publik, e.g. 21-11-2026_1
+  title      String
+  body       String
+  icon       String?
+  image      String?  // Rich banner gambar besar
+  badge      String?  // Status bar monochrome badge
+  url        String?  // Target click URL
+  category   String?  // JADWAL | PENGUMUMAN | KELULUSAN | UMUM
+  actions    String?  // JSON string [{ action, title, url }]
+  sentCount  Int      @default(0)
+  failCount  Int      @default(0)
+  sentBy     String?  // Username pengirim admin
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
+

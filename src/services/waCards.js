@@ -184,3 +184,166 @@ export function renderTable({ title, subtitle, columns, rows = [], maxRows = 30,
 export function renderSvg(svg, width) {
   return render(svg, width);
 }
+
+/**
+ * Render 4:3 Landscape Card Rekapitulasi Presensi PIK-R MANSEKU untuk WhatsApp.
+ * W: 1200, H: 900
+ */
+export function renderRekapCard({ dateStr, sessionTitle, sessionType, totals, totalAnggota }) {
+  const W = 1200;
+  const H = 900;
+  const totalPresensi = totals.HADIR + totals.ALFA + totals.IZIN + totals.SAKIT;
+  const pct = totalPresensi > 0 ? Math.round((totals.HADIR / totalPresensi) * 100) : 0;
+
+  // Donut Arc calculation (Radius 105)
+  const circ = 2 * Math.PI * 105; // ~659.73
+  const dashOffset = circ * (1 - pct / 100);
+
+  // Logo base64
+  const logoPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'public', 'media', 'logos', 'logo_pik-r.png');
+  const logoBase64 = fs.existsSync(logoPath) ? `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}` : null;
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fbf8f5"/><stop offset="1" stop-color="#ede5dc"/>
+      </linearGradient>
+      <linearGradient id="hadirGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f0fdf4"/><stop offset="1" stop-color="#dcfce7"/>
+      </linearGradient>
+      <linearGradient id="izinGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fffbeb"/><stop offset="1" stop-color="#fef3c7"/>
+      </linearGradient>
+      <linearGradient id="sakitGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#eff6ff"/><stop offset="1" stop-color="#dbeafe"/>
+      </linearGradient>
+      <linearGradient id="alfaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fef2f2"/><stop offset="1" stop-color="#fee2e2"/>
+      </linearGradient>
+      <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${pct >= 75 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444'}"/>
+        <stop offset="1" stop-color="${pct >= 75 ? '#15803d' : pct >= 50 ? '#d97706' : '#dc2626'}"/>
+      </linearGradient>
+      <filter id="shClay" x="-5%" y="-5%" width="112%" height="116%">
+        <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#96785f" flood-opacity="0.18"/>
+      </filter>
+      <filter id="shMini" x="-5%" y="-5%" width="112%" height="116%">
+        <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#96785f" flood-opacity="0.15"/>
+      </filter>
+      <clipPath id="logoClip">
+        <circle cx="111" cy="108" r="41"/>
+      </clipPath>
+    </defs>
+
+    <!-- Background -->
+    <rect width="${W}" height="${H}" fill="url(#bgGrad)"/>
+    <circle cx="160" cy="140" r="300" fill="#f97316" fill-opacity="0.06"/>
+    <circle cx="1080" cy="780" r="320" fill="#2563eb" fill-opacity="0.05"/>
+
+    <!-- 1. Header Card -->
+    <rect x="45" y="40" width="1110" height="136" rx="26" fill="#fdfbf9" stroke="rgba(255,255,255,0.95)" stroke-width="2" filter="url(#shClay)"/>
+    
+    <!-- Logo -->
+    <circle cx="111" cy="108" r="44" fill="#ffffff" filter="url(#shMini)"/>
+    ${logoBase64 ? `<image href="${logoBase64}" x="70" y="67" width="82" height="82" clip-path="url(#logoClip)"/>` : `<text x="111" y="116" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="24" fill="#ea580c">PIK-R</text>`}
+
+    <!-- Header Text -->
+    <rect x="176" y="60" width="148" height="26" rx="13" fill="#ffe6d3" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+    <text x="250" y="77" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="12" fill="#b8430a">PIK-R MANSEKU</text>
+    <text x="176" y="118" font-family="Outfit" font-weight="800" font-size="26" fill="#2a1f17">${esc(fit(sessionTitle, 580, 26, true))}</text>
+    <text x="176" y="146" font-family="Inter" font-weight="600" font-size="16" fill="#62523f">🗓️ ${esc(dateStr)}</text>
+
+    <!-- Header Badge Kanan -->
+    <rect x="930" y="87" width="190" height="42" rx="21" fill="#ffffff" stroke="rgba(249,115,22,0.3)" stroke-width="1.5" filter="url(#shMini)"/>
+    <circle cx="952" cy="108" r="5" fill="#f97316"/>
+    <text x="965" y="113" font-family="Outfit" font-weight="700" font-size="13" fill="#b8430a">${esc(sessionType)}</text>
+
+    <!-- 2. KIRI ATAS: HADIR (Memanjang) -->
+    <rect x="45" y="198" width="705" height="245" rx="26" fill="url(#hadirGrad)" stroke="rgba(34,197,94,0.55)" stroke-width="2" filter="url(#shClay)"/>
+    <circle cx="103" cy="260" r="22" fill="#16a34a" filter="url(#shMini)"/>
+    <path d="M 95 260 L 101 266 L 112 254" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="140" y="267" font-family="Outfit" font-weight="800" font-size="20" fill="#15803d">HADIR</text>
+    <text x="81" y="323" font-family="Inter" font-weight="500" font-size="14" fill="#166534">Anggota hadir tepat waktu di kegiatan</text>
+    
+    <rect x="81" y="353" width="160" height="36" rx="12" fill="rgba(34,197,94,0.16)" stroke="rgba(34,197,94,0.35)" stroke-width="1.5"/>
+    <text x="161" y="375" text-anchor="middle" font-family="Outfit" font-weight="700" font-size="13" fill="#15803d">${pct}% dari total presensi</text>
+
+    <text x="595" y="343" text-anchor="end" font-family="Outfit" font-weight="900" font-size="84" fill="#15803d">${totals.HADIR}</text>
+    <text x="607" y="329" text-anchor="start" font-family="Inter" font-weight="700" font-size="20" fill="#166534">Orang</text>
+
+    <!-- 3. KIRI BAWAH: IZIN, SAKIT, ALFA (3 Berjejer) -->
+    <!-- IZIN -->
+    <rect x="45" y="465" width="223" height="273" rx="22" fill="url(#izinGrad)" stroke="rgba(245,158,11,0.5)" stroke-width="2" filter="url(#shMini)"/>
+    <circle cx="84" cy="510" r="17" fill="#d97706"/>
+    <rect x="75" y="504" width="18" height="13" fill="none" stroke="#ffffff" stroke-width="2.2" rx="2"/>
+    <path d="M 75 505 L 84 511 L 93 505" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="112" y="516" font-family="Outfit" font-weight="800" font-size="16" fill="#b45309">IZIN</text>
+    <text x="156.5" y="605" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="62" fill="#b45309">${totals.IZIN}</text>
+    <text x="156.5" y="633" text-anchor="middle" font-family="Inter" font-weight="700" font-size="15" fill="#b45309">Orang</text>
+    <text x="156.5" y="714" text-anchor="middle" font-family="Inter" font-weight="500" font-size="12" fill="#62523f">Izin resmi / surat</text>
+
+    <!-- SAKIT -->
+    <rect x="286" y="465" width="223" height="273" rx="22" fill="url(#sakitGrad)" stroke="rgba(59,130,246,0.5)" stroke-width="2" filter="url(#shMini)"/>
+    <circle cx="325" cy="510" r="17" fill="#2563eb"/>
+    <path d="M 317 510 L 333 510 M 325 502 L 325 518" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <text x="353" y="516" font-family="Outfit" font-weight="800" font-size="16" fill="#1d4ed8">SAKIT</text>
+    <text x="397.5" y="605" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="62" fill="#1d4ed8">${totals.SAKIT}</text>
+    <text x="397.5" y="633" text-anchor="middle" font-family="Inter" font-weight="700" font-size="15" fill="#1d4ed8">Orang</text>
+    <text x="397.5" y="714" text-anchor="middle" font-family="Inter" font-weight="500" font-size="12" fill="#62523f">Kondisi sakit</text>
+
+    <!-- ALFA -->
+    <rect x="527" y="465" width="223" height="273" rx="22" fill="url(#alfaGrad)" stroke="rgba(239,68,68,0.5)" stroke-width="2" filter="url(#shMini)"/>
+    <circle cx="566" cy="510" r="17" fill="#dc2626"/>
+    <path d="M 559 503 L 573 517 M 573 503 L 559 517" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <text x="594" y="516" font-family="Outfit" font-weight="800" font-size="16" fill="#b91c1c">ALFA</text>
+    <text x="638.5" y="605" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="62" fill="#b91c1c">${totals.ALFA}</text>
+    <text x="638.5" y="633" text-anchor="middle" font-family="Inter" font-weight="700" font-size="15" fill="#b91c1c">Orang</text>
+    <text x="638.5" y="714" text-anchor="middle" font-family="Inter" font-weight="500" font-size="12" fill="#62523f">${totals.ALFA > 0 ? 'Tanpa keterangan' : 'Nihil / Tertib'}</text>
+
+    <!-- 4. KANAN: PERSENTASE KEHADIRAN (DONUT CHART) -->
+    <rect x="770" y="198" width="385" height="540" rx="28" fill="#fcf9f6" stroke="rgba(255,255,255,0.95)" stroke-width="2" filter="url(#shClay)"/>
+    <text x="962.5" y="242" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="22" fill="#2a1f17">Persentase Kehadiran</text>
+    <text x="962.5" y="268" text-anchor="middle" font-family="Inter" font-weight="500" font-size="13" fill="#766759">Rasio kehadiran anggota presensi</text>
+
+    <!-- Donut Circle -->
+    <circle cx="962.5" cy="415" r="105" fill="none" stroke="#ebe4dc" stroke-width="26"/>
+    ${pct > 0 ? `<circle cx="962.5" cy="415" r="105" fill="none" stroke="url(#arcGrad)" stroke-width="26" stroke-linecap="round" stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${dashOffset.toFixed(2)}" transform="rotate(-90 962.5 415)"/>` : ''}
+    <circle cx="962.5" cy="415" r="76" fill="#ffffff" filter="url(#shMini)"/>
+    <text x="962.5" y="423" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="48" fill="#2a1f17">${pct}%</text>
+    <text x="962.5" y="445" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="13" fill="${pct >= 75 ? '#15803d' : pct >= 50 ? '#b45309' : '#b91c1c'}">TINGKAT KEHADIRAN</text>
+
+    <!-- Pill Ringkasan -->
+    <rect x="794" y="593" width="337" height="46" rx="16" fill="#f3eee8" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+    <text x="812" y="622" font-family="Inter" font-weight="600" font-size="13" fill="#766759">Total Peserta Terabsen</text>
+    <text x="1113" y="622" text-anchor="end" font-family="Outfit" font-weight="800" font-size="15" fill="#2a1f17">${totalPresensi} Orang</text>
+
+    <rect x="794" y="651" width="337" height="46" rx="16" fill="#f3eee8" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+    <text x="812" y="680" font-family="Inter" font-weight="600" font-size="13" fill="#766759">Total Anggota Terdaftar</text>
+    <text x="1113" y="680" text-anchor="end" font-family="Outfit" font-weight="800" font-size="15" fill="#2a1f17">${totalAnggota} Anggota</text>
+
+    <!-- 5. FOOTER CARD -->
+    <rect x="45" y="768" width="1110" height="92" rx="24" fill="#fcf9f6" stroke="rgba(255,255,255,0.95)" stroke-width="2" filter="url(#shClay)"/>
+    
+    <!-- Instagram -->
+    <rect x="75" y="803" width="22" height="22" rx="6" fill="none" stroke="#e1306c" stroke-width="2.4"/>
+    <circle cx="86" cy="814" r="5.5" fill="none" stroke="#e1306c" stroke-width="2.4"/>
+    <circle cx="92" cy="808" r="1.4" fill="#e1306c"/>
+    <text x="107" y="819" font-family="Outfit" font-weight="800" font-size="16" fill="#2a1f17">@pikrmanseku_official</text>
+
+    <!-- Motto -->
+    <text x="600" y="819" text-anchor="middle" font-family="Inter" font-style="italic" font-weight="600" font-size="15" fill="#766759">“Beriman, Bertanggung Jawab, Berencana”</text>
+
+    <!-- Website -->
+    <text x="1125" y="819" text-anchor="end" font-family="Outfit" font-weight="800" font-size="16" fill="#2563eb">pikr-manseku.my.id</text>
+    <circle cx="965" cy="814" r="10" fill="none" stroke="#2563eb" stroke-width="2.4"/>
+    <line x1="955" y1="814" x2="975" y2="814" stroke="#2563eb" stroke-width="2.4"/>
+    <ellipse cx="965" cy="814" rx="4.5" ry="9.8" fill="none" stroke="#2563eb" stroke-width="2.4"/>
+  </svg>`;
+
+  const r = new Resvg(svg, {
+    fitTo: { mode: 'width', value: W },
+    font: { fontFiles: FONT_FILES, loadSystemFonts: FONT_FILES.length === 0, defaultFontFamily: 'Inter' }
+  });
+  return r.render().asPng();
+}
+
