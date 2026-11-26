@@ -1,5 +1,6 @@
 import * as webpush from 'web-push';
 import prisma from '../config/db.js';
+import { emitAppBroadcast, emitAppMemberPush } from './nativePush.js';
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BI3Pe23MSXLRxl8ejgnNNG7xUSjMhjPFxmFr0JHjYxtNu4NW4ERjibyM5MXKqGVtKnozblTMS3vXndNQNhd2grw';
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'GqWNAb1zWIelBEUk4WS9V7zcrx4TVf5IFf_imNsY3fk';
@@ -94,6 +95,17 @@ export async function sendPush(sub, payload) {
  */
 export async function sendPushToMember(memberId, payload) {
   if (!memberId) return { sent: 0, failed: 0 };
+
+  // Teruskan juga ke jalur native Ruang Cerita APK (SSE + FCM bila aktif)
+  emitAppMemberPush(memberId, {
+    id: payload?.id || payload?.data?.id,
+    title: payload?.title,
+    body: payload?.body,
+    icon: payload?.icon,
+    url: payload?.data?.url || '/aktivitas',
+    category: 'RUANG_CERITA'
+  }).catch((err) => console.error('[NativePush] sendAppMemberPush error:', err.message));
+
   const subs = await prisma.pushSubscription.findMany({
     where: { memberId }
   });
@@ -184,15 +196,28 @@ export async function broadcastPushNotification(data, sentBy = 'Admin') {
     }
   });
 
-  // Ambil semua subscriber aktif
+  // Siarkan juga ke semua perangkat aplikasi Android/iOS Ruang Cerita (SSE + FCM)
+  const appResult = await emitAppBroadcast({
+    id: history.id,
+    code,
+    title,
+    body,
+    icon,
+    image,
+    url: finalUrl,
+    category,
+    actions,
+    createdAt: history.createdAt
+  }).catch((err) => {
+    console.error('[NativePush] Broadcast error:', err.message);
+    return { totalApps: 0, sseConnected: 0, fcmSent: 0 };
+  });
+
+  // Ambil semua subscriber Web Push aktif
   const subs = await prisma.pushSubscription.findMany();
-  console.log(`[WebPush] Memulai broadcast "${title}" (kode: ${code}) ke ${subs.length} perangkat.`);
+  console.log(`[WebPush] Memulai broadcast "${title}" (kode: ${code}) ke ${subs.length} browser & ${appResult.totalApps} APK.`);
 
-  if (!subs.length) {
-    return { ok: true, code, total: 0, sentCount: 0, failCount: 0, historyId: history.id };
-  }
-
-  // Kirim secara paralel dalam batch untuk stabilitas
+  // Kirim secara paralel dalam batch untuk stabilitas Web Push
   const BATCH_SIZE = 25;
   let sentCount = 0;
   let failCount = 0;
@@ -210,14 +235,28 @@ export async function broadcastPushNotification(data, sentBy = 'Admin') {
     });
   }
 
+  const totalDelivered = sentCount + (appResult.totalApps || 0);
+
   // Update statistik riwayat
   await prisma.pushNotificationHistory.update({
     where: { id: history.id },
-    data: { sentCount, failCount }
+    data: { sentCount: totalDelivered, failCount }
   });
 
-  console.log(`[WebPush] Broadcast ${code} selesai: ${sentCount} sukses, ${failCount} gagal.`);
-  return { ok: true, code, url: finalUrl, total: subs.length, sentCount, failCount, historyId: history.id };
+  console.log(`[WebPush] Broadcast ${code} selesai: ${sentCount} web + ${appResult.totalApps} apk sukses, ${failCount} gagal.`);
+  return {
+    ok: true,
+    code,
+    url: finalUrl,
+    total: subs.length + (appResult.totalApps || 0),
+    sentCount: totalDelivered,
+    webSentCount: sentCount,
+    appCount: appResult.totalApps || 0,
+    appSseOnline: appResult.sseConnected || 0,
+    appFcmSent: appResult.fcmSent || 0,
+    failCount,
+    historyId: history.id
+  };
 }
 
 /**

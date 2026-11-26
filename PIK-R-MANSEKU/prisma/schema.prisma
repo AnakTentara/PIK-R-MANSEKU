@@ -826,6 +826,24 @@ model PushSubscription {
   @@index([role])
 }
 
+// ─── Native Mobile App Devices (Ruang Cerita Android/iOS APK) ────────────────
+model AppDevice {
+  id           String   @id @default(uuid())
+  deviceId     String   @unique
+  platform     String   @default("android") // android | ios
+  appVersion   String?
+  deviceName   String?
+  fcmToken     String?
+  memberId     String?  // ID anggota jika login di Ruang Cerita
+  role         String   @default("APP_USER") // APP_USER | MEMBER | ADMIN
+  lastSeenAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([fcmToken])
+}
+
 model PushNotificationHistory {
   id         String   @id @default(uuid())
   code       String?  @unique  // Kode publik, e.g. 21-11-2026_1

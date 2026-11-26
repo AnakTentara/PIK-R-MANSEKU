@@ -32,6 +32,9 @@ export const sendPushBroadcast = (data) =>
 export const sendPushTest = (data) =>
   api.post('/push/admin/test', data);
 
+export const sendAppPushTest = (data) =>
+  api.post('/push/admin/test-app', data);
+
 export const uploadPushImage = (file) => {
   const fd = new FormData();
   fd.append('image', file);

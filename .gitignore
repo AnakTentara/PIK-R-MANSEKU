@@ -18,6 +18,9 @@ node_modules/
 !**/.env.example
 !**/.env.production.example
 config.json
+**/firebase-service-account*.json
+**/google-services.json
+**/GoogleService-Info.plist
 
 # ── WhatsApp Baileys Auth & Sesi Percakapan ──
 .baileys_auth/

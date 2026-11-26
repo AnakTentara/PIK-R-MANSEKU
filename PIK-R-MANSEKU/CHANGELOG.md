@@ -12,7 +12,12 @@ Rilis Aplikasi Android Mobile (Flutter Release APK), Pusat Unduhan `/downloads`,
 - **Package Name Resmi**: Diperbarui menjadi `org.pikrmanseku.app` (sebelumnya `id.my.manseku.pikr_app`).
 - **Ikon Launcher Resmi & Splash**: Integrasi logo resmi PIK-R beresolusi tinggi di seluruh level densitas Android mipmap (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`), round icon, serta centered splash screen (`launch_background.xml`).
 - **Izin Sistem Android Mandatori**: Integrasi `permission_handler` pada saat aplikasi dibuka untuk meminta izin Notifikasi (`POST_NOTIFICATIONS`), Kamera, Mikrofon, dan Akses Galeri/Media, serta delegasi izin otomatis ke komponen WebView (`setOnPlatformPermissionRequest`).
-- **Rilis APK Mandiri (`ruang-cerita.apk`)**: Dikompilasi menggunakan Flutter release mode (~19.4 MB) dan disajikan secara statis pada rute `https://pikr-manseku.my.id/downloads/ruang-cerita.apk` dengan MIME type resmi `application/vnd.android.package-archive` dan header auto-download (`Content-Disposition: attachment`).
+- **Rilis APK Mandiri (`ruang-cerita.apk`)**: Dikompilasi menggunakan Flutter release mode (~42.6 MB, Android 7.0+) dan disajikan secara statis pada rute `https://pikr-manseku.my.id/downloads/ruang-cerita.apk` dengan MIME type resmi `application/vnd.android.package-archive` dan header auto-download (`Content-Disposition: attachment`).
+- **Notifikasi Native Aplikasi Android (`flutter_local_notifications` + Hybrid Engine)**:
+  - Menambahkan model `AppDevice` dan layanan `nativePush.js` (`/api/push/app/register`, `/api/push/app/stream`, `/api/push/app/pending`, serta `POST /api/push/admin/test-app`) agar notifikasi muncul langsung atas nama & ikon **Ruang Cerita** (`org.pikrmanseku.app`), bukan Google Chrome.
+  - Aplikasi Android menggunakan aliran SSE realtime + sinkronisasi latar belakang `NotificationPollWorker` (Jetpack WorkManager) + kesiapan jalur **Firebase Cloud Messaging HTTP v1** otomatis saat `google-services.json` & Service Account dipasang.
+  - Web Push browser otomatis dinonaktifkan ketika web dibuka di dalam WebView APK Ruang Cerita (`PIKR-App`), sementara Chrome/browser web & Safari PWA tetap berjalan normal.
+  - Dashboard `/admin/notifikasi` kini menampilkan pecahan jumlah subscriber **APK Ruang Cerita vs Web Browser** serta tombol **Uji Coba APK**.
 - **Pusat Unduhan Resmi (`/downloads`)**: Halaman khusus unduhan aplikasi mobile dengan tata letak minimalis dan bersih (anti-AI slop), kartu unduhan Android APK, serta panduan pemasangan Web App di Safari iPhone/iOS.
 - **Accordion Panduan Eksklusif**: Membuka panduan instalasi salah satu platform (Android atau iOS) otomatis menutup panduan platform lainnya secara mutual-exclusive.
 

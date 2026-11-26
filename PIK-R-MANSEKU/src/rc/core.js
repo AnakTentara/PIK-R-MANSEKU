@@ -222,7 +222,8 @@ export async function notify(userId, actorId, type, extra = {}) {
     const dup = await prisma.rcNotification.findFirst({ where: { userId, actorId, type, postId: extra.postId }, select: { id: true } });
     if (dup) return;
   }
-  const n = await prisma.rcNotification.create({ data: { userId, actorId, type, ...extra } });
+  const { postId = null, commentId = null, text = null, threadId = null } = extra || {};
+  const n = await prisma.rcNotification.create({ data: { userId, actorId, type, postId, commentId, text } });
 
   let actor = null;
   if (actorId) {
@@ -233,10 +234,11 @@ export async function notify(userId, actorId, type, extra = {}) {
   pushTo(userId, 'notification', {
     id: n.id,
     type,
-    text: extra.text || null,
+    text,
     actor,
-    postId: extra.postId || null,
-    commentId: extra.commentId || null,
+    postId,
+    commentId,
+    threadId,
     createdAt: n.createdAt
   });
 
@@ -326,11 +328,13 @@ export async function notify(userId, actorId, type, extra = {}) {
     }
 
     sendPushToMember(userId, {
+      id: n.id,
       title: pushTitle,
       body: pushBody,
       icon: actor?.photo || '/media/logos/logo_pik-r.png',
       badge: '/media/logos/logo_pik-r.png',
       data: {
+        id: n.id,
         url: targetUrl,
         category: 'RUANG_CERITA',
         type

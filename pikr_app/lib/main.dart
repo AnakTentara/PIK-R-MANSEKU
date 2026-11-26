@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
+
+import 'core/notifications/notification_service.dart';
 
 const String webUrl = 'https://ruang-cerita.pikr-manseku.my.id/';
 
@@ -44,7 +47,7 @@ class RuangCeritaWebShell extends StatefulWidget {
   State<RuangCeritaWebShell> createState() => _RuangCeritaWebShellState();
 }
 
-class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
+class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> with WidgetsBindingObserver {
   late final WebViewController controller;
   bool loading = true;
   bool failed = false;
@@ -58,7 +61,7 @@ class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
   @override
   void initState() {
     super.initState();
-    _requestPermissions();
+    WidgetsBinding.instance.addObserver(this);
 
     final customUserAgent =
         'Mozilla/5.0 (Linux; Android 14; Mobile; PIKR-App/1.0; Platform/$platformName) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36';
@@ -69,9 +72,7 @@ class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
       ..setUserAgent(customUserAgent)
       ..addJavaScriptChannel(
         'PikrNativeBridge',
-        onMessageReceived: (JavaScriptMessage message) {
-          debugPrint('[PikrNativeBridge] Dari Web: ${message.message}');
-        },
+        onMessageReceived: _handleBridgeMessage,
       )
       ..setNavigationDelegate(NavigationDelegate(
         onPageStarted: (String url) {
@@ -82,7 +83,7 @@ class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
         },
         onPageFinished: (String url) {
           setState(() => loading = false);
-          // Injeksi variabel lingkungan agar web Ruang Cerita tahu bahwa dibuka di dalam aplikasi Flutter
+          // Injeksi variabel lingkungan agar web tahu dibuka di dalam aplikasi Ruang Cerita native
           controller.runJavaScript('''
             window.isPIKRApp = true;
             window.appPlatform = '$platformName';
@@ -92,6 +93,16 @@ class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
             try {
               localStorage.setItem('pikr_is_app', 'true');
               localStorage.setItem('pikr_app_platform', '$platformName');
+              var rcSess = localStorage.getItem('rc_token') || localStorage.getItem('rc_session') || localStorage.getItem('token') || localStorage.getItem('candidate_token');
+              if (rcSess && window.PikrNativeBridge) {
+                try {
+                  var parsed = JSON.parse(rcSess);
+                  var tok = typeof parsed === 'string' ? parsed : (parsed && parsed.state ? parsed.state.token : parsed.token);
+                  if (tok) window.PikrNativeBridge.postMessage(JSON.stringify({ type: 'AUTH_SYNC', token: tok }));
+                } catch (_) {
+                  window.PikrNativeBridge.postMessage(JSON.stringify({ type: 'AUTH_SYNC', token: rcSess }));
+                }
+              }
             } catch (e) {}
           ''');
         },
@@ -105,7 +116,7 @@ class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
         },
       ));
 
-    // Izinkan akses kamera, mic, & notifikasi otomatis di dalam WebView Android
+    // Izinkan akses kamera, mic, & media otomatis di dalam WebView Android
     if (controller.platform is AndroidWebViewController) {
       (controller.platform as AndroidWebViewController).setOnPlatformPermissionRequest(
         (PlatformWebViewPermissionRequest request) {
@@ -114,13 +125,66 @@ class _RuangCeritaWebShellState extends State<RuangCeritaWebShell> {
       );
     }
 
+    _bootstrapApp();
+  }
+
+  Future<void> _bootstrapApp() async {
+    await _requestPermissions();
+
+    final launchUrl = await PikrNotificationService.instance.init(
+      onNavigateUrl: (String targetUrl) {
+        _loadInWebView(targetUrl);
+      },
+    );
+
+    _loadInWebView(launchUrl ?? webUrl);
+  }
+
+  void _loadInWebView(String url) {
     controller.loadRequest(
-      Uri.parse(webUrl),
+      Uri.parse(url),
       headers: {
         'X-PIKR-App': '1',
         'X-PIKR-Platform': platformName,
       },
     );
+  }
+
+  void _handleBridgeMessage(JavaScriptMessage message) {
+    try {
+      final decoded = jsonDecode(message.message);
+      if (decoded is Map<String, dynamic>) {
+        final type = decoded['type']?.toString();
+        if (type == 'AUTH_SYNC') {
+          final token = decoded['token']?.toString();
+          PikrNotificationService.instance.updateAuthToken(token);
+        } else if (type == 'LOCAL_NOTIFY') {
+          PikrNotificationService.instance.showIncomingNotification(
+            id: decoded['id']?.toString() ?? 'bridge_${DateTime.now().millisecondsSinceEpoch}',
+            title: decoded['title']?.toString() ?? 'Ruang Cerita',
+            body: decoded['body']?.toString() ?? '',
+            targetUrl: decoded['url']?.toString() ?? '/',
+            category: decoded['category']?.toString() ?? 'RUANG_CERITA',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('[PikrNativeBridge] Pesan teks: ${message.message}');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      PikrNotificationService.instance.onAppResumed();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    PikrNotificationService.instance.dispose();
+    super.dispose();
   }
 
   Future<void> _requestPermissions() async {

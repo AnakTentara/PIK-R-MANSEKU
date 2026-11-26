@@ -32,6 +32,7 @@ dependencies:
   # Push & Permissions
   firebase_core: ^3.4.0
   firebase_messaging: ^15.1.4
+  flutter_local_notifications: ^18.0.1
   permission_handler: ^11.3.1
 
   # Media

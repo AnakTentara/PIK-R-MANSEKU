@@ -7,10 +7,11 @@ plugins {
 
 android {
     namespace = "org.pikrmanseku.app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -21,23 +22,32 @@ android {
 
     defaultConfig {
         applicationId = "org.pikrmanseku.app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 24
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Signing with the debug keys for now, so `flutter run --release` works cleanly.
             signingConfig = signingConfigs.debug
         }
     }
 }
 
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
+    implementation 'androidx.core:core-ktx:1.13.1'
+}
+
 flutter {
     source = "../.."
+}
+
+// Aktifkan Google Services (FCM) otomatis apabila google-services.json sudah dipasang
+if (file("google-services.json").exists()) {
+    apply plugin: "com.google.gms.google-services"
 }

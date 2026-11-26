@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Ikon monokrom Ruang Cerita (gelembung cerita & simbol hati remaja) untuk status bar Android -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M20,2H4C2.9,2 2,2.9 2,4V22L6,18H20C21.1,18 22,17.1 22,16V4C22,2.9 21.1,2 20,2ZM12,14.35L11.05,13.48C7.85,10.58 5.75,8.68 5.75,6.35C5.75,4.45 7.23,3 9.13,3C10.2,3 11.23,3.5 11.9,4.28C12.57,3.5 13.6,3 14.67,3C16.57,3 18.05,4.45 18.05,6.35C18.05,8.68 15.95,10.58 12.75,13.49L12,14.35Z" />
+</vector>

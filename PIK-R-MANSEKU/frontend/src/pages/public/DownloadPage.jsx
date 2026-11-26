@@ -70,9 +70,9 @@ export default function DownloadPage() {
             </p>
 
             <div className={styles.metaRow}>
-              <span className={styles.metaPill}>v1.0.0</span>
-              <span className={styles.metaPill}>Android 8.0+</span>
-              <span className={styles.metaPill}>~18 MB</span>
+              <span className={styles.metaPill}>v1.0.1</span>
+              <span className={styles.metaPill}>Android 7.0+</span>
+              <span className={styles.metaPill}>~43 MB</span>
             </div>
 
             <div className={styles.cardActions}>

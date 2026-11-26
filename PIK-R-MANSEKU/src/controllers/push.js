@@ -1,4 +1,6 @@
+import jwt from 'jsonwebtoken';
 import prisma from '../config/db.js';
+import { JWT_SECRET } from '../config/secret.js';
 import {
   getVapidPublicKey,
   savePushSubscription,
@@ -9,6 +11,15 @@ import {
   getMeetingSchedule,
   saveMeetingSchedule
 } from '../services/webPush.js';
+import {
+  appPushBus,
+  registerAppDevice,
+  emitAppTest,
+  getPendingAppNotifications,
+  trackSseClient,
+  getActiveSseCount,
+  isFcmConfigured
+} from '../services/nativePush.js';
 
 /**
  * GET /api/push/public-key
@@ -70,13 +81,18 @@ export async function unsubscribe(req, res) {
  */
 export async function getStats(req, res) {
   try {
-    const [subscriberCount, broadcastCount] = await Promise.all([
+    const [webPushCount, appDeviceCount, broadcastCount] = await Promise.all([
       prisma.pushSubscription.count(),
+      prisma.appDevice.count(),
       prisma.pushNotificationHistory.count()
     ]);
 
     return res.json({
-      subscriberCount,
+      subscriberCount: webPushCount + appDeviceCount,
+      webPushCount,
+      appDeviceCount,
+      activeAppOnline: getActiveSseCount(),
+      fcmConfigured: isFcmConfigured(),
       broadcastCount
     });
   } catch (err) {
@@ -240,6 +256,156 @@ export async function saveAdminPertemuan(req, res) {
   } catch (err) {
     console.error('Error in saveAdminPertemuan:', err);
     return res.status(500).json({ message: 'Gagal menyimpan jadwal pertemuan' });
+  }
+}
+
+// ─── Native Mobile App Push Endpoints (/api/push/app/*) ─────────────────────
+
+function extractOptionalMemberId(authHeader, queryToken) {
+  let rawToken = null;
+  if (authHeader && String(authHeader).startsWith('Bearer ')) {
+    rawToken = String(authHeader).slice(7).trim();
+  } else if (queryToken) {
+    rawToken = String(queryToken).trim();
+  }
+  if (!rawToken) return undefined;
+  try {
+    const d = jwt.verify(rawToken, JWT_SECRET);
+    if (d?.role === 'candidate' && d?.id) return d.id;
+  } catch { /* abaikan token invalid */ }
+  return undefined;
+}
+
+/**
+ * POST /api/push/app/register
+ * Mendaftarkan perangkat Android/iOS aplikasi Ruang Cerita.
+ */
+export async function registerApp(req, res) {
+  try {
+    const { deviceId, platform, appVersion, deviceName, fcmToken, clearMember } = req.body || {};
+    if (!deviceId) {
+      return res.status(400).json({ message: 'deviceId wajib diisi' });
+    }
+    const tokenMemberId = extractOptionalMemberId(req.headers['authorization'], null);
+    const memberId = clearMember ? null : tokenMemberId;
+
+    const saved = await registerAppDevice({
+      deviceId,
+      platform,
+      appVersion,
+      deviceName,
+      fcmToken,
+      memberId
+    });
+
+    return res.json({
+      ok: true,
+      deviceId: saved.deviceId,
+      memberId: saved.memberId,
+      fcmConfigured: isFcmConfigured()
+    });
+  } catch (err) {
+    console.error('Error registerApp:', err);
+    return res.status(500).json({ message: 'Gagal mendaftarkan perangkat aplikasi' });
+  }
+}
+
+/**
+ * GET /api/push/app/stream?deviceId=...&token=...
+ * Aliran SSE realtime untuk perangkat APK Ruang Cerita (broadcast & personal).
+ */
+export async function streamApp(req, res) {
+  const deviceId = req.query.deviceId ? String(req.query.deviceId).slice(0, 128) : `sse_${Date.now()}`;
+  let memberId = extractOptionalMemberId(req.headers['authorization'], req.query.token);
+
+  if (!memberId && req.query.deviceId) {
+    const dev = await prisma.appDevice.findUnique({
+      where: { deviceId: String(req.query.deviceId).slice(0, 128) },
+      select: { memberId: true }
+    }).catch(() => null);
+    if (dev?.memberId) memberId = dev.memberId;
+  }
+
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+
+  res.write(`event: hello\ndata: ${JSON.stringify({ ok: true, memberId: memberId || null, serverTime: new Date().toISOString() })}\n\n`);
+
+  trackSseClient(deviceId, true);
+
+  const onBroadcast = (payload) => {
+    res.write(`event: broadcast\ndata: ${JSON.stringify(payload)}\n\n`);
+  };
+  const onMember = (payload) => {
+    res.write(`event: rc\ndata: ${JSON.stringify(payload)}\n\n`);
+  };
+
+  appPushBus.on('broadcast', onBroadcast);
+  if (memberId) appPushBus.on(`m:${memberId}`, onMember);
+
+  const beat = setInterval(() => {
+    res.write(': ping\n\n');
+  }, 20000);
+
+  req.on('close', () => {
+    clearInterval(beat);
+    trackSseClient(deviceId, false);
+    appPushBus.off('broadcast', onBroadcast);
+    if (memberId) appPushBus.off(`m:${memberId}`, onMember);
+  });
+}
+
+/**
+ * GET /api/push/app/pending?deviceId=...&since=...
+ * Mengambil notifikasi terbaru yang terlewat (untuk Android WorkManager & app resume).
+ */
+export async function getPendingApp(req, res) {
+  try {
+    const result = await getPendingAppNotifications({
+      deviceId: req.query.deviceId || null,
+      since: req.query.since || null
+    });
+    return res.json(result);
+  } catch (err) {
+    console.error('Error getPendingApp:', err);
+    return res.status(500).json({ message: 'Gagal memeriksa pembaruan notifikasi' });
+  }
+}
+
+/**
+ * POST /api/push/admin/test-app
+ * Mengirim notifikasi uji coba langsung ke seluruh perangkat APK Ruang Cerita terdaftar.
+ */
+export async function sendTestApp(req, res) {
+  try {
+    const { notification } = req.body || {};
+    const result = await emitAppTest({
+      title: notification?.title || '🔔 Uji Coba Notifikasi Ruang Cerita',
+      body: notification?.body || 'Notifikasi berhasil dikirim langsung ke aplikasi Ruang Cerita Android!',
+      icon: notification?.icon || '/media/logos/logo_pik-r.png',
+      image: notification?.image || null,
+      url: notification?.url || '/',
+      actions: notification?.actions || []
+    });
+
+    if (result.totalApps === 0) {
+      return res.status(400).json({
+        message: 'Belum ada perangkat APK Ruang Cerita yang terdaftar. Install & buka APK Ruang Cerita terbaru di HP terlebih dahulu.'
+      });
+    }
+
+    return res.json({
+      ok: true,
+      message: `Notifikasi uji coba dikirim ke ${result.totalApps} perangkat Ruang Cerita (${result.sseConnected} aktif realtime).`,
+      result
+    });
+  } catch (err) {
+    console.error('Error sendTestApp:', err);
+    return res.status(500).json({ message: err.message || 'Gagal mengirim uji coba ke aplikasi' });
   }
 }
 

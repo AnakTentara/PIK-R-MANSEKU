@@ -25,6 +25,7 @@ import {
   deletePushHistory, 
   sendPushBroadcast, 
   sendPushTest,
+  sendAppPushTest,
   uploadPushImage,
   getAdminPertemuan,
   saveAdminPertemuan,
@@ -49,7 +50,7 @@ const CATEGORIES = [
 
 export default function AdminNotifikasiPage() {
   const [activeTab, setActiveTab] = useState('broadcast'); // 'broadcast' | 'pertemuan' | 'history'
-  const [stats, setStats] = useState({ subscriberCount: 0, broadcastCount: 0 });
+  const [stats, setStats] = useState({ subscriberCount: 0, webPushCount: 0, appDeviceCount: 0, activeAppOnline: 0, broadcastCount: 0 });
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -236,6 +237,27 @@ export default function AdminNotifikasiPage() {
     }
   };
 
+  // Uji Coba Langsung ke Aplikasi Ruang Cerita (Android/iOS APK)
+  const handleTestAppNotification = async () => {
+    const toastId = toast.loading('Mengirim uji coba ke aplikasi Ruang Cerita...');
+    try {
+      const res = await sendAppPushTest({
+        notification: {
+          title: formData.title || '🔔 Uji Coba Aplikasi Ruang Cerita',
+          body: formData.body || 'Notifikasi native dari aplikasi Ruang Cerita Android berhasil masuk!',
+          icon: formData.icon,
+          image: formData.image || null,
+          url: formData.url || '/',
+          actions: formData.actions
+        }
+      });
+      toast.success(res.data?.message || 'Uji coba terkirim ke aplikasi Ruang Cerita!', { id: toastId });
+      loadData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Gagal mengirim uji coba ke APK', { id: toastId });
+    }
+  };
+
   // Simpan Jadwal Pertemuan
   const handleSaveSchedule = async (e) => {
     e?.preventDefault();
@@ -298,7 +320,9 @@ export default function AdminNotifikasiPage() {
           </div>
           <div className={styles.statInfoWrap}>
             <div className={styles.statNumber}>{stats.subscriberCount}</div>
-            <div className={styles.statLabel}>Perangkat Terdaftar (Aktif)</div>
+            <div className={styles.statLabel}>
+              APK: {stats.appDeviceCount ?? 0} ({stats.activeAppOnline ?? 0} online) · Web: {stats.webPushCount ?? 0}
+            </div>
           </div>
         </div>
 
@@ -502,10 +526,19 @@ export default function AdminNotifikasiPage() {
               <button
                 type="button"
                 className={styles.testBtn}
-                onClick={handleTestNotification}
-                title="Kirim notifikasi ke browser Anda untuk melihat hasilnya langsung di layar"
+                onClick={handleTestAppNotification}
+                title="Kirim notifikasi uji coba langsung ke aplikasi Ruang Cerita Android"
               >
-                <Smartphone size={16} /> Uji Coba di Perangkat Ini
+                <Smartphone size={16} /> Uji Coba APK ({stats.appDeviceCount ?? 0})
+              </button>
+
+              <button
+                type="button"
+                className={styles.testBtn}
+                onClick={handleTestNotification}
+                title="Kirim notifikasi Web Push ke browser web yang sedang membuka halaman ini"
+              >
+                <Bell size={16} /> Uji Coba Browser Ini
               </button>
             </div>
           </div>

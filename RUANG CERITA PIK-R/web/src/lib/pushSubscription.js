@@ -16,6 +16,15 @@ function urlBase64ToUint8Array(base64String) {
 
 export async function initPushSubscription(token = null) {
   if (typeof window === 'undefined') return false;
+  // Di dalam WebView APK Ruang Cerita, gunakan saluran notifikasi native Android (bukan Chrome Web Push)
+  const isInsideNativeApp =
+    window.isPIKRApp === true ||
+    document.documentElement.getAttribute('data-in-app') === 'true' ||
+    /PIKR-App\//i.test(navigator.userAgent);
+  if (isInsideNativeApp) {
+    console.log('[WebPush] Berjalan di APK Ruang Cerita; menonaktifkan Web Push browser.');
+    return false;
+  }
   if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
     console.log('[WebPush] Browser tidak mendukung Web Push API.');
     return false;

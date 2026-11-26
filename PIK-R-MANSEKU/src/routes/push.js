@@ -8,10 +8,14 @@ import {
   deleteHistory,
   sendBroadcast,
   sendTest,
+  sendTestApp,
   getPublicNotification,
   getPublicPertemuan,
   getAdminPertemuan,
-  saveAdminPertemuan
+  saveAdminPertemuan,
+  registerApp,
+  streamApp,
+  getPendingApp
 } from '../controllers/push.js';
 import { authAdmin, requireRole } from '../middlewares/auth.js';
 import { uploadPhoto as upload } from '../utils/multerConfig.js';
@@ -25,6 +29,11 @@ router.post('/unsubscribe', unsubscribe);
 router.get('/public/pertemuan', getPublicPertemuan);
 router.get('/public/:id', getPublicNotification);
 
+// Native Mobile App endpoints (Ruang Cerita Android/iOS APK)
+router.post('/app/register', registerApp);
+router.get('/app/stream', streamApp);
+router.get('/app/pending', getPendingApp);
+
 // Admin endpoints (Notifikasi Massal oleh Pengurus)
 const adminAuth = [authAdmin, requireRole(['DEVELOPER', 'KABINET_UMUM', 'MEDINFO'])];
 
@@ -33,6 +42,7 @@ router.get('/admin/history', adminAuth, getHistory);
 router.delete('/admin/history/:id', adminAuth, deleteHistory);
 router.post('/admin/broadcast', adminAuth, sendBroadcast);
 router.post('/admin/test', adminAuth, sendTest);
+router.post('/admin/test-app', adminAuth, sendTestApp);
 router.get('/admin/pertemuan', adminAuth, getAdminPertemuan);
 router.put('/admin/pertemuan', adminAuth, saveAdminPertemuan);
 router.post('/admin/upload-image', adminAuth, upload.single('image'), (req, res) => {

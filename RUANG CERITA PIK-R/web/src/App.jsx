@@ -73,7 +73,18 @@ export default function App() {
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   useQuietHours(me?.settings);
 
-  // Minta izin notifikasi & daftarkan perangkat ke server secara otomatis
+  // Sinkronisasi sesi login & token ke aplikasi native Flutter (untuk notifikasi DM/aktivitas personal)
+  useEffect(() => {
+    try {
+      window.PikrNativeBridge?.postMessage?.(JSON.stringify({
+        type: 'AUTH_SYNC',
+        token: token || null,
+        memberId: me?.id || null
+      }));
+    } catch { /* abaikan di luar WebView */ }
+  }, [token, me?.id]);
+
+  // Minta izin notifikasi & daftarkan perangkat ke server secara otomatis (hanya di browser web/PWA)
   useEffect(() => {
     const timer = setTimeout(() => {
       initPushSubscription(token);
